@@ -1,569 +1,515 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Astral — Entre na lista de espera</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet" />
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Entre na lista de espera</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        :root {
-            --bg: #0A0A0F;
-            --surface: #13131A;
-            --border: #1E1E2E;
-            --purple: #7C5CFC;
-            --purple-lt: #A78BFA;
-            --gold: #F5C542;
-            --text: #E8E8F0;
-            --muted: #6B6B80;
-            --white: #FFFFFF;
-            --green: #34D399;
-        }
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --gold:      #F5C542;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+      --green:     #34D399;
+    }
 
-        html {
-            scroll-behavior: smooth;
-        }
+    html { scroll-behavior: smooth; }
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* ── NAV ── */
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.25rem 2rem;
-            border-bottom: 1px solid var(--border);
-        }
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
 
-        .logo {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: var(--white);
-            letter-spacing: -0.02em;
-            text-decoration: none;
-        }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+    .logo span { color: var(--purple); }
 
-        .logo span {
-            color: var(--purple);
-        }
+    .back-link {
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
 
-        .back-link {
-            color: var(--muted);
-            font-size: 0.88rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: color 0.2s;
-        }
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      position: relative;
+    }
 
-        .back-link:hover {
-            color: var(--text);
-        }
+    main::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(124,92,252,0.13) 0%, transparent 70%);
+      pointer-events: none;
+    }
 
-        /* ── MAIN ── */
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem 1.5rem;
-            position: relative;
-        }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      z-index: 1;
+    }
 
-        main::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 700px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(124, 92, 252, 0.13) 0%, transparent 70%);
-            pointer-events: none;
-        }
+    /* ── BADGE ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(124,92,252,0.12);
+      border: 1px solid rgba(124,92,252,0.3);
+      color: var(--purple-lt);
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
 
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 480px;
-            position: relative;
-            z-index: 1;
-        }
+    /* ── HEADING ── */
+    .card h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      color: var(--white);
+      margin-bottom: 0.75rem;
+    }
 
-        /* ── BADGE ── */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: rgba(124, 92, 252, 0.12);
-            border: 1px solid rgba(124, 92, 252, 0.3);
-            color: var(--purple-lt);
-            padding: 0.35rem 1rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-        }
+    .card h1 span { color: var(--purple-lt); }
 
-        /* ── HEADING ── */
-        .card h1 {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.8rem;
-            line-height: 1.15;
-            letter-spacing: -0.025em;
-            color: var(--white);
-            margin-bottom: 0.75rem;
-        }
+    .card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
 
-        .card h1 span {
-            color: var(--purple-lt);
-        }
+    /* ── FORM ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.1rem;
+    }
 
-        .card p {
-            color: var(--muted);
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
-        }
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
 
-        /* ── FORM ── */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1.1rem;
-        }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
 
-        label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text);
-        }
+    input::placeholder { color: var(--muted); }
 
-        input,
-        select {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.85rem 1rem;
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            outline: none;
-            appearance: none;
-        }
+    input:focus, select:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+    }
 
-        input::placeholder {
-            color: var(--muted);
-        }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B6B80' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      cursor: pointer;
+    }
 
-        input:focus,
-        select:focus {
-            border-color: var(--purple);
-            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
-        }
+    select option {
+      background: var(--surface);
+      color: var(--text);
+    }
 
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B6B80' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            cursor: pointer;
-        }
+    /* ── SUBMIT ── */
+    .btn-submit {
+      width: 100%;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+      margin-top: 0.5rem;
+    }
 
-        select option {
-            background: var(--surface);
-            color: var(--text);
-        }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124,92,252,0.35);
+    }
 
-        /* ── SUBMIT ── */
-        .btn-submit {
-            width: 100%;
-            background: var(--purple);
-            color: #fff;
-            border: none;
-            padding: 1rem;
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
-            margin-top: 0.5rem;
-        }
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
 
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 92, 252, 0.35);
-        }
+    /* ── SOCIAL PROOF ── */
+    .proof {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
 
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+    .avatars { display: flex; }
+    .avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--surface);
+      margin-left: -7px;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .avatar:first-child { margin-left: 0; }
+    .av1 { background: #7C5CFC; color: #fff; }
+    .av2 { background: #F5C542; color: #000; }
+    .av3 { background: #34D399; color: #000; }
+    .av4 { background: #F87171; color: #fff; }
 
-        /* ── SOCIAL PROOF ── */
-        .proof {
-            margin-top: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.82rem;
-            color: var(--muted);
-        }
+    /* ── SUCCESS STATE ── */
+    .success-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1rem 0;
+    }
 
-        .avatars {
-            display: flex;
-        }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(52,211,153,0.12);
+      border: 1px solid rgba(52,211,153,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
 
-        .avatar {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            border: 2px solid var(--surface);
-            margin-left: -7px;
-            font-size: 0.65rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
+    .success-state h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--white);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
 
-        .avatar:first-child {
-            margin-left: 0;
-        }
+    .success-state p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 340px;
+      margin-bottom: 1.75rem;
+    }
 
-        .av1 {
-            background: #7C5CFC;
-            color: #fff;
-        }
+    .success-name {
+      color: var(--green);
+      font-weight: 600;
+    }
 
-        .av2 {
-            background: #F5C542;
-            color: #000;
-        }
+    .share-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
 
-        .av3 {
-            background: #34D399;
-            color: #000;
-        }
+    .share-box p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
 
-        .av4 {
-            background: #F87171;
-            color: #fff;
-        }
+    .share-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-        /* ── SUCCESS STATE ── */
-        .success-state {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 1rem 0;
-        }
+    .share-link input {
+      font-size: 0.82rem;
+      padding: 0.6rem 0.8rem;
+      color: var(--purple-lt);
+      border-color: rgba(124,92,252,0.2);
+      cursor: text;
+    }
 
-        .success-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: rgba(52, 211, 153, 0.12);
-            border: 1px solid rgba(52, 211, 153, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
+    .copy-btn {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .copy-btn:hover { opacity: 0.85; }
 
-        .success-state h2 {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.6rem;
-            color: var(--white);
-            margin-bottom: 0.75rem;
-            letter-spacing: -0.02em;
-        }
+    .back-home {
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-decoration: none;
+      margin-top: 0.5rem;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+    .back-home:hover { color: var(--text); }
 
-        .success-state p {
-            color: var(--muted);
-            font-size: 0.95rem;
-            max-width: 340px;
-            margin-bottom: 1.75rem;
-        }
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
 
-        .success-name {
-            color: var(--green);
-            font-weight: 600;
-        }
+    /* ── LOADING SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
 
-        .share-box {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem 1.25rem;
-            width: 100%;
-            margin-bottom: 1rem;
-        }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-        .share-box p {
-            font-size: 0.82rem;
-            color: var(--muted);
-            margin-bottom: 0.6rem;
-        }
-
-        .share-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .share-link input {
-            font-size: 0.82rem;
-            padding: 0.6rem 0.8rem;
-            color: var(--purple-lt);
-            border-color: rgba(124, 92, 252, 0.2);
-            cursor: text;
-        }
-
-        .copy-btn {
-            background: var(--purple);
-            color: #fff;
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: opacity 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .copy-btn:hover {
-            opacity: 0.85;
-        }
-
-        .back-home {
-            color: var(--muted);
-            font-size: 0.88rem;
-            text-decoration: none;
-            margin-top: 0.5rem;
-            display: inline-block;
-            transition: color 0.2s;
-        }
-
-        .back-home:hover {
-            color: var(--text);
-        }
-
-        /* ── FOOTER ── */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 1.5rem;
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.82rem;
-        }
-
-        /* ── LOADING SPINNER ── */
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            vertical-align: middle;
-            margin-right: 0.4rem;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @media (max-width: 520px) {
-            .card {
-                padding: 1.75rem 1.25rem;
-                border-radius: 16px;
-            }
-
-            nav {
-                padding: 1rem;
-            }
-        }
-    </style>
+    @media (max-width: 520px) {
+      .card { padding: 1.75rem 1.25rem; border-radius: 16px; }
+      nav { padding: 1rem; }
+    }
+  </style>
 </head>
-
 <body>
 
-    <!-- NAV -->
-    <nav>
-        <a href="index.html" class="logo">Ast<span>r</span>al</a>
-        <a href="index.html" class="back-link">← Voltar ao início</a>
-    </nav>
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Ast<span>r</span>al</a>
+  <a href="index.html" class="back-link">← Voltar ao início</a>
+</nav>
 
-    <!-- MAIN -->
-    <main>
-        <div class="card">
+<!-- MAIN -->
+<main>
+  <div class="card">
 
-            <!-- FORM STATE -->
-            <div id="form-state">
-                <div class="badge">✦ Vagas limitadas no lançamento</div>
-                <h1>Entre na lista de espera <span>gratuita</span></h1>
-                <p>Seja um dos primeiros a usar o Astral e garanta acesso antecipado com desconto exclusivo no
-                    lançamento.</p>
+    <!-- FORM STATE -->
+    <div id="form-state">
+      <div class="badge">✦ Vagas limitadas no lançamento</div>
+      <h1>Entre na lista de espera <span>gratuita</span></h1>
+      <p>Seja um dos primeiros a usar o Astral e garanta acesso antecipado com desconto exclusivo no lançamento.</p>
 
-                <div class="form-group">
-                    <label for="nome">Seu nome</label>
-                    <input type="text" id="nome" placeholder="Como você se chama?" autocomplete="name" />
-                </div>
+      <div class="form-group">
+        <label for="nome">Seu nome</label>
+        <input type="text" id="nome" placeholder="Como você se chama?" autocomplete="name" />
+      </div>
 
-                <div class="form-group">
-                    <label for="email">Seu melhor e-mail</label>
-                    <input type="email" id="email" placeholder="voce@email.com" autocomplete="email" />
-                </div>
+      <div class="form-group">
+        <label for="email">Seu melhor e-mail</label>
+        <input type="email" id="email" placeholder="voce@email.com" autocomplete="email" />
+      </div>
 
-                <div class="form-group">
-                    <label for="concurso">Qual concurso você está estudando?</label>
-                    <select id="concurso">
-                        <option value="" disabled selected>Selecione uma opção</option>
-                        <option value="federal">Concurso Federal (INSS, Receita, PF, PRF...)</option>
-                        <option value="estadual">Concurso Estadual (PM, PC, TJ, MP...)</option>
-                        <option value="municipal">Concurso Municipal (Prefeitura, Câmara...)</option>
-                        <option value="banco">Banco (CEF, BB, BNDES...)</option>
-                        <option value="militar">Militar (Exército, Marinha, Aeronáutica...)</option>
-                        <option value="ainda-nao-sei">Ainda estou decidindo</option>
-                        <option value="outro">Outro</option>
-                    </select>
-                </div>
+      <div class="form-group">
+        <label for="concurso">Qual concurso você está estudando?</label>
+        <select id="concurso">
+          <option value="" disabled selected>Selecione uma opção</option>
+          <option value="federal">Concurso Federal (INSS, Receita, PF, PRF...)</option>
+          <option value="estadual">Concurso Estadual (PM, PC, TJ, MP...)</option>
+          <option value="municipal">Concurso Municipal (Prefeitura, Câmara...)</option>
+          <option value="banco">Banco (CEF, BB, BNDES...)</option>
+          <option value="militar">Militar (Exército, Marinha, Aeronáutica...)</option>
+          <option value="ainda-nao-sei">Ainda estou decidindo</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
 
-                <button class="btn-submit" id="btn-submit" onclick="handleSubmit()">
-                    Quero minha vaga →
-                </button>
+      <button class="btn-submit" id="btn-submit" onclick="handleSubmit()">
+        Quero minha vaga →
+      </button>
 
-                <div class="proof">
-                    <div class="avatars">
-                        <div class="avatar av1">M</div>
-                        <div class="avatar av2">J</div>
-                        <div class="avatar av3">A</div>
-                        <div class="avatar av4">R</div>
-                    </div>
-                    <span>Pessoas já na lista de espera</span>
-                </div>
-            </div>
-
-            <!-- SUCCESS STATE -->
-            <div class="success-state" id="success-state">
-                <div class="success-icon">🎉</div>
-                <h2>Você está dentro, <span class="success-name" id="success-name"></span>!</h2>
-                <p>Sua vaga está reservada. Você será um dos primeiros a acessar o Astral com desconto exclusivo de
-                    lançamento.</p>
-
-                <div class="share-box">
-                    <p>Indique um amigo concurseiro e suba na fila:</p>
-                    <div class="share-link">
-                        <input type="text" id="share-url" value="astral-psi.vercel.app/cadastro.html" readonly />
-                        <button class="copy-btn" onclick="copyLink()">Copiar</button>
-                    </div>
-                </div>
-
-                <a href="index.html" class="back-home">← Voltar para o início</a>
-            </div>
-
+      <div class="proof">
+        <div class="avatars">
+          <div class="avatar av1">M</div>
+          <div class="avatar av2">J</div>
+          <div class="avatar av3">A</div>
+          <div class="avatar av4">R</div>
         </div>
-    </main>
+        <span>Pessoas já na lista de espera</span>
+      </div>
+    </div>
 
-    <!-- FOOTER -->
-    <footer>
-        © 2025 Astral · Seus dados estão seguros e não serão compartilhados.
-    </footer>
+    <!-- SUCCESS STATE -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">🎉</div>
+      <h2>Você está dentro, <span class="success-name" id="success-name"></span>!</h2>
+      <p>Sua vaga está reservada. Você será um dos primeiros a acessar o Astral com desconto exclusivo de lançamento.</p>
 
-    <script>
-        function handleSubmit() {
-            const nome = document.getElementById('nome').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const concurso = document.getElementById('concurso').value;
-            const btn = document.getElementById('btn-submit');
+      <div class="share-box">
+        <p>Indique um amigo concurseiro e suba na fila:</p>
+        <div class="share-link">
+          <input type="text" id="share-url" value="astral-psi.vercel.app/cadastro.html" readonly />
+          <button class="copy-btn" onclick="copyLink()">Copiar</button>
+        </div>
+      </div>
 
-            // Validação básica
-            if (!nome) { alert('Por favor, informe seu nome.'); return; }
-            if (!email || !email.includes('@')) { alert('Por favor, informe um e-mail válido.'); return; }
-            if (!concurso) { alert('Por favor, selecione o tipo de concurso.'); return; }
+      <a href="index.html" class="back-home">← Voltar para o início</a>
+    </div>
 
-            // Loading
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Salvando sua vaga...';
+  </div>
+</main>
 
-            // Simula envio (aqui vamos integrar com o backend depois)
-            setTimeout(() => {
-                // Mostra tela de sucesso
-                document.getElementById('form-state').style.display = 'none';
-                const successEl = document.getElementById('success-state');
-                successEl.style.display = 'flex';
+<!-- FOOTER -->
+<footer>
+  © 2025 Astral · Seus dados estão seguros e não serão compartilhados.
+</footer>
 
-                // Coloca o nome na mensagem
-                document.getElementById('success-name').textContent = nome.split(' ')[0];
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-                // Salva localmente por enquanto
-                const dados = { nome, email, concurso, data: new Date().toISOString() };
-                const lista = JSON.parse(localStorage.getItem('astral_lista') || '[]');
-                lista.push(dados);
-                localStorage.setItem('astral_lista', JSON.stringify(lista));
+  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
 
-                console.log('Cadastro salvo:', dados);
-            }, 1500);
-        }
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function copyLink() {
-            const url = document.getElementById('share-url').value;
-            navigator.clipboard.writeText(url).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = 'Copiado! ✓';
-                btn.style.background = '#34D399';
-                setTimeout(() => {
-                    btn.textContent = 'Copiar';
-                    btn.style.background = '';
-                }, 2000);
-            });
-        }
+  window.handleSubmit = async function() {
+    const nome     = document.getElementById('nome').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const concurso = document.getElementById('concurso').value;
+    const btn      = document.getElementById('btn-submit');
 
-        // Enter para submeter
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleSubmit();
-        });
-    </script>
+    // Validação básica
+    if (!nome) { alert('Por favor, informe seu nome.'); return; }
+    if (!email || !email.includes('@')) { alert('Por favor, informe um e-mail válido.'); return; }
+    if (!concurso) { alert('Por favor, selecione o tipo de concurso.'); return; }
+
+    // Loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Salvando sua vaga...';
+
+    // Salva no Supabase
+    const { error } = await supabase
+      .from('lista_espera')
+      .insert([{ nome, email, concurso }]);
+
+    if (error) {
+      if (error.code === '23505') {
+        alert('Este e-mail já está na lista de espera! 😊');
+      } else {
+        alert('Erro ao salvar. Tente novamente!');
+        console.error(error);
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Quero minha vaga →';
+      return;
+    }
+
+    // Sucesso!
+    document.getElementById('form-state').style.display = 'none';
+    const successEl = document.getElementById('success-state');
+    successEl.style.display = 'flex';
+    document.getElementById('success-name').textContent = nome.split(' ')[0];
+  }
+
+  window.copyLink = function() {
+    const url = document.getElementById('share-url').value;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copiado! ✓';
+      btn.style.background = '#34D399';
+      setTimeout(() => {
+        btn.textContent = 'Copiar';
+        btn.style.background = '';
+      }, 2000);
+    });
+  }
+
+  // Enter para submeter
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') window.handleSubmit();
+  });
+</script>
 
 </body>
-
 </html>
