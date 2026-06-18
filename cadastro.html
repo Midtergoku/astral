@@ -403,6 +403,17 @@
       </div>
 
       <div class="form-group">
+        <label for="whatsapp">Seu WhatsApp <span style="color:var(--muted); font-weight:400;">(opcional)</span></label>
+        <input 
+          type="tel" 
+          id="whatsapp" 
+          placeholder="(11) 99999-9999" 
+          autocomplete="tel"
+          maxlength="15"
+        />
+      </div>
+
+      <div class="form-group">
         <label for="concurso">Qual carreira militar você está mirando?</label>
         <select id="concurso">
           <option value="" disabled selected>Selecione uma opção</option>
@@ -471,6 +482,7 @@
     const nome     = document.getElementById('nome').value.trim();
     const email    = document.getElementById('email').value.trim();
     const concurso = document.getElementById('concurso').value;
+    const whatsapp = document.getElementById('whatsapp').value.trim();
     const btn      = document.getElementById('btn-submit');
 
     // Validação básica
@@ -485,7 +497,7 @@
     // Salva no Supabase
     const { error } = await supabase
       .from('lista_espera')
-      .insert([{ nome, email, concurso }]);
+      .insert([{ nome, email, concurso, whatsapp }]);
 
     if (error) {
       if (error.code === '23505') {
