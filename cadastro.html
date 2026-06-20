@@ -428,6 +428,13 @@
         </select>
       </div>
 
+      <div class="form-group" style="flex-direction: row; align-items: flex-start; gap: 0.6rem;">
+        <input type="checkbox" id="consentimento" style="width: auto; margin-top: 0.2rem; accent-color: var(--purple);" />
+        <label for="consentimento" style="font-weight: 400; font-size: 0.85rem; color: var(--muted); cursor: pointer;">
+          Li e aceito a <a href="privacidade.html" target="_blank" style="color: var(--purple-lt);">Política de Privacidade</a> do Astral.
+        </label>
+      </div>
+
       <button class="btn-submit" id="btn-submit" onclick="handleSubmit()">
         Quero minha vaga →
       </button>
@@ -488,6 +495,8 @@
     // Validação básica
     if (!nome) { alert('Por favor, informe seu nome.'); return; }
     if (!email || !email.includes('@')) { alert('Por favor, informe um e-mail válido.'); return; }
+    const consentimento = document.getElementById('consentimento').checked;
+    if (!consentimento) { alert('Você precisa aceitar a Política de Privacidade para continuar.'); return; }
     if (!concurso) { alert('Por favor, selecione o tipo de concurso.'); return; }
 
     // Loading
