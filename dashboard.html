@@ -550,6 +550,7 @@
       .grid-3, .grid-2 { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
 </head>
 <body>
 
@@ -1117,6 +1118,61 @@
 
   // ── START ──
   init();
+</script>
+
+<script>
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const { animate, stagger } = window.Motion;
+
+  // ── SIDEBAR: slide in from left ──
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.style.opacity = '0'; sidebar.style.transform = 'translateX(-20px)';
+    animate(sidebar, { opacity: [0, 1], transform: ['translateX(-20px)', 'translateX(0)'] }, { duration: 0.45, easing: 'ease-out', delay: 0.05 });
+  }
+
+  // ── TOPBAR: fade in ──
+  const topbar = document.querySelector('.topbar');
+  if (topbar) {
+    topbar.style.opacity = '0';
+    animate(topbar, { opacity: [0, 1] }, { duration: 0.4, easing: 'ease-out', delay: 0.15 });
+  }
+
+  // ── STAT CARDS (grid-3): stagger + fade + translateY ──
+  const statCards = document.querySelectorAll('.grid-3 .card');
+  statCards.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; });
+  if (statCards.length) {
+    animate(statCards, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: stagger(0.1, { start: 0.2 }) });
+  }
+
+  // ── UPLOAD CARD: scale + fade ──
+  const uploadCard = document.querySelector('.upload-card');
+  if (uploadCard) {
+    uploadCard.style.opacity = '0'; uploadCard.style.transform = 'scale(0.98)';
+    animate(uploadCard, { opacity: [0, 1], transform: ['scale(0.98)', 'scale(1)'] }, { duration: 0.5, easing: 'ease-out', delay: 0.35 });
+  }
+
+  // ── MAIN CONTENT: observe when it becomes visible (after edital upload) ──
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === 'attributes' && m.attributeName === 'style') {
+          if (mainContent.style.display !== 'none') {
+            // Animate child sections with stagger
+            const sections = mainContent.querySelectorAll('.card, .section-header');
+            sections.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(16px)'; });
+            animate(sections, { opacity: [0, 1], transform: ['translateY(16px)', 'translateY(0)'] }, { duration: 0.45, easing: 'ease-out', delay: stagger(0.08) });
+            observer.disconnect();
+          }
+        }
+      }
+    });
+    observer.observe(mainContent, { attributes: true, attributeFilter: ['style'] });
+  }
+})();
 </script>
 
 </body>

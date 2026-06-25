@@ -768,6 +768,7 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
 </head>
 
 <body>
@@ -1031,6 +1032,94 @@
         <div class="logo">Ast<span style="color:var(--purple)">r</span>al</div>
         <p style="margin-top:0.5rem;">© 2025 Astral. Feito para concurseiros militares, por quem já estudou muito.</p>
     </footer>
+
+<script>
+(function() {
+  // Respect prefers-reduced-motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const { animate, inView, stagger } = window.Motion;
+
+  // ── HERO: badge, h1, p, hero-actions, hero-proof enter in sequence ──
+  const heroEls = document.querySelectorAll('.hero .badge, .hero h1, .hero p, .hero-actions, .hero-proof');
+  if (heroEls.length) {
+    heroEls.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; });
+    animate(heroEls, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: stagger(0.12) });
+  }
+
+  // ── SECTION TITLES: fade + translateY when entering viewport ──
+  document.querySelectorAll('.section-label, .section-title, .section-sub').forEach(el => {
+    el.style.opacity = '0'; el.style.transform = 'translateY(15px)';
+    inView(el, () => {
+      animate(el, { opacity: [0, 1], transform: ['translateY(15px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out' });
+    }, { margin: '0px 0px -60px 0px' });
+  });
+
+  // ── PAIN CARDS: fade + translateY on inView ──
+  const painCards = document.querySelectorAll('.pain-card');
+  painCards.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; });
+  if (painCards.length) {
+    inView('.pain-grid', () => {
+      animate(painCards, { opacity: [0, 1], transform: ['translateY(30px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: stagger(0.08) });
+    }, { margin: '0px 0px -80px 0px' });
+  }
+
+  // ── STEPS: fade + translateY on inView ──
+  const steps = document.querySelectorAll('.step');
+  steps.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(25px)'; });
+  if (steps.length) {
+    inView('.steps', () => {
+      animate(steps, { opacity: [0, 1], transform: ['translateY(25px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: stagger(0.1) });
+    }, { margin: '0px 0px -80px 0px' });
+  }
+
+  // ── FEATURE CARDS: fade + translateY on inView ──
+  const featureCards = document.querySelectorAll('.feature-card');
+  featureCards.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; });
+  if (featureCards.length) {
+    inView('.features-grid', () => {
+      animate(featureCards, { opacity: [0, 1], transform: ['translateY(30px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: stagger(0.08) });
+    }, { margin: '0px 0px -80px 0px' });
+  }
+
+  // ── XP / GAMIFICATION SECTION: scale + fade on inView ──
+  const xpCard = document.querySelector('.xp-section .xp-card');
+  if (xpCard) {
+    xpCard.style.opacity = '0'; xpCard.style.transform = 'scale(0.97)';
+    inView('.xp-section', () => {
+      animate(xpCard, { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { duration: 0.6, easing: 'ease-out' });
+    }, { margin: '0px 0px -80px 0px' });
+  }
+
+  // ── PRICING CARD: fade + translateY on inView ──
+  const priceCard = document.querySelector('.price-card');
+  if (priceCard) {
+    priceCard.style.opacity = '0'; priceCard.style.transform = 'translateY(25px)';
+    inView('#pricing', () => {
+      animate(priceCard, { opacity: [0, 1], transform: ['translateY(25px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out' });
+    }, { margin: '0px 0px -60px 0px' });
+  }
+
+  // ── FAQ ITEMS: stagger on inView ──
+  const faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; });
+  if (faqItems.length) {
+    inView('.faq-list', () => {
+      animate(faqItems, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] }, { duration: 0.45, easing: 'ease-out', delay: stagger(0.07) });
+    }, { margin: '0px 0px -60px 0px' });
+  }
+
+  // ── CTA SECTION: fade + translateY ──
+  const ctaSection = document.querySelector('.cta-section');
+  if (ctaSection) {
+    const ctaEls = ctaSection.querySelectorAll('h2, p, .btn-primary');
+    ctaEls.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; });
+    inView('.cta-section', () => {
+      animate(ctaEls, { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: stagger(0.1) });
+    }, { margin: '0px 0px -60px 0px' });
+  }
+})();
+</script>
 
 </body>
 

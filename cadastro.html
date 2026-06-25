@@ -409,6 +409,7 @@
       transform: rotate(45deg);
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
 </head>
 <body>
 
@@ -580,6 +581,35 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') window.handleSubmit();
   });
+</script>
+
+<script>
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const { animate, stagger } = window.Motion;
+
+  // ── CARD: fade + translateY ──
+  const card = document.querySelector('main .card');
+  if (card) {
+    card.style.opacity = '0'; card.style.transform = 'translateY(24px)';
+    animate(card, { opacity: [0, 1], transform: ['translateY(24px)', 'translateY(0)'] }, { duration: 0.5, easing: 'ease-out', delay: 0.05 });
+  }
+
+  // ── FORM FIELDS: stagger ──
+  const formGroups = document.querySelectorAll('#form-state .form-group');
+  formGroups.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(12px)'; });
+  if (formGroups.length) {
+    animate(formGroups, { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0)'] }, { duration: 0.4, easing: 'ease-out', delay: stagger(0.06, { start: 0.3 }) });
+  }
+
+  // ── SUBMIT BUTTON: fade in last ──
+  const submitBtn = document.querySelector('.btn-submit');
+  if (submitBtn) {
+    submitBtn.style.opacity = '0';
+    animate(submitBtn, { opacity: [0, 1] }, { duration: 0.4, easing: 'ease-out', delay: 0.6 });
+  }
+})();
 </script>
 
 </body>
