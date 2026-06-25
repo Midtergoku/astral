@@ -35,12 +35,12 @@
       display: flex;
     }
 
-    /* ── SIDEBAR ── */
     .sidebar {
       width: var(--sidebar-w);
       min-height: 100vh;
       background: var(--surface);
       border-right: 1px solid var(--border);
+      border-top: 2px solid var(--purple);
       display: flex;
       flex-direction: column;
       padding: 1.5rem 1rem;
@@ -549,6 +549,15 @@
       .main { margin-left: 0; padding: 1.25rem; }
       .grid-3, .grid-2 { grid-template-columns: 1fr; }
     }
+
+    @keyframes pulseGreen {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .card.stat-purple { border-top: 2px solid var(--purple); }
+    .card.stat-green  { border-top: 2px solid var(--green);  }
+    .card.stat-gold   { border-top: 2px solid var(--gold);   }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
 </head>
@@ -593,7 +602,7 @@
   <div class="sidebar-bottom">
     <button class="btn-logout" onclick="fazerLogout()">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sair da conta
+      Encerrar sessão
     </button>
   </div>
 </aside>
@@ -608,14 +617,14 @@
     </div>
     <div class="topbar-right">
       <div class="streak-badge" id="streak-badge">
-        🔥 <span id="streak-count">0</span> dias
+        <span style="width:7px;height:7px;border-radius:50%;background:#34D399;display:inline-block;margin-right:4px;animation:pulseGreen 2s ease-in-out infinite;"></span>🔥 <span id="streak-count">0</span> dias
       </div>
     </div>
   </div>
 
   <!-- STATS CARDS -->
   <div class="grid-3">
-    <div class="card xp-card">
+    <div class="card xp-card stat-purple">
       <div class="card-label">Nível atual</div>
       <div class="card-value" id="nivel-nome">Recruta</div>
       <div class="card-sub" id="nivel-sub">Nível 1</div>
@@ -627,17 +636,18 @@
         <div class="xp-bar">
           <div class="xp-fill" id="xp-fill" style="width:0%"></div>
         </div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.4rem;text-align:right;">próximo rank: <span id="proximo-rank" style="color:var(--purple-lt);font-weight:600;">Soldado</span></div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-label">Horas estudadas</div>
+    <div class="card stat-green">
+      <div class="card-label">Tempo investido</div>
       <div class="card-value" id="horas-total">0h</div>
       <div class="card-sub">no total</div>
     </div>
 
-    <div class="card">
-      <div class="card-label">Matérias cobertas</div>
+    <div class="card stat-gold">
+      <div class="card-label">Domínio do edital</div>
       <div class="card-value" id="materias-cobertas">0/0</div>
       <div class="card-sub">do seu edital</div>
     </div>
@@ -657,15 +667,15 @@
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
       </div>
-      <h3>Suba o edital do seu concurso</h3>
-      <p>A IA vai ler o PDF, extrair as matérias e montar seu plano de estudos em segundos.</p>
+      <h3>Seu edital. Seu plano. Em 30 segundos.</h3>
+      <p>Cole o PDF do edital aqui. O Astral extrai as matérias, calcula os pesos e monta um cronograma personalizado para você.</p>
       <button class="btn-upload" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
-        Selecionar PDF
+        Analisar edital
       </button>
       <input type="file" id="file-input" accept=".pdf" style="display:none" onchange="processarEdital(event)" />
     </div>
@@ -673,8 +683,8 @@
     <!-- AI Processing -->
     <div class="card ai-processing" id="ai-processing">
       <div class="ai-icon">🤖</div>
-      <h3>Analisando seu edital...</h3>
-      <p>A IA está lendo as matérias, calculando os pesos e montando seu plano. Isso leva cerca de 30 segundos.</p>
+      <h3>Lendo seu edital.</h3>
+      <p>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
     </div>
   </div>
 
@@ -687,7 +697,7 @@
       <!-- HOJE -->
       <div id="cronograma" style="margin-bottom:1.5rem">
         <div class="section-header">
-          <div class="section-title">📅 O que estudar hoje</div>
+          <div class="section-title">Sessão de hoje</div>
         </div>
         <div class="card">
           <div class="today-list" id="today-list">
@@ -699,7 +709,7 @@
       <!-- PROGRESSO POR MATÉRIA -->
       <div id="progresso">
         <div class="section-header">
-          <div class="section-title">📊 Progresso por matéria</div>
+          <div class="section-title">Cobertura do edital</div>
         </div>
         <div class="card">
           <div class="materia-list" id="materia-list">
@@ -716,7 +726,7 @@
       <!-- CONQUISTAS -->
       <div id="conquistas" style="margin-bottom:1.5rem">
         <div class="section-header">
-          <div class="section-title">🏆 Conquistas</div>
+          <div class="section-title">Missões</div>
         </div>
         <div class="card">
           <div class="badges-grid" id="badges-grid">
@@ -727,7 +737,7 @@
       <!-- EDITAL INFO -->
       <div id="edital">
         <div class="section-header">
-          <div class="section-title">📄 Seu edital</div>
+          <div class="section-title">Edital ativo</div>
           <button class="btn-upload" style="font-size:0.78rem; padding:0.4rem 0.85rem;" onclick="document.getElementById('file-input').click()">Trocar</button>
         </div>
         <div class="card" id="edital-info">
@@ -836,7 +846,7 @@
     const hora = new Date().getHours();
     const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
 
-    document.getElementById('greeting').textContent = `${saudacao}, ${primeiroNome}! 👋`;
+    document.getElementById('greeting').textContent = `${primeiroNome}, seu plano de aprovação está ativo.`;
     document.getElementById('user-name').textContent = primeiroNome;
     document.getElementById('user-avatar').textContent = primeiroNome[0].toUpperCase();
 
@@ -895,22 +905,33 @@
       document.getElementById('xp-atual').textContent = `${xp} XP`;
       document.getElementById('xp-proximo').textContent = `${nivelProximo.xp} XP`;
       document.getElementById('xp-fill').style.width = `${pct}%`;
+      const proximoRankEl = document.getElementById('proximo-rank');
+      if (proximoRankEl) proximoRankEl.textContent = nivelProximo.nome;
     } else {
       document.getElementById('xp-atual').textContent = `${xp} XP`;
       document.getElementById('xp-proximo').textContent = 'Nível máximo!';
       document.getElementById('xp-fill').style.width = '100%';
+      const proximoRankEl = document.getElementById('proximo-rank');
+      if (proximoRankEl) proximoRankEl.textContent = 'Máximo';
     }
   }
 
   function renderCronograma() {
     const lista = document.getElementById('today-list');
     if (!estado.cronogramaHoje.length) {
-      lista.innerHTML = '<div class="empty-state">Nenhuma atividade para hoje.</div>';
+      lista.innerHTML = `
+        <div style="text-align:center;padding:1.5rem;">
+          <div style="font-size:1.5rem;margin-bottom:0.5rem;">📋</div>
+          <div style="font-weight:600;color:var(--text);font-size:0.88rem;margin-bottom:0.25rem;">Nenhum edital carregado</div>
+          <div style="color:var(--muted);font-size:0.8rem;">Suba seu edital para gerar o cronograma de hoje.</div>
+        </div>
+      `;
       return;
     }
 
     lista.innerHTML = estado.cronogramaHoje.map((item, i) => `
       <div class="today-item ${item.feito ? 'done' : ''}" id="item-${i}">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--muted);min-width:18px;text-align:center;">${i + 1}</div>
         <div class="today-check ${item.feito ? 'checked' : ''}" onclick="marcarFeito(${i})">
           ${item.feito ? '<svg width="12" height="12" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
         </div>
