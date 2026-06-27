@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Missões</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --surface2:  #1A1A24;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --purple-dim:#2D1F6E;
+      --gold:      #F5C542;
+      --green:     #34D399;
+      --red:       #F87171;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      border-top: 2px solid var(--purple);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+    }
+    .sidebar-logo span { color: var(--purple); }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .nav-links { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 1.5rem; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-link:hover { background: var(--surface2); color: var(--text); }
+    .nav-link.active { background: rgba(124,92,252,0.12); color: var(--purple-lt); }
+    .nav-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-bottom { margin-top: auto; }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: color 0.15s;
+    }
+    .btn-logout:hover { color: var(--red); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: calc(100vw - var(--sidebar-w));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── LAYOUT DE MISSÕES ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--white);
+    }
+
+    .progresso-bar-wrap { margin-top: 1rem; }
+    .progresso-bar {
+      background: var(--border);
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .progresso-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--purple), var(--purple-lt));
+      transition: width 0.6s ease;
+    }
+    .progresso-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .badge-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1.5rem 1rem;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .badge-card.unlocked {
+      background: rgba(124,92,252,0.08);
+      border-color: rgba(124,92,252,0.35);
+    }
+    .badge-card.unlocked:hover {
+      transform: translateY(-2px);
+      border-color: rgba(124,92,252,0.6);
+    }
+
+    .badge-card.locked {
+      opacity: 0.4;
+      filter: grayscale(1);
+    }
+
+    .badge-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .badge-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.25rem;
+    }
+
+    .badge-req {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    
+    .empty-state {
+      background: var(--surface2);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    
+    .empty-state-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; padding: 1.25rem; }
+      .badges-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
+
+  <p class="nav-label">Menu</p>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="dashboard.html#cronograma">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link active" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Missões
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="fazerLogout()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title">Missões</div>
+      <div style="color:var(--muted); font-size:0.88rem; margin-top:0.25rem;">Conquistas que provam sua dedicação</div>
+    </div>
+    <div class="topbar-right">
+      <div style="display:flex;align-items:center;gap:0.75rem;background:var(--surface2);padding:0.4rem 0.75rem;border-radius:999px;border:1px solid var(--border);">
+        <div id="user-avatar" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg, var(--purple), var(--purple-lt));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:700;color:#fff;">?</div>
+        <span id="user-name" style="font-size:0.85rem;font-weight:600;color:var(--white);">...</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="content-area">
+    <!-- Renderizado pelo JS -->
+  </div>
+
+</main>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── CONSTANTES ──
+  const TABELAS_NIVEIS = {
+    bombeiros: [
+      { nome: 'Bombeiro 3ª Classe', xp: 0     }, { nome: 'Bombeiro 2ª Classe', xp: 500   }, { nome: 'Bombeiro 1ª Classe', xp: 1200  },
+      { nome: 'Cabo BM',            xp: 2500  }, { nome: '3º Sargento BM',     xp: 4500  }, { nome: '2º Sargento BM',     xp: 7000  },
+      { nome: '1º Sargento BM',     xp: 10000 }, { nome: 'Subtenente BM',      xp: 14000 }, { nome: 'Aspirante BM',       xp: 19000 },
+      { nome: 'Tenente BM',         xp: 25000 }, { nome: 'Capitão BM',         xp: 35000 },
+    ],
+    marinha: [
+      { nome: 'Grumete',            xp: 0     }, { nome: 'Marinheiro',         xp: 500   }, { nome: 'Cabo',               xp: 1200  },
+      { nome: '3º Sargento',        xp: 2500  }, { nome: '2º Sargento',        xp: 4500  }, { nome: '1º Sargento',        xp: 7000  },
+      { nome: 'Suboficial',         xp: 10000 }, { nome: 'Guarda-Marinha',     xp: 14000 }, { nome: 'Aspirante',          xp: 19000 },
+      { nome: 'Tenente',            xp: 25000 }, { nome: 'Capitão-Tenente',    xp: 35000 },
+    ],
+    aeronautica: [
+      { nome: 'Recruta',            xp: 0     }, { nome: 'Soldado',            xp: 500   }, { nome: 'Cabo',               xp: 1200  },
+      { nome: '3º Sargento',        xp: 2500  }, { nome: '2º Sargento',        xp: 4500  }, { nome: '1º Sargento',        xp: 7000  },
+      { nome: 'Suboficial',         xp: 10000 }, { nome: 'Aspirante-a-Oficial',xp: 14000 }, { nome: '2º Tenente',         xp: 19000 },
+      { nome: '1º Tenente',         xp: 25000 }, { nome: 'Capitão',            xp: 35000 },
+    ],
+    exercito: [
+      { nome: 'Recruta',            xp: 0     }, { nome: 'Soldado',            xp: 500   }, { nome: 'Cabo',               xp: 1200  },
+      { nome: '3º Sargento',        xp: 2500  }, { nome: '2º Sargento',        xp: 4500  }, { nome: '1º Sargento',        xp: 7000  },
+      { nome: 'Subtenente',         xp: 10000 }, { nome: 'Aspirante-a-Oficial',xp: 14000 }, { nome: '2º Tenente',         xp: 19000 },
+      { nome: '1º Tenente',         xp: 25000 }, { nome: 'Capitão',            xp: 35000 },
+    ],
+    pm: [
+      { nome: 'Soldado PM',         xp: 0     }, { nome: 'Cabo PM',            xp: 500   }, { nome: '3º Sargento PM',     xp: 1200  },
+      { nome: '2º Sargento PM',     xp: 2500  }, { nome: '1º Sargento PM',     xp: 4500  }, { nome: 'Subtenente PM',      xp: 7000  },
+      { nome: 'Aspirante PM',       xp: 10000 }, { nome: '2º Tenente PM',      xp: 14000 }, { nome: '1º Tenente PM',      xp: 19000 },
+      { nome: 'Capitão PM',         xp: 25000 }, { nome: 'Major PM',           xp: 35000 },
+    ],
+    default: [
+      { nome: 'Recruta',            xp: 0     }, { nome: 'Soldado',            xp: 500   }, { nome: 'Cabo',               xp: 1200  },
+      { nome: 'Sargento',           xp: 2500  }, { nome: 'Subtenente',         xp: 4500  }, { nome: 'Tenente',            xp: 7000  },
+      { nome: 'Capitão',            xp: 10000 }, { nome: 'Major',              xp: 14000 }, { nome: 'Tenente-Coronel',    xp: 19000 },
+      { nome: 'Coronel',            xp: 25000 }, { nome: 'General',            xp: 35000 },
+    ],
+  };
+
+  const BADGES_DEF = [
+    { id: 'primeiro_dia',   icon: '🎖️',  nome: 'Primeiro Dia',    req: 'Acumule seu primeiro XP',         xp_req: 1    },
+    { id: 'primeira_hora',  icon: '⏱️',  nome: '1h Estudada',     req: 'Estude por 1 hora no total',      xp_req: 50   },
+    { id: 'sequencia_3',    icon: '🔥',  nome: 'Streak 3 dias',   req: 'Mantenha 3 dias de streak',       streak_req: 3 },
+    { id: 'sequencia_7',    icon: '💪',  nome: 'Semana Completa', req: 'Mantenha 7 dias de streak',       streak_req: 7 },
+    { id: 'nivel_3',        icon: '⭐',  nome: 'Nível 3',         req: 'Alcance o Nível 3',               nivel_req: 3  },
+    { id: 'nivel_5',        icon: '🌟',  nome: 'Nível 5',         req: 'Alcance o Nível 5',               nivel_req: 5  },
+    { id: 'primeiro_edital',icon: '📋',  nome: 'Edital Lido',     req: 'Suba seu primeiro edital',        edital_req: true },
+    { id: 'maratonista',    icon: '🏅',  nome: 'Maratonista',     req: 'Acumule 5.000 XP',                xp_req: 5000 },
+  ];
+
+  function detectarTipoConcurso(nomeEdital) {
+    if (!nomeEdital) return 'default';
+    const nome = nomeEdital.toLowerCase();
+    if (nome.includes('bomb') || nome.includes('cbm') || nome.includes('cbmerj') || nome.includes('bombeiro')) return 'bombeiros';
+    if (nome.includes('marinha') || nome.includes('naval') || nome.includes('en ') || nome.includes('eamcn')) return 'marinha';
+    if (nome.includes('aeronáutica') || nome.includes('aeronautica') || nome.includes('afa') || nome.includes('eear') || nome.includes('epcar')) return 'aeronautica';
+    if (nome.includes('exército') || nome.includes('exercito') || nome.includes('espcex') || nome.includes('essa') || nome.includes('aman')) return 'exercito';
+    if (nome.includes('policia militar') || nome.includes('polícia militar') || nome.includes(' pm ') || nome.includes('pmes') || nome.includes('pmrj') || nome.includes('pmsp')) return 'pm';
+    return 'default';
+  }
+
+  // ── ESTADO ──
+  let estado = {
+    usuario: null,
+    perfil: null,
+    xp: 0,
+    streak: 0,
+    edital: null,
+  };
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    estado.usuario = session.user;
+
+    // Busca perfil
+    const { data: perfil } = await supabase
+      .from('perfis')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    estado.perfil = perfil;
+
+    // Busca dados salvos
+    const dadosSalvos = localStorage.getItem(`astral_dados_${session.user.id}`);
+    if (dadosSalvos) {
+      const dados = JSON.parse(dadosSalvos);
+      estado.xp     = dados.xp     || 0;
+      estado.streak = dados.streak || 0;
+      estado.edital = dados.edital || null;
+    }
+
+    renderUI();
+  }
+
+  function renderUI() {
+    const nome = estado.perfil?.nome
+      || estado.usuario?.user_metadata?.full_name
+      || estado.usuario?.email?.split('@')[0]
+      || 'Concurseiro';
+
+    const primeiroNome = nome.split(' ')[0];
+    document.getElementById('user-name').textContent = primeiroNome;
+    document.getElementById('user-avatar').textContent = primeiroNome[0].toUpperCase();
+
+    const xp = estado.xp;
+    const streak = estado.streak;
+    const temEdital = estado.edital !== null;
+    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
+    const NIVEIS_ATUAL = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
+    const nivelIndex = NIVEIS_ATUAL.findLastIndex(n => xp >= n.xp);
+
+    const desbloqueadas = [];
+    const bloqueadas = [];
+
+    BADGES_DEF.forEach(b => {
+      let isUnlocked = false;
+      if (b.xp_req     && xp >= b.xp_req)                isUnlocked = true;
+      if (b.streak_req && streak >= b.streak_req)         isUnlocked = true;
+      if (b.nivel_req  && nivelIndex + 1 >= b.nivel_req)  isUnlocked = true;
+      if (b.edital_req && temEdital)                      isUnlocked = true;
+
+      if (isUnlocked) desbloqueadas.push(b);
+      else bloqueadas.push(b);
+    });
+
+    const total = BADGES_DEF.length;
+    const concluidas = desbloqueadas.length;
+    const pct = Math.round((concluidas / total) * 100) || 0;
+
+    const contentArea = document.getElementById('content-area');
+
+    let html = `
+      <!-- CARD RESUMO -->
+      <div class="card">
+        <div style="font-weight:600;color:var(--white);margin-bottom:0.25rem;">Progresso geral</div>
+        <div class="progresso-bar-wrap">
+          <div class="progresso-bar">
+            <div class="progresso-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="progresso-labels">
+            <span>${concluidas} concluídas · ${total - concluidas} restantes</span>
+            <span style="color:var(--purple-lt);">${pct}%</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (concluidas > 0) {
+      html += `
+        <div class="section-header">
+          <div class="section-title">Desbloqueadas</div>
+        </div>
+        <div class="badges-grid" style="margin-bottom: 2rem;">
+          ${desbloqueadas.map(b => `
+            <div class="badge-card unlocked">
+              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-name">${b.nome}</div>
+              <div class="badge-req" style="color:var(--purple-lt); font-weight:500;">Concluída!</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="empty-state" style="margin-bottom: 2rem;">
+          <div class="empty-state-icon">🚀</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.15rem;color:var(--white);margin-bottom:0.5rem;">Sua jornada começa agora.</div>
+          <div style="font-size:0.9rem;">Complete sessões de estudo para desbloquear suas primeiras missões.</div>
+        </div>
+      `;
+    }
+
+    if (bloqueadas.length > 0) {
+      html += `
+        <div class="section-header">
+          <div class="section-title" style="color:var(--muted);">Próximas missões</div>
+        </div>
+        <div class="badges-grid">
+          ${bloqueadas.map(b => `
+            <div class="badge-card locked">
+              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-name">${b.nome}</div>
+              <div class="badge-req">${b.req}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    contentArea.innerHTML = html;
+
+    // Animations
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.Motion) {
+      const { animate, stagger } = window.Motion;
+      const cards = document.querySelectorAll('.badge-card');
+      if (cards.length) {
+        cards.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(12px)'; });
+        animate(cards, { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0)'] }, { duration: 0.4, delay: stagger(0.04) });
+      }
+    }
+  }
+
+  // ── LOGOUT ──
+  window.fazerLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  // ── START ──
+  init();
+</script>
+
+<script>
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const { animate } = window.Motion;
+  
+  // Sidebar animation
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.style.opacity = '0'; sidebar.style.transform = 'translateX(-20px)';
+    animate(sidebar, { opacity: [0, 1], transform: ['translateX(-20px)', 'translateX(0)'] }, { duration: 0.45, easing: 'ease-out' });
+  }
+
+  // Topbar animation
+  const topbar = document.querySelector('.topbar');
+  if (topbar) {
+    topbar.style.opacity = '0';
+    animate(topbar, { opacity: [0, 1] }, { duration: 0.4, delay: 0.1 });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Progresso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --surface2:  #1A1A24;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --purple-dim:#2D1F6E;
+      --gold:      #F5C542;
+      --green:     #34D399;
+      --red:       #F87171;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      border-top: 2px solid var(--purple);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+    }
+    .sidebar-logo span { color: var(--purple); }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .nav-links { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 1.5rem; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-link:hover { background: var(--surface2); color: var(--text); }
+    .nav-link.active { background: rgba(124,92,252,0.12); color: var(--purple-lt); }
+    .nav-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-bottom { margin-top: auto; }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: color 0.15s;
+    }
+    .btn-logout:hover { color: var(--red); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: calc(100vw - var(--sidebar-w));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── GRID E CARDS ── */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .card-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .card.stat-purple { border-top: 2px solid var(--purple); }
+    .card.stat-green  { border-top: 2px solid var(--green);  }
+    .card.stat-gold   { border-top: 2px solid var(--gold);   }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+    }
+
+    /* ── PROGRESSO POR MATÉRIA ── */
+    .materia-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .materia-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: var(--surface2);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .materia-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .materia-nome {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .materia-pct {
+      font-size: 0.9rem;
+      color: var(--purple-lt);
+      font-weight: 700;
+    }
+
+    .mat-bar {
+      background: var(--border);
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .mat-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--purple), var(--purple-lt));
+      transition: width 0.6s ease;
+    }
+
+    .materia-footer {
+      display: flex;
+      align-items: center;
+      margin-top: 0.4rem;
+    }
+
+    /* ── TAGS DE STATUS ── */
+    .status-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .tag-iniciado  { background: rgba(107,107,128,0.15); color: var(--muted); }
+    .tag-progresso { background: rgba(124,92,252,0.15); color: var(--purple-lt); }
+    .tag-quase-la  { background: rgba(245,197,66,0.15); color: var(--gold); }
+    .tag-dominado  { background: rgba(52,211,153,0.15); color: var(--green); }
+    .tag-nenhum    { background: rgba(107,107,128,0.1); color: var(--muted); opacity: 0.6; }
+
+    .btn-upload {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-upload:hover { opacity: 0.87; transform: translateY(-1px); }
+
+    @media (max-width: 1100px) {
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; padding: 1.25rem; }
+      .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
+
+  <p class="nav-label">Menu</p>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="dashboard.html#cronograma">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link active" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="fazerLogout()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title">Cobertura do edital</div>
+      <div style="color:var(--muted); font-size:0.88rem; margin-top:0.25rem;">Seu avanço matéria por matéria</div>
+    </div>
+    <div class="topbar-right">
+      <div style="display:flex;align-items:center;gap:0.75rem;background:var(--surface2);padding:0.4rem 0.75rem;border-radius:999px;border:1px solid var(--border);">
+        <div id="user-avatar" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg, var(--purple), var(--purple-lt));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:700;color:#fff;">?</div>
+        <span id="user-name" style="font-size:0.85rem;font-weight:600;color:var(--white);">...</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="content-area">
+    <!-- Renderizado pelo JS -->
+  </div>
+
+</main>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let estado = {
+    usuario: null,
+    perfil: null,
+    materias: [],
+    edital: null,
+  };
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    estado.usuario = session.user;
+
+    // Busca perfil
+    const { data: perfil } = await supabase
+      .from('perfis')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    estado.perfil = perfil;
+
+    // Busca dados salvos
+    const dadosSalvos = localStorage.getItem(`astral_dados_${session.user.id}`);
+    if (dadosSalvos) {
+      const dados = JSON.parse(dadosSalvos);
+      estado.materias = dados.materias || [];
+      estado.edital   = dados.edital   || null;
+    }
+
+    renderUI();
+  }
+
+  function getStatusTag(pct) {
+    if (pct >= 90) return `<span class="status-tag tag-dominado">Dominado</span>`;
+    if (pct >= 70) return `<span class="status-tag tag-quase-la">Quase lá</span>`;
+    if (pct >= 30) return `<span class="status-tag tag-progresso">Em progresso</span>`;
+    if (pct > 0)   return `<span class="status-tag tag-iniciado">Iniciado</span>`;
+    return `<span class="status-tag tag-nenhum">Não iniciado</span>`;
+  }
+
+  function renderUI() {
+    const nome = estado.perfil?.nome
+      || estado.usuario?.user_metadata?.full_name
+      || estado.usuario?.email?.split('@')[0]
+      || 'Concurseiro';
+
+    const primeiroNome = nome.split(' ')[0];
+    document.getElementById('user-name').textContent = primeiroNome;
+    document.getElementById('user-avatar').textContent = primeiroNome[0].toUpperCase();
+
+    const contentArea = document.getElementById('content-area');
+
+    if (!estado.edital || !estado.materias.length) {
+      contentArea.innerHTML = `
+        <div style="position:relative; margin-top:1rem;">
+          <div style="filter:blur(4px);pointer-events:none;opacity:0.3;">
+            <div class="grid-3" style="margin-bottom:2rem;">
+              <div class="card stat-purple"><div class="card-label">Total de matérias</div><div class="card-value">12</div></div>
+              <div class="card stat-gold"><div class="card-label">Mais de 50%</div><div class="card-value">4</div></div>
+              <div class="card stat-green"><div class="card-label">Média geral</div><div class="card-value">28%</div></div>
+            </div>
+            <div class="card">
+              <div class="materia-list">
+                <div class="materia-row"><div class="materia-label"><span class="materia-nome">Português</span><span class="materia-pct">40%</span></div><div class="mat-bar"><div class="mat-fill" style="width:40%"></div></div><div class="materia-footer"><span class="status-tag tag-progresso">Em progresso</span></div></div>
+                <div class="materia-row"><div class="materia-label"><span class="materia-nome">Matemática</span><span class="materia-pct">20%</span></div><div class="mat-bar"><div class="mat-fill" style="width:20%"></div></div><div class="materia-footer"><span class="status-tag tag-iniciado">Iniciado</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:1rem;">📊</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem;color:var(--white);margin-bottom:0.5rem;">Suba seu edital para ver seu progresso</div>
+            <div style="color:var(--muted);font-size:0.9rem;max-width:300px;line-height:1.5;">Volte ao Dashboard e faça o upload do seu edital para liberar esta página.</div>
+            <button class="btn-upload" style="margin-top:1.5rem;" onclick="window.location.href='dashboard.html'">Ir para o Dashboard</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const totalMaterias = estado.materias.length;
+    const matMais50 = estado.materias.filter(m => m.progresso >= 50).length;
+    const somaProgresso = estado.materias.reduce((acc, m) => acc + m.progresso, 0);
+    const media = totalMaterias > 0 ? Math.round(somaProgresso / totalMaterias) : 0;
+
+    contentArea.innerHTML = `
+      <!-- STATS -->
+      <div class="grid-3" style="margin-bottom:2.5rem;">
+        <div class="card stat-purple">
+          <div class="card-label">Total de matérias</div>
+          <div class="card-value">${totalMaterias}</div>
+          <div class="card-sub">do seu edital</div>
+        </div>
+        <div class="card stat-gold">
+          <div class="card-label">Mais de 50%</div>
+          <div class="card-value">${matMais50}</div>
+          <div class="card-sub">matérias avançadas</div>
+        </div>
+        <div class="card stat-green">
+          <div class="card-label">Média geral</div>
+          <div class="card-value">${media}%</div>
+          <div class="card-sub">progresso total</div>
+        </div>
+      </div>
+
+      <!-- LISTA DE MATÉRIAS -->
+      <div class="section-header">
+        <div class="section-title">Lista completa</div>
+      </div>
+      <div class="materia-list">
+        ${estado.materias.map(m => `
+          <div class="materia-row">
+            <div class="materia-label">
+              <span class="materia-nome">${m.nome}</span>
+              <span class="materia-pct">${m.progresso}%</span>
+            </div>
+            <div class="mat-bar">
+              <div class="mat-fill" style="width:${m.progresso}%"></div>
+            </div>
+            <div class="materia-footer">
+              ${getStatusTag(m.progresso)}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Animations after render
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.Motion) {
+      const { animate, stagger } = window.Motion;
+      const statCards = document.querySelectorAll('.grid-3 .card');
+      const matRows = document.querySelectorAll('.materia-row');
+      
+      if (statCards.length) {
+        statCards.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(16px)'; });
+        animate(statCards, { opacity: [0, 1], transform: ['translateY(16px)', 'translateY(0)'] }, { duration: 0.45, delay: stagger(0.1) });
+      }
+      
+      if (matRows.length) {
+        matRows.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(10px)'; });
+        animate(matRows, { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0)'] }, { duration: 0.4, delay: stagger(0.05, { start: 0.2 }) });
+      }
+    }
+  }
+
+  // ── LOGOUT ──
+  window.fazerLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  // ── START ──
+  init();
+</script>
+
+<script>
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const { animate } = window.Motion;
+  
+  // Sidebar animation
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.style.opacity = '0'; sidebar.style.transform = 'translateX(-20px)';
+    animate(sidebar, { opacity: [0, 1], transform: ['translateX(-20px)', 'translateX(0)'] }, { duration: 0.45, easing: 'ease-out' });
+  }
+
+  // Topbar animation
+  const topbar = document.querySelector('.topbar');
+  if (topbar) {
+    topbar.style.opacity = '0';
+    animate(topbar, { opacity: [0, 1] }, { duration: 0.4, delay: 0.1 });
+  }
+})();
+</script>
+
+</body>
+</html>
