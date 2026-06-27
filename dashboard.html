@@ -764,19 +764,97 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // ── NÍVEIS ──
-  const NIVEIS = [
-    { nome: 'Recruta',       xp: 0    },
-    { nome: 'Soldado',       xp: 500  },
-    { nome: 'Cabo',          xp: 1200 },
-    { nome: 'Sargento',      xp: 2500 },
-    { nome: 'Subtenente',    xp: 4500 },
-    { nome: 'Tenente',       xp: 7000 },
-    { nome: 'Capitão',       xp: 10000},
-    { nome: 'Major',         xp: 14000},
-    { nome: 'Tenente-Cel.',  xp: 19000},
-    { nome: 'Coronel',       xp: 25000},
-    { nome: 'General',       xp: 35000},
-  ];
+  const TABELAS_NIVEIS = {
+    bombeiros: [
+      { nome: 'Bombeiro 3ª Classe', xp: 0     },
+      { nome: 'Bombeiro 2ª Classe', xp: 500   },
+      { nome: 'Bombeiro 1ª Classe', xp: 1200  },
+      { nome: 'Cabo BM',            xp: 2500  },
+      { nome: '3º Sargento BM',     xp: 4500  },
+      { nome: '2º Sargento BM',     xp: 7000  },
+      { nome: '1º Sargento BM',     xp: 10000 },
+      { nome: 'Subtenente BM',      xp: 14000 },
+      { nome: 'Aspirante BM',       xp: 19000 },
+      { nome: 'Tenente BM',         xp: 25000 },
+      { nome: 'Capitão BM',         xp: 35000 },
+    ],
+    marinha: [
+      { nome: 'Grumete',            xp: 0     },
+      { nome: 'Marinheiro',         xp: 500   },
+      { nome: 'Cabo',               xp: 1200  },
+      { nome: '3º Sargento',        xp: 2500  },
+      { nome: '2º Sargento',        xp: 4500  },
+      { nome: '1º Sargento',        xp: 7000  },
+      { nome: 'Suboficial',         xp: 10000 },
+      { nome: 'Guarda-Marinha',     xp: 14000 },
+      { nome: 'Aspirante',          xp: 19000 },
+      { nome: 'Tenente',            xp: 25000 },
+      { nome: 'Capitão-Tenente',    xp: 35000 },
+    ],
+    aeronautica: [
+      { nome: 'Recruta',            xp: 0     },
+      { nome: 'Soldado',            xp: 500   },
+      { nome: 'Cabo',               xp: 1200  },
+      { nome: '3º Sargento',        xp: 2500  },
+      { nome: '2º Sargento',        xp: 4500  },
+      { nome: '1º Sargento',        xp: 7000  },
+      { nome: 'Suboficial',         xp: 10000 },
+      { nome: 'Aspirante-a-Oficial',xp: 14000 },
+      { nome: '2º Tenente',         xp: 19000 },
+      { nome: '1º Tenente',         xp: 25000 },
+      { nome: 'Capitão',            xp: 35000 },
+    ],
+    exercito: [
+      { nome: 'Recruta',            xp: 0     },
+      { nome: 'Soldado',            xp: 500   },
+      { nome: 'Cabo',               xp: 1200  },
+      { nome: '3º Sargento',        xp: 2500  },
+      { nome: '2º Sargento',        xp: 4500  },
+      { nome: '1º Sargento',        xp: 7000  },
+      { nome: 'Subtenente',         xp: 10000 },
+      { nome: 'Aspirante-a-Oficial',xp: 14000 },
+      { nome: '2º Tenente',         xp: 19000 },
+      { nome: '1º Tenente',         xp: 25000 },
+      { nome: 'Capitão',            xp: 35000 },
+    ],
+    pm: [
+      { nome: 'Soldado PM',         xp: 0     },
+      { nome: 'Cabo PM',            xp: 500   },
+      { nome: '3º Sargento PM',     xp: 1200  },
+      { nome: '2º Sargento PM',     xp: 2500  },
+      { nome: '1º Sargento PM',     xp: 4500  },
+      { nome: 'Subtenente PM',      xp: 7000  },
+      { nome: 'Aspirante PM',       xp: 10000 },
+      { nome: '2º Tenente PM',      xp: 14000 },
+      { nome: '1º Tenente PM',      xp: 19000 },
+      { nome: 'Capitão PM',         xp: 25000 },
+      { nome: 'Major PM',           xp: 35000 },
+    ],
+    default: [
+      { nome: 'Recruta',            xp: 0     },
+      { nome: 'Soldado',            xp: 500   },
+      { nome: 'Cabo',               xp: 1200  },
+      { nome: 'Sargento',           xp: 2500  },
+      { nome: 'Subtenente',         xp: 4500  },
+      { nome: 'Tenente',            xp: 7000  },
+      { nome: 'Capitão',            xp: 10000 },
+      { nome: 'Major',              xp: 14000 },
+      { nome: 'Tenente-Coronel',    xp: 19000 },
+      { nome: 'Coronel',            xp: 25000 },
+      { nome: 'General',            xp: 35000 },
+    ],
+  };
+
+  function detectarTipoConcurso(nomeEdital) {
+    if (!nomeEdital) return 'default';
+    const nome = nomeEdital.toLowerCase();
+    if (nome.includes('bomb') || nome.includes('cbm') || nome.includes('cbmerj') || nome.includes('bombeiro')) return 'bombeiros';
+    if (nome.includes('marinha') || nome.includes('naval') || nome.includes('en ') || nome.includes('eamcn')) return 'marinha';
+    if (nome.includes('aeronáutica') || nome.includes('aeronautica') || nome.includes('afa') || nome.includes('eear') || nome.includes('epcar')) return 'aeronautica';
+    if (nome.includes('exército') || nome.includes('exercito') || nome.includes('espcex') || nome.includes('essa') || nome.includes('aman')) return 'exercito';
+    if (nome.includes('policia militar') || nome.includes('polícia militar') || nome.includes(' pm ') || nome.includes('pmes') || nome.includes('pmrj') || nome.includes('pmsp')) return 'pm';
+    return 'default';
+  }
 
   // ── BADGES ──
   const BADGES_DEF = [
@@ -833,6 +911,34 @@
     }
 
     renderUI();
+    configurarNavLinks();
+  }
+
+  function configurarNavLinks() {
+    const linksRestritos = ['#edital', '#cronograma', '#progresso', '#conquistas'];
+    
+    document.querySelectorAll('.nav-link').forEach(link => {
+      const href = link.getAttribute('href');
+      if (!linksRestritos.includes(href)) return;
+      
+      link.addEventListener('click', function(e) {
+        const temEdital = estado.edital !== null && estado.materias.length > 0;
+        if (!temEdital) {
+          e.preventDefault();
+          mostrarToast('Suba seu edital primeiro para acessar esta seção.');
+          // Destaca o card de upload
+          const uploadCard = document.getElementById('upload-area');
+          if (uploadCard) {
+            uploadCard.style.borderColor = 'var(--purple)';
+            uploadCard.style.boxShadow = '0 0 0 3px rgba(124,92,252,0.15)';
+            setTimeout(() => {
+              uploadCard.style.borderColor = '';
+              uploadCard.style.boxShadow = '';
+            }, 2000);
+          }
+        }
+      });
+    });
   }
 
   // ── RENDER ──
@@ -882,6 +988,9 @@
 
   function renderXP() {
     const xp = estado.xp;
+    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
+    const NIVEIS = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
+    
     let nivelAtual = NIVEIS[0];
     let nivelProximo = NIVEIS[1];
     let nivelIndex = 0;
@@ -898,6 +1007,8 @@
     document.getElementById('nivel-nome').textContent = nivelAtual.nome;
     document.getElementById('nivel-sub').textContent = `Nível ${nivelIndex + 1}`;
 
+    const proximoRankEl = document.getElementById('proximo-rank');
+
     if (nivelProximo) {
       const xpNoNivel = xp - nivelAtual.xp;
       const xpParaProximo = nivelProximo.xp - nivelAtual.xp;
@@ -905,14 +1016,12 @@
       document.getElementById('xp-atual').textContent = `${xp} XP`;
       document.getElementById('xp-proximo').textContent = `${nivelProximo.xp} XP`;
       document.getElementById('xp-fill').style.width = `${pct}%`;
-      const proximoRankEl = document.getElementById('proximo-rank');
       if (proximoRankEl) proximoRankEl.textContent = nivelProximo.nome;
     } else {
       document.getElementById('xp-atual').textContent = `${xp} XP`;
-      document.getElementById('xp-proximo').textContent = 'Nível máximo!';
+      document.getElementById('xp-proximo').textContent = 'Patente máxima!';
       document.getElementById('xp-fill').style.width = '100%';
-      const proximoRankEl = document.getElementById('proximo-rank');
-      if (proximoRankEl) proximoRankEl.textContent = 'Máximo';
+      if (proximoRankEl) proximoRankEl.textContent = '—';
     }
   }
 
