@@ -776,8 +776,53 @@
     <!-- NAV -->
     <nav>
         <div class="logo">Ast<span>r</span>al</div>
-        <a href="login.html" style="color:var(--muted); font-size:0.88rem; text-decoration:none; margin-right:0.75rem;">Entrar</a>
-        <a href="cadastro.html" class="nav-cta">Começar grátis</a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <!-- Botão Entrar -->
+            <a href="login.html" style="
+              display: inline-flex;
+              align-items: center;
+              gap: 0.4rem;
+              color: var(--text);
+              font-size: 0.88rem;
+              font-weight: 500;
+              text-decoration: none;
+              padding: 0.55rem 1.1rem;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+              transition: border-color 0.2s, color 0.2s;
+            " onmouseover="this.style.borderColor='var(--purple-lt)';this.style.color='var(--purple-lt)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
+              </svg>
+              Entrar
+            </a>
+
+            <!-- Botão Cadastrar -->
+            <a href="criar-conta.html" style="
+              display: inline-flex;
+              align-items: center;
+              gap: 0.4rem;
+              background: var(--purple);
+              color: #fff;
+              font-size: 0.88rem;
+              font-weight: 600;
+              text-decoration: none;
+              padding: 0.55rem 1.1rem;
+              border-radius: 8px;
+              border: 1px solid transparent;
+              transition: opacity 0.2s;
+            " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" y1="8" x2="19" y2="14"/>
+                <line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+              Cadastrar
+            </a>
+        </div>
     </nav>
 
     <!-- HERO -->
@@ -787,7 +832,7 @@
         <p>Pare de perder tempo sem saber o que estudar. O Astral lê o edital do seu concurso militar, calcula os pesos e monta seu cronograma
             — com gamificação para você não desistir.</p>
         <div class="hero-actions">
-            <a href="cadastro.html" class="btn-primary">Criar meu plano agora →</a>
+            <a href="login.html" class="btn-primary">Começar agora →</a>
             <a href="#como-funciona" class="btn-ghost">Ver como funciona</a>
         </div>
         <div class="hero-proof">
@@ -1023,8 +1068,7 @@
     <section class="cta-section">
         <h2>Seu próximo edital militar merece mais que uma planilha</h2>
         <p>Crie seu plano de estudos em menos de 5 minutos. Grátis para começar.</p>
-        <a href="cadastro.html" class="btn-primary" style="font-size:1.05rem; padding:1rem 2.5rem;">Criar meu plano
-            agora →</a>
+        <a href="login.html" class="btn-primary" style="font-size:1.05rem; padding:1rem 2.5rem;">Começar agora →</a>
     </section>
 
     <!-- FOOTER -->
