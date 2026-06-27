@@ -689,7 +689,7 @@
   </div>
 
   <!-- MAIN GRID (aparece depois do upload) -->
-  <div class="grid-main" id="main-content" style="display:none">
+  <div class="grid-main" id="main-content" style="display:grid">
 
     <!-- COLUNA ESQUERDA -->
     <div>
@@ -977,11 +977,11 @@
     // Conteúdo
     if (estado.edital && estado.materias.length > 0) {
       document.getElementById('upload-section').style.display = 'none';
-      document.getElementById('main-content').style.display = 'grid';
-      renderCronograma();
-      renderMaterias();
-      renderEditalInfo();
     }
+    document.getElementById('main-content').style.display = 'grid';
+    renderCronograma();
+    renderMaterias();
+    renderEditalInfo();
 
     renderBadges();
   }
@@ -1027,12 +1027,40 @@
 
   function renderCronograma() {
     const lista = document.getElementById('today-list');
+    
     if (!estado.cronogramaHoje.length) {
       lista.innerHTML = `
-        <div style="text-align:center;padding:1.5rem;">
-          <div style="font-size:1.5rem;margin-bottom:0.5rem;">📋</div>
-          <div style="font-weight:600;color:var(--text);font-size:0.88rem;margin-bottom:0.25rem;">Nenhum edital carregado</div>
-          <div style="color:var(--muted);font-size:0.8rem;">Suba seu edital para gerar o cronograma de hoje.</div>
+        <div style="position:relative;">
+          <!-- Preview desfocado -->
+          <div style="filter:blur(3px);pointer-events:none;opacity:0.4;">
+            ${['Língua Portuguesa', 'Matemática', 'Raciocínio Lógico'].map((m, i) => `
+              <div class="today-item" style="margin-bottom:0.65rem;">
+                <div style="font-size:0.72rem;font-weight:700;color:var(--muted);min-width:18px;text-align:center;">${i + 1}</div>
+                <div class="today-check"></div>
+                <div class="today-info">
+                  <div class="today-materia">${m}</div>
+                  <div class="today-tempo">45 min</div>
+                </div>
+                <div class="xp-pill">+50 XP</div>
+              </div>
+            `).join('')}
+          </div>
+          <!-- Overlay com CTA -->
+          <div style="
+            position:absolute;
+            top:0;left:0;right:0;bottom:0;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:0.5rem;
+            text-align:center;
+            padding:1rem;
+          ">
+            <div style="font-size:1.25rem;">📋</div>
+            <div style="font-weight:600;color:var(--white);font-size:0.88rem;">Seu cronograma aparece aqui</div>
+            <div style="color:var(--muted);font-size:0.78rem;">Suba seu edital para gerar as sessões de hoje</div>
+          </div>
         </div>
       `;
       return;
@@ -1055,8 +1083,48 @@
 
   function renderMaterias() {
     const lista = document.getElementById('materia-list');
+
     if (!estado.materias.length) {
-      lista.innerHTML = '<div class="empty-state">Nenhuma matéria encontrada.</div>';
+      lista.innerHTML = `
+        <div style="position:relative;">
+          <!-- Preview desfocado -->
+          <div style="filter:blur(3px);pointer-events:none;opacity:0.4;">
+            ${[
+              { nome: 'Língua Portuguesa', pct: 72 },
+              { nome: 'Matemática',        pct: 45 },
+              { nome: 'Física',            pct: 28 },
+              { nome: 'Química',           pct: 61 },
+              { nome: 'Biologia',          pct: 15 },
+              { nome: 'História',          pct: 53 },
+            ].map(m => `
+              <div class="materia-row" style="margin-bottom:0.75rem;">
+                <div class="materia-label">
+                  <span class="materia-nome">${m.nome}</span>
+                  <span class="materia-pct">${m.pct}%</span>
+                </div>
+                <div class="mat-bar">
+                  <div class="mat-fill" style="width:${m.pct}%"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <!-- Overlay -->
+          <div style="
+            position:absolute;
+            top:0;left:0;right:0;bottom:0;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:0.5rem;
+            text-align:center;
+          ">
+            <div style="font-size:1.25rem;">📊</div>
+            <div style="font-weight:600;color:var(--white);font-size:0.88rem;">Cobertura do edital</div>
+            <div style="color:var(--muted);font-size:0.78rem;">As barras de progresso das suas matérias aparecem aqui</div>
+          </div>
+        </div>
+      `;
       return;
     }
 
@@ -1075,7 +1143,30 @@
 
   function renderEditalInfo() {
     const el = document.getElementById('edital-info');
-    if (!estado.edital) { el.innerHTML = '<div class="empty-state">Nenhum edital carregado</div>'; return; }
+    
+    if (!estado.edital) {
+      el.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="width:36px;height:36px;border-radius:8px;background:rgba(124,92,252,0.1);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📄</div>
+            <div>
+              <div style="font-weight:600;color:var(--muted);font-size:0.85rem;">Nenhum edital ativo</div>
+              <div style="font-size:0.75rem;color:var(--muted);opacity:0.6;">Suba um PDF para começar</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            ${['Concurso', 'Matérias', 'Data da prova'].map(label => `
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--muted);">${label}</span>
+                <span style="color:var(--border);background:var(--border);border-radius:4px;width:80px;height:14px;display:inline-block;"></span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     el.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:0.5rem;">
         <div style="font-weight:600;color:var(--white);font-size:0.9rem">${estado.edital.nome}</div>
@@ -1089,23 +1180,43 @@
     const grid = document.getElementById('badges-grid');
     const xp = estado.xp;
     const streak = estado.streak;
-    const nivelIndex = NIVEIS.findLastIndex(n => xp >= n.xp);
+    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
+    const NIVEIS = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
+    const nivelIndex = NIVEIS ? NIVEIS.findLastIndex(n => xp >= n.xp) : 0;
     const temEdital = estado.edital !== null;
 
+    // Sempre renderiza todos os badges — desbloqueados ou não
     grid.innerHTML = BADGES_DEF.map(b => {
       let desbloqueado = false;
-      if (b.xp_req     && xp >= b.xp_req)           desbloqueado = true;
-      if (b.streak_req && streak >= b.streak_req)    desbloqueado = true;
-      if (b.nivel_req  && nivelIndex + 1 >= b.nivel_req) desbloqueado = true;
-      if (b.edital_req && temEdital)                 desbloqueado = true;
+      if (b.xp_req     && xp >= b.xp_req)                desbloqueado = true;
+      if (b.streak_req && streak >= b.streak_req)         desbloqueado = true;
+      if (b.nivel_req  && nivelIndex + 1 >= b.nivel_req)  desbloqueado = true;
+      if (b.edital_req && temEdital)                      desbloqueado = true;
 
       return `
-        <div class="badge-item ${desbloqueado ? '' : 'locked'}" title="${b.nome}">
+        <div class="badge-item ${desbloqueado ? '' : 'locked'}" 
+             title="${desbloqueado ? b.nome + ' — Desbloqueado!' : b.nome + ' — Bloqueado'}"
+             style="cursor:default;">
           <div class="badge-icon">${b.icon}</div>
           <div class="badge-name">${b.nome}</div>
+          ${!desbloqueado ? '<div style="font-size:0.6rem;color:var(--muted);margin-top:2px;">🔒</div>' : ''}
         </div>
       `;
     }).join('');
+
+    // Adiciona legenda embaixo
+    const desbloqueados = BADGES_DEF.filter(b => {
+      if (b.xp_req     && xp >= b.xp_req)                return true;
+      if (b.streak_req && streak >= b.streak_req)         return true;
+      if (b.nivel_req  && nivelIndex + 1 >= b.nivel_req)  return true;
+      if (b.edital_req && temEdital)                      return true;
+      return false;
+    }).length;
+
+    const legenda = document.createElement('div');
+    legenda.style.cssText = 'margin-top:0.75rem;font-size:0.75rem;color:var(--muted);text-align:center;';
+    legenda.textContent = `${desbloqueados} de ${BADGES_DEF.length} missões concluídas`;
+    grid.parentNode.appendChild(legenda);
   }
 
   // ── MARCAR COMO FEITO ──
