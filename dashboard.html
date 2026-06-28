@@ -885,34 +885,6 @@
     }
 
     renderUI();
-    configurarNavLinks();
-  }
-
-  function configurarNavLinks() {
-    const linksRestritos = ['edital.html', '#cronograma', 'progresso.html', 'conquistas.html'];
-    
-    document.querySelectorAll('.nav-link').forEach(link => {
-      const href = link.getAttribute('href');
-      if (!linksRestritos.includes(href)) return;
-      
-      link.addEventListener('click', function(e) {
-        const temEdital = estado.edital !== null && estado.materias.length > 0;
-        if (!temEdital) {
-          e.preventDefault();
-          mostrarToast('Suba seu edital primeiro para acessar esta seção.');
-          // Destaca o card de upload
-          const uploadCard = document.getElementById('upload-area');
-          if (uploadCard) {
-            uploadCard.style.borderColor = 'var(--purple)';
-            uploadCard.style.boxShadow = '0 0 0 3px rgba(124,92,252,0.15)';
-            setTimeout(() => {
-              uploadCard.style.borderColor = '';
-              uploadCard.style.boxShadow = '';
-            }, 2000);
-          }
-        }
-      });
-    });
   }
 
   // ── RENDER ──
