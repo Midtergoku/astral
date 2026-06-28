@@ -259,6 +259,113 @@
       .main { margin-left: 0; padding: 1.25rem; }
       .badges-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     }
+
+    .habilidade-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .habilidade-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .habilidade-card.ativa {
+      border-color: rgba(124,92,252,0.4);
+      background: linear-gradient(145deg, rgba(124,92,252,0.08), var(--surface2));
+    }
+
+    .habilidade-card.ativa:hover {
+      border-color: var(--purple);
+      transform: translateY(-2px);
+    }
+
+    .habilidade-card.enferrujada {
+      border-color: rgba(245,197,66,0.3);
+      opacity: 0.75;
+    }
+
+    .habilidade-card.suspensa {
+      border-color: rgba(248,113,113,0.3);
+      opacity: 0.5;
+      filter: grayscale(0.5);
+    }
+
+    .habilidade-card.bloqueada {
+      opacity: 0.25;
+      filter: grayscale(1) blur(1px);
+      pointer-events: none;
+    }
+
+    .habilidade-icone {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .habilidade-nome {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .habilidade-descricao {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .habilidade-status {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      margin-top: 0.25rem;
+    }
+
+    .status-ativa     { background: rgba(124,92,252,0.15); color: var(--purple-lt); }
+    .status-enferrujada { background: rgba(245,197,66,0.12); color: var(--gold); }
+    .status-suspensa  { background: rgba(248,113,113,0.12); color: var(--red); }
+    .status-bloqueada { background: var(--border); color: var(--muted); }
+
+    .habilidade-progresso {
+      width: 100%;
+      margin-top: 0.4rem;
+    }
+
+    .hab-bar {
+      background: var(--border);
+      border-radius: 999px;
+      height: 4px;
+      overflow: hidden;
+    }
+
+    .hab-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--purple), var(--purple-lt));
+      transition: width 0.6s ease;
+    }
+
+    .hab-pct {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-align: right;
+      margin-top: 0.25rem;
+    }
   </style>
 </head>
 <body>
@@ -320,6 +427,28 @@
     <!-- Renderizado pelo JS -->
   </div>
 
+  <!-- SEÇÃO HABILIDADES -->
+  <div style="margin-top:2rem;">
+    <div style="margin-bottom:1rem;">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.1rem;color:var(--white);margin-bottom:0.25rem;">Habilidades</div>
+      <div style="font-size:0.82rem;color:var(--muted);">Desbloqueie habilidades especiais dominando cada matéria do seu edital. Mantenha seus estudos em dia para não perdê-las.</div>
+    </div>
+
+    <!-- Legenda -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+      <span class="habilidade-status status-ativa">⚡ Ativa</span>
+      <span class="habilidade-status status-enferrujada">🔧 Enferrujada (7 dias sem estudar)</span>
+      <span class="habilidade-status status-suspensa">❄️ Suspensa (14 dias sem estudar)</span>
+      <span class="habilidade-status status-bloqueada">🔒 Bloqueada (domínio &lt; 70%)</span>
+    </div>
+
+    <div class="card">
+      <div class="habilidade-grid" id="habilidades-grid">
+        <!-- preenchido pelo JS -->
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script type="module">
@@ -330,6 +459,54 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // ── CONSTANTES ──
+  const HABILIDADES_MILITARES = {
+    // Bombeiros
+    'língua portuguesa': { nome: 'Orador de Guerra',      icone: '🗡️', descricao: 'Suas palavras têm precisão cirúrgica. Nenhum recurso será indeferido.' },
+    'português':         { nome: 'Orador de Guerra',      icone: '🗡️', descricao: 'Suas palavras têm precisão cirúrgica. Nenhum recurso será indeferido.' },
+    'matemática':        { nome: 'Calculista',             icone: '⚙️', descricao: 'Raciocina sob pressão como um estrategista de campo.' },
+    'física':            { nome: 'Engenheiro de Campo',   icone: '🔧', descricao: 'Domina as forças da natureza a seu favor.' },
+    'química':           { nome: 'Alquimista',             icone: '⚗️', descricao: 'Conhece a composição de tudo. Nada te surpreende.' },
+    'biologia':          { nome: 'Médico de Combate',      icone: '🩺', descricao: 'Entende o corpo humano como poucos oficiais.' },
+    'história':          { nome: 'Memória da Nação',       icone: '📜', descricao: 'Carrega o passado como escudo e o futuro como missão.' },
+    'geografia':         { nome: 'Navegador',              icone: '🧭', descricao: 'Nunca se perde — em campo ou na prova.' },
+    'inglês':            { nome: 'Intérprete',             icone: '🌐', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
+    'espanhol':          { nome: 'Intérprete',             icone: '🌐', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
+    'língua estrangeira':{ nome: 'Intérprete',             icone: '🌐', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
+    'direito constitucional':   { nome: 'Guardião da Lei',      icone: '⚖️', descricao: 'Conhece a Constituição como a palma da mão.' },
+    'direito administrativo':   { nome: 'Administrador de Elite',icone: '🏛️', descricao: 'Comanda processos com maestria e autoridade.' },
+    'legislação':               { nome: 'Legislador',            icone: '📋', descricao: 'Nenhuma norma passa despercebida pelos seus olhos.' },
+    'raciocínio lógico':        { nome: 'Estrategista',          icone: '♟️', descricao: 'Enxerga padrões onde outros veem caos.' },
+    'informática':              { nome: 'Operador Cyber',        icone: '💻', descricao: 'Domina o campo digital com precisão militar.' },
+    'redação':                  { nome: 'Cronista de Guerra',    icone: '✍️', descricao: 'Documenta batalhas com clareza e impacto.' },
+    'atualidades':              { nome: 'Sentinela',             icone: '👁️', descricao: 'Sempre alerta. Nenhum evento passa sem sua análise.' },
+  };
+
+  function detectarHabilidade(nomeMateria) {
+    const nome = nomeMateria.toLowerCase().trim();
+    for (const [chave, habilidade] of Object.entries(HABILIDADES_MILITARES)) {
+      if (nome.includes(chave)) return habilidade;
+    }
+    // Habilidade genérica para matérias não mapeadas
+    return { 
+      nome: 'Especialista', 
+      icone: '🎖️', 
+      descricao: 'Domínio conquistado com disciplina e foco inabaláveis.' 
+    };
+  }
+
+  function calcularStatusHabilidade(materia) {
+    const progresso = materia.progresso || 0;
+    const ultimoEstudo = materia.ultimoEstudo ? new Date(materia.ultimoEstudo) : null;
+    const diasSemEstudar = ultimoEstudo 
+      ? Math.floor((new Date() - ultimoEstudo) / (1000 * 60 * 60 * 24))
+      : 999;
+
+    if (progresso < 70) return 'bloqueada';
+    if (diasSemEstudar >= 14) return 'suspensa';
+    if (diasSemEstudar >= 7)  return 'enferrujada';
+    return 'ativa';
+  }
+
   const TABELAS_NIVEIS = {
     bombeiros: [
       { nome: 'Bombeiro 3ª Classe', xp: 0     }, { nome: 'Bombeiro 2ª Classe', xp: 500   }, { nome: 'Bombeiro 1ª Classe', xp: 1200  },
@@ -398,6 +575,7 @@
     xp: 0,
     streak: 0,
     edital: null,
+    materias: [],
   };
 
   async function init() {
@@ -422,6 +600,7 @@
       estado.xp     = dados.xp     || 0;
       estado.streak = dados.streak || 0;
       estado.edital = dados.edital || null;
+      estado.materias = dados.materias || [];
     }
 
     renderUI();
@@ -533,6 +712,56 @@
         animate(cards, { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0)'] }, { duration: 0.4, delay: stagger(0.04) });
       }
     }
+
+    renderHabilidades();
+  }
+
+  function renderHabilidades() {
+    const grid = document.getElementById('habilidades-grid');
+    if (!grid) return;
+
+    const materias = estado.materias || [];
+
+    if (!materias.length) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">⚔️</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:0.25rem;">Nenhuma habilidade disponível</div>
+          <div>Suba seu edital para ver as habilidades que você pode desbloquear.</div>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = materias.map(materia => {
+      const habilidade = detectarHabilidade(materia.nome);
+      const status = calcularStatusHabilidade(materia);
+      const progresso = materia.progresso || 0;
+
+      const statusLabels = {
+        ativa:       { label: '⚡ Ativa',       classe: 'status-ativa'       },
+        enferrujada: { label: '🔧 Enferrujada', classe: 'status-enferrujada' },
+        suspensa:    { label: '❄️ Suspensa',    classe: 'status-suspensa'    },
+        bloqueada:   { label: `🔒 ${progresso}% / 70%`, classe: 'status-bloqueada' },
+      };
+
+      const { label, classe } = statusLabels[status];
+
+      return `
+        <div class="habilidade-card ${status}" title="${status === 'bloqueada' ? 'Alcance 70% de domínio para desbloquear' : habilidade.descricao}">
+          <div class="habilidade-icone">${status === 'bloqueada' ? '❓' : habilidade.icone}</div>
+          <div class="habilidade-nome">${status === 'bloqueada' ? '???' : habilidade.nome}</div>
+          ${status !== 'bloqueada' ? `<div class="habilidade-descricao">${habilidade.descricao}</div>` : ''}
+          <span class="habilidade-status ${classe}">${label}</span>
+          <div class="habilidade-progresso">
+            <div class="hab-bar">
+              <div class="hab-fill" style="width:${Math.min(100, progresso / 70 * 100)}%"></div>
+            </div>
+            <div class="hab-pct">${progresso}% domínio</div>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   // ── LOGOUT ──
