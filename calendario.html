@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Calendário</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --surface2:  #1A1A24;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --gold:      #F5C542;
+      --green:     #34D399;
+      --red:       #F87171;
+      --blue:      #60A5FA;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      border-top: 2px solid var(--purple);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+    }
+    .sidebar-logo span { color: var(--purple); }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.75rem;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--purple-lt));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-details { overflow: hidden; }
+    .user-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-plan { font-size: 0.72rem; color: var(--muted); }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .nav-links { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 1.5rem; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-link:hover { background: var(--surface2); color: var(--text); }
+    .nav-link.active { background: rgba(124,92,252,0.12); color: var(--purple-lt); }
+    .nav-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-bottom { margin-top: auto; }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: color 0.15s;
+    }
+    .btn-logout:hover { color: var(--red); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: calc(100vw - var(--sidebar-w));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .topbar-left {}
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .page-sub { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.25rem;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.87; transform: translateY(-1px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.7rem 1.25rem;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--purple-lt); color: var(--purple-lt); }
+
+    /* ── AVISO ── */
+    .aviso-card {
+      background: rgba(245,197,66,0.06);
+      border: 1px solid rgba(245,197,66,0.2);
+      border-radius: 12px;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .aviso-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+    /* ── GRID STATS ── */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .card.stat-purple { border-top: 2px solid var(--purple); }
+    .card.stat-blue   { border-top: 2px solid var(--blue); }
+    .card.stat-green  { border-top: 2px solid var(--green); }
+
+    .card-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .card-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ── EVENTOS ── */
+    .eventos-section { margin-top: 0.5rem; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+    }
+
+    .evento-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 0.65rem;
+      transition: border-color 0.15s;
+    }
+    .evento-item:hover { border-color: rgba(124,92,252,0.3); }
+
+    .evento-icone {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .evento-info { flex: 1; min-width: 0; }
+    .evento-nome { font-weight: 600; color: var(--white); font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .evento-data { font-size: 0.78rem; color: var(--muted); }
+    .evento-obs  { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; opacity: 0.7; }
+
+    .evento-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .evento-acoes { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+    .btn-acao {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+    }
+    .btn-acao:hover { border-color: var(--purple-lt); color: var(--purple-lt); }
+    .btn-acao.danger:hover { border-color: var(--red); color: var(--red); }
+
+    .evento-passou { opacity: 0.45; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--white);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus, select:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.5);
+      cursor: pointer;
+    }
+
+    select option { background: var(--surface); color: var(--text); }
+
+    .modal-acoes { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-title { font-weight: 600; color: var(--text); font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .empty-sub { font-size: 0.85rem; }
+
+    /* ── DIAS LABEL ── */
+    .dias-hoje   { color: var(--gold); font-weight: 700; }
+    .dias-amanha { color: var(--purple-lt); font-weight: 600; }
+    .dias-em     { color: var(--muted); }
+    .dias-passou { color: var(--muted); opacity: 0.5; }
+    .dias-urgente { color: var(--red); font-weight: 700; }
+
+    @media (max-width: 1100px) {
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; padding: 1.25rem; }
+      .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
+
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-details">
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-plan" id="user-plan">free</div>
+    </div>
+  </div>
+
+  <p class="nav-label">Menu</p>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link active" href="calendario.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="12" cy="14" r="1" fill="currentColor"/><circle cx="16" cy="14" r="1" fill="currentColor"/></svg>
+      Calendário
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Missões
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="fazerLogout()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title">Calendário</div>
+      <div class="page-sub">Suas datas importantes em um só lugar</div>
+    </div>
+    <button class="btn-primary" onclick="abrirModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar evento
+    </button>
+  </div>
+
+  <!-- AVISO -->
+  <div class="aviso-card">
+    <span class="aviso-icon">⚠️</span>
+    <span>Recomendamos fortemente que você leia o edital completo. As datas importadas automaticamente podem conter imprecisões — sempre confirme no documento oficial.</span>
+  </div>
+
+  <!-- STATS -->
+  <div class="grid-3">
+    <div class="card stat-purple">
+      <div class="card-label">Dias até a prova</div>
+      <div class="card-value" id="dias-prova">—</div>
+      <div class="card-sub" id="dias-prova-sub">nenhuma prova cadastrada</div>
+    </div>
+    <div class="card stat-blue">
+      <div class="card-label">Próximo evento</div>
+      <div class="card-value" style="font-size:1rem;line-height:1.3;" id="proximo-evento">—</div>
+      <div class="card-sub" id="proximo-evento-sub">sem eventos futuros</div>
+    </div>
+    <div class="card stat-green">
+      <div class="card-label">Total de eventos</div>
+      <div class="card-value" id="total-eventos">0</div>
+      <div class="card-sub">cadastrados</div>
+    </div>
+  </div>
+
+  <!-- LISTA DE EVENTOS -->
+  <div class="eventos-section">
+    <div class="section-header">
+      <div class="section-title">Eventos</div>
+    </div>
+    <div id="eventos-lista">
+      <!-- preenchido pelo JS -->
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="fecharModalFora(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Adicionar evento</div>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label for="evento-nome">Nome do evento</label>
+      <input type="text" id="evento-nome" placeholder="Ex: Prova objetiva" />
+    </div>
+    <div class="form-group">
+      <label for="evento-data">Data</label>
+      <input type="date" id="evento-data" />
+    </div>
+    <div class="form-group">
+      <label for="evento-categoria">Categoria</label>
+      <select id="evento-categoria">
+        <option value="prova">📝 Prova</option>
+        <option value="inscricao">✍️ Inscrição</option>
+        <option value="resultado">📊 Resultado</option>
+        <option value="taf">🏃 TAF</option>
+        <option value="documentacao">📋 Documentação</option>
+        <option value="personalizado">📌 Personalizado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="evento-obs">Observação (opcional)</label>
+      <input type="text" id="evento-obs" placeholder="Algum detalhe importante..." />
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-ghost" style="flex:1" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" style="flex:1;justify-content:center;" onclick="salvarEvento()">Salvar evento</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let usuario = null;
+  let eventos = [];
+  let editandoIndex = null;
+
+  const CATEGORIAS = {
+    prova:         { label: 'Prova',          cor: 'var(--purple)', bg: 'rgba(124,92,252,0.12)', icone: '📝' },
+    inscricao:     { label: 'Inscrição',      cor: 'var(--green)',  bg: 'rgba(52,211,153,0.12)', icone: '✍️' },
+    resultado:     { label: 'Resultado',      cor: '#60A5FA',       bg: 'rgba(96,165,250,0.12)', icone: '📊' },
+    taf:           { label: 'TAF',            cor: 'var(--gold)',   bg: 'rgba(245,197,66,0.12)', icone: '🏃' },
+    documentacao:  { label: 'Documentação',   cor: 'var(--red)',    bg: 'rgba(248,113,113,0.12)',icone: '📋' },
+    personalizado: { label: 'Personalizado',  cor: 'var(--muted)',  bg: 'rgba(107,107,128,0.12)',icone: '📌' },
+  };
+
+  // ── UTILS ──
+  function converterDataBR(dataBR) {
+    if (!dataBR) return '';
+    const partes = dataBR.split('/');
+    if (partes.length !== 3) return dataBR;
+    return `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}`;
+  }
+
+  function calcularDias(dataStr) {
+    if (!dataStr) return null;
+    const hoje = new Date();
+    hoje.setHours(0,0,0,0);
+    const data = new Date(dataStr + 'T00:00:00');
+    return Math.ceil((data - hoje) / (1000 * 60 * 60 * 24));
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return '—';
+    const data = new Date(dataStr + 'T00:00:00');
+    return data.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function diasLabel(dias) {
+    if (dias === null) return '';
+    if (dias === 0)  return '<span class="dias-hoje">Hoje!</span>';
+    if (dias === 1)  return '<span class="dias-amanha">Amanhã</span>';
+    if (dias > 0 && dias <= 7) return `<span class="dias-urgente">em ${dias} dias</span>`;
+    if (dias > 0)   return `<span class="dias-em">em ${dias} dias</span>`;
+    return '<span class="dias-passou">Já passou</span>';
+  }
+
+  // ── DADOS ──
+  function carregarEventos() {
+    const key = `astral_eventos_${usuario.id}`;
+    const salvo = localStorage.getItem(key);
+    eventos = salvo ? JSON.parse(salvo) : [];
+
+    // Importa data da prova do edital automaticamente
+    const dadosSalvos = localStorage.getItem(`astral_dados_${usuario.id}`);
+    if (dadosSalvos) {
+      const dados = JSON.parse(dadosSalvos);
+      if (dados.edital?.dataProva && !eventos.some(e => e.origem === 'edital_prova')) {
+        eventos.push({
+          id: Date.now(),
+          nome: 'Prova — ' + (dados.edital.nome || 'Concurso'),
+          data: converterDataBR(dados.edital.dataProva),
+          categoria: 'prova',
+          obs: 'Importado automaticamente do edital',
+          origem: 'edital_prova',
+        });
+        salvarEventos();
+      }
+    }
+  }
+
+  function salvarEventos() {
+    const key = `astral_eventos_${usuario.id}`;
+    localStorage.setItem(key, JSON.stringify(eventos));
+  }
+
+  // ── RENDER ──
+  function renderEventos() {
+    const lista = document.getElementById('eventos-lista');
+    const totalEl = document.getElementById('total-eventos');
+    const diasProvaEl = document.getElementById('dias-prova');
+    const diasProvaSub = document.getElementById('dias-prova-sub');
+    const proximoEl = document.getElementById('proximo-evento');
+    const proximoSub = document.getElementById('proximo-evento-sub');
+
+    if (totalEl) totalEl.textContent = eventos.length;
+
+    const ordenados = [...eventos].sort((a, b) => new Date(a.data) - new Date(b.data));
+    const agora = new Date(); agora.setHours(0,0,0,0);
+
+    // Card dias até a prova
+    const prova = ordenados.find(e => e.categoria === 'prova');
+    if (prova && diasProvaEl) {
+      const dias = calcularDias(prova.data);
+      if (dias > 0) {
+        diasProvaEl.textContent = `${dias}`;
+        diasProvaSub.textContent = dias === 1 ? 'amanhã é o dia!' : 'dias restantes';
+      } else if (dias === 0) {
+        diasProvaEl.textContent = 'Hoje!';
+        diasProvaSub.textContent = 'boa sorte! 🍀';
+      } else {
+        diasProvaEl.textContent = 'Realizada';
+        diasProvaSub.textContent = formatarData(prova.data);
+      }
+    }
+
+    // Card próximo evento (excluindo prova)
+    const proximo = ordenados.find(e => {
+      const d = calcularDias(e.data);
+      return d !== null && d >= 0 && e.categoria !== 'prova';
+    });
+    if (proximo && proximoEl) {
+      const cat = CATEGORIAS[proximo.categoria] || CATEGORIAS.personalizado;
+      const dias = calcularDias(proximo.data);
+      proximoEl.textContent = `${cat.icone} ${proximo.nome}`;
+      proximoSub.textContent = dias === 0 ? 'hoje!' : dias === 1 ? 'amanhã' : `em ${dias} dias`;
+    }
+
+    if (!lista) return;
+
+    if (!ordenados.length) {
+      lista.innerHTML = `
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <div class="empty-title">Nenhum evento cadastrado</div>
+            <div class="empty-sub">Suba seu edital para importar as datas automaticamente, ou adicione eventos manualmente clicando em "+ Adicionar evento".</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = ordenados.map((evento) => {
+      const cat = CATEGORIAS[evento.categoria] || CATEGORIAS.personalizado;
+      const dias = calcularDias(evento.data);
+      const passou = dias !== null && dias < 0;
+      const indexOriginal = eventos.indexOf(evento);
+
+      return `
+        <div class="evento-item ${passou ? 'evento-passou' : ''}">
+          <div class="evento-icone" style="background:${cat.bg};">${cat.icone}</div>
+
+          <div class="evento-info">
+            <div class="evento-nome">${evento.nome}</div>
+            <div class="evento-data">${formatarData(evento.data)} · ${diasLabel(dias)}</div>
+            ${evento.obs ? `<div class="evento-obs">${evento.obs}</div>` : ''}
+          </div>
+
+          <span class="evento-tag" style="background:${cat.bg};color:${cat.cor};">${cat.label}</span>
+
+          <div class="evento-acoes">
+            <button class="btn-acao" onclick="editarEvento(${indexOriginal})" title="Editar">✏️</button>
+            <button class="btn-acao danger" onclick="removerEvento(${indexOriginal})" title="Remover">✕</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── MODAL ──
+  window.abrirModal = function(titulo = 'Adicionar evento') {
+    document.getElementById('modal-title').textContent = titulo;
+    document.getElementById('modal-overlay').style.display = 'flex';
+    setTimeout(() => document.getElementById('evento-nome').focus(), 50);
+  }
+
+  window.fecharModal = function() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.getElementById('evento-nome').value = '';
+    document.getElementById('evento-data').value = '';
+    document.getElementById('evento-categoria').value = 'prova';
+    document.getElementById('evento-obs').value = '';
+    editandoIndex = null;
+  }
+
+  window.fecharModalFora = function(e) {
+    if (e.target === document.getElementById('modal-overlay')) fecharModal();
+  }
+
+  window.salvarEvento = function() {
+    const nome      = document.getElementById('evento-nome').value.trim();
+    const data      = document.getElementById('evento-data').value;
+    const categoria = document.getElementById('evento-categoria').value;
+    const obs       = document.getElementById('evento-obs').value.trim();
+
+    if (!nome) { alert('Informe o nome do evento.'); return; }
+    if (!data) { alert('Informe a data do evento.'); return; }
+
+    if (editandoIndex !== null) {
+      eventos[editandoIndex] = { ...eventos[editandoIndex], nome, data, categoria, obs };
+    } else {
+      eventos.push({ id: Date.now(), nome, data, categoria, obs, origem: 'manual' });
+    }
+
+    salvarEventos();
+    renderEventos();
+    fecharModal();
+  }
+
+  window.editarEvento = function(index) {
+    const evento = eventos[index];
+    editandoIndex = index;
+    document.getElementById('evento-nome').value      = evento.nome;
+    document.getElementById('evento-data').value      = evento.data;
+    document.getElementById('evento-categoria').value = evento.categoria;
+    document.getElementById('evento-obs').value       = evento.obs || '';
+    abrirModal('Editar evento');
+  }
+
+  window.removerEvento = function(index) {
+    if (!confirm('Remover este evento?')) return;
+    eventos.splice(index, 1);
+    salvarEventos();
+    renderEventos();
+  }
+
+  // ── LOGOUT ──
+  window.fazerLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  // ── INIT ──
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    usuario = session.user;
+
+    const nome = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuário';
+    document.getElementById('user-name').textContent = nome.split(' ')[0];
+    document.getElementById('user-avatar').textContent = nome[0].toUpperCase();
+
+    carregarEventos();
+    renderEventos();
+  }
+
+  // Enter para salvar no modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('modal-overlay').style.display === 'flex') {
+      salvarEvento();
+    }
+    if (e.key === 'Escape') fecharModal();
+  });
+
+  init();
+</script>
+
+</body>
+</html>
