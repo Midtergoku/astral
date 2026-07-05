@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Recursos de Estudo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --surface2:  #1A1A24;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --gold:      #F5C542;
+      --green:     #34D399;
+      --red:       #F87171;
+      --blue:      #60A5FA;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      border-top: 2px solid var(--purple);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+    }
+    .sidebar-logo span { color: var(--purple); }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.75rem;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--purple-lt));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-details { overflow: hidden; }
+    .user-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-plan { font-size: 0.72rem; color: var(--muted); }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .nav-links { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 1.5rem; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-link:hover { background: var(--surface2); color: var(--text); }
+    .nav-link.active { background: rgba(124,92,252,0.12); color: var(--purple-lt); }
+    .nav-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-bottom { margin-top: auto; }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: color 0.15s;
+    }
+    .btn-logout:hover { color: var(--red); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem 2.5rem;
+      max-width: calc(100vw - var(--sidebar-w));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .page-sub { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── SELETOR DE MATÉRIA ── */
+    .materia-selector {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .materia-selector h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    .materias-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .materia-chip {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .materia-chip:hover { border-color: var(--purple-lt); color: var(--purple-lt); }
+    .materia-chip.active {
+      background: rgba(124,92,252,0.15);
+      border-color: var(--purple);
+      color: var(--purple-lt);
+      font-weight: 600;
+    }
+
+    /* ── LOADING ── */
+    .loading-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      display: none;
+    }
+
+    .loading-card.show { display: block; }
+
+    .ai-spinner {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(124,92,252,0.12);
+      border: 2px solid rgba(124,92,252,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(124,92,252,0); }
+    }
+
+    .loading-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+
+    .loading-sub { color: var(--muted); font-size: 0.85rem; }
+
+    /* ── RESULTADO ── */
+    .resultado { display: none; }
+    .resultado.show { display: block; }
+
+    .resultado-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .resultado-titulo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--white);
+    }
+
+    .btn-voltar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-voltar:hover { border-color: var(--purple-lt); color: var(--purple-lt); }
+
+    /* ── DICA DA IA ── */
+    .dica-card {
+      background: linear-gradient(135deg, rgba(124,92,252,0.08), var(--surface));
+      border: 1px solid rgba(124,92,252,0.25);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+
+    .dica-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .dica-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--purple-lt);
+      margin-bottom: 0.3rem;
+    }
+    .dica-texto { font-size: 0.9rem; color: var(--text); line-height: 1.6; }
+
+    /* ── SEÇÕES ── */
+    .secao { margin-bottom: 1.75rem; }
+
+    .secao-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+    }
+
+    .secao-icone {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .secao-titulo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--white);
+    }
+
+    .secao-sub { font-size: 0.78rem; color: var(--muted); }
+
+    /* ── CARDS DE RECURSO ── */
+    .recursos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .recurso-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .recurso-card:hover { border-color: rgba(124,92,252,0.35); transform: translateY(-2px); }
+
+    .recurso-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .recurso-nome {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .recurso-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .recurso-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tag-gratis { background: rgba(52,211,153,0.12); color: var(--green); }
+    .tag-pago   { background: rgba(245,197,66,0.12);  color: var(--gold); }
+    .tag-yt     { background: rgba(248,113,113,0.12); color: var(--red); }
+
+    .btn-acessar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(124,92,252,0.1);
+      border: 1px solid rgba(124,92,252,0.25);
+      color: var(--purple-lt);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+      align-self: flex-start;
+      margin-top: 0.25rem;
+    }
+    .btn-acessar:hover {
+      background: rgba(124,92,252,0.2);
+      border-color: var(--purple);
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+    }
+
+    .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--white);
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    .empty-sub { color: var(--muted); font-size: 0.85rem; max-width: 380px; margin: 0 auto; }
+
+    /* ── CACHE INFO ── */
+    .cache-info {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: right;
+      margin-bottom: 1rem;
+      opacity: 0.6;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; padding: 1.25rem; }
+      .recursos-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
+
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-details">
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-plan" id="user-plan">free</div>
+    </div>
+  </div>
+
+  <p class="nav-label">Menu</p>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="14" r="1" fill="currentColor"/><circle cx="12" cy="14" r="1" fill="currentColor"/><circle cx="16" cy="14" r="1" fill="currentColor"/></svg>
+      Calendário
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link active" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Recursos
+    </a>
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Missões
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="fazerLogout()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title">Recursos de Estudo</div>
+      <div class="page-sub">Professores, materiais e cursos selecionados pela IA para o seu concurso</div>
+    </div>
+  </div>
+
+  <!-- SELETOR DE MATÉRIA -->
+  <div class="materia-selector" id="seletor-section">
+    <h3>Selecione uma matéria para ver os recursos</h3>
+    <div class="materias-grid" id="materias-grid">
+      <!-- preenchido pelo JS -->
+    </div>
+  </div>
+
+  <!-- EMPTY STATE (sem edital) -->
+  <div class="empty-state" id="empty-section" style="display:none">
+    <div class="empty-icon">📚</div>
+    <div class="empty-title">Nenhum edital carregado</div>
+    <div class="empty-sub">Suba seu edital no dashboard para que a IA identifique as matérias e recomende os melhores recursos para cada uma.</div>
+    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:1.25rem;background:var(--purple);color:#fff;padding:0.7rem 1.25rem;border-radius:10px;text-decoration:none;font-weight:600;font-size:0.88rem;">
+      Ir para o Dashboard
+    </a>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-card" id="loading-section">
+    <div class="ai-spinner">🤖</div>
+    <div class="loading-title">Buscando recursos...</div>
+    <div class="loading-sub">A IA está pesquisando os melhores professores e materiais para <strong id="loading-materia"></strong>. Isso leva alguns segundos.</div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="resultado" id="resultado-section">
+    <div class="resultado-header">
+      <div class="resultado-titulo" id="resultado-titulo"></div>
+      <button class="btn-voltar" onclick="voltarSelecao()">
+        ← Voltar
+      </button>
+    </div>
+
+    <div class="cache-info" id="cache-info"></div>
+
+    <!-- Dica da IA -->
+    <div class="dica-card" id="dica-card">
+      <div class="dica-icon">💡</div>
+      <div>
+        <div class="dica-label">Dica estratégica da IA</div>
+        <div class="dica-texto" id="dica-texto"></div>
+      </div>
+    </div>
+
+    <!-- Professores YouTube -->
+    <div class="secao" id="secao-professores">
+      <div class="secao-header">
+        <div class="secao-icone" style="background:rgba(248,113,113,0.12);">▶️</div>
+        <div>
+          <div class="secao-titulo">Professores no YouTube</div>
+          <div class="secao-sub">Gratuito · Selecionados para este concurso</div>
+        </div>
+      </div>
+      <div class="recursos-grid" id="professores-grid"></div>
+    </div>
+
+    <!-- Materiais Gratuitos -->
+    <div class="secao" id="secao-gratuitos">
+      <div class="secao-header">
+        <div class="secao-icone" style="background:rgba(52,211,153,0.12);">📂</div>
+        <div>
+          <div class="secao-titulo">Materiais Gratuitos</div>
+          <div class="secao-sub">PDFs, apostilas e sites sem custo</div>
+        </div>
+      </div>
+      <div class="recursos-grid" id="gratuitos-grid"></div>
+    </div>
+
+    <!-- Cursos Pagos -->
+    <div class="secao" id="secao-pagos">
+      <div class="secao-header">
+        <div class="secao-icone" style="background:rgba(245,197,66,0.12);">🎓</div>
+        <div>
+          <div class="secao-titulo">Cursos Recomendados</div>
+          <div class="secao-sub">Pagos · Para aprofundamento</div>
+        </div>
+      </div>
+      <div class="recursos-grid" id="pagos-grid"></div>
+    </div>
+
+  </div>
+
+</main>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let usuario = null;
+  let materias = [];
+  let concurso = '';
+  let cacheRecursos = {};
+
+  // ── INIT ──
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    usuario = session.user;
+    const nome = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuário';
+    document.getElementById('user-name').textContent = nome.split(' ')[0];
+    document.getElementById('user-avatar').textContent = nome[0].toUpperCase();
+
+    // Carrega dados do localStorage
+    const dadosSalvos = localStorage.getItem(`astral_dados_${usuario.id}`);
+    if (dadosSalvos) {
+      const dados = JSON.parse(dadosSalvos);
+      materias = dados.materias || [];
+      concurso = dados.edital?.nome || '';
+
+      // Carrega cache de recursos
+      const cacheKey = `astral_recursos_${usuario.id}`;
+      const cacheSalvo = localStorage.getItem(cacheKey);
+      if (cacheSalvo) cacheRecursos = JSON.parse(cacheSalvo);
+    }
+
+    if (!materias.length) {
+      document.getElementById('seletor-section').style.display = 'none';
+      document.getElementById('empty-section').style.display = 'block';
+      return;
+    }
+
+    renderMaterias();
+  }
+
+  // ── RENDER MATÉRIAS ──
+  function renderMaterias() {
+    const grid = document.getElementById('materias-grid');
+    grid.innerHTML = materias.map((m, i) => {
+      const temCache = !!cacheRecursos[m.nome];
+      return `
+        <div class="materia-chip ${temCache ? 'tem-cache' : ''}" onclick="selecionarMateria('${m.nome.replace(/'/g, "\\'")}')">
+          ${m.nome}
+          ${temCache ? ' ✓' : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── SELECIONAR MATÉRIA ──
+  window.selecionarMateria = async function(nomeMateria) {
+    // Atualiza chip ativo
+    document.querySelectorAll('.materia-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.materia-chip').forEach(c => {
+      if (c.textContent.trim().startsWith(nomeMateria)) c.classList.add('active');
+    });
+
+    // Verifica cache
+    if (cacheRecursos[nomeMateria]) {
+      const cache = cacheRecursos[nomeMateria];
+      const agora = Date.now();
+      const umDia = 24 * 60 * 60 * 1000;
+      if (agora - cache.timestamp < umDia) {
+        mostrarResultado(nomeMateria, cache.dados, true, cache.timestamp);
+        return;
+      }
+    }
+
+    // Busca na IA
+    await buscarRecursos(nomeMateria);
+  }
+
+  // ── BUSCAR RECURSOS ──
+  async function buscarRecursos(nomeMateria) {
+    document.getElementById('seletor-section').style.display = 'none';
+    document.getElementById('loading-section').classList.add('show');
+    document.getElementById('resultado-section').classList.remove('show');
+    document.getElementById('loading-materia').textContent = nomeMateria;
+
+    try {
+      const response = await fetch(
+        'https://jjogmcacbdefwiwcyjxp.supabase.co/functions/v1/buscar-recursos',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+          },
+          body: JSON.stringify({ materia: nomeMateria, concurso }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success || !data.data) {
+        throw new Error(data.error || 'Erro ao buscar recursos');
+      }
+
+      // Salva no cache
+      cacheRecursos[nomeMateria] = {
+        dados: data.data,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(`astral_recursos_${usuario.id}`, JSON.stringify(cacheRecursos));
+
+      mostrarResultado(nomeMateria, data.data, false, Date.now());
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading-section').classList.remove('show');
+      document.getElementById('seletor-section').style.display = 'block';
+      alert('Erro ao buscar recursos. Verifique sua conexão e tente novamente.');
+    }
+  }
+
+  // ── MOSTRAR RESULTADO ──
+  function mostrarResultado(nomeMateria, dados, doCache, timestamp) {
+    document.getElementById('loading-section').classList.remove('show');
+    document.getElementById('seletor-section').style.display = 'block';
+
+    // Título
+    document.getElementById('resultado-titulo').textContent = `Recursos para ${nomeMateria}`;
+
+    // Cache info
+    const cacheEl = document.getElementById('cache-info');
+    if (doCache && timestamp) {
+      const data = new Date(timestamp).toLocaleDateString('pt-BR');
+      cacheEl.textContent = `Resultados salvos em cache · Atualizado em ${data}`;
+    } else {
+      cacheEl.textContent = '';
+    }
+
+    // Dica
+    document.getElementById('dica-texto').textContent = dados.dica || '';
+
+    // Professores
+    const professoresGrid = document.getElementById('professores-grid');
+    if (dados.professores?.length) {
+      professoresGrid.innerHTML = dados.professores.map(p => `
+        <div class="recurso-card">
+          <div class="recurso-top">
+            <div>
+              <div class="recurso-nome">${p.nome}</div>
+              <div class="recurso-sub">${p.canal}</div>
+            </div>
+            <span class="tag tag-yt">YouTube</span>
+          </div>
+          <div class="recurso-desc">${p.descricao}</div>
+          <a href="${p.url}" target="_blank" rel="noopener" class="btn-acessar">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Abrir canal
+          </a>
+        </div>
+      `).join('');
+    } else {
+      professoresGrid.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;">Nenhum professor encontrado para esta matéria.</div>';
+    }
+
+    // Materiais gratuitos
+    const gratuitosGrid = document.getElementById('gratuitos-grid');
+    if (dados.materiais_gratuitos?.length) {
+      gratuitosGrid.innerHTML = dados.materiais_gratuitos.map(m => `
+        <div class="recurso-card">
+          <div class="recurso-top">
+            <div>
+              <div class="recurso-nome">${m.nome}</div>
+              <div class="recurso-sub">${m.tipo}</div>
+            </div>
+            <span class="tag tag-gratis">Grátis</span>
+          </div>
+          <div class="recurso-desc">${m.descricao}</div>
+          <a href="${m.url}" target="_blank" rel="noopener" class="btn-acessar">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Acessar
+          </a>
+        </div>
+      `).join('');
+    } else {
+      gratuitosGrid.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;">Nenhum material gratuito encontrado.</div>';
+    }
+
+    // Cursos pagos
+    const pagosGrid = document.getElementById('pagos-grid');
+    if (dados.cursos_pagos?.length) {
+      pagosGrid.innerHTML = dados.cursos_pagos.map(c => `
+        <div class="recurso-card">
+          <div class="recurso-top">
+            <div>
+              <div class="recurso-nome">${c.nome}</div>
+              <div class="recurso-sub">${c.plataforma}</div>
+            </div>
+            <span class="tag tag-pago">Pago</span>
+          </div>
+          <div class="recurso-desc">${c.descricao}</div>
+          <a href="${c.url}" target="_blank" rel="noopener" class="btn-acessar">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ver curso
+          </a>
+        </div>
+      `).join('');
+    } else {
+      pagosGrid.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;">Nenhum curso pago encontrado.</div>';
+    }
+
+    document.getElementById('resultado-section').classList.add('show');
+    document.getElementById('resultado-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── VOLTAR ──
+  window.voltarSelecao = function() {
+    document.getElementById('resultado-section').classList.remove('show');
+    document.querySelectorAll('.materia-chip').forEach(c => c.classList.remove('active'));
+  }
+
+  // ── LOGOUT ──
+  window.fazerLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  init();
+</script>
+
+</body>
+</html>
