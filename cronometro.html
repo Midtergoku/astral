@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Cronômetro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0A0A0F; --surface:#13131A; --surface2:#1A1A24; --border:#1E1E2E;
+      --purple:#7C5CFC; --purple-lt:#A78BFA; --gold:#F5C542; --green:#34D399;
+      --red:#F87171; --text:#E8E8F0; --muted:#6B6B80; --white:#FFFFFF; --sidebar-w:240px;
+    }
+    *, body { box-sizing: border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-size:15px; line-height:1.6; min-height:100vh; display:flex; }
+    .sidebar { width:var(--sidebar-w); min-height:100vh; background:var(--surface); border-right:1px solid var(--border); border-top:2px solid var(--purple); display:flex; flex-direction:column; padding:1.5rem 1rem; position:fixed; top:0; left:0; z-index:50; }
+    .sidebar-logo { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.4rem; color:var(--white); text-decoration:none; display:block; margin-bottom:2rem; padding:0 0.5rem; }
+    .sidebar-logo span { color:var(--purple); }
+    .user-info { display:flex; align-items:center; gap:0.65rem; padding:0.75rem; background:var(--surface2); border:1px solid var(--border); border-radius:12px; margin-bottom:1.75rem; }
+    .user-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--purple-lt)); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.9rem; color:#fff; flex-shrink:0; }
+    .user-name { font-weight:600; font-size:0.85rem; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-plan { font-size:0.72rem; color:var(--muted); }
+    .nav-label { font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding:0 0.5rem; margin-bottom:0.4rem; }
+    .nav-links { display:flex; flex-direction:column; gap:0.2rem; margin-bottom:1.5rem; }
+    .nav-link { display:flex; align-items:center; gap:0.65rem; padding:0.65rem 0.75rem; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:500; transition:background 0.15s,color 0.15s; cursor:pointer; border:none; background:none; width:100%; text-align:left; }
+    .nav-link:hover { background:var(--surface2); color:var(--text); }
+    .nav-link.active { background:rgba(124,92,252,0.12); color:var(--purple-lt); }
+    .nav-link svg { width:16px; height:16px; flex-shrink:0; }
+    .sidebar-bottom { margin-top:auto; }
+    .btn-logout { display:flex; align-items:center; gap:0.65rem; padding:0.65rem 0.75rem; border-radius:10px; color:var(--muted); font-size:0.85rem; font-weight:500; cursor:pointer; border:none; background:none; width:100%; text-align:left; transition:color 0.15s; }
+    .btn-logout:hover { color:var(--red); }
+    .main { margin-left:var(--sidebar-w); flex:1; padding:2rem 2.5rem; max-width:calc(100vw - var(--sidebar-w)); display:flex; flex-direction:column; align-items:center; }
+    .topbar { width:100%; display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:2rem; }
+    .page-title { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.5rem; color:var(--white); letter-spacing:-0.02em; }
+    .page-sub { font-size:0.85rem; color:var(--muted); margin-top:0.2rem; }
+    .modo-selector { display:flex; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:0.35rem; margin-bottom:2rem; }
+    .modo-btn { padding:0.55rem 1.5rem; border-radius:9px; border:none; background:none; color:var(--muted); font-family:'Inter',sans-serif; font-weight:600; font-size:0.88rem; cursor:pointer; transition:all 0.2s; }
+    .modo-btn.active { background:var(--purple); color:#fff; }
+    .crono-container { display:flex; flex-direction:column; align-items:center; gap:1.75rem; width:100%; max-width:500px; }
+    .materia-selector { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem; }
+    .materia-label { font-size:0.8rem; font-weight:600; color:var(--muted); white-space:nowrap; }
+    select.materia-select { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:0.55rem 0.85rem; color:var(--text); font-family:'Inter',sans-serif; font-size:0.88rem; outline:none; appearance:none; }
+    select.materia-select:focus { border-color:var(--purple); }
+    .pomodoro-config { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem 1.25rem; display:none; }
+    .pomodoro-config.show { display:block; }
+    .pconfig-titulo { font-size:0.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem; }
+    .pconfig-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    .pconfig-grupo { display:flex; flex-direction:column; gap:0.3rem; }
+    .pconfig-label { font-size:0.75rem; color:var(--muted); font-weight:500; }
+    .pconfig-input { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:0.5rem 0.75rem; color:var(--text); font-family:'Inter',sans-serif; font-size:0.88rem; width:100%; outline:none; appearance:none; }
+    .crono-ring { position:relative; width:260px; height:260px; }
+    .crono-svg { width:260px; height:260px; transform:rotate(-90deg); }
+    .crono-track { fill:none; stroke:var(--border); stroke-width:8; }
+    .crono-progress { fill:none; stroke:var(--purple); stroke-width:8; stroke-linecap:round; stroke-dasharray:754; stroke-dashoffset:754; transition:stroke-dashoffset 1s linear,stroke 0.5s; }
+    .crono-progress.pausa { stroke:var(--green); }
+    .crono-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.2rem; }
+    .crono-fase { font-size:0.7rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+    .crono-fase.pausa { color:var(--green); }
+    .crono-tempo { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:3.2rem; color:var(--white); letter-spacing:-0.04em; line-height:1; }
+    .crono-sessao-label { font-size:0.75rem; color:var(--muted); }
+    .controles { display:flex; align-items:center; gap:1rem; }
+    .btn-controle { width:50px; height:50px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; }
+    .btn-controle:hover { border-color:var(--purple-lt); color:var(--purple-lt); }
+    .btn-play { width:68px; height:68px; border-radius:50%; border:none; background:var(--purple); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; box-shadow:0 0 0 0 rgba(124,92,252,0.4); }
+    .btn-play:hover { transform:scale(1.05); box-shadow:0 0 0 8px rgba(124,92,252,0.15); }
+    .btn-play.rodando { background:var(--surface2); border:1px solid var(--border); }
+    .btn-finalizar { width:100%; padding:0.75rem; border-radius:10px; border:1px solid var(--border); background:none; color:var(--muted); font-family:'Inter',sans-serif; font-weight:600; font-size:0.88rem; cursor:pointer; transition:all 0.15s; display:none; }
+    .btn-finalizar.show { display:block; }
+    .btn-finalizar:hover { border-color:var(--green); color:var(--green); }
+    .sessao-stats { width:100%; display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; text-align:center; }
+    .stat-valor { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.4rem; color:var(--white); line-height:1; }
+    .stat-label { font-size:0.72rem; color:var(--muted); margin-top:0.25rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+    .historico-section { width:100%; max-width:500px; margin-top:1.5rem; }
+    .historico-titulo { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.95rem; color:var(--white); margin-bottom:0.85rem; }
+    .historico-lista { display:flex; flex-direction:column; gap:0.5rem; }
+    .historico-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:0.82rem; }
+    .historico-icone { width:32px; height:32px; border-radius:8px; background:rgba(124,92,252,0.1); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
+    .historico-info { flex:1; }
+    .historico-materia { font-weight:600; color:var(--white); }
+    .historico-detalhe { font-size:0.75rem; color:var(--muted); }
+    .historico-xp { font-size:0.75rem; font-weight:700; color:var(--purple-lt); background:rgba(124,92,252,0.1); padding:0.2rem 0.5rem; border-radius:6px; }
+    .historico-vazio { text-align:center; padding:1.5rem; color:var(--muted); font-size:0.85rem; background:var(--surface); border:1px solid var(--border); border-radius:12px; }
+    .xp-float { position:fixed; font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:1.2rem; color:var(--purple-lt); text-shadow:0 0 20px rgba(124,92,252,0.8); pointer-events:none; z-index:9999; animation:floatUp 1.4s ease-out forwards; }
+    @keyframes floatUp { 0%{opacity:1;transform:translateY(0) scale(1)} 30%{opacity:1;transform:translateY(-20px) scale(1.15)} 100%{opacity:0;transform:translateY(-70px) scale(0.8)} }
+    .notif { position:fixed; top:1.5rem; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:0.85rem 1.5rem; font-weight:600; font-size:0.9rem; color:var(--white); z-index:999; transition:transform 0.3s ease; white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+    .notif.show { transform:translateX(-50%) translateY(0); }
+    @media(max-width:768px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:1.25rem}}
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div>
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-plan" id="user-plan">free</div>
+    </div>
+  </div>
+  <p class="nav-label">Menu</p>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+    <a class="nav-link" href="edital.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Meu Edital</a>
+    <a class="nav-link" href="calendario.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendário</a>
+    <a class="nav-link active" href="cronometro.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Cronômetro</a>
+    <a class="nav-link" href="progresso.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Progresso</a>
+    <a class="nav-link" href="recursos.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Recursos</a>
+    <a class="nav-link" href="questoes.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Questões</a>
+    <a class="nav-link" href="conquistas.html"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>Missões</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="fazerLogout()"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Encerrar sessão</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Cronômetro</div>
+      <div class="page-sub">Registre seu tempo de estudo e ganhe XP a cada minuto</div>
+    </div>
+  </div>
+
+  <div class="modo-selector">
+    <button class="modo-btn active" id="btn-livre" onclick="setModo('livre')">⏱ Livre</button>
+    <button class="modo-btn" id="btn-pomodoro" onclick="setModo('pomodoro')">🍅 Pomodoro</button>
+  </div>
+
+  <div class="crono-container">
+    <div class="materia-selector">
+      <span class="materia-label">Estudando:</span>
+      <select class="materia-select" id="select-materia">
+        <option value="Geral">Geral</option>
+      </select>
+    </div>
+
+    <div class="pomodoro-config" id="pomodoro-config">
+      <div class="pconfig-titulo">Configuração do Pomodoro</div>
+      <div class="pconfig-grid">
+        <div class="pconfig-grupo">
+          <div class="pconfig-label">Foco (minutos)</div>
+          <input type="number" class="pconfig-input" id="pomo-foco" value="25" min="1" max="60"/>
+        </div>
+        <div class="pconfig-grupo">
+          <div class="pconfig-label">Pausa (minutos)</div>
+          <input type="number" class="pconfig-input" id="pomo-pausa" value="5" min="1" max="30"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="crono-ring">
+      <svg class="crono-svg" viewBox="0 0 260 260">
+        <circle class="crono-track" cx="130" cy="130" r="120"/>
+        <circle class="crono-progress" id="crono-progress" cx="130" cy="130" r="120"/>
+      </svg>
+      <div class="crono-center">
+        <div class="crono-fase" id="crono-fase">PRONTO</div>
+        <div class="crono-tempo" id="crono-tempo">00:00</div>
+        <div class="crono-sessao-label" id="crono-sessao">sessão #1</div>
+      </div>
+    </div>
+
+    <div class="controles">
+      <button class="btn-controle" onclick="resetar()" title="Resetar">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.4"/></svg>
+      </button>
+      <button class="btn-play" id="btn-play" onclick="togglePlay()">
+        <svg id="play-icon" width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button class="btn-controle" onclick="pularFase()" title="Pular fase">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+      </button>
+    </div>
+
+    <button class="btn-finalizar" id="btn-finalizar" onclick="finalizarLivre()">
+      ✓ Finalizar sessão e salvar XP
+    </button>
+
+    <div class="sessao-stats">
+      <div class="stat-card">
+        <div class="stat-valor" id="stat-tempo">0m</div>
+        <div class="stat-label">Hoje</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-valor" id="stat-sessoes">0</div>
+        <div class="stat-label">Sessões</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-valor" id="stat-xp" style="color:var(--purple-lt)">0</div>
+        <div class="stat-label">XP ganho</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="historico-section">
+    <div class="historico-titulo">Histórico de hoje</div>
+    <div class="historico-lista" id="historico-lista">
+      <div class="historico-vazio">Nenhuma sessão ainda. Inicie o cronômetro para começar!</div>
+    </div>
+  </div>
+</main>
+
+<div class="notif" id="notif"></div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const supabase = createClient('https://jjogmcacbdefwiwcyjxp.supabase.co','sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ');
+
+  const CIRCUNFERENCIA = 2 * Math.PI * 120;
+  let usuario=null, modo='livre', rodando=false, intervalo=null;
+  let segundosAtual=0, segundosTotalHoje=0, sessoesHoje=0, xpHoje=0;
+  let historico=[], fasePomodoro='foco', pomodoroSeg=0, totalPomodoroSeg=0;
+
+  async function init() {
+    const {data:{session}} = await supabase.auth.getSession();
+    if(!session){window.location.href='login.html';return;}
+    usuario=session.user;
+    const nome=session.user.user_metadata?.full_name||session.user.email?.split('@')[0]||'Usuário';
+    document.getElementById('user-name').textContent=nome.split(' ')[0];
+    document.getElementById('user-avatar').textContent=nome[0].toUpperCase();
+
+    const dados=JSON.parse(localStorage.getItem(`astral_dados_${usuario.id}`)||'{}');
+    const select=document.getElementById('select-materia');
+    (dados.materias||[]).forEach(m=>{
+      const o=document.createElement('option');
+      o.value=o.textContent=m.nome;
+      select.appendChild(o);
+    });
+
+    const hoje=new Date().toDateString();
+    historico=JSON.parse(localStorage.getItem(`astral_crono_${usuario.id}_${hoje}`)||'[]');
+    historico.forEach(s=>{segundosTotalHoje+=s.segundos;sessoesHoje++;xpHoje+=s.xp;});
+    atualizarStats();renderHistorico();
+
+    document.getElementById('crono-progress').style.strokeDasharray=CIRCUNFERENCIA;
+    document.getElementById('crono-progress').style.strokeDashoffset=CIRCUNFERENCIA;
+  }
+
+  window.setModo=function(m){
+    modo=m;resetar();
+    document.getElementById('btn-livre').classList.toggle('active',m==='livre');
+    document.getElementById('btn-pomodoro').classList.toggle('active',m==='pomodoro');
+    document.getElementById('pomodoro-config').classList.toggle('show',m==='pomodoro');
+    if(m==='pomodoro'){fasePomodoro='foco';atualizarFaseDisplay();}
+  }
+
+  window.togglePlay=function(){rodando?pausar():iniciar();}
+
+  function iniciar(){
+    rodando=true;
+    setBtnPlay(true);
+    if(modo==='livre'){
+      document.getElementById('crono-fase').textContent='ESTUDANDO';
+      document.getElementById('btn-finalizar').classList.add('show');
+      intervalo=setInterval(()=>{
+        segundosAtual++;
+        atualizarTempoDisplay(segundosAtual);
+        atualizarAnel((segundosAtual%3600)/3600);
+      },1000);
+    } else {
+      iniciarPomodoro();
+    }
+  }
+
+  function pausar(){
+    rodando=false;clearInterval(intervalo);
+    setBtnPlay(false);
+    document.getElementById('crono-fase').textContent='PAUSADO';
+  }
+
+  function iniciarPomodoro(){
+    const focoMin=parseInt(document.getElementById('pomo-foco').value)||25;
+    const pausaMin=parseInt(document.getElementById('pomo-pausa').value)||5;
+    totalPomodoroSeg=fasePomodoro==='foco'?focoMin*60:pausaMin*60;
+    pomodoroSeg=totalPomodoroSeg;
+    atualizarFaseDisplay();
+    atualizarTempoDisplay(pomodoroSeg);
+    atualizarAnel(1);
+    if(!rodando)return;
+    clearInterval(intervalo);
+    intervalo=setInterval(()=>{
+      pomodoroSeg--;
+      if(fasePomodoro==='foco')segundosAtual++;
+      atualizarTempoDisplay(pomodoroSeg);
+      atualizarAnel(pomodoroSeg/totalPomodoroSeg);
+      if(pomodoroSeg<=0){
+        clearInterval(intervalo);
+        if(fasePomodoro==='foco'){registrarSessao();fasePomodoro='pausa';mostrarNotif('🍅 Foco concluído! Hora da pausa.');}
+        else{fasePomodoro='foco';mostrarNotif('⚡ Pausa encerrada! Vamos estudar.');}
+        iniciarPomodoro();
+      }
+    },1000);
+  }
+
+  function atualizarFaseDisplay(){
+    const el=document.getElementById('crono-fase');
+    const prog=document.getElementById('crono-progress');
+    if(fasePomodoro==='foco'){el.textContent='FOCO';el.classList.remove('pausa');prog.classList.remove('pausa');}
+    else{el.textContent='PAUSA';el.classList.add('pausa');prog.classList.add('pausa');}
+  }
+
+  window.pularFase=function(){
+    if(modo!=='pomodoro')return;
+    clearInterval(intervalo);
+    if(fasePomodoro==='foco'&&segundosAtual>0)registrarSessao();
+    fasePomodoro=fasePomodoro==='foco'?'pausa':'foco';
+    if(rodando)iniciarPomodoro();else atualizarFaseDisplay();
+  }
+
+  window.resetar=function(){
+    clearInterval(intervalo);rodando=false;segundosAtual=0;pomodoroSeg=0;fasePomodoro='foco';
+    setBtnPlay(false);
+    document.getElementById('crono-tempo').textContent='00:00';
+    document.getElementById('crono-fase').textContent='PRONTO';
+    document.getElementById('crono-fase').classList.remove('pausa');
+    document.getElementById('crono-progress').classList.remove('pausa');
+    document.getElementById('crono-progress').style.strokeDashoffset=CIRCUNFERENCIA;
+    document.getElementById('btn-finalizar').classList.remove('show');
+  }
+
+  window.finalizarLivre=function(){
+    if(modo==='livre'&&rodando){pausar();registrarSessao();resetar();}
+  }
+
+  function registrarSessao(){
+    if(segundosAtual<60)return;
+    const materia=document.getElementById('select-materia').value||'Geral';
+    const xp=Math.floor(segundosAtual/60)*2;
+    const sessao={materia,segundos:segundosAtual,xp,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+    historico.unshift(sessao);
+    segundosTotalHoje+=segundosAtual;sessoesHoje++;xpHoje+=xp;segundosAtual=0;
+    const hoje=new Date().toDateString();
+    localStorage.setItem(`astral_crono_${usuario.id}_${hoje}`,JSON.stringify(historico));
+    const key=`astral_dados_${usuario.id}`;
+    const d=JSON.parse(localStorage.getItem(key)||'{}');
+    d.xp=(d.xp||0)+xp;d.horas=Math.round(((d.horas||0)+sessao.segundos/3600)*10)/10;
+    localStorage.setItem(key,JSON.stringify(d));
+    atualizarStats();renderHistorico();animarXP(xp);
+  }
+
+  function setBtnPlay(playing){
+    const btn=document.getElementById('btn-play');
+    const icon=document.getElementById('play-icon');
+    btn.classList.toggle('rodando',playing);
+    icon.innerHTML=playing?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
+  }
+
+  function atualizarTempoDisplay(s){
+    const m=Math.floor(s/60).toString().padStart(2,'0');
+    const ss=(s%60).toString().padStart(2,'0');
+    document.getElementById('crono-tempo').textContent=`${m}:${ss}`;
+    document.getElementById('crono-sessao').textContent=`sessão #${sessoesHoje+1}`;
+  }
+
+  function atualizarAnel(pct){
+    document.getElementById('crono-progress').style.strokeDashoffset=CIRCUNFERENCIA*(1-Math.max(0,Math.min(1,pct)));
+  }
+
+  function atualizarStats(){
+    const min=Math.floor(segundosTotalHoje/60);
+    const h=Math.floor(min/60),m=min%60;
+    document.getElementById('stat-tempo').textContent=h>0?`${h}h${m}m`:`${m}m`;
+    document.getElementById('stat-sessoes').textContent=sessoesHoje;
+    document.getElementById('stat-xp').textContent=xpHoje;
+  }
+
+  function renderHistorico(){
+    const lista=document.getElementById('historico-lista');
+    if(!historico.length){lista.innerHTML='<div class="historico-vazio">Nenhuma sessão ainda. Inicie o cronômetro para começar!</div>';return;}
+    lista.innerHTML=historico.map(s=>`
+      <div class="historico-item">
+        <div class="historico-icone">⏱</div>
+        <div class="historico-info">
+          <div class="historico-materia">${s.materia}</div>
+          <div class="historico-detalhe">${Math.floor(s.segundos/60)} min · ${s.hora}</div>
+        </div>
+        <div class="historico-xp">+${s.xp} XP</div>
+      </div>`).join('');
+  }
+
+  function mostrarNotif(msg){
+    const el=document.getElementById('notif');el.textContent=msg;el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),3500);
+  }
+
+  function animarXP(qtd){
+    const el=document.createElement('div');el.className='xp-float';el.textContent=`+${qtd} XP`;
+    el.style.left=`${window.innerWidth/2}px`;el.style.top=`${window.innerHeight/2}px`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1500);
+  }
+
+  window.fazerLogout=async function(){
+    if(rodando)registrarSessao();
+    await supabase.auth.signOut();window.location.href='login.html';
+  }
+
+  window.addEventListener('beforeunload',()=>{if(modo==='livre'&&rodando&&segundosAtual>=60)registrarSessao();});
+  init();
+</script>
+</body>
+</html>
