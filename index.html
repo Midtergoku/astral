@@ -772,6 +772,7 @@
             position: relative;
             overflow: hidden;
             isolation: isolate;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .spotlight-card::before {
@@ -779,15 +780,17 @@
             position: absolute;
             inset: 0;
             background: radial-gradient(
-                300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(124, 92, 252, 0.12),
-                transparent 60%
+                400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(124, 92, 252, 0.25),
+                rgba(167, 139, 250, 0.08) 40%,
+                transparent 70%
             );
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.5s ease;
             pointer-events: none;
             z-index: 0;
             border-radius: inherit;
+            animation: none;
         }
 
         .spotlight-card:hover::before {
@@ -799,12 +802,13 @@
             position: absolute;
             inset: -1px;
             background: radial-gradient(
-                200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(124, 92, 252, 0.35),
-                transparent 60%
+                250px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(124, 92, 252, 0.6),
+                rgba(167, 139, 250, 0.2) 40%,
+                transparent 70%
             );
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.5s ease;
             pointer-events: none;
             z-index: 0;
             border-radius: inherit;
@@ -819,9 +823,39 @@
             opacity: 1;
         }
 
+        .spotlight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(124, 92, 252, 0.2);
+        }
+
         .spotlight-card > * {
             position: relative;
             z-index: 1;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .spotlight-ripple {
+            position: absolute;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(124,92,252,0.4), transparent 70%);
+            transform: scale(0);
+            animation: ripple 0.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 0;
+            margin-left: -50px;
+            margin-top: -50px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
@@ -908,25 +942,25 @@
         <p class="section-sub">São centenas de páginas, dezenas de matérias e zero clareza sobre o que realmente cai na
             prova. E o tempo vai passando.</p>
         <div class="pain-grid">
-            <div class="pain-card">
+            <div class="pain-card spotlight-card">
                 <div class="pain-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
                 <h3>Edital gigante e confuso</h3>
                 <p>Matérias listadas sem indicar o que é mais importante. Você não sabe se começa por Legislação Militar
                     ou Português primeiro.</p>
             </div>
-            <div class="pain-card">
+            <div class="pain-card spotlight-card">
                 <div class="pain-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                 <h3>Sem cronograma real</h3>
                 <p>Planilhas genéricas que ignoram seus turnos, sua rotina e o tempo real que você tem até a
                     prova.</p>
             </div>
-            <div class="pain-card">
+            <div class="pain-card spotlight-card">
                 <div class="pain-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
                 <h3>Procrastinação constante</h3>
                 <p>Especialmente para quem tem TDAH: sem um sistema de recompensa, é quase impossível manter o ritmo de
                     estudos.</p>
             </div>
-            <div class="pain-card">
+            <div class="pain-card spotlight-card">
                 <div class="pain-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
                 <h3>Sensação de estar perdido</h3>
                 <p>Mesmo estudando horas, a sensação é de que nunca é suficiente. Falta visibilidade sobre o seu avanço
@@ -970,37 +1004,37 @@
         <p class="section-label">O que você recebe</p>
         <h2 class="section-title">As ferramentas que seu edital militar exige</h2>
         <div class="features-grid">
-            <div class="feature-card">
+            <div class="feature-card spotlight-card">
                 <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
                 <h3>IA que lê seu edital</h3>
                 <p>Extrai automaticamente todas as matérias, subtópicos e seus respectivos pesos. Sem copiar e colar
                     nada manualmente.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card spotlight-card">
                 <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div>
                 <h3>Priorização por peso</h3>
                 <p>Estuda o que mais cai primeiro. O Astral ordena as matérias pela relevância real na prova, não por
                     ordem alfabética.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card spotlight-card">
                 <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
                 <h3>Cronograma personalizado</h3>
                 <p>Gerado com base na sua rotina real: horas disponíveis, dias da semana e tempo até a prova.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card spotlight-card">
                 <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></div>
                 <h3>Sistema de XP e conquistas</h3>
                 <p>Cada hora estudada vira XP. Suba de nível, ganhe badges e mantenha seu streak. Feito especialmente
                     para quem tem TDAH.</p>
                 <span class="feature-tag">⚡ Anti-procrastinação</span>
             </div>
-            <div class="feature-card">
+            <div class="feature-card spotlight-card">
                 <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
                 <h3>Dashboard de progresso</h3>
                 <p>Veja exatamente quanto você já cobriu de cada matéria e quanto falta para a prova. Clareza total a
                     qualquer momento.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card spotlight-card">
                 <div class="feature-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
                 <h3>Lembretes inteligentes</h3>
                 <p>Notificações no horário certo para você não quebrar o ritmo. O sistema aprende com seus hábitos.</p>
@@ -1018,7 +1052,7 @@
                     recompensa não funcionam. O Astral usa XP, streaks e conquistas para manter seu cérebro engajado e
                     transformar o estudo em um hábito que gruda.</p>
             </div>
-            <div class="xp-card">
+            <div class="xp-card spotlight-card">
                 <div class="xp-header">
                     <div class="xp-name">Maria S.</div>
                     <div class="xp-level">Nível 12 — Cadete</div>
@@ -1097,22 +1131,22 @@
         <p class="section-label">Dúvidas</p>
         <h2 class="section-title">Perguntas frequentes</h2>
         <div class="faq-list">
-            <div class="faq-item">
+            <div class="faq-item spotlight-card">
                 <h4>Funciona para qualquer concurso militar?</h4>
                 <p>Sim. Nossa IA foi treinada para ler editais de Exército, Marinha, Aeronáutica, PM, Bombeiros e
                     escolas militares. Se tem PDF, o Astral processa.</p>
             </div>
-            <div class="faq-item">
+            <div class="faq-item spotlight-card">
                 <h4>Preciso saber de tecnologia para usar?</h4>
                 <p>Não. É só fazer o upload do edital e responder algumas perguntas simples. Em menos de 5 minutos seu
                     plano está pronto.</p>
             </div>
-            <div class="faq-item">
+            <div class="faq-item spotlight-card">
                 <h4>O que é o sistema de gamificação?</h4>
                 <p>Cada hora de estudo registrada gera XP. Você sobe de nível, ganha badges e mantém um streak diário.
                     Foi pensado especialmente para ajudar pessoas com TDAH a manterem a consistência.</p>
             </div>
-            <div class="faq-item">
+            <div class="faq-item spotlight-card">
                 <h4>Posso cancelar a qualquer momento?</h4>
                 <p>Sim, sem burocracia. Basta cancelar na sua conta e você não é cobrado no próximo ciclo.</p>
             </div>
@@ -1221,21 +1255,40 @@
 </script>
 
 <script>
-  const spotlightCard = document.querySelector('.spotlight-card');
-  if (spotlightCard) {
-    spotlightCard.addEventListener('mousemove', (e) => {
-      const rect = spotlightCard.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      spotlightCard.style.setProperty('--mouse-x', x + '%');
-      spotlightCard.style.setProperty('--mouse-y', y + '%');
-    });
+  function iniciarSpotlight() {
+    const cards = document.querySelectorAll('.spotlight-card');
 
-    spotlightCard.addEventListener('mouseleave', () => {
-      spotlightCard.style.setProperty('--mouse-x', '50%');
-      spotlightCard.style.setProperty('--mouse-y', '50%');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mouse-x', x + '%');
+        card.style.setProperty('--mouse-y', y + '%');
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--mouse-x', '50%');
+        card.style.setProperty('--mouse-y', '50%');
+      });
+
+      card.addEventListener('click', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const ripple = document.createElement('div');
+        ripple.className = 'spotlight-ripple';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        card.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 800);
+      });
     });
   }
+
+  iniciarSpotlight();
 </script>
 
 </body>
