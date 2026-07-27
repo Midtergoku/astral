@@ -635,6 +635,25 @@
   margin-bottom: 0.25rem;
 }
 .levelup-sub { font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+
+.balanco-banner {
+  display: none;
+  background: linear-gradient(135deg, rgba(245,197,66,0.08), var(--surface));
+  border: 1px solid rgba(245,197,66,0.3);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.balanco-banner.show { display: flex; }
+.balanco-banner-icon { font-size: 1.5rem; flex-shrink: 0; }
+.balanco-banner-info { flex: 1; }
+.balanco-banner-titulo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--white); margin-bottom: 0.2rem; }
+.balanco-banner-sub { font-size: 0.78rem; color: var(--muted); }
+.balanco-banner-btn { background: rgba(245,197,66,0.15); border: 1px solid rgba(245,197,66,0.3); color: var(--gold); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+.balanco-banner-btn:hover { background: rgba(245,197,66,0.25); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
 </head>
@@ -800,6 +819,15 @@
 
   <!-- MAIN GRID (aparece depois do upload) -->
   <div id="main-content" style="display:none;">
+
+<div class="balanco-banner" id="balanco-banner">
+  <div class="balanco-banner-icon">⚖️</div>
+  <div class="balanco-banner-info">
+    <div class="balanco-banner-titulo" id="balanco-titulo">Desequilíbrio detectado</div>
+    <div class="balanco-banner-sub" id="balanco-sub">Algumas matérias estão muito à frente de outras.</div>
+  </div>
+  <button class="balanco-banner-btn" onclick="window.location.href='progresso.html'">Ver sugestão →</button>
+</div>
 
     <!-- HOJE -->
     <div id="cronograma" style="margin-bottom:1.5rem">
@@ -1106,8 +1134,30 @@ function mostrarLevelUp(nomeNivel) {
     document.getElementById('main-content').style.display = 'block';
     renderCronograma();
     renderProgressoResumo();
+    verificarBalanco();
     renderConquistasResumo();
   }
+
+function verificarBalanco() {
+  const banner = document.getElementById('balanco-banner');
+  if (!banner) return;
+  if (!estado.materias || estado.materias.length < 2) { banner.classList.remove('show'); return; }
+
+  const progressos = estado.materias.map(m => m.progresso || 0);
+  const maximo = Math.max(...progressos);
+  const minimo = Math.min(...progressos);
+  const diferenca = maximo - minimo;
+
+  if (diferenca >= 40) {
+    const maisAvancada = estado.materias.find(m => m.progresso === maximo);
+    const maisAtrasada = estado.materias.find(m => m.progresso === minimo);
+    document.getElementById('balanco-titulo').textContent = 'Cronograma desequilibrado detectado';
+    document.getElementById('balanco-sub').textContent = `${maisAvancada?.nome} está ${diferenca}% à frente de ${maisAtrasada?.nome}. Rebalancear pode melhorar seu desempenho geral.`;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
 
   function renderXP() {
     const xp = estado.xp;

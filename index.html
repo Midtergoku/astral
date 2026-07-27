@@ -767,6 +767,62 @@
                 padding: 3rem 1rem 2rem;
             }
         }
+
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(124, 92, 252, 0.12),
+                transparent 60%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: inherit;
+        }
+
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        .spotlight-card::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: radial-gradient(
+                200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(124, 92, 252, 0.35),
+                transparent 60%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: inherit;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            padding: 1px;
+        }
+
+        .spotlight-card:hover::after {
+            opacity: 1;
+        }
+
+        .spotlight-card > * {
+            position: relative;
+            z-index: 1;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
 </head>
@@ -1017,7 +1073,7 @@
       <p class="section-sub" style="text-align:center; margin:0 auto 2rem;">Estamos selecionando os primeiros concurseiros militares que vão testar o Astral antes do lançamento oficial. Quem entrar agora garante acesso <strong style="color:var(--white)">gratuito e vitalício</strong> à plataforma.</p>
 
       <div style="max-width:560px; margin:0 auto;">
-        <div class="price-card featured" style="text-align:center;">
+        <div class="price-card featured spotlight-card" style="text-align:center;">
           <div class="price-badge">Beta exclusivo</div>
           <div class="plan-name" style="margin-top:0.5rem;">Acesso antecipado</div>
           <div class="plan-price" style="font-size:2.2rem; margin:1rem 0 0.25rem;">Gratuito</div>
@@ -1162,6 +1218,24 @@
     }, { margin: '0px 0px -60px 0px' });
   }
 })();
+</script>
+
+<script>
+  const spotlightCard = document.querySelector('.spotlight-card');
+  if (spotlightCard) {
+    spotlightCard.addEventListener('mousemove', (e) => {
+      const rect = spotlightCard.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlightCard.style.setProperty('--mouse-x', x + '%');
+      spotlightCard.style.setProperty('--mouse-y', y + '%');
+    });
+
+    spotlightCard.addEventListener('mouseleave', () => {
+      spotlightCard.style.setProperty('--mouse-x', '50%');
+      spotlightCard.style.setProperty('--mouse-y', '50%');
+    });
+  }
 </script>
 
 </body>
