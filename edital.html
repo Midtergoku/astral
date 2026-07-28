@@ -323,13 +323,12 @@
     to   { opacity: 0; transform: translateY(-8px); }
   }
 
-  body {
-    animation: pageEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  body.saindo {
+    pointer-events: none;
   }
 
-  body.saindo {
+  body.saindo .main {
     animation: pageExit 0.22s ease-in forwards;
-    pointer-events: none;
   }
 
   .main {
