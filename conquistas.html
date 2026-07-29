@@ -62,6 +62,48 @@
     }
     .sidebar-logo span { color: var(--purple); }
 
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.75rem;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--purple-lt));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-details { overflow: hidden; }
+    .user-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-plan {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .plan-beta { color: var(--gold); }
+    .plan-pro  { color: var(--green); }
+
     .nav-label {
       font-size: 0.68rem;
       font-weight: 600;
@@ -436,6 +478,14 @@
 <aside class="sidebar">
   <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
 
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-details">
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-plan" id="user-plan">free</div>
+    </div>
+  </div>
+
   <p class="nav-label">Menu</p>
   <nav class="nav-links">
     <a class="nav-link" href="dashboard.html">
@@ -708,8 +758,18 @@
       || 'Concurseiro';
 
     const primeiroNome = nome.split(' ')[0];
-    document.getElementById('user-name').textContent = primeiroNome;
-    document.getElementById('user-avatar').textContent = primeiroNome[0].toUpperCase();
+    const elName = document.getElementById('user-name');
+    const elAvatar = document.getElementById('user-avatar');
+    if(elName) elName.textContent = primeiroNome;
+    if(elAvatar) elAvatar.textContent = primeiroNome[0].toUpperCase();
+
+    const planoEl = document.getElementById('user-plan');
+    if (planoEl) {
+      const plano = estado.perfil?.tipo_plano || 'free';
+      planoEl.textContent = plano.toUpperCase();
+      if (plano === 'beta' || plano === 'premium') { planoEl.className = 'user-plan plan-beta'; }
+      if (plano === 'pro') { planoEl.className = 'user-plan plan-pro'; }
+    }
 
     const xp = estado.xp;
     const streak = estado.streak;
