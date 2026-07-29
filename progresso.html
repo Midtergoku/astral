@@ -501,7 +501,7 @@
     <div class="user-avatar" id="user-avatar">?</div>
     <div class="user-details">
       <div class="user-name" id="user-name">Carregando...</div>
-      <div class="user-plan" id="user-plan">free</div>
+      <div class="user-plan" id="user-plan">PROFISSIONAL</div>
     </div>
   </div>
 
@@ -652,7 +652,7 @@
 
     const planoEl = document.getElementById('user-plan');
     if (planoEl) {
-      const plano = estado.perfil?.tipo_plano || 'free';
+      const plano = estado.perfil?.tipo_plano || 'profissional';
       planoEl.textContent = plano.toUpperCase();
       if (plano === 'beta' || plano === 'premium') { planoEl.className = 'user-plan plan-beta'; }
       if (plano === 'pro') { planoEl.className = 'user-plan plan-pro'; }
