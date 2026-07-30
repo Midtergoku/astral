@@ -7,41 +7,37 @@
 
 ## 0. ▶ RETOMAR AQUI
 
-**Estado:** Etapa 1 (blindagem). Blocos **A, B1 e B2 concluídos**. Próximo é o **Bloco B3 —
-frontend.**
+**Estado:** Etapa 1 (blindagem). Blocos **A, B1, B2 e B3 concluídos.** O Bloco B está fechado.
+Próximo é o **Bloco C**, mas ele depende de uma decisão do Lucas (item 2 abaixo).
 
-### 🔥 O app está com as funções de IA fora do ar até o B3 terminar
+### 🔥 O código está pronto e NÃO está em produção
 
-O B2 fechou as edge functions: elas agora exigem o `access_token` do usuário. **O frontend
-ainda manda a publishable key**, então as 3 chamadas de IA respondem `401`.
+**15 commits locais não enviados.** As edge functions já foram deployadas (o deploy delas é
+direto pela CLI, não passa pelo git), mas o **frontend corrigido só chega em produção com
+`git push`**. Enquanto isso não acontece, o site no ar tem:
 
-Na prática nada regrediu — elas já estavam quebradas por falta de crédito na Anthropic
-(ver 8.2). Mas o B3 precisa ser terminado antes de o app voltar a funcionar de ponta a ponta.
+- o frontend antigo, mandando a publishable key
+- as edge functions novas, que recusam essa chave
 
-### O que fazer, em ordem
+Ou seja: **as 3 funções de IA respondem 401 em produção agora.** Na prática nada regrediu,
+porque elas já estavam quebradas por falta de crédito na Anthropic — mas **o push fecha esse
+descompasso e precisa acontecer antes de qualquer teste de ponta a ponta.**
 
-1. **Trocar o header nas 4 chamadas** — hoje `Bearer <publishable key>`, precisa ser
-   `Bearer ${session.access_token}`: [dashboard.html:1484](dashboard.html#L1484),
-   [edital.html:746](edital.html#L746), [questoes.html:954](questoes.html#L954),
-   [recursos.html:794](recursos.html#L794)
-2. **Escape universal** — 40 pontos de `innerHTML`, mais a sanitização de URL em
-   [recursos.html](recursos.html) (`href="${url}"` aceita `javascript:`)
-3. **`vercel.json`** com CSP e demais headers
-4. **Pin de versão** do `@supabase/supabase-js` nos 11 arquivos
-5. Junto disso entra a extração de JS que ficou fora do Bloco A (`createClient` em 11,
-   `fazerLogout` em 8, guarda de sessão em 7) — é o mesmo código que será reescrito
+### Decisões e passos manuais pendentes do Lucas
 
-### Decisões pendentes do Lucas
+| # | O quê | Bloqueia | Passo a passo |
+|---|---|---|---|
+| 1 | **`git push`** — ✅ já verificado que é seguro | o app voltar a funcionar | 13.1 |
+| 2 | **Auth por e-mail está DESLIGADA.** Ligar o provedor e construir o fluxo, ou remover os formulários de e-mail/senha das telas? | **Bloco C inteiro** | 8.2, CRÍTICO 4 |
+| 3 | **Segredo do webhook** | fechar a bomba de e-mail | 13.2 |
+| 4 | **Toggle de senha vazada** | último advisor aberto | 13.3 |
 
-| # | Decisão | Bloqueia |
-|---|---|---|
-| 1 | **Push dos commits locais.** ✅ verificado seguro | o B3 chegar em produção |
-| 2 | **Autenticação por e-mail está DESLIGADA no Supabase** — os formulários de e-mail/senha do `criar-conta.html` e `login.html` nunca funcionaram. Ligar o provedor e construir o fluxo, ou remover os formulários? | Bloco C |
-| 3 | **Segredo do webhook** — 3 passos manuais descritos em 8.7 | fechar a bomba de e-mail |
-| 4 | **Toggle de senha vazada** — Authentication → Policies | último advisor aberto |
+> ⚠️ **Só adicione créditos na Anthropic depois do push.** Antes disso o ciclo não está fechado.
 
-> ⚠️ **Não adicione créditos na Anthropic antes do B3 terminar.** Com o B2 no ar o risco caiu
-> muito, mas o ciclo só está de fato fechado quando o app voltar a autenticar direito.
+### Depois disso
+
+**Bloco C** (senha, Termos de Uso, exportar/excluir conta) → **Bloco D** (`alert()` → toast com
+CSS, responsividade mobile) → fecha a Etapa 1 → **Etapa 2, pagamento** (seção 9).
 
 ---
 
@@ -691,6 +687,59 @@ propósito: exigir o segredo antes de o webhook mandá-lo derrubaria a notifica�
 
 ---
 
+## 8.8. Bloco B3 — frontend blindado (30/07/2026) ✅
+
+### `assets/js/astral.js` — núcleo compartilhado das 11 páginas
+
+Reúne o que estava duplicado (cliente Supabase, guarda de sessão, logout) e acrescenta o que
+não existia: `esc()`, `att()`, `escJs()`, `urlSegura()`, `toast()` e `chamarIA()`.
+
+**A versão do `supabase-js` está travada em 2.111.0**, num lugar só. Antes eram 11 arquivos
+importando `/+esm` sem pin — o jsdelivr entregava sempre a última versão, então um major novo
+derrubaria o app sozinho, de madrugada.
+
+### O que mudou
+
+| | Antes | Depois |
+|---|---|---|
+| Header das 4 chamadas de IA | publishable key | `access_token` do usuário |
+| `q.enunciado`, alternativas, explicação | `innerHTML` cru | `esc()` |
+| Nome de matéria, nome/obs de evento | `innerHTML` cru | `esc()` |
+| `href="${url}"` da IA | aceitava `javascript:` | `urlSegura()` — só http/https |
+| `onclick="responder(0,'${alt}')"` | escapava só `'` | removido: `data-indice` + listener |
+| `onclick="selecionarMateria('${m.nome}')"` | idem | removido: `data-indice` + listener |
+| Headers HTTP | nenhum | `vercel.json` com CSP, HSTS, nosniff, frame-ancestors |
+| PDF | sem limite no cliente | 10 MB, igual ao servidor |
+| `processarEdital` | `stringify` + `parse` do que já era objeto | direto |
+| `alert(err.message)` | vazava erro da API | `toast()` |
+
+### Sobre a CSP: por que `script-src` tem `'unsafe-inline'`
+
+O projeto não tem build, e há JavaScript inline em todas as páginas. Sem hash ou nonce — que
+exigiriam etapa de build — `'unsafe-inline'` é obrigatório, senão nada roda. A CSP ainda vale
+muito pelo resto: `connect-src` limita para onde um script conseguiria enviar dados roubados,
+`frame-ancestors 'none'` mata clickjacking, `object-src 'none'` e `base-uri 'none'` fecham
+vetores clássicos. **A defesa contra XSS aqui é o `esc()`, não a CSP** — a CSP é a segunda
+barreira, e incompleta.
+
+### Verificações automatizadas
+
+```bash
+node tools/valida-css.js     # CSS resolvido identico ao original
+```
+
+Na sessão também rodaram, a partir do scratchpad: checagem de sintaxe dos 22 blocos `<script>`
+(`node --check`) e conferência de que cada página importa todos os símbolos que usa. Vale
+recriar esses dois se for mexer em muitos arquivos de uma vez.
+
+### Fica para o Bloco D
+
+10 `alert()` de validação de formulário em `cadastro`, `calendario`, `login` e `progresso`.
+Não converti porque `login` e `cadastro` **não têm CSS de toast** — trocar agora deixaria o
+erro invisível, que é pior que um alert feio. O D leva o CSS junto.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -703,7 +752,7 @@ O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depoi
 | **A** | Extrair CSS/JS compartilhado para `assets/` — sem mudar comportamento | ✅ feito — ver 8.5 |
 | **B1** | Migrations: trigger de perfil, `tipo_plano`, `lista_espera`, grants | ✅ feito — ver 8.6 |
 | **B2** | Edge functions: JWT, quota por plano, limite de PDF, CORS restrito | ✅ feito — ver 8.7 |
-| **B3** | Frontend: **mandar o `access_token`**, escape universal, sanitizar URLs, CSP e headers, pin de dependências | ⬜ próximo |
+| **B3** | Frontend: `access_token`, escape universal, sanitizar URLs, CSP e headers, pin de dependências | ✅ feito — ver 8.8 |
 | **C** | Página de redefinir senha · Termos de Uso · exportar e excluir conta · confirmação de e-mail | ⬜ |
 | **D** | Validação de schema da IA com retry · trocar `alert()` por toast · responsividade mobile | ⬜ |
 
@@ -785,6 +834,80 @@ claude mcp add --scope user --transport http supabase \
 
 **Regras de segurança inegociáveis:** chave sensível só em Supabase Secrets · RLS em toda
 tabela nova · validação no front E no back · nunca armazenar dado de cartão.
+
+---
+
+## 13. Passos manuais do Lucas — instruções clique a clique
+
+> O Lucas não é técnico. Toda instrução aqui é literal: onde clicar, o que digitar, e como
+> saber que deu certo. Não resumir.
+
+### 13.1. Publicar em produção (`git push`)
+
+**O que isso faz:** envia os 15 commits para o GitHub. O Vercel percebe sozinho e republica o
+site em ~1 minuto. É o que coloca no ar todo o trabalho dos blocos A, B1, B2 e B3.
+
+1. No VS Code, abrir o terminal: menu **Terminal → New Terminal** (ou `Ctrl + '`)
+2. Digitar exatamente e dar Enter:
+   ```
+   git push
+   ```
+3. Se pedir login do GitHub, aparece uma janela do navegador — entrar na conta `Midtergoku`
+   e autorizar. Isso é pedido só na primeira vez.
+4. Deu certo quando aparece algo como `main -> main` no final da saída.
+5. Conferir a publicação em **vercel.com** → projeto **astral** → aba **Deployments**. A
+   primeira linha deve estar como **Building** e, um minuto depois, **Ready**.
+
+**Como saber que o site está bom:** abrir https://astral-psi.vercel.app, entrar com o Google e
+carregar o dashboard. Se a sidebar e as cores aparecerem normais, o CSS extraído está certo.
+
+⚠️ O repositório é **público**. Já foi feita varredura de segredos e está limpo.
+
+### 13.2. Fechar a bomba de e-mail (segredo do webhook)
+
+**O problema:** hoje qualquer pessoa na internet consegue disparar e-mails de "novo cadastro"
+para a sua caixa, sem nem passar pelo formulário. O segredo faz a função aceitar só o webhook.
+
+**Parte 1 — gerar o segredo.** No terminal do VS Code:
+```
+node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
+```
+Vai imprimir uma linha de letras e números. **Copie essa linha** — é o seu segredo.
+⚠️ Não cole esse valor em nenhum arquivo do projeto: o repositório é público.
+
+**Parte 2 — colocar o segredo no webhook.**
+1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/integrations/hooks
+2. Na lista, achar o webhook que aponta para `lista_espera`
+3. Clicar nos **três pontinhos** à direita dele → **Edit hook**
+4. Rolar até a seção **HTTP Headers**
+5. Clicar em **Add new header**
+6. No campo da esquerda (nome), digitar: `x-astral-webhook-secret`
+7. No campo da direita (valor), colar o segredo gerado na Parte 1
+8. Clicar em **Confirm** / **Save**
+
+**Parte 3 — dar o mesmo segredo para a função.** No terminal, trocando `SEU_SEGREDO`:
+```
+supabase secrets set WEBHOOK_SECRET=SEU_SEGREDO
+```
+Deu certo quando aparece `Finished supabase secrets set.`
+
+**Como testar:** entrar em https://astral-psi.vercel.app/cadastro.html e preencher a lista de
+espera com um e-mail seu. Se o e-mail de aviso chegar, está funcionando. Se não chegar, o
+segredo do painel e o do terminal estão diferentes — refazer a Parte 3.
+
+> Enquanto a Parte 3 não for feita, a função continua aceitando qualquer chamada **de
+> propósito** — foi feito assim para não derrubar a notificação antes de o segredo existir.
+
+### 13.3. Proteção contra senha vazada
+
+**Depende da decisão 2** (ver seção 0). Hoje **nenhum usuário tem senha** — os 6 entraram com
+Google, e o login por e-mail está desligado. Então esse toggle **não protege ninguém agora**.
+
+Só vale ligar se o provedor de e-mail for ativado. Nesse caso:
+1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/auth/providers
+2. Clicar em **Email** para expandir
+3. Ativar **Prevent use of leaked passwords**
+4. Clicar em **Save**
 
 ---
 
