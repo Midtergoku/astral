@@ -32,7 +32,13 @@ indicação de recursos de estudo.
 | Email | Resend | domínio de teste `onboarding@resend.dev` |
 | Libs CDN | `@supabase/supabase-js` (+esm), `motion@10.16.4` | sem lock de versão |
 
-**Ambiente local:** Node v24.16.0, Supabase CLI 2.106.0, **git NÃO instalado**.
+**Ambiente local:** Node v24.16.0, Supabase CLI 2.106.0, git 2.55.0 (PortableGit).
+
+> **Nota sobre o git:** o instalador oficial exige UAC/administrador e o ambiente do Claude Code
+> não consegue elevar. Foi instalado o **PortableGit** em
+> `%LOCALAPPDATA%\Programs\PortableGit`, já adicionado ao PATH do usuário. Funciona igual ao git
+> normal. Se um dia quiser a instalação oficial, rode `winget install Git.Git` num terminal
+> aberto como administrador — pode desinstalar a versão portátil depois.
 
 ---
 
@@ -147,8 +153,7 @@ Consequência: trocar de navegador, limpar cache ou abrir no celular = usuário 
 4. **`config.toml` incompleto** — só declara `notificar-cadastro` e `processar-edital`.
    `buscar-recursos` e `gerar-questoes` não estão versionados na config.
 
-5. **Sem versionamento local.** Git não está instalado na máquina; a pasta não é repo.
-   Toda alteração é irreversível. Isso precisa ser resolvido antes de mexer em código.
+5. ~~**Sem versionamento local.**~~ ✅ **Resolvido em 29/07/2026.** Ver seção 8.1.
 
 ### 🟡 Dívida técnica
 
@@ -179,10 +184,43 @@ Consequência: trocar de navegador, limpar cache ou abrir no celular = usuário 
 
 ---
 
+---
+
+## 8.1. Git — estado atual (resolvido em 29/07/2026)
+
+**Situação encontrada:** o repo `github.com/Midtergoku/astral` existia (público, 44 commits,
+todos "Add files via upload" — feitos pela interface web). Mas a pasta local **não estava
+conectada a ele**: sem `.git`, sem git instalado, sem clone em lugar nenhum da máquina.
+
+Divergências encontradas na comparação arquivo a arquivo:
+
+| | |
+|---|---|
+| 8 HTMLs diferentes | local já tinha `'free'`, GitHub ainda tinha `'profissional'` |
+| Só no GitHub | `README.md` |
+| Só no local | **`supabase/` inteira** — as 4 edge functions nunca foram versionadas |
+
+**O que foi feito:** PortableGit instalado, pasta conectada ao remoto preservando os arquivos
+locais (`git reset --mixed FETCH_HEAD`), `README.md` restaurado, varredura de segredos feita
+(limpa — os alertas eram `max_tokens`, e os `.npmrc` só têm comentários).
+
+Dois commits locais criados, **ainda não enviados**:
+- `5845168` — renomeia plano padrão `profissional` → `free` (8 HTMLs)
+- `11d4c7d` — versiona edge functions + `.vscode` + `CLAUDE.md`
+
+⚠️ **Vercel faz deploy automático a partir do `main`.** O primeiro `git push` vai publicar a
+mudança `profissional` → `free` em produção. Verificar antes se algum usuário no banco ainda
+tem `tipo_plano = 'profissional'` — se tiver, o badge dele vai quebrar.
+
+**Fluxo daqui pra frente:** editar local → commit → push → Vercel publica. Nunca mais subir
+arquivo pela interface web do GitHub (sobrescreve o histórico local).
+
+---
+
 ## 9. Ordem de trabalho proposta
 
 **Fase 0 — Fundação (antes de tocar em feature)**
-1. Instalar git + inicializar repo + conectar ao GitHub existente
+1. ✅ Instalar git + conectar ao GitHub existente — feito em 29/07/2026
 2. Extrair CSS/JS compartilhado para `assets/` (elimina 153 KB de duplicação)
 3. Versionar o schema em `supabase/migrations/`
 
@@ -231,3 +269,7 @@ Primeira sessão com Claude Code. Li o contexto de `astral-contexto.md`, varri a
 e as 4 edge functions. Criei este arquivo. Nenhum código alterado ainda.
 Achado principal: o produto está visualmente pronto mas **não é vendável** — `tipo_plano` não
 bloqueia nada e o progresso do usuário não sai do navegador.
+
+Na sequência, montei o versionamento (seção 8.1): git instalado, pasta conectada ao repo
+existente, edge functions finalmente versionadas. Dois commits locais aguardando push.
+Nenhuma linha de código de produto foi alterada.
