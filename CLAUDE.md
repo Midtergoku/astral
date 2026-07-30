@@ -7,38 +7,41 @@
 
 ## 0. ▶ RETOMAR AQUI
 
-**Estado:** Etapa 1 (blindagem), Bloco A concluído. Próximo é o **Bloco B1 — migrations do banco.**
+**Estado:** Etapa 1 (blindagem). Blocos **A, B1 e B2 concluídos**. Próximo é o **Bloco B3 —
+frontend.**
 
-### A primeira coisa a fazer amanhã
+### 🔥 O app está com as funções de IA fora do ar até o B3 terminar
 
-Escrever as 4 migrations abaixo, **mostrar o SQL ao Lucas e esperar o OK antes de aplicar.**
-Ele autorizou escrever, não aplicar. Diferente do Bloco A, aqui não há `git checkout` que salve.
+O B2 fechou as edge functions: elas agora exigem o `access_token` do usuário. **O frontend
+ainda manda a publishable key**, então as 3 chamadas de IA respondem `401`.
 
-| # | O quê | Por quê | Detalhe |
-|---|---|---|---|
-| 1 | `SET search_path = public` em `criar_perfil_usuario` + remover o `EXCEPTION WHEN OTHERS` cego + **backfill dos 6 usuários órfãos** | Hoje **6 usuários, 0 perfis** — a trigger falha em silêncio desde sempre | 8.3 |
-| 2 | Travar `tipo_plano` contra escrita do usuário | Qualquer um se promove para `pro` com uma linha no console | 8.3 |
-| 3 | Fechar o INSERT anônimo de `lista_espera` | Bomba de e-mail via Resend | 8.3 |
-| 4 | `REVOKE EXECUTE` de `criar_perfil_usuario` para `anon`/`authenticated` | Função exposta na API REST sem motivo | 8.3 |
+Na prática nada regrediu — elas já estavam quebradas por falta de crédito na Anthropic
+(ver 8.2). Mas o B3 precisa ser terminado antes de o app voltar a funcionar de ponta a ponta.
 
-Aplicar com `supabase db push` (o MCP é somente-leitura de propósito). Serão as **primeiras
-migrations do projeto** — o histórico de schema não existe ainda.
+### O que fazer, em ordem
 
-### Decisão pendente do Lucas
+1. **Trocar o header nas 4 chamadas** — hoje `Bearer <publishable key>`, precisa ser
+   `Bearer ${session.access_token}`: [dashboard.html:1484](dashboard.html#L1484),
+   [edital.html:746](edital.html#L746), [questoes.html:954](questoes.html#L954),
+   [recursos.html:794](recursos.html#L794)
+2. **Escape universal** — 40 pontos de `innerHTML`, mais a sanitização de URL em
+   [recursos.html](recursos.html) (`href="${url}"` aceita `javascript:`)
+3. **`vercel.json`** com CSP e demais headers
+4. **Pin de versão** do `@supabase/supabase-js` nos 11 arquivos
+5. Junto disso entra a extração de JS que ficou fora do Bloco A (`createClient` em 11,
+   `fazerLogout` em 8, guarda de sessão em 7) — é o mesmo código que será reescrito
 
-**7 commits locais não enviados.** O push publica em produção (Vercel faz deploy automático
-do `main`). ✅ **Já verificado: é seguro** — `tipo_plano` tem `CHECK (free|beta|pro)`, o valor
-`'profissional'` nunca foi aceito pelo banco e `perfis` está vazia. Falta só o Lucas dizer "manda".
+### Decisões pendentes do Lucas
 
-### Ordem depois do B1
+| # | Decisão | Bloqueia |
+|---|---|---|
+| 1 | **Push dos commits locais.** ✅ verificado seguro | o B3 chegar em produção |
+| 2 | **Autenticação por e-mail está DESLIGADA no Supabase** — os formulários de e-mail/senha do `criar-conta.html` e `login.html` nunca funcionaram. Ligar o provedor e construir o fluxo, ou remover os formulários? | Bloco C |
+| 3 | **Segredo do webhook** — 3 passos manuais descritos em 8.7 | fechar a bomba de e-mail |
+| 4 | **Toggle de senha vazada** — Authentication → Policies | último advisor aberto |
 
-**B2** edge functions (JWT, quota, limite de PDF, CORS) → **B3** frontend (escape universal,
-CSP, pin de dependências) → **C** (senha, Termos, LGPD) → **D** (schema da IA, toast, mobile).
-Detalhe na seção 9.
-
-> A extração de JS que ficou de fora do Bloco A (`createClient` em 11 arquivos, `fazerLogout`
-> em 8, guarda de sessão em 7) entra junto do **B3** — é o mesmo código que será reescrito
-> para receber o escape e a autenticação. Não faz sentido mexer duas vezes.
+> ⚠️ **Não adicione créditos na Anthropic antes do B3 terminar.** Com o B2 no ar o risco caiu
+> muito, mas o ciclo só está de fato fechado quando o app voltar a autenticar direito.
 
 ---
 
@@ -317,12 +320,37 @@ Nenhuma checagem de tamanho ou de páginas em `processarEdital`
 ([dashboard.html:1461](dashboard.html#L1461), [edital.html](edital.html)). Um PDF de 80 MB vira
 ~107 MB em base64 e é enviado direto pra API. Custo por chamada ilimitado e travamento do browser.
 
-### 🔴 CRÍTICO 4 — Redefinição de senha quebrada
+### 🔴 CRÍTICO 4 — Toda a autenticação por e-mail está morta
 
-[login.html:381](login.html#L381) manda o e-mail com `redirectTo` para a própria `login.html`,
-**e não existe nenhuma página que chame `updateUser({ password })`**. O usuário clica no link,
-ganha uma sessão e nunca define senha nova. Na prática virou "link mágico de login" — e quem
-esqueceu a senha continua sem conseguir entrar com senha.
+**Ampliado em 30/07/2026 — é bem pior do que "redefinição de senha quebrada".**
+
+`GET /auth/v1/settings` no projeto devolve:
+
+```
+email:  False     <- provedor de e-mail/senha DESLIGADO
+google: True
+phone:  False
+```
+
+O provedor de e-mail está **desativado no Supabase**. Isso significa que, em produção:
+
+| Tela | O que ela oferece | O que acontece de verdade |
+|---|---|---|
+| [criar-conta.html](criar-conta.html) | formulário de e-mail + senha | `422 email_provider_disabled` — **nunca funcionou** |
+| [login.html](login.html) | login com e-mail + senha | `422 email_provider_disabled` |
+| [login.html:381](login.html#L381) | "Esqueci minha senha" | não envia nada |
+
+Só o Google OAuth funciona — o que explica os 6 usuários serem **todos** via Google.
+O formulário de cadastro por e-mail está no ar, visível, e não pode dar certo em nenhuma
+hipótese. O usuário preenche, clica e vê "Erro ao criar conta. Tente novamente."
+
+Além disso, mesmo que o provedor fosse ligado, **não existe página que chame
+`updateUser({ password })`** — então o fluxo de redefinição continuaria incompleto.
+
+**Decisão necessária do Lucas (bloqueia o Bloco C):** ligar o provedor de e-mail e construir
+o fluxo completo (confirmação + página de redefinir senha), ou assumir o Google como único
+meio de entrada e **remover os formulários de e-mail/senha das duas telas**? Manter uma
+porta pintada na parede é a pior das três opções.
 
 ### 🟠 ALTO 5 — Bomba de e-mail via lista de espera
 
@@ -597,6 +625,72 @@ Descoberta durante o trabalho: `anon` tinha privilégio **total** nas duas tabel
 
 ---
 
+## 8.7. Bloco B2 — blindagem das edge functions (30/07/2026) ✅
+
+### O módulo compartilhado
+
+`supabase/functions/_shared/comum.ts` concentra o que faltava nas 4 funções: identificação
+real do usuário, quota, CORS restrito, resposta padronizada e extração tolerante de JSON.
+O envelope `servir()` cuida de OPTIONS, método, auth, quota, registro de uso e erros — cada
+função ficou só com a sua regra de negócio.
+
+### Antes e depois, medido contra a API real
+
+| Cenário | Antes | Depois |
+|---|---|---|
+| Chamada com a publishable key | ✅ passava e chamava a Anthropic | 🔒 **401** |
+| Chamada sem token | 401 (gateway) | 401 |
+| Chamada com JWT de usuário | passava | ✅ passa, com quota |
+| PDF de 11 MB | enviado para a API | 🔒 **413**, antes de gastar crédito |
+| `Origin: site-malicioso.com` | `ACAO: *` | 🔒 sem cabeçalho CORS |
+| Erro interno | vazava texto de billing da Anthropic | mensagem genérica; detalhe só no log |
+| Resposta fora de formato | `JSON.parse` estourava | recorte tolerante + validação de schema |
+
+### Quota diária, por plano
+
+```
+              processar-edital  gerar-questoes  buscar-recursos
+free                 2                3                5
+beta                10               20               30
+pro                 20               50               60
+```
+
+Registrada em `public.uso_ia` (migration `..130000`), escrita só pela `service_role`.
+Uso **só é contabilizado quando a chamada dá certo** — cobrar quota por erro nosso seria
+punir o usuário por problema que não é dele. Se a própria consulta de quota falhar, a
+chamada é liberada e o erro vai para o log: falhar fechado deixaria o produto fora do ar.
+
+> O advisor `rls_enabled_no_policy` em `uso_ia` é **intencional**: RLS ligada sem policy
+> nenhuma nega todo acesso via PostgREST, e só a `service_role` enxerga. Não é para "consertar".
+
+### Prompt injection nas 3 funções
+
+Os dados do usuário agora vão dentro de `<materia>`, `<concurso>` e o PDF é explicitamente
+declarado como dado, não instrução. É mitigação, não garantia — a defesa real é o escape na
+renderização, que vem no B3.
+
+### `notificar-cadastro`
+
+O nome vindo do formulário público era interpolado **cru no HTML do e-mail**. Agora é escapado.
+A função também validava nada: qualquer POST disparava e-mail sem passar pela tabela.
+
+⚠️ **Passo manual pendente do Lucas, para fechar isso:**
+1. Supabase → Database → Webhooks → editar o webhook de `lista_espera`
+2. Adicionar o cabeçalho `x-astral-webhook-secret` com um valor secreto qualquer
+3. Rodar `supabase secrets set WEBHOOK_SECRET=<mesmo valor>`
+
+A conferência **só entra em vigor quando `WEBHOOK_SECRET` existir**. Foi feito assim de
+propósito: exigir o segredo antes de o webhook mandá-lo derrubaria a notificação em silêncio.
+
+### Ainda aberto
+
+- **Rate limit da `lista_espera`** continua sem solução real. A quota protege as funções de IA
+  (que exigem login); o formulário público não tem login para amarrar. Precisa de captcha.
+- **O frontend ainda manda a publishable key.** As 3 funções agora respondem 401 para o app.
+  Isso é o B3 — ver aviso na seção 0.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -608,8 +702,8 @@ O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depoi
 |---|---|---|
 | **A** | Extrair CSS/JS compartilhado para `assets/` — sem mudar comportamento | ✅ feito — ver 8.5 |
 | **B1** | Migrations: trigger de perfil, `tipo_plano`, `lista_espera`, grants | ✅ feito — ver 8.6 |
-| **B2** | Edge functions: JWT, quota por plano, limite de PDF, CORS restrito | 🔄 em andamento |
-| **B3** | Frontend: escape universal, sanitizar URLs, CSP e headers, pin de dependências | ⬜ |
+| **B2** | Edge functions: JWT, quota por plano, limite de PDF, CORS restrito | ✅ feito — ver 8.7 |
+| **B3** | Frontend: **mandar o `access_token`**, escape universal, sanitizar URLs, CSP e headers, pin de dependências | ⬜ próximo |
 | **C** | Página de redefinir senha · Termos de Uso · exportar e excluir conta · confirmação de e-mail | ⬜ |
 | **D** | Validação de schema da IA com retry · trocar `alert()` por toast · responsividade mobile | ⬜ |
 
