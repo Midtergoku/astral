@@ -10,24 +10,32 @@
 **Estado:** Etapa 1 (blindagem). Blocos **A, B1, B2 e B3 concluídos.** O Bloco B está fechado.
 Próximo é o **Bloco C**, mas ele depende de uma decisão do Lucas (item 2 abaixo).
 
-### 🔥 O código está pronto e NÃO está em produção
+### ✅ Tudo do Bloco B está em produção
 
-**15 commits locais não enviados.** As edge functions já foram deployadas (o deploy delas é
-direto pela CLI, não passa pelo git), mas o **frontend corrigido só chega em produção com
-`git push`**. Enquanto isso não acontece, o site no ar tem:
+O Lucas fez o push em 30/07/2026. Verificado ao vivo:
 
-- o frontend antigo, mandando a publishable key
-- as edge functions novas, que recusam essa chave
+```
+assets/js/astral.js   HTTP 200    frontend novo publicado
+assets/css/app.css    HTTP 200
+CSP, HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy → todos ativos
+```
 
-Ou seja: **as 3 funções de IA respondem 401 em produção agora.** Na prática nada regrediu,
-porque elas já estavam quebradas por falta de crédito na Anthropic — mas **o push fecha esse
-descompasso e precisa acontecer antes de qualquer teste de ponta a ponta.**
+> `https://astral-psi.vercel.app/vercel.json` devolver **404 é o esperado** — a Vercel consome
+> esse arquivo como configuração e não o serve. A prova de que funcionou são os headers acima.
+
+Falta só **1 commit** local (documentação). O frontend e as edge functions estão em sincronia:
+o app manda o `access_token`, as funções aceitam.
+
+**O que ainda impede um teste de ponta a ponta:** não há créditos na Anthropic. Com o Bloco B
+completo e no ar, **agora é seguro adicionar** (~US$ 5). Antes disso, `processar-edital`,
+`gerar-questoes` e `buscar-recursos` respondem 500.
 
 ### Decisões e passos manuais pendentes do Lucas
 
 | # | O quê | Bloqueia | Passo a passo |
 |---|---|---|---|
-| 1 | **`git push`** — ✅ já verificado que é seguro | o app voltar a funcionar | 13.1 |
+| 1 | ~~`git push`~~ — ✅ **feito em 30/07/2026, verificado em produção** | — | 13.1 |
+| 1b | **Créditos na Anthropic (~US$ 5)** — agora é seguro | testar o app de ponta a ponta | — |
 | 2 | **Auth por e-mail está DESLIGADA.** Ligar o provedor e construir o fluxo, ou remover os formulários de e-mail/senha das telas? Recomendação: remover por ora | **Bloco C inteiro** | 8.2, CRÍTICO 4 |
 | 3 | 🔴 **Segredo do webhook pela metade — notificação de cadastro NÃO está chegando.** Refazer as 3 partes na ordem certa | avisos de novo lead | 13.2 |
 | 4 | ~~Toggle de senha vazada~~ — **não faz sentido hoje**, ninguém tem senha | nada | 13.3 |
