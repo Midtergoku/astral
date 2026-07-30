@@ -1,5 +1,5 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.27.0";
-import { servir, json, FalhaHttp, extrairJson, type Usuario } from "../_shared/comum.ts";
+import { servir, json, FalhaHttp, extrairJson, comSegundaChance, type Usuario } from "../_shared/comum.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 const MODELO = Deno.env.get("MODELO_IA") ?? "claude-sonnet-4-6";
@@ -53,7 +53,12 @@ Deno.serve(servir("buscar-recursos", async (req: Request, _usuario: Usuario) => 
     throw new FalhaHttp(400, "Informe a materia e o concurso.");
   }
 
-  const resposta = await anthropic.messages.create({
+  return await comSegundaChance(async (tentativa) => {
+    const reforco = tentativa > 1
+      ? "\n\nATENÇÃO: a resposta anterior veio fora do formato. Responda APENAS com o objeto JSON, começando com { e terminando com }. Nada antes, nada depois."
+      : "";
+
+    const resposta = await anthropic.messages.create({
     model: MODELO,
     max_tokens: 1000,
     tools: [{ type: "web_search_20250305", name: "web_search" }],
@@ -87,20 +92,21 @@ Regras importantes:
 - Priorize sempre o conteúdo gratuito
 - Use apenas URLs reais e verificadas, sempre começando com https://
 - Escreva texto puro: nada de HTML, script ou markdown dentro dos campos
-- Retorne SOMENTE o JSON, nada mais`,
+- Retorne SOMENTE o JSON, nada mais${reforco}`,
     }],
-  });
+    });
 
-  const bruto = resposta.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
-  const d = extrairJson<Record<string, unknown>>(bruto);
+    const bruto = resposta.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
+    const d = extrairJson<Record<string, unknown>>(bruto);
 
-  return json(req, {
-    success: true,
-    data: {
-      dica: texto(d.dica, 600),
-      professores: listaValidada(d.professores, 3, ["canal"]),
-      materiais_gratuitos: listaValidada(d.materiais_gratuitos, 3, ["tipo"]),
-      cursos_pagos: listaValidada(d.cursos_pagos, 2, ["plataforma"]),
-    },
+    return json(req, {
+      success: true,
+      data: {
+        dica: texto(d.dica, 600),
+        professores: listaValidada(d.professores, 3, ["canal"]),
+        materiais_gratuitos: listaValidada(d.materiais_gratuitos, 3, ["tipo"]),
+        cursos_pagos: listaValidada(d.cursos_pagos, 2, ["plataforma"]),
+      },
+    });
   });
 }));

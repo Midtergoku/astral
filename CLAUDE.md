@@ -840,6 +840,52 @@ Ligado em: `criar-conta.html` e `cadastro.html` (no aceite), rodapé da landing,
 
 ---
 
+## 8.11. Bloco D — acabamento (30/07/2026) ✅
+
+### 🔴 O achado que valeu o bloco: o app era inusável no celular
+
+As 9 páginas escondem a sidebar com `translateX(-100%)` abaixo de 768px — e **nenhuma tinha
+botão para trazê-la de volta**. Na prática, quem abrisse o Astral no telefone ficava preso na
+página em que caiu, sem conseguir ir para Questões, Progresso ou qualquer outra.
+
+Para um produto cujo usuário estuda no celular, isso não é detalhe de acabamento: é perda
+direta de retenção, e provavelmente explica parte do desuso.
+
+Resolvido em `assets/js/astral.js` com `iniciarMenuMobile()`: botão flutuante, sidebar deslizante,
+fundo escurecido, fecha ao clicar fora, no Esc, ou ao navegar. **Uma implementação para as 9
+páginas** — no CSS de cada uma teriam sido 9 cópias para divergir depois.
+
+> Detalhe que importa: a regra usa `.sidebar.astral-aberta` (especificidade 0,2,0) para vencer
+> o `.sidebar` (0,1,0) que a página esconde, **independente da ordem** em que os estilos entram.
+> Injetar CSS de fora e depender de ordem seria frágil.
+
+### Toast em todo lugar, sem mexer em 13 arquivos
+
+Sobravam 10 `alert()` porque `login`, `cadastro` e `criar-conta` não tinham CSS de toast —
+converter sem estilo deixaria o erro invisível, pior que um alert feio.
+
+Agora `toast()` **injeta o próprio CSS como primeiro filho do `<head>`**. A posição é
+deliberada: o CSS da página vem depois e, com a mesma especificidade, vence — então as páginas
+que já tinham `.toast` próprio ficaram exatamente como estavam, e as que não tinham passaram a
+ter. **Zero `alert()` no projeto.**
+
+Acrescentado `role="status"` e `aria-live="polite"`: leitor de tela anuncia sem roubar o foco.
+
+Em `cadastro.html`, os códigos `42501` e `23514` (policy e CHECK do Bloco B1) agora viram
+mensagem específica. Antes o usuário via "erro ao salvar" e não fazia ideia do que corrigir.
+
+### Segunda chance na resposta da IA
+
+`comSegundaChance()` em `_shared/comum.ts`: se a resposta vier fora de formato (502), repete
+uma vez com instrução reforçada. Modelo é não-determinístico — o que saiu torto costuma sair
+certo na repetição.
+
+**Só repete no 502.** Erro de crédito, quota ou rede não melhora repetindo, e gastaria o dobro
+à toa. A repetição consome créditos da Anthropic de novo, mas a **quota do usuário conta uma
+vez só**: ele não paga pelo erro do modelo.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -853,8 +899,11 @@ O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depoi
 | **B1** | Migrations: trigger de perfil, `tipo_plano`, `lista_espera`, grants | ✅ feito — ver 8.6 |
 | **B2** | Edge functions: JWT, quota por plano, limite de PDF, CORS restrito | ✅ feito — ver 8.7 |
 | **B3** | Frontend: `access_token`, escape universal, sanitizar URLs, CSP e headers, pin de dependências | ✅ feito — ver 8.8 |
-| **C** | Página de redefinir senha · Termos de Uso · exportar e excluir conta · confirmação de e-mail | ⬜ |
-| **D** | Validação de schema da IA com retry · trocar `alert()` por toast · responsividade mobile | ⬜ |
+| **C** | Redefinir senha · Termos de Uso · exportar e excluir conta · login por e-mail | ✅ feito — ver 8.9 e 8.10 |
+| **D** | Segunda chance na resposta da IA · `alert()` → toast · menu no celular | ✅ feito — ver 8.11 |
+
+> **A Etapa 1 está fechada.** O que falta antes da Etapa 2 é operacional, não de código:
+> créditos na Anthropic para o primeiro teste real de ponta a ponta do upload de edital.
 
 > **Por que o Bloco A vem primeiro:** o mesmo bug de XSS está em 13 arquivos porque o código é
 > duplicado. Corrigir antes de extrair = escrever a mesma correção 13 vezes e vê-la divergir de
@@ -996,27 +1045,49 @@ carregar o dashboard. Se a sidebar e as cores aparecerem normais, o CSS extraíd
 
 ⚠️ O repositório é **público**. Já foi feita varredura de segredos e está limpo.
 
-### 13.2. Fechar a bomba de e-mail (segredo do webhook)
+### 13.2. Segredo do webhook — ✅ RESOLVIDO em 30/07/2026
 
-> 🔴 **ESTADO EM 30/07/2026: configuração pela metade, notificação de cadastro NÃO chega.**
->
-> O Lucas rodou a **Parte 3** (`supabase secrets set WEBHOOK_SECRET=...`) mas **não** a
-> **Parte 2** (o cabeçalho no painel) — ou usou valores diferentes nas duas. Confirmado por:
-> - `supabase secrets list` → `WEBHOOK_SECRET` existe
-> - logs da edge function → `notificar-cadastro POST 401` na versão 7
-> - `verify_jwt` de `notificar-cadastro` está `false`, então o 401 **veio do código da função**
->
-> A função está fazendo exatamente o que foi desenhada para fazer: com o segredo definido, ela
-> exige o cabeçalho. Não é bug — é a Parte 2 faltando.
->
-> **Para resolver:** o valor original do segredo não é recuperável (`secrets list` mostra só
-> hash). O caminho mais simples é **refazer as três partes com um valor novo**, na ordem
-> Parte 1 → Parte 2 → Parte 3.
->
-> **Lição de sequenciamento:** a ordem certa é sempre **cabeçalho primeiro, segredo depois**.
-> Definir o segredo antes fecha a porta enquanto o webhook ainda não sabe a senha — e falha
-> em silêncio, porque ninguém fica olhando log de webhook. As instruções abaixo já estão na
-> ordem correta.
+> **Não é mais tarefa do Lucas.** Foi feito por mim, dos dois lados. Log confirma:
+> `notificar-cadastro POST 200` na versão 8, com inserção real na `lista_espera`.
+
+**O que estava errado — e minhas duas conclusões furadas pelo caminho:**
+
+1. Primeiro afirmei *"eu quebrei a notificação"*. Errado, falei antes de olhar os logs.
+2. Depois afirmei *"o Lucas não fez a Parte 2"*. **Também errado.** Ele tinha feito: o gatilho
+   já continha o cabeçalho `x-astral-webhook-secret`. O que não batia era o **valor** entre o
+   cabeçalho e o `WEBHOOK_SECRET`.
+
+Só descobri ao ler `pg_get_triggerdef` do gatilho — o que eu devia ter feito antes de concluir
+qualquer coisa. Ver [[medir-antes-de-afirmar]].
+
+**Como foi resolvido, e como refazer se precisar:**
+
+O webhook do painel é, no banco, um gatilho comum chamando `supabase_functions.http_request`,
+com os cabeçalhos embutidos como texto. Dá para reescrever por SQL, sem abrir o painel:
+
+```sql
+drop trigger if exists "notificar-novo-cadastro" on public.lista_espera;
+create trigger "notificar-novo-cadastro"
+  after insert on public.lista_espera
+  for each row execute function supabase_functions.http_request(
+    'https://jjogmcacbdefwiwcyjxp.supabase.co/functions/v1/notificar-cadastro',
+    'POST',
+    '{"Content-type":"application/json","x-astral-webhook-secret":"<SEGREDO>"}',
+    '{}', '5000');
+```
+
+Depois `supabase secrets set WEBHOOK_SECRET=<mesmo segredo>`.
+
+> ⚠️ **O segredo não pode entrar numa migration** — o repositório é público. Por isso esse SQL
+> foi executado pelo endpoint de query da API de gerenciamento (ver 10.2), não por
+> `supabase db push`. É a exceção deliberada à regra de versionar toda mudança de banco.
+
+> **Ordem correta:** cabeçalho primeiro, segredo depois. Definir o segredo antes fecha a porta
+> enquanto o webhook ainda não sabe a senha — e falha em silêncio, porque ninguém fica olhando
+> log de webhook.
+
+<details>
+<summary>Instruções pelo painel, caso um dia seja preciso</summary>
 
 **O problema:** hoje qualquer pessoa na internet consegue disparar e-mails de "novo cadastro"
 para a sua caixa, sem nem passar pelo formulário. O segredo faz a função aceitar só o webhook.
@@ -1061,7 +1132,8 @@ mcp__supabase__get_logs  service=edge-function
 - **nenhuma linha** → o webhook não disparou; conferir se ele está ativo no painel
 
 Lembrar de limpar as linhas de teste depois: `delete from lista_espera where email = '...'`
-via migration.
+
+</details>
 
 ### 13.4. Login por e-mail e senha — ✅ JÁ APLICADO em 30/07/2026
 

@@ -183,6 +183,30 @@ export function extrairJson<T = unknown>(texto: string): T {
   }
 }
 
+/**
+ * Roda a operacao e, se ela falhar POR FORMATO da resposta (502), tenta uma
+ * segunda vez. Modelo de linguagem e nao-deterministico: a mesma pergunta que
+ * saiu torta agora costuma sair certa na repeticao.
+ *
+ * So repete no 502. Erro de credito, de quota ou de rede repetir nao adianta --
+ * e gastaria o dobro a toa.
+ *
+ * Custo: a chamada repetida consome creditos da Anthropic de novo. A quota do
+ * usuario, porem, conta uma vez so, porque `servir()` registra o uso pelo
+ * resultado final. O usuario nao paga pelo erro do modelo.
+ */
+export async function comSegundaChance<T>(operacao: (tentativa: number) => Promise<T>): Promise<T> {
+  try {
+    return await operacao(1);
+  } catch (e) {
+    if (e instanceof FalhaHttp && e.status === 502) {
+      console.warn("Resposta fora de formato; repetindo uma vez:", e.message);
+      return await operacao(2);
+    }
+    throw e;
+  }
+}
+
 // ── Envelope padrao ─────────────────────────────────────────────────────────
 /** Cuida de OPTIONS, metodo, autenticacao, quota, registro e erros. */
 export function servir(

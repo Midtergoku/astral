@@ -1,5 +1,5 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.27.0";
-import { servir, json, FalhaHttp, extrairJson, type Usuario } from "../_shared/comum.ts";
+import { servir, json, FalhaHttp, extrairJson, comSegundaChance, type Usuario } from "../_shared/comum.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 const MODELO = Deno.env.get("MODELO_IA") ?? "claude-sonnet-4-6";
@@ -75,7 +75,12 @@ Deno.serve(servir("gerar-questoes", async (req: Request, _usuario: Usuario) => {
     ? "Gere questões de MÚLTIPLA ESCOLHA com 4 alternativas (A, B, C, D), apenas uma correta."
     : "Misture os dois tipos: metade MÚLTIPLA ESCOLHA (4 alternativas A, B, C, D) e metade CERTO ou ERRADO. Varie a ordem.";
 
-  const resposta = await anthropic.messages.create({
+  return await comSegundaChance(async (tentativa) => {
+    const reforco = tentativa > 1
+      ? "\n\nATENÇÃO: a resposta anterior veio fora do formato. Responda APENAS com o objeto JSON, começando com { e terminando com }. Nada antes, nada depois."
+      : "";
+
+    const resposta = await anthropic.messages.create({
     model: MODELO,
     max_tokens: 2000,
     messages: [{
@@ -122,10 +127,11 @@ Regras importantes:
 - Para múltipla escolha: alternativas plausíveis mas apenas uma correta
 - Para certo/errado: afirmações precisas, sem ambiguidade
 - Escreva texto puro: nada de HTML, script ou markdown dentro dos campos
-- Retorne SOMENTE o JSON, nada mais`,
+- Retorne SOMENTE o JSON, nada mais${reforco}`,
     }],
-  });
+    });
 
-  const bruto = resposta.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
-  return json(req, { success: true, data: validar(extrairJson(bruto)) });
+    const bruto = resposta.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
+    return json(req, { success: true, data: validar(extrairJson(bruto)) });
+  });
 }));

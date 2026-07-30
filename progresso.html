@@ -636,7 +636,7 @@ window.abrirModalBalanco = function() {
   const materias = dados.materias || [];
 
   if (materias.length < 2) {
-    alert('Você precisa ter pelo menos 2 matérias no edital para rebalancear.');
+    toast('Você precisa ter pelo menos 2 matérias no edital para rebalancear.', 'error');
     return;
   }
 
@@ -706,7 +706,7 @@ window.aplicarBalanco = function() {
   dados.cronogramaHoje = novosCronograma;
   localStorage.setItem(`astral_dados_${estado.usuario.id}`, JSON.stringify(dados));
   fecharModalBalanco();
-  alert('Cronograma rebalanceado! Volte ao dashboard para ver as novas sessões de hoje.');
+  toast('Cronograma rebalanceado! Veja as novas sessões no dashboard.');
 }
 </script>
 

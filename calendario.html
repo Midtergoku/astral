@@ -731,8 +731,8 @@ select option { background: var(--surface); color: var(--text); }
     const categoria = document.getElementById('evento-categoria').value;
     const obs       = document.getElementById('evento-obs').value.trim();
 
-    if (!nome) { alert('Informe o nome do evento.'); return; }
-    if (!data) { alert('Informe a data do evento.'); return; }
+    if (!nome) { toast('Informe o nome do evento.', 'error'); return; }
+    if (!data) { toast('Informe a data do evento.', 'error'); return; }
 
     if (editandoIndex !== null) {
       eventos[editandoIndex] = { ...eventos[editandoIndex], nome, data, categoria, obs };

@@ -527,11 +527,11 @@
     const btn      = document.getElementById('btn-submit');
 
     // Validação básica
-    if (!nome) { alert('Por favor, informe seu nome.'); return; }
-    if (!email || !email.includes('@')) { alert('Por favor, informe um e-mail válido.'); return; }
+    if (!nome) { toast('Por favor, informe seu nome.', 'error'); return; }
+    if (!email || !email.includes('@')) { toast('Por favor, informe um e-mail válido.', 'error'); return; }
     const consentimento = document.getElementById('consentimento').checked;
-    if (!consentimento) { alert('Você precisa aceitar a Política de Privacidade para continuar.'); return; }
-    if (!concurso) { alert('Por favor, selecione o tipo de concurso.'); return; }
+    if (!consentimento) { toast('Você precisa aceitar os Termos de Uso e a Política de Privacidade.', 'error'); return; }
+    if (!concurso) { toast('Por favor, selecione o tipo de concurso.', 'error'); return; }
 
     // Loading
     btn.disabled = true;
@@ -544,9 +544,14 @@
 
     if (error) {
       if (error.code === '23505') {
-        alert('Este e-mail já está na lista de espera! 😊');
+        toast('Este e-mail já está na lista de espera. 😊');
+      } else if (error.code === '42501' || error.code === '23514') {
+        // A policy e as CHECK constraints do Bloco B1 recusam nome muito curto
+        // ou e-mail fora de formato. Sem esta mensagem o usuario via "erro ao
+        // salvar" e nao fazia ideia do que corrigir.
+        toast('Confira os dados: nome com pelo menos 2 letras e e-mail válido.', 'error');
       } else {
-        alert('Erro ao salvar. Tente novamente!');
+        toast('Erro ao salvar. Tente novamente em instantes.', 'error');
         console.error(error);
       }
       btn.disabled = false;

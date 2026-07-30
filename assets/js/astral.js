@@ -150,21 +150,155 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
   return json.data;
 }
 
+// ── Menu no celular ─────────────────────────────────────────────────────────
+/**
+ * Todas as paginas do app escondem a sidebar com translateX(-100%) abaixo de
+ * 768px -- e nenhuma tinha botao para trazer de volta. Na pratica, quem abria
+ * o Astral no telefone ficava preso na pagina em que caiu, sem conseguir ir
+ * para Questoes, Progresso ou qualquer outra. Para um produto cujo usuario
+ * estuda no celular, isso e perda direta de retencao.
+ *
+ * Fica aqui, e nao no CSS de cada pagina, porque sao 9 arquivos: no shared,
+ * e uma implementacao so.
+ */
+function iniciarMenuMobile() {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar || document.getElementById('astral-menu-btn')) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #astral-menu-btn {
+      position: fixed; top: 0.85rem; left: 0.85rem;
+      z-index: 120;
+      display: none;
+      align-items: center; justify-content: center;
+      width: 42px; height: 42px;
+      border-radius: 11px;
+      background: var(--surface2, #1A1A24);
+      border: 1px solid var(--border, #1E1E2E);
+      color: var(--text, #E8E8F0);
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    #astral-menu-fundo {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      z-index: 45;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    @media (max-width: 768px) {
+      #astral-menu-btn { display: flex; }
+      /* Especificidade 0,2,0 vence o .sidebar (0,1,0) que a pagina esconde,
+         independentemente da ordem em que os estilos aparecem. */
+      .sidebar.astral-aberta { transform: translateX(0) !important; box-shadow: 0 0 60px rgba(0,0,0,0.6); }
+      body.astral-menu-aberto #astral-menu-fundo { opacity: 1; pointer-events: auto; }
+      body.astral-menu-aberto { overflow: hidden; }
+      /* Abre espaco para o botao nao cobrir o titulo da pagina. */
+      .main { padding-top: 4.25rem !important; }
+    }
+    @media (prefers-reduced-motion: reduce) { #astral-menu-fundo { transition: none; } }
+  `;
+  document.head.appendChild(style);
+
+  const btn = document.createElement('button');
+  btn.id = 'astral-menu-btn';
+  btn.type = 'button';
+  btn.setAttribute('aria-label', 'Abrir menu');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+
+  const fundo = document.createElement('div');
+  fundo.id = 'astral-menu-fundo';
+
+  document.body.appendChild(btn);
+  document.body.appendChild(fundo);
+
+  const definir = (aberto) => {
+    sidebar.classList.toggle('astral-aberta', aberto);
+    document.body.classList.toggle('astral-menu-aberto', aberto);
+    btn.setAttribute('aria-expanded', String(aberto));
+    btn.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+  };
+
+  btn.addEventListener('click', () => definir(!sidebar.classList.contains('astral-aberta')));
+  fundo.addEventListener('click', () => definir(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') definir(false); });
+  // Navegou para outra pagina: fecha, senao o menu fica aberto por cima.
+  sidebar.querySelectorAll('a[href]').forEach(a => a.addEventListener('click', () => definir(false)));
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', iniciarMenuMobile);
+} else {
+  iniciarMenuMobile();
+}
+
 // ── Toast ───────────────────────────────────────────────────────────────────
+
+/**
+ * Injeta o CSS do toast uma unica vez, como PRIMEIRO filho do <head>.
+ *
+ * A posicao importa: o CSS da propria pagina vem depois e, com a mesma
+ * especificidade, vence. Assim as paginas que ja tinham `.toast` proprio
+ * continuam exatamente como estavam, e as que nao tinham (login, cadastro,
+ * criar-conta) passam a ter. Era por falta disso que sobravam 10 alert():
+ * trocar sem estilo deixaria o erro invisivel, que e pior que um alert feio.
+ */
+function garantirCssDoToast() {
+  if (document.getElementById('astral-toast-css')) return;
+  const style = document.createElement('style');
+  style.id = 'astral-toast-css';
+  style.textContent = `
+    .toast {
+      position: fixed;
+      bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(160%);
+      background: var(--surface2, #1A1A24);
+      border: 1px solid var(--border, #1E1E2E);
+      border-radius: 12px;
+      padding: 0.85rem 1.35rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--white, #FFFFFF);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+      z-index: 9999;
+      max-width: min(92vw, 460px);
+      text-align: center;
+    }
+    .toast.show  { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(52,211,153,0.45); }
+    .toast.error   { border-color: rgba(248,113,113,0.5); }
+    @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+  `;
+  document.head.insertBefore(style, document.head.firstChild);
+}
+
 /** Substitui os alert() espalhados pelo app. Cria o elemento se nao existir. */
 export function toast(mensagem, tipo = 'success') {
+  garantirCssDoToast();
+
   let el = document.getElementById('toast');
   if (!el) {
     el = document.createElement('div');
     el.id = 'toast';
     el.className = 'toast';
     el.innerHTML = '<span id="toast-msg"></span>';
+    // Leitor de tela anuncia sem roubar o foco de quem esta digitando.
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
     document.body.appendChild(el);
   }
   const msg = el.querySelector('#toast-msg') || el;
   msg.textContent = mensagem;
   el.classList.remove('success', 'error');
+  // Reflow entre remover e adicionar: sem isso, dois toasts seguidos nao
+  // reiniciam a animacao e o segundo aparece sem transicao.
+  void el.offsetWidth;
   el.classList.add('show', tipo);
   clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show', tipo), 4000);
+  el._t = setTimeout(() => el.classList.remove('show', tipo), 4500);
 }
