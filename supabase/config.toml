@@ -1,0 +1,22 @@
+
+[functions.notificar-cadastro]
+enabled = true
+verify_jwt = false
+import_map = "./functions/notificar-cadastro/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/notificar-cadastro/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/notificar-cadastro/*.html" ]
+
+[functions.processar-edital]
+enabled = true
+verify_jwt = false
+import_map = "./functions/processar-edital/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/processar-edital/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/processar-edital/*.html" ]
