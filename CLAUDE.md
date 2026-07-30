@@ -871,6 +871,39 @@ claude mcp add --scope user --transport http supabase \
 
 ---
 
+## 10.2. API de gerenciamento do Supabase — como eu altero o painel sozinho
+
+O Lucas **não executa passo manual**. Configuração de projeto que só existiria no painel é
+aplicada por aqui.
+
+**O token de acesso** já está na máquina: a CLI do Supabase guarda no Gerenciador de
+Credenciais do Windows, alvo `Supabase CLI:supabase`. Lê-se com `CredRead` do `advapi32.dll`
+via `Add-Type`.
+
+> ⚠️ Duas armadilhas, as duas já custaram tempo:
+> 1. O blob da credencial é **UTF-8 puro**, não UTF-16. Ler com `Marshal.PtrToStringUni`
+>    devolve lixo com metade do tamanho. Use `Marshal.Copy` + `Encoding.UTF8.GetString`.
+>    Token válido tem 44 chars e começa com `sbp_`.
+> 2. `Invoke-RestMethod -Method PATCH` **falha silenciosamente** no PowerShell 5.1 — devolve
+>    erro sem corpo. Usar `[Net.HttpWebRequest]` com `.Method = "PATCH"`.
+
+```
+GET   https://api.supabase.com/v1/projects/<ref>/config/auth
+PATCH https://api.supabase.com/v1/projects/<ref>/config/auth
+```
+
+O `PATCH` aplica **somente os campos enviados** — por isso é seguro, diferente de
+`supabase config push`, que parte do `config.toml` inteiro e cuja documentação **não** esclarece
+se zera o que não está declarado. Como o padrão de `[auth.external.google].enabled` é `false`,
+um push descuidado desligaria o Google e derrubaria o login dos 6 usuários. Foi por isso que
+esse caminho foi descartado.
+
+`supabase projects api-keys --project-ref <ref> -o json` devolve `anon` e `service_role`
+quando precisar agir como administrador (criar/apagar usuário de teste, gerar link de
+recuperação sem enviar e-mail).
+
+---
+
 ## 11. Contas e acessos
 
 - GitHub: `Midtergoku` / repo `astral`
@@ -977,84 +1010,107 @@ mcp__supabase__get_logs  service=edge-function
 Lembrar de limpar as linhas de teste depois: `delete from lista_espera where email = '...'`
 via migration.
 
-### 13.4. Ligar o login por e-mail e senha
+### 13.4. Login por e-mail e senha — ✅ JÁ APLICADO em 30/07/2026
 
-> **Decisão do Lucas em 30/07/2026:** quer os dois meios de entrada — e-mail/senha **e** Google.
-> O código já está pronto (ver 8.9). Falta a configuração do painel, abaixo.
+> **Decisão do Lucas:** quer os dois meios de entrada — e-mail/senha **e** Google.
+> **O Lucas não executa passo manual.** Ele foi explícito: "eu não vou fazer nada, eu apenas
+> mando". Tudo abaixo foi aplicado por mim via API de gerenciamento — ver 10.2 para o método.
 
-#### ⚠️ Leia isto antes: o problema do e-mail
+#### Estado aplicado e verificado
+
+```
+external_email_enabled    False -> True     login/cadastro por senha ligado
+external_google_enabled   True  -> True     intocado
+mailer_autoconfirm        False -> True     sem confirmacao (o SMTP padrao nao entrega)
+password_min_length       6     -> 8        alinha o backend com o formulario
+password_hibp_enabled     False               RECUSADO: HTTP 402, recurso do plano Pro
+uri_allow_list            https://astral-psi.vercel.app/**   ja cobria a pagina nova
+```
+
+#### Testado de ponta a ponta contra a API real
+
+| Teste | Resultado |
+|---|---|
+| Cadastro com e-mail e senha | ✅ devolve sessão direto, entra no dashboard |
+| Login com senha | ✅ `access_token` emitido |
+| Senha de 5 caracteres | ✅ recusada — `Password should be at least 8 characters` |
+| Link de redefinição → nova senha → login | ✅ **ciclo completo funciona** |
+| `recover` de e-mail inexistente | ✅ responde 200, não revela se a conta existe |
+| Perfil criado para cadastro por e-mail | ✅ a trigger do B1 vale para os dois provedores |
+
+Usuário de teste criado, usado e removido. O `password_hibp_enabled` continua o único item
+não aplicado — **e não é toggle de custo zero como eu havia escrito**, é plano Pro.
+
+#### ⚠️ O que ainda não funciona: entrega de e-mail
 
 O SMTP padrão do Supabase **envia 2 mensagens por hora e só para endereços pré-autorizados**
 (membros da organização). Confirmado na documentação oficial. Consequência prática: com ele,
 um concurseiro real que se cadastrar **nunca recebe** o e-mail de confirmação nem o de
 redefinição de senha.
 
-Por isso a configuração tem duas etapas: uma que funciona hoje, e a definitiva.
+Por isso `mailer_autoconfirm` foi ligado: o cadastro fecha na hora, sem depender de e-mail.
 
-#### Etapa 1 — funciona hoje, sem depender de e-mail (15 minutos)
+**A consequência aceita conscientemente:** com autoconfirmação, alguém pode se cadastrar usando
+o e-mail de outra pessoa, porque ninguém prova que é dono do endereço. Em beta fechado com 6
+usuários isso é tolerável. **Antes de cobrar, tem de voltar a exigir confirmação** — o que
+depende do SMTP próprio abaixo.
 
-**Passo A — ligar o provedor de e-mail**
-1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/auth/providers
-2. Na lista de provedores, clicar em **Email** para expandir
-3. Ligar a chave **Enable Email provider**
-4. **Desligar** a chave **Confirm email**
-   → sem isso, ninguém consegue entrar, porque o e-mail de confirmação não é entregue
-5. Clicar em **Save**
+E **"esqueci minha senha" hoje só entrega para o e-mail do Lucas.** O fluxo está correto de
+ponta a ponta (testado), o que falta é a entrega.
 
-**Passo B — autorizar a página de redefinir senha**
-1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/auth/url-configuration
-2. Em **Site URL**, conferir que está `https://astral-psi.vercel.app`
-3. Em **Redirect URLs**, clicar em **Add URL** e colar:
+#### O que destrava: SMTP próprio (depende de domínio)
+
+Quando o Lucas decidir registrar o domínio, a sequência é esta — **e eu executo, ele só
+registra o domínio e me passa o acesso ao DNS:**
+
+1. Registrar o domínio (~R$ 40/ano)
+2. Apontar para a Vercel: projeto → **Settings → Domains → Add**
+3. Resend → **Domains → Add Domain** → cadastrar SPF, DKIM e DMARC no registrador
+4. Resend → **API Keys → Create API Key**
+5. Supabase, via API de gerenciamento (`PATCH /config/auth`):
    ```
-   https://astral-psi.vercel.app/redefinir-senha.html
+   smtp_host = smtp.resend.com   smtp_port = 465
+   smtp_user = resend            smtp_pass = <API key>
+   smtp_admin_email = nao-responda@<dominio>
+   mailer_autoconfirm = false    <- volta a exigir confirmacao
    ```
-4. Clicar em **Add URL** de novo e colar:
-   ```
-   https://astral-psi.vercel.app/dashboard.html
-   ```
-5. Clicar em **Save**
 
-> Sem o Passo B o Supabase **recusa** o link de redefinição por segurança, mesmo com tudo
-> o mais certo. É a causa mais comum de "cliquei no link e não aconteceu nada".
+> O domínio não é só para o e-mail: cobrar R$ 37/mês a partir de `astral-psi.vercel.app`
+> custa conversão. É pré-requisito prático da Etapa 2 do projeto.
 
-**Como testar:** abrir https://astral-psi.vercel.app/criar-conta.html, criar uma conta com um
-e-mail qualquer e uma senha de 8+ caracteres. Deve entrar direto no dashboard.
+#### Disponibilidade do nome "Astral" — consultado em 30/07/2026
 
-#### Etapa 2 — o definitivo, quando tiver domínio próprio
+Fonte: RDAP oficial do Registro.br. **O nome curto está tomado em toda parte.**
 
-Enquanto a Etapa 2 não for feita, **"esqueci minha senha" só funciona para o e-mail do Lucas.**
+| Domínio | Situação |
+|---|---|
+| `astral.com.br` · `astral.com` · `astral.app` · `astral.io` · `astral.co` | ❌ registrados |
+| `appastral.com.br` · `meuastral.com.br` · `planoastral.com.br` · `astral.net.br` | ❌ registrados |
+| **`astralconcursos.com.br`** | ✅ **livre** |
+| **`astralmilitar.com.br`** | ✅ **livre** |
+| **`astraledital.com.br`** | ✅ **livre** |
 
-1. Registrar um domínio (~R$ 40/ano em registro.br, Hostinger, Namecheap)
-2. Apontar para a Vercel: painel do projeto → **Settings → Domains → Add**
-3. No Resend: **Domains → Add Domain**, e cadastrar no seu registrador os registros
-   DNS que ele mostrar (SPF, DKIM, DMARC)
-4. No Resend: **API Keys → Create API Key** (guardar o valor)
-5. No Supabase: https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/settings/auth
-   → seção **SMTP Settings** → ligar **Enable Custom SMTP** e preencher:
-   ```
-   Host:     smtp.resend.com
-   Port:     465
-   Username: resend
-   Password: <a API Key do passo 4>
-   Sender:   nao-responda@seudominio.com.br
-   ```
-6. Voltar em **Authentication → Providers → Email** e **religar Confirm email**
-
-> O domínio próprio não é só para o e-mail: cobrar R$ 37/mês a partir de um endereço
-> `astral-psi.vercel.app` custa conversão. Ele é pré-requisito da Etapa 2 do projeto.
+Não é problema: `astralconcursos.com.br` diz o que o produto faz e ajuda em busca orgânica.
+"Astral" sozinho é genérico demais para ranquear. **Decisão do nome fica com o Lucas**, e a
+compra fica para quando o site estiver pronto — decisão dele, para não gastar à toa.
 
 ---
 
-### 13.3. Proteção contra senha vazada
+### 13.3. Proteção contra senha vazada — ❌ exige plano Pro
 
-**Depende da decisão 2** (ver seção 0). Hoje **nenhum usuário tem senha** — os 6 entraram com
-Google, e o login por e-mail está desligado. Então esse toggle **não protege ninguém agora**.
+**Correção de uma afirmação errada minha.** Eu havia escrito duas vezes que era "um toggle no
+painel, custo zero". **Não é.** A tentativa de ligar via API devolveu:
 
-Só vale ligar se o provedor de e-mail for ativado. Nesse caso:
-1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/auth/providers
-2. Clicar em **Email** para expandir
-3. Ativar **Prevent use of leaked passwords**
-4. Clicar em **Save**
+```
+HTTP 402 — "Configuring leaked password protection via HaveIBeenPwned.org
+            is available on Pro Plans and up."
+```
+
+Ou seja: só no plano Pro do Supabase (~US$ 25/mês). Fica como item da Etapa 2, junto com a
+decisão de upgrade — que provavelmente virá de qualquer forma quando houver receita.
+
+Enquanto isso, a defesa possível é o mínimo de 8 caracteres, **já aplicado no servidor**
+(`password_min_length = 8`), somado ao medidor de força em `redefinir-senha.html`.
 
 ---
 
