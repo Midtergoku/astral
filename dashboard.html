@@ -729,7 +729,7 @@
     <div class="user-avatar" id="user-avatar">?</div>
     <div class="user-details">
       <div class="user-name" id="user-name">Carregando...</div>
-      <div class="user-plan" id="user-plan">PROFISSIONAL</div>
+      <div class="user-plan" id="user-plan">FREE</div>
     </div>
   </div>
 
@@ -1173,7 +1173,7 @@ function mostrarLevelUp(nomeNivel) {
 
     // Plano
     const planoEl = document.getElementById('user-plan');
-    const plano = estado.perfil?.tipo_plano || 'profissional';
+    const plano = estado.perfil?.tipo_plano || 'free';
     planoEl.textContent = plano.toUpperCase();
     if (plano === 'beta') planoEl.classList.add('plan-beta');
     if (plano === 'pro')  planoEl.classList.add('plan-pro');
