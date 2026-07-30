@@ -469,6 +469,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
 
   let estado = {
     usuario: null,
@@ -492,13 +493,11 @@
 
     estado.perfil = perfil;
 
-    // Busca dados salvos
-    const dadosSalvos = localStorage.getItem(`astral_dados_${session.user.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      estado.materias = dados.materias || [];
-      estado.edital   = dados.edital   || null;
-    }
+    // Progresso vem da conta. Guardo o objeto inteiro porque o rebalanceamento
+    // reescreve o cronograma e precisa devolver tudo, nao so a parte alterada.
+    estado.progresso = await carregarProgresso(session.user.id);
+    estado.materias  = estado.progresso.materias;
+    estado.edital    = estado.progresso.edital;
 
     renderUI();
   }
@@ -632,7 +631,7 @@
   init();
 
 window.abrirModalBalanco = function() {
-  const dados = JSON.parse(localStorage.getItem(`astral_dados_${estado.usuario.id}`) || '{}');
+  const dados = estado.progresso || {};
   const materias = dados.materias || [];
 
   if (materias.length < 2) {
@@ -688,7 +687,7 @@ window.fecharModalFora = function(e) {
 }
 
 window.aplicarBalanco = function() {
-  const dados = JSON.parse(localStorage.getItem(`astral_dados_${estado.usuario.id}`) || '{}');
+  const dados = estado.progresso;
   const materias = dados.materias || [];
   const total = materias.length;
   const mediaIdeal = Math.round(100 / total);
@@ -704,7 +703,7 @@ window.aplicarBalanco = function() {
     }));
 
   dados.cronogramaHoje = novosCronograma;
-  localStorage.setItem(`astral_dados_${estado.usuario.id}`, JSON.stringify(dados));
+  salvarProgresso(estado.usuario.id, dados, { imediato: true });
   fecharModalBalanco();
   toast('Cronograma rebalanceado! Veja as novas sessões no dashboard.');
 }

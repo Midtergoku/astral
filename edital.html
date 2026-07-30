@@ -378,6 +378,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
 
   let estado = {
     usuario: null,
@@ -396,18 +397,15 @@
 
     estado.usuario = session.user;
 
-    // Busca dados salvos
-    const dadosSalvos = localStorage.getItem(`astral_dados_${session.user.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      estado.xp             = dados.xp             || 0;
-      estado.streak         = dados.streak         || 0;
-      estado.horas          = dados.horas          || 0;
-      estado.materias       = dados.materias       || [];
-      estado.cronogramaHoje = dados.cronogramaHoje || [];
-      estado.edital         = dados.edital         || null;
-      estado.badges         = dados.badges         || [];
-    }
+    // Progresso vem da conta, nao do navegador.
+    const dados = await carregarProgresso(session.user.id);
+    estado.xp             = dados.xp;
+    estado.streak         = dados.streak;
+    estado.horas          = dados.horas;
+    estado.materias       = dados.materias;
+    estado.cronogramaHoje = dados.cronogramaHoje;
+    estado.edital         = dados.edital;
+    estado.badges         = dados.badges;
 
     renderUI();
   }
@@ -638,8 +636,9 @@
         estado.xp += 100;
       }
 
-      salvarDados();
-      // Redireciona para dashboard
+      // await + imediato: a navegacao abaixo cancelaria um salvamento adiado,
+      // e o edital recem-processado seria perdido.
+      await salvarDados({ imediato: true });
       window.location.href = 'dashboard.html';
 
     } catch(err) {
@@ -658,14 +657,13 @@
       estado.edital = null;
       estado.materias = [];
       estado.cronogramaHoje = [];
-      salvarDados();
+      salvarDados({ imediato: true });   // apagar o edital nao pode ficar pendente
       renderUI();
     }
   }
 
-  function salvarDados() {
-    const key = `astral_dados_${estado.usuario.id}`;
-    localStorage.setItem(key, JSON.stringify({
+  function salvarDados({ imediato = false } = {}) {
+    return salvarProgresso(estado.usuario.id, {
       xp:             estado.xp,
       streak:         estado.streak,
       horas:          estado.horas,
@@ -673,7 +671,7 @@
       cronogramaHoje: estado.cronogramaHoje,
       edital:         estado.edital,
       badges:         estado.badges,
-    }));
+    }, { imediato });
   }
 
   // ── LOGOUT ──

@@ -817,6 +817,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
 
   // ── NÍVEIS ──
   const TABELAS_NIVEIS = {
@@ -1013,18 +1014,17 @@ function mostrarLevelUp(nomeNivel) {
 
     estado.perfil = perfil;
 
-    // Busca dados salvos
-    const dadosSalvos = localStorage.getItem(`astral_dados_${session.user.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      estado.xp       = dados.xp       || 0;
-      estado.streak   = dados.streak   || 0;
-      estado.horas    = dados.horas    || 0;
-      estado.materias = dados.materias || [];
-      estado.cronogramaHoje = dados.cronogramaHoje || [];
-      estado.edital   = dados.edital   || null;
-      estado.badges   = dados.badges   || [];
-    }
+    // Progresso vem da CONTA, nao mais do navegador. Se o usuario ja tinha
+    // dados aqui e o banco ainda nao, carregarProgresso() migra antes de
+    // devolver -- ninguem perde o que ja conquistou.
+    const dados = await carregarProgresso(session.user.id);
+    estado.xp             = dados.xp;
+    estado.streak         = dados.streak;
+    estado.horas          = dados.horas;
+    estado.materias       = dados.materias;
+    estado.cronogramaHoje = dados.cronogramaHoje;
+    estado.edital         = dados.edital;
+    estado.badges         = dados.badges;
 
     renderUI();
   }
@@ -1395,9 +1395,11 @@ function verificarBalanco() {
         estado.xp += 100;
       }
 
-      salvarDados();
+      // Imediato: processar o edital muda tudo de uma vez, e o usuario
+      // costuma sair da tela logo em seguida.
+      salvarDados({ imediato: true });
       renderUI();
-      mostrarToast(`✅ ${resultado.materias?.length || 0} matérias extraídas com sucesso!`);
+      toast(`${resultado.materias?.length || 0} matérias extraídas com sucesso!`);
 
     } catch(err) {
       console.error(err);
@@ -1410,9 +1412,10 @@ function verificarBalanco() {
   }
 
   // ── SALVAR DADOS ──
-  function salvarDados() {
-    const key = `astral_dados_${estado.usuario.id}`;
-    localStorage.setItem(key, JSON.stringify({
+  // Grava no navegador na hora e no banco logo em seguida. Marcar varias
+  // sessoes seguidas vira uma escrita so, nao uma por clique.
+  function salvarDados({ imediato = false } = {}) {
+    salvarProgresso(estado.usuario.id, {
       xp:             estado.xp,
       streak:         estado.streak,
       horas:          estado.horas,
@@ -1420,19 +1423,16 @@ function verificarBalanco() {
       cronogramaHoje: estado.cronogramaHoje,
       edital:         estado.edital,
       badges:         estado.badges,
-    }));
+    }, { imediato });
   }
 
   // ── LOGOUT ──
   window.fazerLogout = fazerLogout;
 
   // ── TOAST ──
-  window.mostrarToast = function(msg) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg;
-    toast.classList.add('show', 'success');
-    setTimeout(() => toast.classList.remove('show', 'success'), 3500);
-  }
+  // Implementacao local removida: agora e a compartilhada do astral.js, que
+  // injeta o proprio CSS e anuncia para leitor de tela.
+  window.mostrarToast = toast;
 
   // ── START ──
   init();

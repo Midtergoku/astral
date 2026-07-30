@@ -767,11 +767,13 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
 
   const XP_ACERTO = 15;
   const XP_ERRO   = 0;
 
   let usuario = null;
+  let progresso = null;
   let materias = [];
   let concurso = '';
   let questoes = [];
@@ -791,12 +793,10 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     document.getElementById('user-name').textContent = nome.split(' ')[0];
     document.getElementById('user-avatar').textContent = nome[0].toUpperCase();
 
-    const dadosSalvos = localStorage.getItem(`astral_dados_${usuario.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      materias = dados.materias || [];
-      concurso = dados.edital?.nome || '';
-    }
+    // Guarda o progresso inteiro: salvarXP precisa devolver tudo, nao so o xp.
+    progresso = await carregarProgresso(usuario.id);
+    materias = progresso.materias;
+    concurso = progresso.edital?.nome || '';
 
     if (!materias.length) {
       document.getElementById('config-section').style.display = 'none';
@@ -1017,11 +1017,12 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
   }
 
   // ── SALVAR XP ──
+  // Antes: lia o blob do navegador, somava e regravava por cima. Se outra aba
+  // tivesse mexido no meio, o valor dela era perdido. Agora soma sobre o
+  // progresso ja carregado e manda o objeto inteiro.
   function salvarXP(quantidade) {
-    const key = `astral_dados_${usuario.id}`;
-    const dados = JSON.parse(localStorage.getItem(key) || '{}');
-    dados.xp = (dados.xp || 0) + quantidade;
-    localStorage.setItem(key, JSON.stringify(dados));
+    progresso.xp += quantidade;
+    salvarProgresso(usuario.id, progresso);
   }
 
   // ── ANIMAR XP ──

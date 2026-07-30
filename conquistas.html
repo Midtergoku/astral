@@ -456,6 +456,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso } from './assets/js/estado.js';
 
   // ── CONSTANTES ──
   const HABILIDADES_MILITARES = {
@@ -592,15 +593,12 @@
 
     estado.perfil = perfil;
 
-    // Busca dados salvos
-    const dadosSalvos = localStorage.getItem(`astral_dados_${session.user.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      estado.xp     = dados.xp     || 0;
-      estado.streak = dados.streak || 0;
-      estado.edital = dados.edital || null;
-      estado.materias = dados.materias || [];
-    }
+    // Progresso vem da conta, nao do navegador.
+    const dados = await carregarProgresso(session.user.id);
+    estado.xp       = dados.xp;
+    estado.streak   = dados.streak;
+    estado.edital   = dados.edital;
+    estado.materias = dados.materias;
 
     renderUI();
   }

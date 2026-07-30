@@ -547,6 +547,12 @@ select option { background: var(--surface); color: var(--text); }
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  // A pagina ja tem uma funcao chamada carregarEventos, entao a do modulo
+  // entra com outro nome para nao haver colisao.
+  import { carregarProgresso,
+           carregarEventos as buscarEventos,
+           criarEvento, atualizarEvento,
+           removerEvento as removerEventoDoBanco } from './assets/js/estado.js';
 
   let usuario = null;
   let eventos = [];
@@ -593,32 +599,30 @@ select option { background: var(--surface); color: var(--text); }
   }
 
   // ── DADOS ──
-  function carregarEventos() {
-    const key = `astral_eventos_${usuario.id}`;
-    const salvo = localStorage.getItem(key);
-    eventos = salvo ? JSON.parse(salvo) : [];
+  // Os eventos passaram a ser linhas no banco, uma por evento, em vez de um
+  // array inteiro regravado a cada mexida. Quem já tinha eventos no navegador
+  // tem a lista migrada na primeira leitura, dentro de buscarEventos().
+  async function carregarEventos() {
+    eventos = await buscarEventos(usuario.id);
 
-    // Importa data da prova do edital automaticamente
-    const dadosSalvos = localStorage.getItem(`astral_dados_${usuario.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      if (dados.edital?.dataProva && !eventos.some(e => e.origem === 'edital_prova')) {
-        eventos.push({
-          id: Date.now(),
+    // Importa a data da prova do edital, uma vez só. O índice único em
+    // (usuario_id, origem) garante isso mesmo se duas abas tentarem juntas.
+    const dados = await carregarProgresso(usuario.id);
+    if (dados.edital?.dataProva && !eventos.some(e => e.origem === 'edital_prova')) {
+      try {
+        const novo = await criarEvento(usuario.id, {
           nome: 'Prova — ' + (dados.edital.nome || 'Concurso'),
           data: converterDataBR(dados.edital.dataProva),
           categoria: 'prova',
           obs: 'Importado automaticamente do edital',
           origem: 'edital_prova',
         });
-        salvarEventos();
+        eventos.push(novo);
+      } catch {
+        // Já existia (corrida entre abas) ou a data do edital veio inválida.
+        // Não vale interromper o calendário por causa disso.
       }
     }
-  }
-
-  function salvarEventos() {
-    const key = `astral_eventos_${usuario.id}`;
-    localStorage.setItem(key, JSON.stringify(eventos));
   }
 
   // ── RENDER ──
@@ -725,7 +729,7 @@ select option { background: var(--surface); color: var(--text); }
     if (e.target === document.getElementById('modal-overlay')) fecharModal();
   }
 
-  window.salvarEvento = function() {
+  window.salvarEvento = async function() {
     const nome      = document.getElementById('evento-nome').value.trim();
     const data      = document.getElementById('evento-data').value;
     const categoria = document.getElementById('evento-categoria').value;
@@ -734,15 +738,18 @@ select option { background: var(--surface); color: var(--text); }
     if (!nome) { toast('Informe o nome do evento.', 'error'); return; }
     if (!data) { toast('Informe a data do evento.', 'error'); return; }
 
-    if (editandoIndex !== null) {
-      eventos[editandoIndex] = { ...eventos[editandoIndex], nome, data, categoria, obs };
-    } else {
-      eventos.push({ id: Date.now(), nome, data, categoria, obs, origem: 'manual' });
+    try {
+      if (editandoIndex !== null) {
+        const alvo = eventos[editandoIndex];
+        eventos[editandoIndex] = await atualizarEvento(usuario.id, alvo.id, { nome, data, categoria, obs });
+      } else {
+        eventos.push(await criarEvento(usuario.id, { nome, data, categoria, obs }));
+      }
+      renderEventos();
+      fecharModal();
+    } catch (err) {
+      toast(err.message || 'Não consegui salvar o evento.', 'error');
     }
-
-    salvarEventos();
-    renderEventos();
-    fecharModal();
   }
 
   window.editarEvento = function(index) {
@@ -755,11 +762,16 @@ select option { background: var(--surface); color: var(--text); }
     abrirModal('Editar evento');
   }
 
-  window.removerEvento = function(index) {
+  window.removerEvento = async function(index) {
     if (!confirm('Remover este evento?')) return;
-    eventos.splice(index, 1);
-    salvarEventos();
-    renderEventos();
+    const alvo = eventos[index];
+    try {
+      await removerEventoDoBanco(usuario.id, alvo.id);
+      eventos.splice(index, 1);
+      renderEventos();
+    } catch (err) {
+      toast(err.message || 'Não consegui remover o evento.', 'error');
+    }
   }
 
   // ── LOGOUT ──
@@ -776,7 +788,7 @@ select option { background: var(--surface); color: var(--text); }
     document.getElementById('user-name').textContent = nome.split(' ')[0];
     document.getElementById('user-avatar').textContent = nome[0].toUpperCase();
 
-    carregarEventos();
+    await carregarEventos();   // agora vai ao banco: sem o await, renderiza vazio
     renderEventos();
   }
 

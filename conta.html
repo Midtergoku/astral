@@ -325,14 +325,18 @@
   // A LGPD dá ao usuário o direito de levar os próprios dados embora. Como o
   // progresso ainda mora no localStorage (ver seção 5 do CLAUDE.md), a
   // exportação junta as duas fontes: o que está no banco e o que está aqui.
-  el('btn-exportar').addEventListener('click', () => {
-    const chaves = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (!k || !k.includes(usuario.id)) continue;
-      try { chaves[k] = JSON.parse(localStorage.getItem(k)); }
-      catch { chaves[k] = localStorage.getItem(k); }
-    }
+  el('btn-exportar').addEventListener('click', async () => {
+    const btn = el('btn-exportar');
+    btn.disabled = true;
+
+    // Os dados agora moram no banco. Buscamos tudo antes de montar o arquivo --
+    // exportar só o que sobrou no navegador entregaria uma cópia incompleta,
+    // que é justamente o oposto do direito de portabilidade.
+    const [progresso, eventos, sessoes] = await Promise.all([
+      supabase.from('progresso').select('*').eq('usuario_id', usuario.id).maybeSingle(),
+      supabase.from('eventos').select('*').eq('usuario_id', usuario.id).order('data'),
+      supabase.from('sessoes_estudo').select('*').eq('usuario_id', usuario.id).order('criado_em', { ascending: false }),
+    ]);
 
     const pacote = {
       exportado_em: new Date().toISOString(),
@@ -346,8 +350,12 @@
         forma_de_acesso: usuario.app_metadata?.provider || 'email',
       },
       perfil,
-      dados_de_estudo: chaves,
+      progresso: progresso.data ?? null,
+      eventos:   eventos.data ?? [],
+      sessoes_de_estudo: sessoes.data ?? [],
     };
+
+    btn.disabled = false;
 
     const blob = new Blob([JSON.stringify(pacote, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

@@ -277,9 +277,12 @@ select.materia-select:focus { border-color:var(--purple); }
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso, salvarProgresso,
+           registrarSessao as registrarSessaoNoBanco,
+           sessoesDeHoje } from './assets/js/estado.js';
 
   const CIRCUNFERENCIA = 2 * Math.PI * 120;
-  let usuario=null, modo='livre', rodando=false, intervalo=null;
+  let usuario=null, progresso=null, modo='livre', rodando=false, intervalo=null;
   let segundosAtual=0, segundosTotalHoje=0, sessoesHoje=0, xpHoje=0;
   let historico=[], fasePomodoro='foco', pomodoroSeg=0, totalPomodoroSeg=0;
 
@@ -291,16 +294,23 @@ select.materia-select:focus { border-color:var(--purple); }
     document.getElementById('user-name').textContent=nome.split(' ')[0];
     document.getElementById('user-avatar').textContent=nome[0].toUpperCase();
 
-    const dados=JSON.parse(localStorage.getItem(`astral_dados_${usuario.id}`)||'{}');
+    progresso = await carregarProgresso(usuario.id);
     const select=document.getElementById('select-materia');
-    (dados.materias||[]).forEach(m=>{
+    progresso.materias.forEach(m=>{
       const o=document.createElement('option');
       o.value=o.textContent=m.nome;
       select.appendChild(o);
     });
 
-    const hoje=new Date().toDateString();
-    historico=JSON.parse(localStorage.getItem(`astral_crono_${usuario.id}_${hoje}`)||'[]');
+    // Historico agora vem do banco: o cronometro de ontem no computador
+    // aparece hoje no celular. Antes era uma chave por dia, so no navegador.
+    const doBanco = await sessoesDeHoje(usuario.id);
+    historico = doBanco.map(s => ({
+      materia: s.materia || 'Geral',
+      segundos: s.segundos,
+      xp: s.xp,
+      hora: new Date(s.criado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+    }));
     historico.forEach(s=>{segundosTotalHoje+=s.segundos;sessoesHoje++;xpHoje+=s.xp;});
     atualizarStats();renderHistorico();
 
@@ -398,15 +408,17 @@ select.materia-select:focus { border-color:var(--purple); }
     if(segundosAtual<60)return;
     const materia=document.getElementById('select-materia').value||'Geral';
     const xp=Math.floor(segundosAtual/60)*2;
-    const sessao={materia,segundos:segundosAtual,xp,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+    const segundos=segundosAtual;
+    const sessao={materia,segundos,xp,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
     historico.unshift(sessao);
-    segundosTotalHoje+=segundosAtual;sessoesHoje++;xpHoje+=xp;segundosAtual=0;
-    const hoje=new Date().toDateString();
-    localStorage.setItem(`astral_crono_${usuario.id}_${hoje}`,JSON.stringify(historico));
-    const key=`astral_dados_${usuario.id}`;
-    const d=JSON.parse(localStorage.getItem(key)||'{}');
-    d.xp=(d.xp||0)+xp;d.horas=Math.round(((d.horas||0)+sessao.segundos/3600)*10)/10;
-    localStorage.setItem(key,JSON.stringify(d));
+    segundosTotalHoje+=segundos;sessoesHoje++;xpHoje+=xp;segundosAtual=0;
+
+    // Uma linha por sessao no banco, e o XP e as horas somados no progresso.
+    registrarSessaoNoBanco(usuario.id,{materia,segundos,xp,modo});
+    progresso.xp += xp;
+    progresso.horas = Math.round((progresso.horas + segundos/3600)*10)/10;
+    salvarProgresso(usuario.id, progresso, { imediato: true });
+
     atualizarStats();renderHistorico();animarXP(xp);
   }
 

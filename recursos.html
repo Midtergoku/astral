@@ -564,6 +564,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { carregarProgresso } from './assets/js/estado.js';
 
   let usuario = null;
   let materias = [];
@@ -580,18 +581,16 @@
     document.getElementById('user-name').textContent = nome.split(' ')[0];
     document.getElementById('user-avatar').textContent = nome[0].toUpperCase();
 
-    // Carrega dados do localStorage
-    const dadosSalvos = localStorage.getItem(`astral_dados_${usuario.id}`);
-    if (dadosSalvos) {
-      const dados = JSON.parse(dadosSalvos);
-      materias = dados.materias || [];
-      concurso = dados.edital?.nome || '';
+    // Progresso vem da conta. O cache de recursos continua no navegador de
+    // proposito: e cache com validade de 24h, nao dado do usuario.
+    const dados = await carregarProgresso(usuario.id);
+    materias = dados.materias;
+    concurso = dados.edital?.nome || '';
 
-      // Carrega cache de recursos
-      const cacheKey = `astral_recursos_${usuario.id}`;
-      const cacheSalvo = localStorage.getItem(cacheKey);
+    try {
+      const cacheSalvo = localStorage.getItem(`astral_recursos_${usuario.id}`);
       if (cacheSalvo) cacheRecursos = JSON.parse(cacheSalvo);
-    }
+    } catch { cacheRecursos = {}; }
 
     if (!materias.length) {
       document.getElementById('seletor-section').style.display = 'none';
