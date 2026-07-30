@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Minha conta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/app.css" />
+<style>
+:root {
+  --bg:        #0A0A0F;
+  --surface:   #13131A;
+  --surface2:  #1A1A24;
+  --border:    #1E1E2E;
+  --purple:    #7C5CFC;
+  --purple-lt: #A78BFA;
+  --gold:      #F5C542;
+  --green:     #34D399;
+  --red:       #F87171;
+  --text:      #E8E8F0;
+  --muted:     #6B6B80;
+  --white:     #FFFFFF;
+  --sidebar-w: 240px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.page-sub { color: var(--muted); font-size: 0.88rem; margin-top: 0.25rem; }
+
+.user-details { min-width: 0; }
+.user-plan { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+.plan-beta { color: var(--gold); }
+.plan-pro  { color: var(--green); }
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--white);
+  margin-bottom: 0.35rem;
+}
+.section-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.6; }
+
+.dados-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.dado { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1rem; }
+.dado-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.3rem; }
+.dado-valor { font-size: 0.95rem; color: var(--white); font-weight: 500; word-break: break-word; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  padding: 0.75rem 1.15rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.2s, border-color 0.2s;
+}
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-roxo { background: var(--purple); color: #fff; }
+.btn-roxo:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(124,92,252,0.3); }
+.btn-fantasma { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-fantasma:hover:not(:disabled) { border-color: var(--purple-lt); }
+.btn-perigo { background: var(--red); color: #fff; }
+.btn-perigo:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(248,113,113,0.3); }
+
+.zona-perigo { border-color: rgba(248,113,113,0.28); }
+.zona-perigo .section-title { color: var(--red); }
+
+.aviso {
+  background: rgba(248,113,113,0.07);
+  border: 1px solid rgba(248,113,113,0.22);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  margin-bottom: 1.15rem;
+}
+.aviso ul { margin: 0.5rem 0 0 1.1rem; }
+.aviso li { margin-bottom: 0.25rem; }
+
+.confirmacao { display: none; margin-top: 1.15rem; }
+.confirmacao input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  width: 100%;
+  max-width: 280px;
+  outline: none;
+  margin-bottom: 0.85rem;
+}
+.confirmacao input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(248,113,113,0.15); }
+
+.spinner {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed;
+  bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(140%);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.85rem 1.35rem;
+  font-size: 0.88rem;
+  color: var(--white);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+  z-index: 200;
+  max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(52,211,153,0.4); }
+.toast.error   { border-color: rgba(248,113,113,0.45); }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; padding: 1.25rem; }
+  .dados-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
+
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-details">
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-plan" id="user-plan">FREE</div>
+    </div>
+  </div>
+
+  <p class="nav-label">Menu</p>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendário
+    </a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Recursos
+    </a>
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Questões
+    </a>
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <a class="nav-link active" href="conta.html" style="margin-bottom:0.5rem;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Minha conta
+    </a>
+    <button class="btn-logout" onclick="fazerLogout()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Minha conta</h1>
+      <p class="page-sub">Seus dados, sua cópia deles, e o botão de sair de vez.</p>
+    </div>
+  </div>
+
+  <!-- Dados da conta -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="section-title">Dados da conta</div>
+    <p class="section-sub">É tudo o que o Astral guarda sobre você nos nossos servidores.</p>
+    <div class="dados-grid" id="dados-grid"></div>
+  </div>
+
+  <!-- Exportar -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="section-title">Baixar meus dados</div>
+    <p class="section-sub">
+      Gera um arquivo com tudo: seu cadastro, seu edital, matérias, XP, conquistas,
+      histórico do cronômetro e eventos do calendário. É um arquivo de texto no formato JSON —
+      pode abrir no bloco de notas.
+    </p>
+    <button class="btn btn-roxo" id="btn-exportar">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Baixar meus dados
+    </button>
+  </div>
+
+  <!-- Excluir -->
+  <div class="card zona-perigo">
+    <div class="section-title">Excluir minha conta</div>
+    <p class="section-sub">Esta ação é definitiva. Não há como desfazer nem recuperar depois.</p>
+
+    <div class="aviso">
+      <strong>O que some junto com a conta:</strong>
+      <ul>
+        <li>Seu cadastro e seu perfil</li>
+        <li>Seu edital, matérias e cronograma</li>
+        <li>XP, patente, sequência e conquistas</li>
+        <li>Histórico do cronômetro e eventos do calendário</li>
+      </ul>
+      Se quiser guardar alguma coisa, <strong>baixe seus dados antes</strong>.
+    </div>
+
+    <button class="btn btn-fantasma" id="btn-quero-excluir">Quero excluir minha conta</button>
+
+    <div class="confirmacao" id="confirmacao">
+      <p class="section-sub" style="margin-bottom:0.7rem;">
+        Para confirmar, digite <strong style="color:var(--red);">EXCLUIR</strong> no campo abaixo.
+      </p>
+      <input type="text" id="input-confirmar" placeholder="EXCLUIR" autocomplete="off" spellcheck="false" />
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <button class="btn btn-perigo" id="btn-excluir" disabled>Excluir permanentemente</button>
+        <button class="btn btn-fantasma" id="btn-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script type="module">
+  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL }
+    from './assets/js/astral.js';
+
+  window.fazerLogout = fazerLogout;
+
+  let usuario = null;
+  let perfil = null;
+
+  const el = id => document.getElementById(id);
+
+  function formatarData(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }); }
+    catch { return '—'; }
+  }
+
+  async function init() {
+    const session = await exigirSessao();
+    if (!session) return;
+    usuario = session.user;
+
+    const { data } = await supabase.from('perfis').select('*').eq('id', usuario.id).maybeSingle();
+    perfil = data;
+
+    const nome = nomeDoUsuario(usuario, perfil);
+    el('user-name').textContent = nome.split(' ')[0];
+    el('user-avatar').textContent = nome[0].toUpperCase();
+
+    const plano = perfil?.tipo_plano || 'free';
+    const planoEl = el('user-plan');
+    planoEl.textContent = plano.toUpperCase();
+    if (plano === 'beta') planoEl.classList.add('plan-beta');
+    if (plano === 'pro')  planoEl.classList.add('plan-pro');
+
+    const comoEntrou = usuario.app_metadata?.provider === 'google'
+      ? 'Conta Google'
+      : 'E-mail e senha';
+
+    const dados = [
+      ['Nome',            nome],
+      ['E-mail',          usuario.email || '—'],
+      ['Plano',           plano.toUpperCase()],
+      ['Forma de acesso', comoEntrou],
+      ['Conta criada em', formatarData(usuario.created_at)],
+      ['Último acesso',   formatarData(usuario.last_sign_in_at)],
+    ];
+
+    el('dados-grid').innerHTML = dados.map(([r, v]) => `
+      <div class="dado">
+        <div class="dado-label">${esc(r)}</div>
+        <div class="dado-valor">${esc(v)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Exportar ────────────────────────────────────────────────────────────────
+  // A LGPD dá ao usuário o direito de levar os próprios dados embora. Como o
+  // progresso ainda mora no localStorage (ver seção 5 do CLAUDE.md), a
+  // exportação junta as duas fontes: o que está no banco e o que está aqui.
+  el('btn-exportar').addEventListener('click', () => {
+    const chaves = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.includes(usuario.id)) continue;
+      try { chaves[k] = JSON.parse(localStorage.getItem(k)); }
+      catch { chaves[k] = localStorage.getItem(k); }
+    }
+
+    const pacote = {
+      exportado_em: new Date().toISOString(),
+      origem: 'Astral — astral-psi.vercel.app',
+      conta: {
+        id: usuario.id,
+        email: usuario.email,
+        nome: nomeDoUsuario(usuario, perfil),
+        criada_em: usuario.created_at,
+        ultimo_acesso: usuario.last_sign_in_at,
+        forma_de_acesso: usuario.app_metadata?.provider || 'email',
+      },
+      perfil,
+      dados_de_estudo: chaves,
+    };
+
+    const blob = new Blob([JSON.stringify(pacote, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `astral-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    toast('Arquivo gerado. Confira a pasta de downloads.');
+  });
+
+  // ── Excluir ─────────────────────────────────────────────────────────────────
+  el('btn-quero-excluir').addEventListener('click', () => {
+    el('confirmacao').style.display = 'block';
+    el('btn-quero-excluir').style.display = 'none';
+    el('input-confirmar').focus();
+  });
+
+  el('btn-cancelar').addEventListener('click', () => {
+    el('confirmacao').style.display = 'none';
+    el('btn-quero-excluir').style.display = 'inline-flex';
+    el('input-confirmar').value = '';
+    el('btn-excluir').disabled = true;
+  });
+
+  // O botão só destrava com a palavra exata: evita clique acidental.
+  el('input-confirmar').addEventListener('input', e => {
+    el('btn-excluir').disabled = e.target.value.trim().toUpperCase() !== 'EXCLUIR';
+  });
+
+  el('btn-excluir').addEventListener('click', async () => {
+    const btn = el('btn-excluir');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Excluindo…';
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      const resposta = await fetch(`${SUPABASE_URL}/functions/v1/excluir-conta`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ confirmacao: 'EXCLUIR' }),
+      });
+
+      const json = await resposta.json().catch(() => null);
+      if (!resposta.ok || !json?.success) {
+        throw new Error(json?.error || 'Não foi possível excluir a conta.');
+      }
+
+      // Limpa o que ficou no navegador -- o servidor nao alcanca o localStorage.
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('astral_'))
+        .forEach(k => localStorage.removeItem(k));
+
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Não foi possível excluir a conta.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Excluir permanentemente';
+    }
+  });
+
+  init();
+</script>
+
+<script src="assets/js/transicao.js"></script>
+</body>
+</html>

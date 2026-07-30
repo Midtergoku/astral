@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Termos de Uso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --gold:      #F5C542;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,15,0.9);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo span { color: var(--purple); }
+
+    .back-link { color: var(--muted); font-size: 0.85rem; text-decoration: none; }
+    .back-link:hover { color: var(--text); }
+
+    main { max-width: 740px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    .updated { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      color: var(--white);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--white);
+      margin-top: 2.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p { color: var(--text); margin-bottom: 0.9rem; font-size: 0.97rem; }
+    ul { margin: 0.5rem 0 1rem 1.25rem; color: var(--text); font-size: 0.97rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: var(--white); }
+
+    .highlight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--purple);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .highlight-box p { margin-bottom: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .aviso-box {
+      background: rgba(245,197,66,0.06);
+      border: 1px solid rgba(245,197,66,0.25);
+      border-left: 3px solid var(--gold);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .aviso-box p { margin-bottom: 0; font-size: 0.92rem; }
+
+    a.inline-link { color: var(--purple-lt); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--purple-lt); text-decoration: none; }
+
+    @media (max-width: 560px) {
+      nav { padding: 1rem 1.25rem; }
+      main { padding: 2rem 1.25rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Ast<span>r</span>al</a>
+  <a href="index.html" class="back-link">← Voltar ao início</a>
+</nav>
+
+<main>
+  <p class="updated">Última atualização: 30 de julho de 2026</p>
+  <h1>Termos de Uso</h1>
+
+  <p>Estes Termos de Uso regulam o acesso e a utilização do <strong>Astral</strong>, plataforma de organização de estudos para concursos públicos. Ao criar uma conta ou usar o serviço, você concorda com o que está escrito aqui.</p>
+
+  <div class="highlight-box">
+    <p>O Astral está em fase de pré-lançamento, operado por pessoa física. Estes termos se aplicam a essa fase e serão atualizados quando o produto passar a ser cobrado. Mudanças relevantes serão avisadas com antecedência.</p>
+  </div>
+
+  <h2>1. O que o Astral é</h2>
+  <p>O Astral é uma ferramenta de <strong>organização e apoio ao estudo</strong>. A plataforma lê o edital que você envia, extrai matérias e pesos com auxílio de inteligência artificial, monta um cronograma sugerido e oferece recursos como questões geradas por IA, cronômetro e acompanhamento de progresso.</p>
+
+  <div class="aviso-box">
+    <p><strong>O Astral não é curso preparatório, não substitui material didático e não garante aprovação em concurso algum.</strong> As sugestões de estudo são apoio à sua organização pessoal. A responsabilidade pela preparação e pelo resultado é sua.</p>
+  </div>
+
+  <h2>2. Conteúdo gerado por inteligência artificial</h2>
+  <p>Parte relevante do que você vê no Astral é produzida por modelos de inteligência artificial: a leitura do edital, as questões de treino, as explicações e as indicações de material de estudo.</p>
+  <p>Modelos de IA <strong>erram e podem inventar informação</strong>. Isso vale para datas, pesos de matérias, quantidade de questões, gabaritos e recomendações. Por isso:</p>
+  <ul>
+    <li><strong>Confira sempre o edital oficial</strong> do seu concurso. Ele é a única fonte válida.</li>
+    <li>Trate as questões geradas como treino, não como prova oficial de banca.</li>
+    <li>Confira links e materiais indicados antes de confiar neles.</li>
+  </ul>
+  <p>Não nos responsabilizamos por decisões tomadas exclusivamente com base em conteúdo gerado automaticamente.</p>
+
+  <h2>3. Sua conta</h2>
+  <ul>
+    <li>Você precisa ter <strong>16 anos ou mais</strong> para criar uma conta. Entre 16 e 18, com autorização de responsável.</li>
+    <li>Os dados de cadastro devem ser verdadeiros, e o e-mail deve ser seu.</li>
+    <li>Você é responsável por guardar sua senha. Não compartilhe seu acesso.</li>
+    <li>Uma conta é de uso pessoal e individual.</li>
+    <li>Se notar uso indevido da sua conta, avise em <a class="inline-link" href="mailto:lherdy2003@gmail.com">lherdy2003@gmail.com</a>.</li>
+  </ul>
+
+  <h2>4. O que você não pode fazer</h2>
+  <ul>
+    <li>Usar o serviço para qualquer finalidade ilegal.</li>
+    <li>Tentar burlar limites de uso, autenticação ou cobrança.</li>
+    <li>Automatizar chamadas às funções de inteligência artificial fora da interface do produto.</li>
+    <li>Enviar arquivos com conteúdo malicioso ou que você não tenha direito de enviar.</li>
+    <li>Revender, redistribuir ou explorar comercialmente o conteúdo gerado sem autorização.</li>
+    <li>Tentar acessar dados de outros usuários.</li>
+  </ul>
+  <p>O descumprimento pode levar à suspensão ou ao encerramento da conta, sem aviso prévio quando houver risco ao serviço ou a terceiros.</p>
+
+  <h2>5. Limites de uso</h2>
+  <p>As funções de inteligência artificial têm <strong>limite diário por conta</strong>, que varia conforme o plano. Esses limites existem porque cada uso tem custo real de processamento, e podem ser ajustados conforme a operação do serviço.</p>
+  <p>Há também limite de tamanho para o arquivo de edital enviado, informado na própria tela de envio.</p>
+
+  <h2>6. Planos e pagamento</h2>
+  <p>Nesta fase, o Astral é oferecido gratuitamente. Existe um plano <strong>beta</strong>, concedido manualmente a testadores convidados.</p>
+  <p>Quando a cobrança começar:</p>
+  <ul>
+    <li>Os preços e o que cada plano inclui serão apresentados antes de qualquer contratação.</li>
+    <li>A assinatura será renovada automaticamente até que você cancele.</li>
+    <li>O cancelamento pode ser feito a qualquer momento e vale para o próximo ciclo.</li>
+    <li>Aplica-se o <strong>direito de arrependimento</strong> previsto no artigo 49 do Código de Defesa do Consumidor: sete dias a partir da contratação, com devolução integral.</li>
+    <li>Nenhum dado de cartão é armazenado por nós — o pagamento é processado por empresa especializada.</li>
+  </ul>
+
+  <h2>7. Seus dados</h2>
+  <p>O tratamento de dados pessoais está descrito na <a class="inline-link" href="privacidade.html">Política de Privacidade</a>, que faz parte destes Termos.</p>
+  <p>Você pode, a qualquer momento e sem precisar pedir para ninguém, <strong>baixar todos os seus dados</strong> ou <strong>excluir sua conta</strong> na página <a class="inline-link" href="conta.html">Minha conta</a>. A exclusão remove seu cadastro, seu perfil e seu histórico de uso, e é definitiva.</p>
+
+  <h2>8. Conteúdo que você envia</h2>
+  <p>O edital e os demais arquivos que você envia continuam sendo seus. Você nos concede apenas a permissão necessária para processá-los e gerar o seu plano de estudos.</p>
+  <p>O conteúdo do arquivo é enviado ao provedor de inteligência artificial para processamento. Não usamos seu material para treinar modelos, nem o disponibilizamos para outros usuários.</p>
+
+  <h2>9. Disponibilidade</h2>
+  <p>Trabalhamos para manter o Astral no ar, mas <strong>não garantimos funcionamento ininterrupto</strong>. Pode haver instabilidade, manutenção programada ou falha de serviços de terceiros dos quais dependemos.</p>
+  <p>Recursos podem ser alterados, adicionados ou removidos ao longo do tempo. Mudanças que reduzam significativamente o que você contratou serão avisadas com antecedência.</p>
+
+  <div class="aviso-box">
+    <p><strong>Guarde uma cópia do que for importante.</strong> Nesta fase, parte do seu progresso fica salva no seu próprio navegador. Limpar os dados do navegador, trocar de aparelho ou usar aba anônima pode fazer você perder esse histórico. Use "Baixar meus dados" com alguma frequência.</p>
+  </div>
+
+  <h2>10. Limitação de responsabilidade</h2>
+  <p>O Astral é oferecido no estado em que se encontra. Na medida permitida pela legislação brasileira, não respondemos por reprovação em concurso, perda de prazo de inscrição, decisões tomadas com base em informação gerada por IA, nem por perda de dados armazenados apenas no seu navegador.</p>
+  <p>Nada aqui afasta os direitos que o Código de Defesa do Consumidor garante a você.</p>
+
+  <h2>11. Encerramento</h2>
+  <p>Você pode encerrar sua conta quando quiser em <a class="inline-link" href="conta.html">Minha conta</a>. Podemos encerrar ou suspender contas que violem estes Termos, ou descontinuar o serviço mediante aviso prévio razoável.</p>
+
+  <h2>12. Alterações nestes Termos</h2>
+  <p>Estes Termos podem ser atualizados. A data no topo da página sempre indica a última versão. Mudanças relevantes serão comunicadas por e-mail ou dentro da plataforma antes de entrarem em vigor.</p>
+
+  <h2>13. Lei aplicável e foro</h2>
+  <p>Estes Termos são regidos pela legislação brasileira. Fica eleito o foro do domicílio do consumidor para resolver eventuais conflitos, conforme o Código de Defesa do Consumidor.</p>
+
+  <h2>14. Contato</h2>
+  <p>Dúvidas sobre estes Termos: <a class="inline-link" href="mailto:lherdy2003@gmail.com">lherdy2003@gmail.com</a>.</p>
+</main>
+
+<footer>
+  © 2026 Astral · <a href="privacidade.html">Política de Privacidade</a> · <a href="index.html">Início</a>
+</footer>
+
+</body>
+</html>

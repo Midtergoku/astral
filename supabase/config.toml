@@ -24,6 +24,13 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/buscar-recursos/index.ts"
 
+# Exclusao de conta (LGPD). Exige JWT de usuario -- a identidade e conferida
+# de novo dentro da funcao, como nas demais.
+[functions.excluir-conta]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/excluir-conta/index.ts"
+
 # Chamada pelo webhook do banco quando entra linha em lista_espera, entao nao
 # ha JWT de usuario. A protecao e o cabecalho x-astral-webhook-secret, que so
 # passa a ser exigido quando WEBHOOK_SECRET existir nos secrets. Ver CLAUDE.md 8.7.

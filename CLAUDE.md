@@ -787,6 +787,59 @@ exige domínio, que a Etapa 2 do projeto vai precisar de qualquer forma.
 
 ---
 
+## 8.10. Bloco C, parte 2 — LGPD e Termos de Uso (30/07/2026) ✅
+
+### `conta.html` — a página que faltava
+
+Primeira página nova construída **em cima do `assets/css/app.css`** do Bloco A: a casca vem
+pronta, só o específico dela ficou inline. É a prova prática de que aquele bloco valeu.
+
+Traz três coisas: os dados que o Astral guarda, **baixar meus dados** e **excluir minha conta**.
+Ligada na sidebar das 8 páginas do app.
+
+### O risco jurídico que existia
+
+A Política de Privacidade prometia, desde sempre, "direito ao esquecimento" e portabilidade —
+e o app **não entregava nenhum dos dois**. Promessa não cumprida em documento público é
+exposição real, e vira obrigação formal no dia em que houver cobrança. Agora:
+
+| Direito da LGPD | Como o usuário exerce |
+|---|---|
+| Portabilidade | Botão "Baixar meus dados" → JSON com perfil + tudo do `localStorage` |
+| Esquecimento | "Excluir minha conta" → apaga de `auth.users`, com CASCADE em `perfis` e `uso_ia` |
+
+A exportação junta **as duas fontes** de dados, banco e navegador, porque o progresso ainda
+mora no `localStorage` (seção 5). Quando a Etapa 2 migrar o estado para o banco, isso simplifica.
+
+### `excluir-conta` — a quinta edge function
+
+Apagar de `auth.users` exige `service_role`, que não pode existir no navegador. A função reusa
+`autenticar()` do `_shared/comum.ts` e **exige que o usuário digite `EXCLUIR`** — sem isso, um
+clique acidental ou um CSRF destruiria a conta.
+
+Testado contra a API real:
+
+| Cenário | Resultado |
+|---|---|
+| Chave pública | 🔒 401 |
+| Logado, sem confirmação | 🔒 400 |
+| Logado, texto errado | 🔒 400 |
+| Logado, `EXCLUIR` | ✅ 200 — usuário e perfil sumiram, CASCADE confirmado |
+
+### `termos.html`
+
+Não existia. Escrito para o caso real do produto, não genérico: **isenta de garantia de
+aprovação**, avisa que conteúdo de IA erra e que o edital oficial é a única fonte válida,
+descreve os limites diários por plano, e já traz o direito de arrependimento do art. 49 do CDC
+para quando a cobrança começar. Também avisa que parte do progresso vive no navegador e pode
+se perder — honestidade que evita reclamação depois.
+
+Ligado em: `criar-conta.html` e `cadastro.html` (no aceite), rodapé da landing, e
+`privacidade.html`. O rodapé da landing **não tinha link legal nenhum**, e ainda dizia
+"© 2025" — corrigido.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
