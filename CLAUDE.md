@@ -496,14 +496,21 @@ seria decisão de design, não refatoração — fica para a Etapa 3.
 **Como verificar depois de qualquer mexida em CSS:**
 
 ```bash
-node tools/valida-css.js
+node tools/valida-css.js            # disco x HEAD
+node tools/valida-css.js HEAD~3     # disco x um ponto anterior
+node tools/valida-css.js 9430894~1  # disco x antes do Bloco A
 ```
 
-Compara o CSS resolvido de cada página contra o commit anterior, propriedade por propriedade.
+Compara o CSS resolvido de cada página — seletor por seletor, propriedade por propriedade —
+contra o ref indicado. Serve para provar que uma refatoração não mudou nada.
 
-> ⚠️ O verificador tem uma pegadinha: at-rules (`@keyframes`, `@media`) precisam ser comparadas
-> por **nome/query**, nunca por posição. A extração move as compartilhadas para o topo, e uma
-> comparação posicional acusa falso positivo em todas as páginas.
+> ⚠️ **Duas armadilhas já corrigidas nele.** Se for reescrever algo parecido, herde as duas:
+> 1. At-rules (`@keyframes`, `@media`) devem ser comparadas por **nome/query**, nunca por
+>    posição — extrair move as compartilhadas para o topo e uma comparação posicional acusa
+>    falso positivo nas 8 páginas.
+> 2. O lado "antes" precisa ler o `app.css` **do mesmo ref**, não do disco. Sem isso, a
+>    verificação passa antes do commit e falha logo depois, porque o `HEAD` já contém o
+>    HTML extraído mas o `app.css` do disco entra só de um lado.
 
 **Resultado:** 29 KB de duplicação eliminados, CSS resolvido idêntico nas 8 páginas.
 

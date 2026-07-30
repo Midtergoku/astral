@@ -49,13 +49,30 @@ function resolver(regras) {
 }
 const cssDe = html => [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m => m[1]).join('\n');
 
-const compartilhado = splitRules(fs.readFileSync(path.join(RAIZ, 'assets/css/app.css'), 'utf8'));
+// Referencia de comparacao. Padrao HEAD; passe outro ref para comparar com um
+// ponto anterior, ex.: node tools/valida-css.js HEAD~3
+const REF = process.argv[2] || 'HEAD';
+
+// Le um arquivo de um ref do git; devolve '' se ele nao existir naquele ponto.
+function noRef(rel) {
+  try {
+    return execSync(`"${GIT}" show ${REF}:${rel}`, { cwd: RAIZ, maxBuffer: 20e6, stdio: ['pipe','pipe','pipe'] }).toString('utf8');
+  } catch { return ''; }
+}
+
+// O app.css tambem precisa vir do ref, senao o lado "antes" fica sem as regras
+// compartilhadas e o verificador acusa divergencia onde nao existe. Foi o que
+// aconteceu logo apos o commit do Bloco A.
+const compartilhadoAntes = splitRules(noRef('assets/css/app.css'));
+const compartilhadoAgora = splitRules(fs.readFileSync(path.join(RAIZ, 'assets/css/app.css'), 'utf8'));
+
+console.log(`comparando o disco com ${REF}\n`);
 let ok = true;
 for (const f of APP) {
-  const antes = execSync(`"${GIT}" show HEAD:${f}.html`, { cwd: RAIZ, maxBuffer: 20e6 }).toString('utf8');
+  const antes = noRef(`${f}.html`);
   const depois = fs.readFileSync(path.join(RAIZ, f + '.html'), 'utf8');
-  const a = resolver(splitRules(cssDe(antes)));
-  const b = resolver([...compartilhado, ...splitRules(cssDe(depois))]);
+  const a = resolver([...compartilhadoAntes, ...splitRules(cssDe(antes))]);
+  const b = resolver([...compartilhadoAgora, ...splitRules(cssDe(depois))]);
   const soA = a.filter(x => !b.includes(x));
   const soB = b.filter(x => !a.includes(x));
   const igual = soA.length === 0 && soB.length === 0;
