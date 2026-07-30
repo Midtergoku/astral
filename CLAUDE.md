@@ -748,6 +748,45 @@ erro invisível, que é pior que um alert feio. O D leva o CSS junto.
 
 ---
 
+## 8.9. Bloco C, parte 1 — autenticação por e-mail (30/07/2026)
+
+**Decisão do Lucas:** manter os dois meios de entrada, e-mail/senha **e** Google.
+
+### O que foi construído
+
+| Arquivo | O quê |
+|---|---|
+| **`redefinir-senha.html`** | **A página que nunca existiu.** Chama `updateUser({ password })`, com medidor de força, confirmação de senha e tratamento de link expirado |
+| `login.html` | `redirectTo` corrigido para `redefinir-senha.html`; detecta token de recuperação e reencaminha; mensagens específicas por tipo de erro; `alert()` → mensagem na tela |
+| `criar-conta.html` | `emailRedirectTo` adicionado; se o signup já devolve sessão, vai direto ao dashboard em vez de mandar esperar um e-mail que não vem |
+
+### Por que a redefinição estava quebrada de ponta a ponta
+
+Três defeitos empilhados:
+
+1. O provedor de e-mail está **desligado** no projeto — nada era enviado.
+2. O `redirectTo` apontava para a própria `login.html`, que não sabe tratar o token.
+3. **Nenhuma página chamava `updateUser({ password })`.**
+
+Mesmo ligando o provedor, os defeitos 2 e 3 continuariam: o usuário clicava no link, o
+`supabase-js` trocava o token por sessão, a `login.html` via sessão válida e mandava para o
+dashboard. Resultado: virava um link mágico de login, **e a senha nunca era trocada.**
+A `login.html` agora desvia o token antes de qualquer outra coisa.
+
+### Decisão de segurança registrada
+
+`esqueceuSenha` responde **a mesma mensagem** quer o e-mail exista ou não. Dizer "esse e-mail
+não tem conta" entregaria a lista de quem é cadastrado para qualquer curioso.
+
+### O bloqueio real: entrega de e-mail
+
+O SMTP padrão do Supabase manda **2 mensagens por hora e só para endereços pré-autorizados**.
+Com ele, cadastro por e-mail de usuário real não fecha o ciclo. Caminho em duas etapas
+documentado em **13.4**: ligar sem confirmação agora, SMTP próprio via Resend depois — o que
+exige domínio, que a Etapa 2 do projeto vai precisar de qualquer forma.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -937,6 +976,74 @@ mcp__supabase__get_logs  service=edge-function
 
 Lembrar de limpar as linhas de teste depois: `delete from lista_espera where email = '...'`
 via migration.
+
+### 13.4. Ligar o login por e-mail e senha
+
+> **Decisão do Lucas em 30/07/2026:** quer os dois meios de entrada — e-mail/senha **e** Google.
+> O código já está pronto (ver 8.9). Falta a configuração do painel, abaixo.
+
+#### ⚠️ Leia isto antes: o problema do e-mail
+
+O SMTP padrão do Supabase **envia 2 mensagens por hora e só para endereços pré-autorizados**
+(membros da organização). Confirmado na documentação oficial. Consequência prática: com ele,
+um concurseiro real que se cadastrar **nunca recebe** o e-mail de confirmação nem o de
+redefinição de senha.
+
+Por isso a configuração tem duas etapas: uma que funciona hoje, e a definitiva.
+
+#### Etapa 1 — funciona hoje, sem depender de e-mail (15 minutos)
+
+**Passo A — ligar o provedor de e-mail**
+1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/auth/providers
+2. Na lista de provedores, clicar em **Email** para expandir
+3. Ligar a chave **Enable Email provider**
+4. **Desligar** a chave **Confirm email**
+   → sem isso, ninguém consegue entrar, porque o e-mail de confirmação não é entregue
+5. Clicar em **Save**
+
+**Passo B — autorizar a página de redefinir senha**
+1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/auth/url-configuration
+2. Em **Site URL**, conferir que está `https://astral-psi.vercel.app`
+3. Em **Redirect URLs**, clicar em **Add URL** e colar:
+   ```
+   https://astral-psi.vercel.app/redefinir-senha.html
+   ```
+4. Clicar em **Add URL** de novo e colar:
+   ```
+   https://astral-psi.vercel.app/dashboard.html
+   ```
+5. Clicar em **Save**
+
+> Sem o Passo B o Supabase **recusa** o link de redefinição por segurança, mesmo com tudo
+> o mais certo. É a causa mais comum de "cliquei no link e não aconteceu nada".
+
+**Como testar:** abrir https://astral-psi.vercel.app/criar-conta.html, criar uma conta com um
+e-mail qualquer e uma senha de 8+ caracteres. Deve entrar direto no dashboard.
+
+#### Etapa 2 — o definitivo, quando tiver domínio próprio
+
+Enquanto a Etapa 2 não for feita, **"esqueci minha senha" só funciona para o e-mail do Lucas.**
+
+1. Registrar um domínio (~R$ 40/ano em registro.br, Hostinger, Namecheap)
+2. Apontar para a Vercel: painel do projeto → **Settings → Domains → Add**
+3. No Resend: **Domains → Add Domain**, e cadastrar no seu registrador os registros
+   DNS que ele mostrar (SPF, DKIM, DMARC)
+4. No Resend: **API Keys → Create API Key** (guardar o valor)
+5. No Supabase: https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/settings/auth
+   → seção **SMTP Settings** → ligar **Enable Custom SMTP** e preencher:
+   ```
+   Host:     smtp.resend.com
+   Port:     465
+   Username: resend
+   Password: <a API Key do passo 4>
+   Sender:   nao-responda@seudominio.com.br
+   ```
+6. Voltar em **Authentication → Providers → Email** e **religar Confirm email**
+
+> O domínio próprio não é só para o e-mail: cobrar R$ 37/mês a partir de um endereço
+> `astral-psi.vercel.app` custa conversão. Ele é pré-requisito da Etapa 2 do projeto.
+
+---
 
 ### 13.3. Proteção contra senha vazada
 

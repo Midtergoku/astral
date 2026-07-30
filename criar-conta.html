@@ -447,17 +447,28 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Criando conta...';
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password: senha,
       options: {
-        data: { full_name: nome }
+        data: { full_name: nome },
+        // Faltava. Sem isso o link de confirmacao aponta para a Site URL
+        // configurada no painel, que pode nao ser o dominio certo -- e o
+        // usuario confirma a conta e cai numa pagina qualquer.
+        emailRedirectTo: window.location.origin + '/dashboard.html',
       }
     });
 
     if (error) {
-      if (error.message.includes('already registered')) {
+      const m = (error.message || '').toLowerCase();
+      if (m.includes('already registered') || m.includes('already been registered')) {
         mostrarErro('Este e-mail já possui uma conta. Tente fazer login.');
+      } else if (m.includes('email_provider_disabled') || m.includes('email signups are disabled')) {
+        mostrarErro('O cadastro por e-mail ainda não está ativo. Use o botão do Google acima.');
+      } else if (m.includes('weak') || m.includes('pwned') || m.includes('leaked')) {
+        mostrarErro('Essa senha aparece em vazamentos conhecidos. Escolha outra.');
+      } else if (m.includes('rate limit') || m.includes('too many')) {
+        mostrarErro('Muitas tentativas seguidas. Espere alguns minutos e tente de novo.');
       } else {
         mostrarErro('Erro ao criar conta. Tente novamente.');
       }
@@ -466,7 +477,15 @@
       return;
     }
 
-    // Sucesso — mostra tela de confirmação
+    // Quando a confirmacao de e-mail esta DESLIGADA, o signUp ja devolve sessao
+    // e o usuario esta logado. Mostrar "confira seu e-mail" nesse caso deixaria
+    // a pessoa esperando um e-mail que nunca foi enviado.
+    if (data?.session) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+
+    // Sucesso — confirmacao pendente
     document.getElementById('form-state').style.display = 'none';
     const successEl = document.getElementById('success-state');
     successEl.style.display = 'flex';

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Redefinir senha</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0A0F;
+      --surface:   #13131A;
+      --border:    #1E1E2E;
+      --purple:    #7C5CFC;
+      --purple-lt: #A78BFA;
+      --text:      #E8E8F0;
+      --muted:     #6B6B80;
+      --white:     #FFFFFF;
+      --red:       #F87171;
+      --green:     #34D399;
+      --gold:      #F5C542;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo span { color: var(--purple); }
+
+    .back-link { color: var(--muted); font-size: 0.85rem; text-decoration: none; }
+    .back-link:hover { color: var(--text); }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      position: relative;
+    }
+
+    main::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.25rem;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card p.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1rem; }
+    label { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+
+    input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,92,252,0.15); }
+
+    /* Medidor de forca da senha */
+    .forca { margin: -0.35rem 0 1rem; }
+    .forca-barra { height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .forca-fill { height: 100%; width: 0; border-radius: 999px; transition: width 0.25s, background 0.25s; }
+    .forca-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; display: block; }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 0.9rem;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,92,252,0.35); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .msg {
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .msg.erro    { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--red); }
+    .msg.ok      { background: rgba(52,211,153,0.08);  border: 1px solid rgba(52,211,153,0.25);  color: var(--green); }
+
+    .estado-icone { font-size: 2.2rem; margin-bottom: 0.75rem; }
+
+    .bottom-link { text-align: center; margin-top: 1.25rem; font-size: 0.875rem; color: var(--muted); }
+    .bottom-link a { color: var(--purple-lt); text-decoration: none; font-weight: 500; }
+    .bottom-link a:hover { text-decoration: underline; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 560px) {
+      nav { padding: 1rem 1.25rem; }
+      main { padding: 2rem 1rem; }
+      .card { padding: 1.5rem; border-radius: 16px; }
+      .card h1 { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Astral<span>.</span></a>
+  <a href="login.html" class="back-link">← Voltar ao login</a>
+</nav>
+
+<main>
+  <!-- Enquanto confere o link do e-mail -->
+  <div class="card" id="estado-carregando">
+    <h1>Verificando o link…</h1>
+    <p class="subtitle">Só um instante.</p>
+  </div>
+
+  <!-- Link válido: define a senha nova -->
+  <div class="card" id="estado-form" style="display:none;">
+    <h1>Criar uma senha nova</h1>
+    <p class="subtitle" id="subtitulo-form">Escolha uma senha que você não use em outro site.</p>
+
+    <div class="msg erro" id="msg-erro"></div>
+
+    <div class="form-group">
+      <label for="senha">Nova senha</label>
+      <input type="password" id="senha" placeholder="Pelo menos 8 caracteres" autocomplete="new-password" />
+    </div>
+
+    <div class="forca">
+      <div class="forca-barra"><div class="forca-fill" id="forca-fill"></div></div>
+      <span class="forca-label" id="forca-label">Digite uma senha</span>
+    </div>
+
+    <div class="form-group">
+      <label for="senha2">Repita a senha</label>
+      <input type="password" id="senha2" placeholder="Digite de novo" autocomplete="new-password" />
+    </div>
+
+    <button class="btn-primary" id="btn-salvar">Salvar nova senha</button>
+  </div>
+
+  <!-- Deu certo -->
+  <div class="card" id="estado-ok" style="display:none;">
+    <div class="estado-icone">✅</div>
+    <h1>Senha alterada</h1>
+    <p class="subtitle">Pronto. Já estamos te levando para o painel…</p>
+    <div class="bottom-link"><a href="dashboard.html">Ir agora</a></div>
+  </div>
+
+  <!-- Link inválido ou expirado -->
+  <div class="card" id="estado-invalido" style="display:none;">
+    <div class="estado-icone">⏳</div>
+    <h1>Este link não vale mais</h1>
+    <p class="subtitle">
+      Links de redefinição expiram por segurança, e cada um só pode ser usado uma vez.
+      Peça um novo na tela de login.
+    </p>
+    <a href="login.html" class="btn-primary" style="display:block;text-align:center;text-decoration:none;">
+      Pedir um novo link
+    </a>
+  </div>
+</main>
+
+<footer>© 2026 Astral · Feito para concurseiros militares</footer>
+
+<script type="module">
+  import { supabase } from './assets/js/astral.js';
+
+  const el = id => document.getElementById(id);
+  const mostrar = qual => {
+    ['estado-carregando', 'estado-form', 'estado-ok', 'estado-invalido']
+      .forEach(id => el(id).style.display = id === qual ? 'block' : 'none');
+  };
+
+  function erro(msg) {
+    const m = el('msg-erro');
+    m.textContent = msg;
+    m.style.display = 'block';
+  }
+
+  // ── Forca da senha ────────────────────────────────────────────────────────
+  // Feedback visual, nao barreira. A regra que bloqueia e o minimo de 8.
+  function avaliar(senha) {
+    let pontos = 0;
+    if (senha.length >= 8)  pontos++;
+    if (senha.length >= 12) pontos++;
+    if (/[a-z]/.test(senha) && /[A-Z]/.test(senha)) pontos++;
+    if (/\d/.test(senha)) pontos++;
+    if (/[^A-Za-z0-9]/.test(senha)) pontos++;
+
+    const niveis = [
+      { pct: 15,  cor: '#F87171', txt: 'Muito fraca' },
+      { pct: 30,  cor: '#F87171', txt: 'Fraca' },
+      { pct: 55,  cor: '#F5C542', txt: 'Razoável' },
+      { pct: 75,  cor: '#F5C542', txt: 'Boa' },
+      { pct: 100, cor: '#34D399', txt: 'Forte' },
+      { pct: 100, cor: '#34D399', txt: 'Muito forte' },
+    ];
+    return niveis[Math.min(pontos, niveis.length - 1)];
+  }
+
+  el('senha').addEventListener('input', e => {
+    const v = e.target.value;
+    const fill = el('forca-fill');
+    if (!v) {
+      fill.style.width = '0';
+      el('forca-label').textContent = 'Digite uma senha';
+      return;
+    }
+    const n = avaliar(v);
+    fill.style.width = n.pct + '%';
+    fill.style.background = n.cor;
+    el('forca-label').textContent = n.txt;
+  });
+
+  // ── Descobre se o link do e-mail e valido ─────────────────────────────────
+  // O supabase-js troca o token da URL por uma sessao sozinho
+  // (detectSessionInUrl). Cobrimos os dois caminhos: o evento PASSWORD_RECOVERY
+  // e a sessao que ja pode ter sido criada antes deste script rodar.
+  let liberado = false;
+
+  function liberar() {
+    if (liberado) return;
+    liberado = true;
+    // Tira o token da barra de endereco: ele nao precisa ficar no historico
+    // do navegador nem vazar em print de tela.
+    history.replaceState(null, '', window.location.pathname);
+    mostrar('estado-form');
+    el('senha').focus();
+  }
+
+  supabase.auth.onAuthStateChange((evento) => {
+    if (evento === 'PASSWORD_RECOVERY' || evento === 'SIGNED_IN') liberar();
+  });
+
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) { liberar(); return; }
+
+    // Da um tempo para o supabase-js processar o token da URL antes de desistir.
+    setTimeout(async () => {
+      const { data: { session: s2 } } = await supabase.auth.getSession();
+      if (s2) liberar();
+      else if (!liberado) mostrar('estado-invalido');
+    }, 1800);
+  })();
+
+  // ── Salvar ────────────────────────────────────────────────────────────────
+  el('btn-salvar').addEventListener('click', async () => {
+    const senha  = el('senha').value;
+    const senha2 = el('senha2').value;
+    const btn    = el('btn-salvar');
+    el('msg-erro').style.display = 'none';
+
+    if (senha.length < 8)  { erro('A senha precisa ter pelo menos 8 caracteres.'); return; }
+    if (senha !== senha2)  { erro('As duas senhas não são iguais.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Salvando…';
+
+    const { error } = await supabase.auth.updateUser({ password: senha });
+
+    if (error) {
+      // "New password should be different" e "Password is known to be weak"
+      // sao os dois casos que o usuario consegue corrigir sozinho.
+      const m = (error.message || '').toLowerCase();
+      if (m.includes('different')) {
+        erro('A nova senha precisa ser diferente da anterior.');
+      } else if (m.includes('weak') || m.includes('pwned') || m.includes('leaked')) {
+        erro('Essa senha aparece em vazamentos conhecidos. Escolha outra.');
+      } else if (m.includes('session') || m.includes('jwt')) {
+        mostrar('estado-invalido');
+        return;
+      } else {
+        erro('Não consegui salvar a senha. Peça um novo link e tente de novo.');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Salvar nova senha';
+      return;
+    }
+
+    mostrar('estado-ok');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1600);
+  });
+
+  ['senha', 'senha2'].forEach(id => {
+    el(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') el('btn-salvar').click();
+    });
+  });
+</script>
+
+</body>
+</html>

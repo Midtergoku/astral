@@ -18,6 +18,7 @@
       --muted:     #6B6B80;
       --white:     #FFFFFF;
       --red:       #F87171;
+      --green:     #34D399;
     }
 
     body {
@@ -235,6 +236,24 @@
       display: none;
     }
 
+    .ok-msg {
+      background: rgba(52,211,153,0.08);
+      border: 1px solid rgba(52,211,153,0.25);
+      color: var(--green);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    @media (max-width: 560px) {
+      nav { padding: 1rem 1.25rem; }
+      main { padding: 2rem 1rem; }
+      .card { padding: 1.5rem; border-radius: 16px; }
+      .card h1 { font-size: 1.35rem; }
+    }
+
     .bottom-link {
       text-align: center;
       margin-top: 1.25rem;
@@ -285,6 +304,7 @@
 
     <!-- Erro -->
     <div class="error-msg" id="error-msg"></div>
+    <div class="ok-msg" id="ok-msg"></div>
 
     <!-- Form email/senha -->
     <div class="form-group">
@@ -315,6 +335,15 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
 
+  // Se o usuario chegou aqui pelo link de redefinicao de senha, o token vem no
+  // fragmento da URL. Mandamos para a pagina certa ANTES de qualquer coisa --
+  // senao o supabase-js troca o token por uma sessao, a linha abaixo vê sessao
+  // valida e joga a pessoa no dashboard sem nunca pedir a senha nova. Era
+  // exatamente isso que acontecia antes de redefinir-senha.html existir.
+  if (/type=recovery/.test(window.location.hash) || /[?&]code=/.test(window.location.search)) {
+    window.location.replace('redefinir-senha.html' + window.location.search + window.location.hash);
+  }
+
   // Se já estiver logado, vai pro dashboard
   const { data: { session } } = await supabase.auth.getSession();
   if (session) window.location.href = 'dashboard.html';
@@ -323,10 +352,19 @@
     const el = document.getElementById('error-msg');
     el.textContent = msg;
     el.style.display = 'block';
+    document.getElementById('ok-msg').style.display = 'none';
+  }
+
+  function mostrarOk(msg) {
+    const el = document.getElementById('ok-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('error-msg').style.display = 'none';
   }
 
   function esconderErro() {
     document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('ok-msg').style.display = 'none';
   }
 
   window.loginGoogle = async function() {
@@ -353,10 +391,17 @@
     const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
 
     if (error) {
-      if (error.message.includes('Invalid login')) {
+      const m = (error.message || '').toLowerCase();
+      if (m.includes('invalid login')) {
         mostrarErro('E-mail ou senha incorretos. Tente novamente.');
-      } else if (error.message.includes('Email not confirmed')) {
-        mostrarErro('Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.');
+      } else if (m.includes('email not confirmed')) {
+        mostrarErro('Confirme seu e-mail antes de entrar. Verifique a caixa de entrada e o spam.');
+      } else if (m.includes('email_provider_disabled') || m.includes('email logins are disabled')) {
+        // Estado real do projeto ate 30/07/2026. Sem esta mensagem o usuario
+        // via "Erro ao entrar" e ficava tentando a senha de novo, sem chance.
+        mostrarErro('O login por e-mail ainda não está ativo. Entre com o Google por enquanto.');
+      } else if (m.includes('rate limit') || m.includes('too many')) {
+        mostrarErro('Muitas tentativas. Espere alguns minutos e tente de novo.');
       } else {
         mostrarErro('Erro ao entrar. Tente novamente.');
       }
@@ -372,18 +417,31 @@
     e.preventDefault();
     const email = document.getElementById('email').value.trim();
     if (!email || !email.includes('@')) {
-      mostrarErro('Digite seu e-mail acima primeiro, depois clique em "Esqueci minha senha".');
+      mostrarErro('Digite seu e-mail no campo acima e clique em "Esqueci minha senha" de novo.');
       return;
     }
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/login.html'
+      // Apontava para a propria login.html, que nao sabia o que fazer com o
+      // token -- o usuario acabava logado sem nunca trocar a senha.
+      redirectTo: window.location.origin + '/redefinir-senha.html'
     });
-    if (!error) {
-      esconderErro();
-      alert('E-mail de redefinição enviado! Verifique sua caixa de entrada.');
-    } else {
-      mostrarErro('Erro ao enviar e-mail. Tente novamente.');
+
+    if (error) {
+      const m = (error.message || '').toLowerCase();
+      if (m.includes('rate limit') || m.includes('too many')) {
+        mostrarErro('Já enviamos um e-mail há pouco. Espere alguns minutos antes de pedir outro.');
+      } else if (m.includes('email_provider_disabled')) {
+        mostrarErro('O login por e-mail ainda não está ativo. Entre com o Google por enquanto.');
+      } else {
+        mostrarErro('Não consegui enviar o e-mail. Tente de novo em alguns minutos.');
+      }
+      return;
     }
+
+    // Mensagem deliberadamente igual quer o e-mail exista ou nao: dizer "esse
+    // e-mail nao tem conta" entrega para um curioso quem e cadastrado aqui.
+    mostrarOk('Se existir uma conta com esse e-mail, o link de redefinição chega em instantes. Confira também o spam.');
   }
 
   document.addEventListener('keydown', (e) => {
