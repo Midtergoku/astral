@@ -589,9 +589,12 @@ claude mcp add --scope user --transport http supabase \
 > ⚠️ **Pegadinha:** `~/.claude.json` tem entradas duplicadas para a mesma pasta
 > (`C:/Users/Lucas/Desktop/ASTRAL` e `c:/...`, só a letra do drive muda). Um MCP adicionado no
 > escopo de projeto fica invisível para a sessão que rodar sob a outra grafia — foi o que
-> aconteceu na primeira tentativa. Por isso o escopo é `user`. A duplicação também divide o
-> histórico de conversas, então `claude --resume` pode não listar sessões antigas.
+> aconteceu na primeira tentativa. Por isso o escopo é `user`.
 > **Limpar isso ainda está pendente.**
+>
+> Correção de uma afirmação errada feita antes: a duplicação **não** divide o histórico de
+> conversas. As transcrições ficam todas em `~/.claude/projects/c--Users-Lucas-Desktop-ASTRAL`,
+> então `claude --continue` e `--resume` funcionam normalmente.
 
 ---
 
