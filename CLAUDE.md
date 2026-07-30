@@ -1,7 +1,44 @@
 # ASTRAL — Contexto do Projeto
 
 > Arquivo vivo. Atualizar ao fim de cada bloco de trabalho relevante.
-> Última atualização: 29/07/2026 — auditoria inicial do código.
+> Última atualização: 29/07/2026 — fim da sessão 1 (auditoria + Bloco A).
+
+---
+
+## 0. ▶ RETOMAR AQUI
+
+**Estado:** Etapa 1 (blindagem), Bloco A concluído. Próximo é o **Bloco B1 — migrations do banco.**
+
+### A primeira coisa a fazer amanhã
+
+Escrever as 4 migrations abaixo, **mostrar o SQL ao Lucas e esperar o OK antes de aplicar.**
+Ele autorizou escrever, não aplicar. Diferente do Bloco A, aqui não há `git checkout` que salve.
+
+| # | O quê | Por quê | Detalhe |
+|---|---|---|---|
+| 1 | `SET search_path = public` em `criar_perfil_usuario` + remover o `EXCEPTION WHEN OTHERS` cego + **backfill dos 6 usuários órfãos** | Hoje **6 usuários, 0 perfis** — a trigger falha em silêncio desde sempre | 8.3 |
+| 2 | Travar `tipo_plano` contra escrita do usuário | Qualquer um se promove para `pro` com uma linha no console | 8.3 |
+| 3 | Fechar o INSERT anônimo de `lista_espera` | Bomba de e-mail via Resend | 8.3 |
+| 4 | `REVOKE EXECUTE` de `criar_perfil_usuario` para `anon`/`authenticated` | Função exposta na API REST sem motivo | 8.3 |
+
+Aplicar com `supabase db push` (o MCP é somente-leitura de propósito). Serão as **primeiras
+migrations do projeto** — o histórico de schema não existe ainda.
+
+### Decisão pendente do Lucas
+
+**7 commits locais não enviados.** O push publica em produção (Vercel faz deploy automático
+do `main`). ✅ **Já verificado: é seguro** — `tipo_plano` tem `CHECK (free|beta|pro)`, o valor
+`'profissional'` nunca foi aceito pelo banco e `perfis` está vazia. Falta só o Lucas dizer "manda".
+
+### Ordem depois do B1
+
+**B2** edge functions (JWT, quota, limite de PDF, CORS) → **B3** frontend (escape universal,
+CSP, pin de dependências) → **C** (senha, Termos, LGPD) → **D** (schema da IA, toast, mobile).
+Detalhe na seção 9.
+
+> A extração de JS que ficou de fora do Bloco A (`createClient` em 11 arquivos, `fazerLogout`
+> em 8, guarda de sessão em 7) entra junto do **B3** — é o mesmo código que será reescrito
+> para receber o escape e a autenticação. Não faz sentido mexer duas vezes.
 
 ---
 
@@ -402,21 +439,35 @@ a demanda ainda não foi validada de verdade. Vale considerar isso ao priorizar 
 
 ---
 
-## 8.4. Queries de referência (agora executáveis direto pelo MCP)
+## 8.4. Queries de referência
+
+Todas já respondidas na 8.3 — ficam aqui para reconferir depois das migrations do B1.
+Rodar direto pelo MCP (`execute_sql`), não precisa pedir para o Lucas.
 
 ```sql
--- 1. RLS está realmente ativa?
+-- RLS ativa por tabela
 select tablename, rowsecurity from pg_tables where schemaname = 'public';
 
--- 2. Quais políticas existem, e o que elas realmente permitem?
+-- Políticas e o que de fato permitem  (checar WITH CHECK, nao so USING)
 select tablename, policyname, cmd, roles, qual, with_check
 from pg_policies where schemaname = 'public';
 
--- 3. Distribuição de planos (antes do push que renomeia 'profissional')
+-- A trigger voltou a criar perfil?  (esperado: os dois numeros iguais)
+select (select count(*) from auth.users) as usuarios,
+       (select count(*) from perfis)     as perfis;
+
+-- Distribuição de planos
 select tipo_plano, count(*) from perfis group by tipo_plano;
 
--- 4. Volume da lista de espera (indício de spam)
+-- Volume da lista de espera (indício de spam)
 select count(*), min(criado_em), max(criado_em) from lista_espera;
+```
+
+Além do SQL, rodar o linter nativo do Supabase — foi ele que apontou o `search_path` mutável
+antes de qualquer leitura de código:
+
+```
+mcp__supabase__get_advisors  type=security
 ```
 
 ---
@@ -514,7 +565,9 @@ funcionando: `functions list`, `functions deploy`, `secrets list/set`, `migratio
 > `migration list` voltou **vazio**: nenhuma migration jamais aplicada. Confirma que o schema
 > só existe na nuvem.
 
-**MCP do Supabase** — servidor hospedado, adicionado no **escopo de usuário**:
+**MCP do Supabase** — ✅ **conectado, autenticado e testado.** Servidor hospedado, escopo de
+**usuário**. Ferramentas confirmadas em uso: `list_tables`, `execute_sql`, `get_advisors`,
+`list_migrations`. Foi por ele que saiu toda a auditoria da seção 8.3.
 
 ```
 claude mcp add --scope user --transport http supabase \
@@ -550,25 +603,38 @@ tabela nova · validação no front E no back · nunca armazenar dado de cartão
 
 ## 12. Log de sessões
 
-### 29/07/2026 — Auditoria inicial
-Primeira sessão com Claude Code. Li o contexto de `astral-contexto.md`, varri as 13 páginas
-e as 4 edge functions. Criei este arquivo. Nenhum código alterado ainda.
-Achado principal: o produto está visualmente pronto mas **não é vendável** — `tipo_plano` não
-bloqueia nada e o progresso do usuário não sai do navegador.
+### Sessão 1 — 29/07/2026 · Auditoria completa + Bloco A
 
-Na sequência, montei o versionamento (seção 8.1): git instalado, pasta conectada ao repo
-existente, edge functions finalmente versionadas. Nenhuma linha de código de produto foi alterada.
+Primeira sessão com Claude Code. Ponto de partida: `astral-contexto.md` do Downloads, 13 páginas
+(~9.700 linhas) e 4 edge functions. Nenhuma linha de código de produto foi alterada até o Bloco A.
 
-Depois veio a auditoria de segurança completa (seção 8.2): 4 críticos, sendo o pior o XSS
-sistêmico com token de sessão em `localStorage`. Plano de trabalho acordado na seção 9.
+**1. Versionamento (8.1).** O repo existia no GitHub mas a pasta local não estava conectada —
+sem `.git`, sem git instalado. Os 44 commits eram todos "Add files via upload". Descobri que
+o local estava **à frente** da produção e que a pasta `supabase/` inteira nunca fora versionada:
+as edge functions existiam em um único lugar no mundo, este HD.
 
-Por fim, montei o acesso ao Supabase (seção 10.1): CLI já estava autenticada, MCP adicionado
-no escopo de usuário.
+**2. Auditoria de segurança do código (8.2).** 4 críticos. O pior é XSS sistêmico — 40 pontos de
+`innerHTML` sem escape, com o token de sessão em `localStorage`. O vetor realista é um PDF de
+edital com prompt injection distribuído em grupo de WhatsApp.
 
-**Pendências abertas ao fim da sessão:**
-- 4 commits locais **não enviados**. O push publica em produção (Vercel auto-deploy) e leva
-  junto a mudança `profissional` → `free`. Combinado: rodar antes
-  `select tipo_plano, count(*) from perfis group by tipo_plano;`
-- Lucas precisa reiniciar o Claude Code e autenticar o MCP via `/mcp` (OAuth no navegador).
-- Bloco A aguardando o "pode ir".
-- RLS ainda não auditada (seção 8.3) — assim que o MCP conectar, dá pra ler direto.
+**3. Acesso ao Supabase (10.1).** CLI já estava autenticada. MCP configurado — a primeira
+tentativa falhou por causa da duplicação `C:` / `c:` no `~/.claude.json`; resolvido com
+`--scope user`.
+
+**4. Auditoria do banco (8.3).** Dois achados que a leitura do código não revelava:
+a trigger de criação de perfil falha em silêncio (**6 usuários, 0 perfis**) e a policy de UPDATE
+em `perfis` deixa o usuário se promover para `pro` sozinho.
+
+**5. Bloco A (8.5).** Extração da casca compartilhada, verificada contra o original.
+
+**Erros meus nesta sessão, para calibrar confiança em números não medidos:**
+- Afirmei "~153 KB de CSS duplicado". Real: 146,6 KB **totais**, 48,7 KB de duplicação.
+- Afirmei que as tabelas de patente já tinham divergido. **Falso** — são idênticas.
+  Pior: usei isso como argumento principal para priorizar o Bloco A.
+- Escrevi um verificador que acusou falha nas 8 páginas por comparar at-rules **por posição**.
+  Era bug do verificador, não regressão.
+
+Lição: medir antes de afirmar. As três vezes em que rodei o número em vez de estimar, o número
+contrariou a estimativa.
+
+**Estado ao fim:** 8 commits locais, nenhum enviado. Ver seção 0 para o ponto de retomada.
