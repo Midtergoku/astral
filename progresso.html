@@ -463,11 +463,8 @@
 </main>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+    from './assets/js/astral.js';
 
   let estado = {
     usuario: null,
@@ -477,8 +474,8 @@
   };
 
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    const session = await exigirSessao();
+    if (!session) return;
 
     estado.usuario = session.user;
 
@@ -592,7 +589,7 @@
         ${estado.materias.map(m => `
           <div class="materia-row">
             <div class="materia-label">
-              <span class="materia-nome">${m.nome}</span>
+              <span class="materia-nome">${esc(m.nome)}</span>
               <span class="materia-pct">${m.progresso}%</span>
             </div>
             <div class="mat-bar">
@@ -625,10 +622,7 @@
   }
 
   // ── LOGOUT ──
-  window.fazerLogout = async function() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
+  window.fazerLogout = fazerLogout;
 
   // ── START ──
   init();
@@ -667,7 +661,7 @@ window.abrirModalBalanco = function() {
 
     return `
       <div class="sugestao-item">
-        <div class="sugestao-materia">${m.nome}</div>
+        <div class="sugestao-materia">${esc(m.nome)}</div>
         <div class="sugestao-detalhe" style="color:${cor}">${recomendacao}</div>
         <div class="sugestao-barra">
           <div class="sugestao-bar-wrap">

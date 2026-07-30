@@ -761,11 +761,8 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 </main>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+    from './assets/js/astral.js';
 
   const XP_ACERTO = 15;
   const XP_ERRO   = 0;
@@ -782,8 +779,8 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 
   // ── INIT ──
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    const session = await exigirSessao();
+    if (!session) return;
 
     usuario = session.user;
     const nome = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuário';
@@ -820,8 +817,8 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     const quantidade = parseInt(document.getElementById('input-quantidade').value) || 5;
     const btn        = document.getElementById('btn-gerar');
 
-    if (!materia) { alert('Selecione uma matéria.'); return; }
-    if (quantidade < 1 || quantidade > 20) { alert('Escolha entre 1 e 20 questões.'); return; }
+    if (!materia) { toast('Selecione uma matéria.', 'error'); return; }
+    if (quantidade < 1 || quantidade > 20) { toast('Escolha entre 1 e 20 questões.', 'error'); return; }
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Gerando...';
@@ -829,22 +826,10 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     document.getElementById('loading-section').classList.add('show');
 
     try {
-      const response = await fetch(
-        'https://jjogmcacbdefwiwcyjxp.supabase.co/functions/v1/gerar-questoes',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-          },
-          body: JSON.stringify({ materia, concurso, quantidade, tipo }),
-        }
-      );
+      const dados = await chamarIA('gerar-questoes', { materia, concurso, quantidade, tipo });
+      if (!dados?.questoes?.length) throw new Error('Nenhuma questão foi gerada. Tente de novo.');
 
-      const data = await response.json();
-      if (!data.success || !data.data?.questoes) throw new Error(data.error || 'Erro ao gerar questões');
-
-      questoes      = data.data.questoes;
+      questoes      = dados.questoes;
       questaoAtual  = 0;
       acertos       = 0;
       erros         = 0;
@@ -861,7 +846,9 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
       document.getElementById('config-section').style.display = 'block';
       btn.disabled = false;
       btn.innerHTML = 'Gerar questões →';
-      alert('Erro ao gerar questões. Verifique sua conexão e tente novamente.');
+      // A mensagem vem pronta de chamarIA: quota estourada, sessao expirada,
+      // sem conexao. Antes era sempre o mesmo texto generico num alert().
+      toast(err.message || 'Erro ao gerar questões. Tente novamente.', 'error');
     }
   }
 
@@ -881,27 +868,44 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     const tipoLabel  = isMultipla ? 'Múltipla escolha' : 'Certo ou Errado';
     const tipoClasse = isMultipla ? 'tipo-multipla' : 'tipo-certo';
 
+    // O enunciado e as alternativas vem da IA, que por sua vez leu o PDF do
+    // edital enviado pelo usuario. Um edital com prompt injection faz a IA
+    // devolver HTML, e o token de sessao mora no localStorage -- por isso tudo
+    // aqui passa por esc().
+    //
+    // O onclick inline tambem saiu: o texto da alternativa ia direto para
+    // dentro de aspas simples, escapando apenas ' -- uma aspa dupla ou uma
+    // quebra de linha ja bastava para sair da string. Agora o indice vai num
+    // data-attribute e o valor e lido do array em memoria.
     const alternativasHTML = q.alternativas.map((alt, i) => {
       const letra = isMultipla ? String.fromCharCode(65 + i) : (i === 0 ? 'C' : 'E');
       return `
-        <div class="alternativa" id="alt-${i}" onclick="responder(${i}, '${alt.replace(/'/g, "\\'")}')">
-          <div class="alt-letra">${letra}</div>
-          <span>${alt}</span>
+        <div class="alternativa" id="alt-${i}" data-indice="${i}">
+          <div class="alt-letra">${esc(letra)}</div>
+          <span>${esc(alt)}</span>
         </div>
       `;
     }).join('');
 
-    document.getElementById('questoes-container').innerHTML = `
+    const container = document.getElementById('questoes-container');
+    container.innerHTML = `
       <div class="questao-card">
         <div class="questao-meta">
           <span class="questao-num">Questão ${questaoAtual + 1}</span>
           <span class="questao-tipo ${tipoClasse}">${tipoLabel}</span>
         </div>
-        <div class="questao-enunciado">${q.enunciado}</div>
+        <div class="questao-enunciado">${esc(q.enunciado)}</div>
         <div class="alternativas">${alternativasHTML}</div>
         <div class="feedback" id="feedback"></div>
       </div>
     `;
+
+    container.querySelectorAll('.alternativa').forEach(el => {
+      el.addEventListener('click', () => {
+        const i = Number(el.dataset.indice);
+        responder(i, q.alternativas[i]);
+      });
+    });
   }
 
   // ── RESPONDER ──
@@ -953,10 +957,10 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
         💡 Ver explicação e referência
       </button>
       <div class="explicacao-body" id="explicacao-body">
-        <div class="explicacao-texto">${q.explicacao}</div>
+        <div class="explicacao-texto">${esc(q.explicacao)}</div>
         <div class="referencia">
           <span class="ref-label">📌 Referência:</span>
-          <span class="ref-texto">${q.referencia}</span>
+          <span class="ref-texto">${esc(q.referencia)}</span>
         </div>
       </div>
     `;
@@ -1052,10 +1056,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
   }
 
   // ── LOGOUT ──
-  window.fazerLogout = async function() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
+  window.fazerLogout = fazerLogout;
 
   init();
 </script>

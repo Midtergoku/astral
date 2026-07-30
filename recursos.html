@@ -558,11 +558,8 @@
 </main>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+    from './assets/js/astral.js';
 
   let usuario = null;
   let materias = [];
@@ -571,8 +568,8 @@
 
   // ── INIT ──
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    const session = await exigirSessao();
+    if (!session) return;
 
     usuario = session.user;
     const nome = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuário';
@@ -604,15 +601,24 @@
   // ── RENDER MATÉRIAS ──
   function renderMaterias() {
     const grid = document.getElementById('materias-grid');
+    // O nome da materia vem do edital lido pela IA. Antes ia cru para dentro
+    // de um onclick, escapando so a aspa simples. Agora o indice vai num
+    // data-attribute e o nome e lido do array em memoria.
     grid.innerHTML = materias.map((m, i) => {
       const temCache = !!cacheRecursos[m.nome];
       return `
-        <div class="materia-chip ${temCache ? 'tem-cache' : ''}" onclick="selecionarMateria('${m.nome.replace(/'/g, "\\'")}')">
-          ${m.nome}
+        <div class="materia-chip ${temCache ? 'tem-cache' : ''}" data-indice="${i}">
+          ${esc(m.nome)}
           ${temCache ? ' ✓' : ''}
         </div>
       `;
     }).join('');
+
+    grid.querySelectorAll('.materia-chip').forEach(el => {
+      el.addEventListener('click', () => {
+        selecionarMateria(materias[Number(el.dataset.indice)].nome);
+      });
+    });
   }
 
   // ── SELECIONAR MATÉRIA ──
@@ -646,38 +652,19 @@
     document.getElementById('loading-materia').textContent = nomeMateria;
 
     try {
-      const response = await fetch(
-        'https://jjogmcacbdefwiwcyjxp.supabase.co/functions/v1/buscar-recursos',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-          },
-          body: JSON.stringify({ materia: nomeMateria, concurso }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!data.success || !data.data) {
-        throw new Error(data.error || 'Erro ao buscar recursos');
-      }
+      const dados = await chamarIA('buscar-recursos', { materia: nomeMateria, concurso });
 
       // Salva no cache
-      cacheRecursos[nomeMateria] = {
-        dados: data.data,
-        timestamp: Date.now(),
-      };
+      cacheRecursos[nomeMateria] = { dados, timestamp: Date.now() };
       localStorage.setItem(`astral_recursos_${usuario.id}`, JSON.stringify(cacheRecursos));
 
-      mostrarResultado(nomeMateria, data.data, false, Date.now());
+      mostrarResultado(nomeMateria, dados, false, Date.now());
 
     } catch (err) {
       console.error(err);
       document.getElementById('loading-section').classList.remove('show');
       document.getElementById('seletor-section').style.display = 'block';
-      alert('Erro ao buscar recursos. Verifique sua conexão e tente novamente.');
+      toast(err.message || 'Erro ao buscar recursos. Tente novamente.', 'error');
     }
   }
 
@@ -702,19 +689,24 @@
     document.getElementById('dica-texto').textContent = dados.dica || '';
 
     // Professores
+    //
+    // Tudo abaixo vem da resposta da IA. Alem do esc() no texto, as URLs
+    // passam por urlSegura(): antes o href aceitava "javascript:...", o que
+    // transformava um clique do usuario em execucao de codigo na sessao dele.
+    // A edge function ja filtra no servidor; esta e a segunda barreira.
     const professoresGrid = document.getElementById('professores-grid');
     if (dados.professores?.length) {
       professoresGrid.innerHTML = dados.professores.map(p => `
         <div class="recurso-card">
           <div class="recurso-top">
             <div>
-              <div class="recurso-nome">${p.nome}</div>
-              <div class="recurso-sub">${p.canal}</div>
+              <div class="recurso-nome">${esc(p.nome)}</div>
+              <div class="recurso-sub">${esc(p.canal)}</div>
             </div>
             <span class="tag tag-yt">YouTube</span>
           </div>
-          <div class="recurso-desc">${p.descricao}</div>
-          <a href="${p.url}" target="_blank" rel="noopener" class="btn-acessar">
+          <div class="recurso-desc">${esc(p.descricao)}</div>
+          <a href="${att(urlSegura(p.url))}" target="_blank" rel="noopener noreferrer" class="btn-acessar">
             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Abrir canal
           </a>
@@ -731,13 +723,13 @@
         <div class="recurso-card">
           <div class="recurso-top">
             <div>
-              <div class="recurso-nome">${m.nome}</div>
-              <div class="recurso-sub">${m.tipo}</div>
+              <div class="recurso-nome">${esc(m.nome)}</div>
+              <div class="recurso-sub">${esc(m.tipo)}</div>
             </div>
             <span class="tag tag-gratis">Grátis</span>
           </div>
-          <div class="recurso-desc">${m.descricao}</div>
-          <a href="${m.url}" target="_blank" rel="noopener" class="btn-acessar">
+          <div class="recurso-desc">${esc(m.descricao)}</div>
+          <a href="${att(urlSegura(m.url))}" target="_blank" rel="noopener noreferrer" class="btn-acessar">
             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Acessar
           </a>
@@ -754,13 +746,13 @@
         <div class="recurso-card">
           <div class="recurso-top">
             <div>
-              <div class="recurso-nome">${c.nome}</div>
-              <div class="recurso-sub">${c.plataforma}</div>
+              <div class="recurso-nome">${esc(c.nome)}</div>
+              <div class="recurso-sub">${esc(c.plataforma)}</div>
             </div>
             <span class="tag tag-pago">Pago</span>
           </div>
-          <div class="recurso-desc">${c.descricao}</div>
-          <a href="${c.url}" target="_blank" rel="noopener" class="btn-acessar">
+          <div class="recurso-desc">${esc(c.descricao)}</div>
+          <a href="${att(urlSegura(c.url))}" target="_blank" rel="noopener noreferrer" class="btn-acessar">
             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Ver curso
           </a>
@@ -781,10 +773,7 @@
   }
 
   // ── LOGOUT ──
-  window.fazerLogout = async function() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
+  window.fazerLogout = fazerLogout;
 
   init();
 </script>

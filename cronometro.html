@@ -271,8 +271,8 @@ select.materia-select:focus { border-color:var(--purple); }
 <div class="notif" id="notif"></div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-  const supabase = createClient('https://jjogmcacbdefwiwcyjxp.supabase.co','sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ');
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+    from './assets/js/astral.js';
 
   const CIRCUNFERENCIA = 2 * Math.PI * 120;
   let usuario=null, modo='livre', rodando=false, intervalo=null;
@@ -280,8 +280,8 @@ select.materia-select:focus { border-color:var(--purple); }
   let historico=[], fasePomodoro='foco', pomodoroSeg=0, totalPomodoroSeg=0;
 
   async function init() {
-    const {data:{session}} = await supabase.auth.getSession();
-    if(!session){window.location.href='login.html';return;}
+    const session = await exigirSessao();
+    if (!session) return;
     usuario=session.user;
     const nome=session.user.user_metadata?.full_name||session.user.email?.split('@')[0]||'Usuário';
     document.getElementById('user-name').textContent=nome.split(' ')[0];
@@ -439,7 +439,7 @@ select.materia-select:focus { border-color:var(--purple); }
       <div class="historico-item">
         <div class="historico-icone">⏱</div>
         <div class="historico-info">
-          <div class="historico-materia">${s.materia}</div>
+          <div class="historico-materia">${esc(s.materia)}</div>
           <div class="historico-detalhe">${Math.floor(s.segundos/60)} min · ${s.hora}</div>
         </div>
         <div class="historico-xp">+${s.xp} XP</div>
@@ -457,10 +457,7 @@ select.materia-select:focus { border-color:var(--purple); }
     document.body.appendChild(el);setTimeout(()=>el.remove(),1500);
   }
 
-  window.fazerLogout=async function(){
-    if(rodando)registrarSessao();
-    await supabase.auth.signOut();window.location.href='login.html';
-  }
+  window.fazerLogout = fazerLogout;
 
   window.addEventListener('beforeunload',()=>{if(modo==='livre'&&rodando&&segundosAtual>=60)registrarSessao();});
   init();

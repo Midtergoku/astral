@@ -541,11 +541,8 @@ select option { background: var(--surface); color: var(--text); }
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+    from './assets/js/astral.js';
 
   let usuario = null;
   let eventos = [];
@@ -688,9 +685,9 @@ select option { background: var(--surface); color: var(--text); }
           <div class="evento-icone" style="background:${cat.bg};">${cat.icone}</div>
 
           <div class="evento-info">
-            <div class="evento-nome">${evento.nome}</div>
+            <div class="evento-nome">${esc(evento.nome)}</div>
             <div class="evento-data">${formatarData(evento.data)} · ${diasLabel(dias)}</div>
-            ${evento.obs ? `<div class="evento-obs">${evento.obs}</div>` : ''}
+            ${evento.obs ? `<div class="evento-obs">${esc(evento.obs)}</div>` : ''}
           </div>
 
           <span class="evento-tag" style="background:${cat.bg};color:${cat.cor};">${cat.label}</span>
@@ -762,15 +759,12 @@ select option { background: var(--surface); color: var(--text); }
   }
 
   // ── LOGOUT ──
-  window.fazerLogout = async function() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
+  window.fazerLogout = fazerLogout;
 
   // ── INIT ──
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    const session = await exigirSessao();
+    if (!session) return;
 
     usuario = session.user;
 

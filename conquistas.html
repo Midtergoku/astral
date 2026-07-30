@@ -450,11 +450,8 @@
 </main>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-  const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+    from './assets/js/astral.js';
 
   // ── CONSTANTES ──
   const HABILIDADES_MILITARES = {
@@ -577,8 +574,8 @@
   };
 
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    const session = await exigirSessao();
+    if (!session) return;
 
     estado.usuario = session.user;
 
@@ -773,10 +770,7 @@
   }
 
   // ── LOGOUT ──
-  window.fazerLogout = async function() {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
-  }
+  window.fazerLogout = fazerLogout;
 
   // ── START ──
   init();
