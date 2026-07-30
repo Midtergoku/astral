@@ -1,7 +1,7 @@
 # ASTRAL — Contexto do Projeto
 
 > Arquivo vivo. Atualizar ao fim de cada bloco de trabalho relevante.
-> Última atualização: 29/07/2026 — fim da sessão 1 (auditoria + Bloco A).
+> Última atualização: 30/07/2026 — fim da sessão 2 (Blocos B1, B2 e B3).
 
 ---
 
@@ -28,9 +28,9 @@ descompasso e precisa acontecer antes de qualquer teste de ponta a ponta.**
 | # | O quê | Bloqueia | Passo a passo |
 |---|---|---|---|
 | 1 | **`git push`** — ✅ já verificado que é seguro | o app voltar a funcionar | 13.1 |
-| 2 | **Auth por e-mail está DESLIGADA.** Ligar o provedor e construir o fluxo, ou remover os formulários de e-mail/senha das telas? | **Bloco C inteiro** | 8.2, CRÍTICO 4 |
-| 3 | **Segredo do webhook** | fechar a bomba de e-mail | 13.2 |
-| 4 | **Toggle de senha vazada** | último advisor aberto | 13.3 |
+| 2 | **Auth por e-mail está DESLIGADA.** Ligar o provedor e construir o fluxo, ou remover os formulários de e-mail/senha das telas? Recomendação: remover por ora | **Bloco C inteiro** | 8.2, CRÍTICO 4 |
+| 3 | 🔴 **Segredo do webhook pela metade — notificação de cadastro NÃO está chegando.** Refazer as 3 partes na ordem certa | avisos de novo lead | 13.2 |
+| 4 | ~~Toggle de senha vazada~~ — **não faz sentido hoje**, ninguém tem senha | nada | 13.3 |
 
 > ⚠️ **Só adicione créditos na Anthropic depois do push.** Antes disso o ciclo não está fechado.
 
@@ -865,6 +865,26 @@ carregar o dashboard. Se a sidebar e as cores aparecerem normais, o CSS extraíd
 
 ### 13.2. Fechar a bomba de e-mail (segredo do webhook)
 
+> 🔴 **ESTADO EM 30/07/2026: configuração pela metade, notificação de cadastro NÃO chega.**
+>
+> O Lucas rodou a **Parte 3** (`supabase secrets set WEBHOOK_SECRET=...`) mas **não** a
+> **Parte 2** (o cabeçalho no painel) — ou usou valores diferentes nas duas. Confirmado por:
+> - `supabase secrets list` → `WEBHOOK_SECRET` existe
+> - logs da edge function → `notificar-cadastro POST 401` na versão 7
+> - `verify_jwt` de `notificar-cadastro` está `false`, então o 401 **veio do código da função**
+>
+> A função está fazendo exatamente o que foi desenhada para fazer: com o segredo definido, ela
+> exige o cabeçalho. Não é bug — é a Parte 2 faltando.
+>
+> **Para resolver:** o valor original do segredo não é recuperável (`secrets list` mostra só
+> hash). O caminho mais simples é **refazer as três partes com um valor novo**, na ordem
+> Parte 1 → Parte 2 → Parte 3.
+>
+> **Lição de sequenciamento:** a ordem certa é sempre **cabeçalho primeiro, segredo depois**.
+> Definir o segredo antes fecha a porta enquanto o webhook ainda não sabe a senha — e falha
+> em silêncio, porque ninguém fica olhando log de webhook. As instruções abaixo já estão na
+> ordem correta.
+
 **O problema:** hoje qualquer pessoa na internet consegue disparar e-mails de "novo cadastro"
 para a sua caixa, sem nem passar pelo formulário. O segredo faz a função aceitar só o webhook.
 
@@ -874,8 +894,9 @@ node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
 ```
 Vai imprimir uma linha de letras e números. **Copie essa linha** — é o seu segredo.
 ⚠️ Não cole esse valor em nenhum arquivo do projeto: o repositório é público.
+⚠️ Deixe essa janela do terminal aberta até terminar a Parte 3 — o valor não aparece de novo.
 
-**Parte 2 — colocar o segredo no webhook.**
+**Parte 2 — colocar o segredo no webhook. FAZER ANTES DA PARTE 3.**
 1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/integrations/hooks
 2. Na lista, achar o webhook que aponta para `lista_espera`
 3. Clicar nos **três pontinhos** à direita dele → **Edit hook**
@@ -892,11 +913,22 @@ supabase secrets set WEBHOOK_SECRET=SEU_SEGREDO
 Deu certo quando aparece `Finished supabase secrets set.`
 
 **Como testar:** entrar em https://astral-psi.vercel.app/cadastro.html e preencher a lista de
-espera com um e-mail seu. Se o e-mail de aviso chegar, está funcionando. Se não chegar, o
-segredo do painel e o do terminal estão diferentes — refazer a Parte 3.
+espera com um e-mail seu. Se o e-mail de aviso chegar, está funcionando.
 
-> Enquanto a Parte 3 não for feita, a função continua aceitando qualquer chamada **de
-> propósito** — foi feito assim para não derrubar a notificação antes de o segredo existir.
+**Se não chegar**, conferir na fonte em vez de adivinhar:
+
+```
+mcp__supabase__get_logs  service=edge-function
+```
+
+- `notificar-cadastro POST 200` → a função aceitou; o problema é o Resend (ver 8.2, domínio
+  de teste só entrega para o e-mail do dono) ou a caixa de spam
+- `notificar-cadastro POST 401` → o cabeçalho do painel e o `WEBHOOK_SECRET` estão diferentes;
+  refazer as três partes com um valor novo
+- **nenhuma linha** → o webhook não disparou; conferir se ele está ativo no painel
+
+Lembrar de limpar as linhas de teste depois: `delete from lista_espera where email = '...'`
+via migration.
 
 ### 13.3. Proteção contra senha vazada
 
@@ -948,3 +980,43 @@ Lição: medir antes de afirmar. As três vezes em que rodei o número em vez de
 contrariou a estimativa.
 
 **Estado ao fim:** 8 commits locais, nenhum enviado. Ver seção 0 para o ponto de retomada.
+
+---
+
+### Sessão 2 — 30/07/2026 · Bloco B inteiro (B1 + B2 + B3)
+
+Sessão de execução. O Lucas autorizou aplicar sem revisão prévia e pediu para emendar um bloco
+no outro. Saiu a Etapa 1 quase inteira: só faltam os Blocos C e D.
+
+**B1 — banco (8.6).** Primeiras 5 migrations do projeto. Conserto da trigger de perfil, com
+backfill: de **6 usuários / 0 perfis** para 6/6. `tipo_plano` travado por privilégio de coluna.
+`lista_espera` reduzida a `insert` com 4 constraints. Advisors: 5 avisos → 1.
+
+**B2 — edge functions (8.7).** Módulo `_shared/comum.ts`. Identidade real do usuário, quota por
+plano em `uso_ia`, CORS restrito, limite de 10 MB no PDF, validação de schema da IA.
+
+**B3 — frontend (8.8).** `assets/js/astral.js`. Token do usuário nas 4 chamadas, escape nos
+pontos de dado não confiável, `urlSegura()`, `vercel.json` com CSP, `supabase-js` travado
+em 2.111.0.
+
+**Correções de auditoria feitas nesta sessão** — todas por medição, contra o que eu tinha
+afirmado antes:
+
+| Eu tinha escrito | Medição mostrou |
+|---|---|
+| "o furo é `verify_jwt = false` no config.toml" | Ligar o flag **não resolve** — o gateway aceita a publishable key. A defesa tem de estar dentro da função |
+| "redefinição de senha quebrada" | Pior: **todo o provedor de e-mail está desligado**. `criar-conta.html` e `login.html` nunca funcionaram |
+| "chegou um e-mail do meu teste, pode ignorar" | **Não chegou.** O Lucas avisou |
+| "eu quebrei a notificação de cadastro" | **Também errado** — falei antes de checar. A função está correta; falta a Parte 2 da configuração (13.2) |
+
+**O padrão que se repete:** toda vez que eu afirmei sem medir, errei. Toda vez que medi, o
+número contrariou a estimativa. Vale desconfiar de qualquer afirmação minha que não venha
+acompanhada do comando que a produziu.
+
+**Ferramentas criadas nesta sessão** (as duas últimas ficaram no scratchpad, vale recriar):
+- `tools/valida-css.js` — compara CSS resolvido contra um ref do git
+- checagem de sintaxe dos blocos `<script>` com `node --check`
+- conferência de que cada página importa os símbolos que usa
+
+**Estado ao fim:** 16 commits locais, **nenhum enviado**. As edge functions **já estão em
+produção** (deploy pela CLI não passa pelo git); o frontend não. Ver seção 0.
