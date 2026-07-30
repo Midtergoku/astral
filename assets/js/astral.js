@@ -150,6 +150,74 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
   return json.data;
 }
 
+// ── Freio de tentativas de senha ────────────────────────────────────────────
+/**
+ * Medido em 30/07/2026 contra a API real: o Supabase so recusa a partir da
+ * 32a tentativa seguida, e o limite e por IP. Trinta chutes livres e muito
+ * para uma senha fraca, e quem trocar de IP recomeca do zero.
+ *
+ * ⚠️ SEJA HONESTO SOBRE O QUE ISTO É. Este freio vive no navegador, entao um
+ * atacante que chame a API do Supabase direto passa por cima dele sem esforco.
+ * Ele resolve dois problemas reais e menores:
+ *   - o chute repetido por quem esta no formulario;
+ *   - a pessoa que errou a senha e fica martelando sem entender.
+ *
+ * A proteção que NAO se contorna e o captcha no proprio endpoint de auth
+ * (`security_captcha_enabled` no Supabase). Passo a passo em CLAUDE.md 13.5.
+ */
+const LIMITE_TENTATIVAS = 5;
+const ESPERAS_SEGUNDOS = [30, 60, 120, 300, 900]; // cresce a cada bloqueio
+
+function chaveFreio(identificador) {
+  return `astral_freio_${(identificador || '').toLowerCase().trim()}`;
+}
+
+/** Devolve os segundos que ainda faltam, ou 0 se pode tentar. */
+export function segundosBloqueado(identificador) {
+  try {
+    const bruto = localStorage.getItem(chaveFreio(identificador));
+    if (!bruto) return 0;
+    const { liberaEm } = JSON.parse(bruto);
+    const falta = Math.ceil((liberaEm - Date.now()) / 1000);
+    return falta > 0 ? falta : 0;
+  } catch { return 0; }
+}
+
+export function registrarFalha(identificador) {
+  try {
+    const chave = chaveFreio(identificador);
+    const atual = JSON.parse(localStorage.getItem(chave) || '{}');
+    const falhas = (atual.falhas || 0) + 1;
+    const bloqueios = atual.bloqueios || 0;
+
+    if (falhas >= LIMITE_TENTATIVAS) {
+      const espera = ESPERAS_SEGUNDOS[Math.min(bloqueios, ESPERAS_SEGUNDOS.length - 1)];
+      localStorage.setItem(chave, JSON.stringify({
+        falhas: 0,
+        bloqueios: bloqueios + 1,
+        liberaEm: Date.now() + espera * 1000,
+      }));
+      return espera;
+    }
+
+    localStorage.setItem(chave, JSON.stringify({ falhas, bloqueios, liberaEm: 0 }));
+    return 0;
+  } catch { return 0; }
+}
+
+export function limparFreio(identificador) {
+  try { localStorage.removeItem(chaveFreio(identificador)); } catch { /* ignora */ }
+}
+
+/** "1 minuto e 30 segundos" em vez de "90s" — quem lê não é técnico. */
+export function emPortugues(segundos) {
+  if (segundos < 60) return `${segundos} segundo${segundos === 1 ? '' : 's'}`;
+  const min = Math.floor(segundos / 60);
+  const resto = segundos % 60;
+  const parteMin = `${min} minuto${min === 1 ? '' : 's'}`;
+  return resto ? `${parteMin} e ${resto} segundo${resto === 1 ? '' : 's'}` : parteMin;
+}
+
 // ── Menu no celular ─────────────────────────────────────────────────────────
 /**
  * Todas as paginas do app escondem a sidebar com translateX(-100%) abaixo de

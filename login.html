@@ -332,7 +332,8 @@
 <footer>© 2026 Astral · Feito para concurseiros militares</footer>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
+           segundosBloqueado, registrarFalha, limparFreio, emPortugues }
     from './assets/js/astral.js';
 
   // Se o usuario chegou aqui pelo link de redefinicao de senha, o token vem no
@@ -385,10 +386,29 @@
     if (!email || !email.includes('@')) { mostrarErro('Informe um e-mail válido.'); return; }
     if (!senha) { mostrarErro('Informe sua senha.'); return; }
 
+    // Freio local depois de 5 erros seguidos, com espera crescente. Medido:
+    // o Supabase sozinho só recusa a partir da 32ª tentativa, e por IP.
+    const espera = segundosBloqueado(email);
+    if (espera > 0) {
+      mostrarErro(`Muitas tentativas seguidas. Espere ${emPortugues(espera)} antes de tentar de novo.`);
+      return;
+    }
+
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Entrando...';
 
     const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+
+    if (error) {
+      const bloqueio = registrarFalha(email);
+      if (bloqueio > 0) {
+        mostrarErro(`Senha errada 5 vezes seguidas. Por segurança, espere ${emPortugues(bloqueio)}. ` +
+                    `Se não lembra a senha, use "Esqueci minha senha".`);
+        btn.disabled = false;
+        btn.innerHTML = 'Entrar →';
+        return;
+      }
+    }
 
     if (error) {
       const m = (error.message || '').toLowerCase();
@@ -410,6 +430,7 @@
       return;
     }
 
+    limparFreio(email);
     window.location.href = 'dashboard.html';
   }
 

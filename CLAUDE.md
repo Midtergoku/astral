@@ -49,6 +49,41 @@ CSS, responsividade mobile) → fecha a Etapa 1 → **Etapa 2, pagamento** (seç
 
 ---
 
+## 0.1. ⚠️ LEIA ANTES DE AFIRMAR QUALQUER COISA
+
+> O Lucas pediu explicitamente que estes erros ficassem registrados para não se repetirem.
+> Não apagar esta seção.
+
+**Padrão observado em duas sessões: toda vez que afirmei sem medir, errei. Sem exceção.**
+E toda vez que rodei o comando, o número contrariou minha estimativa.
+
+| O que eu afirmei | O que a medição mostrou | Como eu deveria ter descoberto |
+|---|---|---|
+| "~153 KB de CSS duplicado" | 146,6 KB **no total**; duplicação real: 48,7 KB | contar, em vez de estimar por olho |
+| "as tabelas de patente já divergiram" | **idênticas** — e usei isso para justificar a prioridade do Bloco A | `diff` das duas |
+| "o furo é `verify_jwt = false`" | ligar o flag **não resolve**: o gateway aceita a chave pública | um POST na função |
+| "redefinição de senha quebrada" | pior — **todo o provedor de e-mail estava desligado** | `GET /auth/v1/settings` |
+| "chegou um e-mail do meu teste" | **não chegou**; quem avisou foi o Lucas | ler os logs |
+| "eu quebrei a notificação de cadastro" | não quebrei; **concluí antes de olhar** | `get_logs` |
+| "o Lucas não fez a Parte 2 do webhook" | ele fez; o cabeçalho estava lá, o **valor** é que diferia | `pg_get_triggerdef` |
+| "senha vazada é toggle de custo zero" | **HTTP 402** — recurso do plano Pro | tentar aplicar |
+| "não há bloqueio de força bruta" | há, **na 32ª tentativa** — fraco, mas existe | 45 tentativas reais |
+
+**Por que isso é grave aqui:** o Lucas não é técnico e não tem como auditar o que eu digo.
+Afirmação errada minha vira decisão errada dele. No caso das tabelas de patente, virou a
+priorização de um bloco inteiro de trabalho.
+
+**Regra de trabalho:**
+1. Antes de afirmar número, estado de sistema ou causa de falha — **rodar o comando.**
+2. Quando não der para medir, dizer explicitamente que é estimativa.
+3. Ao registrar aqui, **guardar junto o comando que produziu o número**, para reconferir depois.
+4. Diagnóstico de falha começa em `get_logs` / `execute_sql`, nunca em hipótese.
+
+Ferramentas que respondem rápido: `mcp__supabase__get_logs`, `execute_sql`, `get_advisors`,
+`supabase functions list`, e um POST direto na API com `Invoke-WebRequest`.
+
+---
+
 ## 1. O produto
 
 **Astral** — "Transforme seu edital em um plano de aprovação em poucos minutos"
@@ -1218,6 +1253,37 @@ Fonte: RDAP oficial do Registro.br. **O nome curto está tomado em toda parte.**
 Não é problema: `astralconcursos.com.br` diz o que o produto faz e ajuda em busca orgânica.
 "Astral" sozinho é genérico demais para ranquear. **Decisão do nome fica com o Lucas**, e a
 compra fica para quando o site estiver pronto — decisão dele, para não gastar à toa.
+
+---
+
+### 13.5. Captcha — a única proteção de força bruta que não se contorna
+
+**Medido em 30/07/2026:** o Supabase só recusa a partir da **32ª tentativa** de senha, e o
+limite é por IP. Trinta chutes livres é muito para senha fraca, e quem troca de IP recomeça.
+
+O Bloco D acrescentou um freio no navegador (5 erros → espera crescente de 30s a 15min), que
+resolve o chute no formulário e o usuário martelando. **Mas quem chama a API direto passa por
+cima dele.** A proteção que não se contorna é o captcha no próprio endpoint de autenticação.
+
+Bônus: o mesmo captcha fecha a **bomba de e-mail da lista de espera** (seção 8.2, ALTO 5), que
+continua sem solução real — as constraints limitam o conteúdo, não o volume.
+
+**O que só o Lucas pode fazer (criar a conta):**
+
+1. Abrir https://www.hcaptcha.com e clicar em **Sign up** (é grátis)
+2. Confirmar o e-mail e entrar
+3. No painel, clicar em **Sites → New Site**
+4. Em **Hostnames**, adicionar: `astral-psi.vercel.app`
+5. Salvar. A tela mostra duas coisas — copiar as duas:
+   - **Sitekey** (pode aparecer no código, não é segredo)
+   - **Secret key** (em **Settings → Secret Key**; é senha, não colar em arquivo do projeto)
+6. Mandar as duas para mim
+
+**O que eu faço depois:** ligo `security_captcha_enabled` pela API de gerenciamento (10.2) e
+acrescento o widget nas telas de login, criar conta e lista de espera.
+
+> ⚠️ Enquanto isso não acontecer, o freio existente é de conveniência, não de segurança.
+> Está escrito assim no próprio código, em `assets/js/astral.js`, para ninguém se enganar.
 
 ---
 
