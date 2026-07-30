@@ -311,7 +311,93 @@ Concurseiro estuda no celular — isso é perda direta de conversão e de reten�
 
 ---
 
-## 8.3. Verificações que só o Lucas pode fazer (SQL no painel Supabase)
+## 8.3. Auditoria do banco — feita via MCP em 29/07/2026
+
+Estado real: **6 usuários em `auth.users`, todos via Google, todos com e-mail confirmado.
+`perfis` tem 0 linhas. `lista_espera` tem 2 linhas.**
+
+### 🔴 BANCO 1 — A trigger de criação de perfil está quebrada desde sempre
+
+```sql
+CREATE OR REPLACE FUNCTION public.criar_perfil_usuario()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER  -- sem SET search_path
+AS $function$
+BEGIN
+  INSERT INTO perfis (...) VALUES (...) ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN RETURN NEW;   -- engole QUALQUER erro em silêncio
+END;
+$function$
+```
+
+A trigger `ao_criar_usuario` existe e está ativa, mas a função é `SECURITY DEFINER` **sem
+`SET search_path`** — o advisor do Supabase sinaliza isso como `function_search_path_mutable`.
+Quando dispara a partir de `auth.users`, o `search_path` não inclui `public` e o
+`INSERT INTO perfis` falha. O bloco `EXCEPTION WHEN OTHERS THEN RETURN NEW` engole o erro,
+o usuário é criado normalmente e **nenhum perfil nasce**.
+
+Consequências que já estão acontecendo em produção:
+- `estado.perfil` é `null` para todos → o badge sempre cai no fallback `'free'`
+- **Promover alguém para `beta` pela Table Editor é impossível** — não há linha para editar.
+  O fluxo de beta tester descrito na seção "Estratégia de Lançamento" nunca funcionou.
+- Qualquer feature futura que dependa de `perfis` nasce quebrada
+
+Correção: `SET search_path = public` na função, remover o `EXCEPTION` cego (ou ao menos logar),
+e fazer um backfill dos 6 usuários existentes.
+
+### 🔴 BANCO 2 — Usuário pode se promover para `pro` sozinho
+
+```
+perfis | UPDATE | authenticated | USING (auth.uid() = id) | WITH CHECK: ausente
+```
+
+Sem `WITH CHECK` explícito, o Postgres reaproveita a expressão do `USING`. O usuário continua
+sendo dono da própria linha, então **nada impede que ele mude a própria coluna `tipo_plano`**.
+No dia em que o gate de pagamento existir, isso libera o plano pago de graça:
+
+```js
+await supabase.from('perfis').update({ tipo_plano: 'pro' }).eq('id', user.id)
+```
+
+Correção: `tipo_plano` não pode ser gravável pelo usuário. Ou sai para uma tabela `assinaturas`
+que só o service role escreve, ou uma trigger `BEFORE UPDATE` trava a coluna.
+**Bloqueador absoluto da Etapa 2.**
+
+### ✅ Resolvido — o push é seguro
+
+`perfis.tipo_plano` tem `CHECK (tipo_plano IN ('free','beta','pro'))`. O valor `'profissional'`
+**nunca** foi aceito pelo banco, e `perfis` está vazia. A dúvida da seção 8.1 está encerrada:
+o push da renomeação não quebra ninguém.
+
+### 🟠 BANCO 3 — `lista_espera` confirma a bomba de e-mail
+
+```
+lista_espera | INSERT | anon | WITH CHECK (true)
+```
+
+Advisor: `rls_policy_always_true`. Insert anônimo irrestrito, sem captcha nem rate limit, com
+webhook disparando Resend por linha. Hoje só há 2 linhas — sem abuso até agora.
+
+### 🟡 BANCO 4 — Função `SECURITY DEFINER` exposta na API REST
+
+`criar_perfil_usuario()` é chamável por `anon` e por `authenticated` via
+`/rest/v1/rpc/criar_perfil_usuario`. É função de trigger, então a chamada direta erra por falta
+de `NEW` — mas não há motivo para estar exposta. Revogar `EXECUTE` de `anon` e `authenticated`.
+
+### 🟡 BANCO 5 — Proteção contra senha vazada desligada
+
+Supabase Auth pode checar senhas contra o HaveIBeenPwned. Está desativado. É um toggle no painel
+(Authentication → Policies), custo zero.
+
+### Observação de produto
+
+A lista de espera tem **2 cadastros**. A landing fala em "vagas limitadas para beta testers", mas
+a demanda ainda não foi validada de verdade. Vale considerar isso ao priorizar distribuição.
+
+---
+
+## 8.4. Queries de referência (agora executáveis direto pelo MCP)
 
 ```sql
 -- 1. RLS está realmente ativa?
