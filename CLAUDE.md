@@ -157,10 +157,15 @@ Consequência: trocar de navegador, limpar cache ou abrir no celular = usuário 
 
 ### 🟡 Dívida técnica
 
-6. **~153 KB de CSS duplicado** entre as 13 páginas (index 22 KB, questoes 18 KB,
-   dashboard 18 KB…). Mudar uma cor = editar 13 arquivos.
-7. **`TABELAS_NIVEIS`, `BADGES_DEF`, `detectarTipoConcurso()`, sidebar e header** repetidos
-   em 4+ arquivos. Já divergem entre si.
+6. ~~**~153 KB de CSS duplicado**~~ 🟡 **parcialmente resolvido — e o número estava errado.**
+   Medição real (`tools/valida-css.js`): **146,6 KB de CSS no total**, dos quais **48,7 KB**
+   eram duplicação. O Bloco A extraiu 29 KB. O resto são variações **intencionais** por
+   página — ver 8.5.
+7. **Duplicação de JS** — medição real, corrigindo estimativa anterior:
+   `createClient` em 11 arquivos · `fazerLogout` em 8 · transição de página em 8 (✅ extraída)
+   · guarda de sessão em 7 · `detectarTipoConcurso` em 3 · `TABELAS_NIVEIS` em 2.
+   ⚠️ **Correção:** a auditoria original afirmava que as tabelas de patente já tinham
+   divergido. **Falso** — foram comparadas e são idênticas, diferem só na indentação.
 8. **Parsing frágil da IA** — `JSON.parse` direto na resposta, sem retry nem validação de
    schema. Uma resposta fora do formato quebra a tela.
 9. **Erros expostos como `alert()`** ([dashboard.html:1534](dashboard.html#L1534)) enquanto
@@ -416,6 +421,43 @@ select count(*), min(criado_em), max(criado_em) from lista_espera;
 
 ---
 
+## 8.5. Bloco A — extração da casca compartilhada (29/07/2026)
+
+```
+assets/
+├── css/app.css        27 regras comuns as 8 paginas do app
+└── js/transicao.js    transicao de pagina, era identica nos 8
+tools/
+└── valida-css.js      verificador de equivalencia
+```
+
+**Critério usado.** Uma regra só foi extraída se o seletor aparece **exatamente uma vez**
+em cada uma das 8 páginas e as 8 versões são semanticamente idênticas. A exigência de
+ocorrência única não é preciosismo: 5 páginas declaram o mesmo seletor duas vezes (definição
++ ajuste posterior), e um critério mais frouxo teria dado a `recursos` e `questoes` um `.card`
+com fundo e borda que elas nunca tiveram. O verificador pegou isso antes de aplicar.
+
+**O que ficou inline de propósito.** 35 seletores divergem de verdade entre páginas —
+`.topbar` (4 versões), `:root` (3), `.section-title` (2), `.materia-*` (3). Não é sujeira:
+o resumo compacto do dashboard usa fonte menor que a lista completa do progresso. Unificar
+seria decisão de design, não refatoração — fica para a Etapa 3.
+
+**Como verificar depois de qualquer mexida em CSS:**
+
+```bash
+node tools/valida-css.js
+```
+
+Compara o CSS resolvido de cada página contra o commit anterior, propriedade por propriedade.
+
+> ⚠️ O verificador tem uma pegadinha: at-rules (`@keyframes`, `@media`) precisam ser comparadas
+> por **nome/query**, nunca por posição. A extração move as compartilhadas para o topo, e uma
+> comparação posicional acusa falso positivo em todas as páginas.
+
+**Resultado:** 29 KB de duplicação eliminados, CSS resolvido idêntico nas 8 páginas.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -425,7 +467,7 @@ O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depoi
 
 | Bloco | O quê | Status |
 |---|---|---|
-| **A** | Extrair CSS/JS compartilhado para `assets/` — sem mudar comportamento | ⬜ aguardando OK |
+| **A** | Extrair CSS/JS compartilhado para `assets/` — sem mudar comportamento | ✅ feito — ver 8.5 |
 | **B** | Escape universal + sanitizar URLs · JWT e quota nas edge functions · limite de PDF · CSP e headers · pin de dependências · CORS restrito | ⬜ |
 | **C** | Página de redefinir senha · Termos de Uso · exportar e excluir conta · confirmação de e-mail | ⬜ |
 | **D** | Validação de schema da IA com retry · trocar `alert()` por toast · responsividade mobile | ⬜ |
