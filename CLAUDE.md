@@ -330,24 +330,38 @@ select count(*), min(criado_em), max(criado_em) from lista_espera;
 
 ---
 
-## 9. Ordem de trabalho proposta
+## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
-**Fase 0 — Fundação (antes de tocar em feature)**
-1. ✅ Instalar git + conectar ao GitHub existente — feito em 29/07/2026
-2. Extrair CSS/JS compartilhado para `assets/` (elimina 153 KB de duplicação)
-3. Versionar o schema em `supabase/migrations/`
+O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
+último.** Nada de pagamento antes de a base estar sólida.
 
-**Fase 1 — Tornar vendável**
-4. Migrar estado do localStorage para tabelas no Supabase (com RLS)
-5. Autenticar edge functions com JWT do usuário + quota por plano
-6. Implementar o gate real de `free` vs `pro`
-7. Stripe (ou Mercado Pago — ver seção 10)
+### Etapa 1 — Blindagem (em andamento)
 
-**Fase 2 — Lançamento**
-8. LGPD: exportar + excluir dados
-9. Domínio próprio no Resend + e-mails transacionais
-10. Reativar confirmação de e-mail
-11. Créditos Anthropic + teste end-to-end do upload de edital
+| Bloco | O quê | Status |
+|---|---|---|
+| **A** | Extrair CSS/JS compartilhado para `assets/` — sem mudar comportamento | ⬜ aguardando OK |
+| **B** | Escape universal + sanitizar URLs · JWT e quota nas edge functions · limite de PDF · CSP e headers · pin de dependências · CORS restrito | ⬜ |
+| **C** | Página de redefinir senha · Termos de Uso · exportar e excluir conta · confirmação de e-mail | ⬜ |
+| **D** | Validação de schema da IA com retry · trocar `alert()` por toast · responsividade mobile | ⬜ |
+
+> **Por que o Bloco A vem primeiro:** o mesmo bug de XSS está em 13 arquivos porque o código é
+> duplicado. Corrigir antes de extrair = escrever a mesma correção 13 vezes e vê-la divergir de
+> novo (as tabelas de patente já divergiram). Refatorar depois custa o dobro e reintroduz bugs.
+
+### Etapa 2 — Fundação do pagamento (mudança estrutural, apresentar antes)
+
+1. Migrar estado do localStorage para tabelas no Supabase (com RLS) — ver seção 5
+2. Implementar o gate real de `free` vs `pro`
+3. Gateway de pagamento — ver seção 10
+4. Domínio próprio no Resend + e-mails transacionais
+5. Créditos Anthropic + teste end-to-end do upload de edital
+
+### Etapa 3 — Visual e gamificação (pedido do Lucas, ainda não detalhado)
+
+- Repaginada visual geral — o Lucas quer "mexer bastante"
+- **Tag em estilo de jogos** — ele citou explicitamente, falta definir o que é
+- **Mais quests** para aprofundar a gamificação além dos 8 badges atuais
+- Roadmap desta etapa deve ser montado **depois** que a Etapa 1 fechar
 
 ---
 
@@ -359,6 +373,37 @@ select count(*), min(criado_em), max(criado_em) from lista_espera;
 - **Onde fica a linha free/pro:** proposta — free processa 1 edital e vê o cronograma;
   pro libera questões por IA, recursos, calendário e histórico. **A validar com o Lucas.**
 - **Distribuição e marketing:** Lucas vai trazer o plano. Ainda não definido.
+
+---
+
+## 10.1. Ferramentas de acesso ao Supabase (montado em 29/07/2026)
+
+**Supabase CLI** — instalada (2.106.0), **autenticada e vinculada** ao projeto. Confirmado
+funcionando: `functions list`, `functions deploy`, `secrets list/set`, `migration list`
+(conectou no banco remoto sem pedir senha). O `secrets list` devolve hashes, não os valores.
+`supabase db dump` **não** funciona — exige Docker Desktop, que não está instalado.
+
+> `migration list` voltou **vazio**: nenhuma migration jamais aplicada. Confirma que o schema
+> só existe na nuvem.
+
+**MCP do Supabase** — servidor hospedado, adicionado no **escopo de usuário**:
+
+```
+claude mcp add --scope user --transport http supabase \
+  "https://mcp.supabase.com/mcp?project_ref=jjogmcacbdefwiwcyjxp&read_only=true"
+```
+
+- `read_only=true` **de propósito**: leitura livre do banco, mas toda escrita passa por
+  migration versionada no git. Foi escolha deliberada, não limitação.
+- `project_ref` trava o acesso só neste projeto.
+- Autenticação é OAuth pelo navegador (`/mcp` → autenticar). Não precisa de token manual.
+
+> ⚠️ **Pegadinha:** `~/.claude.json` tem entradas duplicadas para a mesma pasta
+> (`C:/Users/Lucas/Desktop/ASTRAL` e `c:/...`, só a letra do drive muda). Um MCP adicionado no
+> escopo de projeto fica invisível para a sessão que rodar sob a outra grafia — foi o que
+> aconteceu na primeira tentativa. Por isso o escopo é `user`. A duplicação também divide o
+> histórico de conversas, então `claude --resume` pode não listar sessões antigas.
+> **Limpar isso ainda está pendente.**
 
 ---
 
@@ -384,5 +429,18 @@ Achado principal: o produto está visualmente pronto mas **não é vendável** �
 bloqueia nada e o progresso do usuário não sai do navegador.
 
 Na sequência, montei o versionamento (seção 8.1): git instalado, pasta conectada ao repo
-existente, edge functions finalmente versionadas. Dois commits locais aguardando push.
-Nenhuma linha de código de produto foi alterada.
+existente, edge functions finalmente versionadas. Nenhuma linha de código de produto foi alterada.
+
+Depois veio a auditoria de segurança completa (seção 8.2): 4 críticos, sendo o pior o XSS
+sistêmico com token de sessão em `localStorage`. Plano de trabalho acordado na seção 9.
+
+Por fim, montei o acesso ao Supabase (seção 10.1): CLI já estava autenticada, MCP adicionado
+no escopo de usuário.
+
+**Pendências abertas ao fim da sessão:**
+- 4 commits locais **não enviados**. O push publica em produção (Vercel auto-deploy) e leva
+  junto a mudança `profissional` → `free`. Combinado: rodar antes
+  `select tipo_plano, count(*) from perfis group by tipo_plano;`
+- Lucas precisa reiniciar o Claude Code e autenticar o MCP via `/mcp` (OAuth no navegador).
+- Bloco A aguardando o "pode ir".
+- RLS ainda não auditada (seção 8.3) — assim que o MCP conectar, dá pra ler direto.
