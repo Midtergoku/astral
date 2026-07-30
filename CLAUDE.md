@@ -288,8 +288,28 @@ num grupo de WhatsApp de concurseiro. Não é auto-XSS: é vetor remoto.
 As 3 funções de IA são chamadas com a *publishable key*, nunca com o `access_token` do usuário
 ([dashboard.html:1484](dashboard.html#L1484), [edital.html:746](edital.html#L746),
 [questoes.html:954](questoes.html#L954), [recursos.html:794](recursos.html#L794)).
-`config.toml` declara `verify_jwt = false`. Resultado: endpoint público, sem identidade,
-sem quota, sem log. Qualquer um roda `gerar-questoes` em loop e a fatura é sua.
+Resultado: endpoint público, sem identidade, sem quota, sem log. Qualquer um roda
+`gerar-questoes` em loop e a fatura é sua.
+
+> ⚠️ **Correção de 30/07/2026 — a versão anterior desta seção estava errada.**
+> Ela dizia que o problema era `verify_jwt = false` no `config.toml`. **Ligar o flag não
+> resolve.** Estado real medido: `buscar-recursos` e `gerar-questoes` **já estão deployadas
+> com `verify_jwt = true`** — e mesmo assim aceitam a publishable key. O gateway do Supabase
+> valida que o token é uma chave válida *do projeto* **ou** um JWT de usuário; a chave pública
+> passa nos dois casos, e ela está no código-fonte de todas as páginas.
+>
+> Teste que comprovou: POST direto nas 3 funções com a publishable key — todas atravessaram a
+> autenticação e chegaram na API da Anthropic.
+>
+> **Consequência para o B2:** a verificação de identidade tem de ser feita *dentro* da função,
+> chamando `auth.getUser(token)` e **recusando explicitamente** um token igual à chave pública.
+> O `verify_jwt = true` fica como camada extra, não como a defesa.
+
+> 💡 **Estado atual: não há créditos na Anthropic.** As 3 funções respondem 500
+> (`credit balance is too low`). Na prática as features de IA estão **inteiramente
+> inoperantes em produção hoje** — o que significa que endurecê-las não quebra nada que
+> funcione, e que **os créditos só devem ser adicionados depois do B2**. Adicionar antes é
+> abrir a torneira com o endpoint público.
 
 ### 🔴 CRÍTICO 3 — Upload de PDF sem nenhum limite
 
