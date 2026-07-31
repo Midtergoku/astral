@@ -11,8 +11,17 @@
 Depois dela, ainda em 30/07/2026: quota por unidade (8.12), gate free vs pro (8.13) e o
 hCaptcha preparado e desligado (13.5).
 
-**Combinado com o Lucas para a sessão 4: partir para o VISUAL/CSS.** Ele quer aprimorar
-várias coisas e vai trazer a lista. Ver Etapa 3 na seção 9.
+### ▶ A sessão 4 começa AQUI, nesta ordem
+
+Ordem do Lucas ao fechar a sessão 3: *"partiremos a partir desse ponto respondendo os tópicos
+acima"*. Ou seja — **não abrir com CSS.** Abrir perguntando/resolvendo os dois blocos abaixo:
+
+1. **As três decisões dele** (tabela "O que depende do Lucas") — créditos, chaves do hCaptcha,
+   e ligar ou desligar a busca de professores
+2. **As três tarefas rápidas** (lista "O que eu faria a seguir") — ~1h30 somadas
+
+**Só depois disso, o visual/CSS**, que é o que ele quer fazer de verdade nesta sessão. Ele vai
+trazer a lista do que quer aprimorar. Ver Etapa 3 na seção 9.
 
 ### Estado verificado em produção (tools/testa-site.js, 39 checagens)
 
@@ -1714,3 +1723,47 @@ acompanhada do comando que a produziu.
 
 **Estado ao fim:** 16 commits locais, **nenhum enviado**. As edge functions **já estão em
 produção** (deploy pela CLI não passa pelo git); o frontend não. Ver seção 0.
+
+---
+
+### Sessão 3 — 30/07/2026 · Quota por unidade, gate, hCaptcha e decisão de pagamento
+
+Sessão de fechamento da Etapa 1 e das decisões de negócio. **5 commits, todos enviados**
+(`bda7f1c` → `ffcc538`). Tudo verificado em produção antes de fechar.
+
+**O achado que pagou a sessão (8.12).** O Lucas achou que "50 questões por dia" no Pro era
+pouco e pediu 60. Fui medir: não eram 50 questões, eram **50 chamadas**, e cada chamada aceitava
+até 20 questões — teto real de **1.000 questões/dia**, ~R$ 264/mês de API contra uma assinatura
+de R$ 19,90. `uso_ia` ganhou a coluna `unidades` e a quota passou a somar unidades em vez de
+contar linhas. **A pergunta do Lucas achou o bug; a minha leitura do código não tinha achado.**
+
+**Gate free vs pro (8.13).** `tipo_plano` deixou de ser cosmético — era o 🔴 nº 1 da seção 8.
+Formato escolhido: **quota, não bloqueio de tela**, porque boca a boca é o único canal do Lucas
+e um cadeado na cara do usuário gratuito mata o beta. Nova função `minha-quota`; a tela agora
+mostra "Restam 47 de 60" *antes* do clique, em vez de erro seco depois de esperar a IA.
+
+**hCaptcha preparado e inerte (13.5).** Todo o lado do navegador no ar com `HCAPTCHA_SITEKEY`
+vazia = no-op. Falta só o Lucas criar a conta.
+
+**Decisões de negócio fechadas:** Mercado Pago (10.3) — decidido por ele **não ter CNPJ**, não
+por taxa. Custo da Anthropic medido (10.4): R$ 0,15 por 10 questões, R$ 0,99 por edital,
+R$ 0,68 por busca de professores; **beta tester custa R$ 7–14/mês e não paga nunca**.
+
+**Ferramenta nova:** `tools/testa-site.js` — 39 checagens contra a produção. Todas verdes.
+
+**Meus erros nesta sessão** (as três já estão na tabela da 0.1):
+
+| O que eu fiz | O que aprendi |
+|---|---|
+| Escrevi o passo a passo do hCaptcha de memória — aba errada e chave secreta no lugar errado. **O Lucas travou seguindo** | Interface de terceiro é estado de sistema. Abrir a documentação **antes** de escrever clique a clique |
+| Meu script de teste esperava HTTP 400 e veio 401 → **anunciei que a landing estava quebrada** | Não estava. Validação em policy de RLS volta 401/42501. Falso alarme gasta a confiança igual a erro real |
+| A função `minha-quota` devolvia o objeto cru sem o envelope `{success, data}` | Teria falhado **em silêncio** — nenhum erro no console, só um aviso que nunca aparecia. Só achei porque testei contra a API real |
+| Levantei a hipótese de ter apagado os 2 cadastros da `lista_espera` | Não fui eu — o Lucas apagou. Mas **eu não tinha como provar**, porque ninguém registra exclusões ali |
+
+**Regra nova do Lucas (0.2):** ao fim de todo processo, **mini relatório em linguagem de leigo**
+— "como se eu tivesse contando pro meu pai que não sabe nada de internet". Registrada também na
+memória permanente.
+
+**Estado ao fim:** Etapa 1 fechada, árvore limpa, `main` em sincronia com o GitHub. A sessão 4
+começa respondendo os tópicos da seção 0 — os três que dependem do Lucas e as três tarefas
+rápidas — e depois vai para o visual/CSS.
