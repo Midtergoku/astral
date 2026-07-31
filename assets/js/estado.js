@@ -11,7 +11,7 @@
 // proposito: assim cada pagina troca so o carregar/salvar, e nao a logica.
 // ============================================================================
 
-import { supabase } from './astral.js';
+import { supabase, SUPABASE_URL, SUPABASE_KEY } from './astral.js';
 
 const VAZIO = () => ({
   xp: 0,
@@ -101,6 +101,8 @@ export async function carregarProgresso(uid) {
 // ── Salvar ──────────────────────────────────────────────────────────────────
 let tarefaSalvar = null;
 let ultimoEstado = null;
+// Guardado para a gravacao final ao fechar a aba, que nao recebe parametros.
+let ultimoUid = null;
 
 /**
  * Grava no navegador na hora (para a tela nunca mentir) e no banco com um
@@ -108,6 +110,7 @@ let ultimoEstado = null;
  */
 export function salvarProgresso(uid, estado, { imediato = false } = {}) {
   ultimoEstado = estado;
+  ultimoUid = uid;
   gravarLocal(uid, estado);
 
   const enviar = async () => {
@@ -128,9 +131,38 @@ export function salvarProgresso(uid, estado, { imediato = false } = {}) {
 }
 
 // Fechar a aba com um salvamento pendente perderia o ultimo passo do usuario.
+//
+// 🐛 CORRIGIDO em 31/07/2026: a versao anterior apenas CANCELAVA o salvamento
+// pendente -- o comentario dizia proteger e o codigo fazia o oposto. Quem
+// marcasse uma sessao e fechasse a aba em menos de 600ms perdia aquele passo
+// no banco (ficava so no localStorage, e sumia ao trocar de aparelho).
+//
+// Agora despacha de verdade, com `keepalive`: a requisicao sobrevive ao
+// fechamento da aba. O cliente supabase-js nao expoe keepalive, entao a
+// gravacao final vai direto no PostgREST.
 if (typeof window !== 'undefined') {
   window.addEventListener('pagehide', () => {
-    if (tarefaSalvar) { clearTimeout(tarefaSalvar); tarefaSalvar = null; }
+    if (!tarefaSalvar || !ultimoEstado || !ultimoUid) return;
+    clearTimeout(tarefaSalvar);
+    tarefaSalvar = null;
+
+    try {
+      const chaveSessao = Object.keys(localStorage).find(k => k.endsWith('-auth-token'));
+      const token = chaveSessao && JSON.parse(localStorage.getItem(chaveSessao))?.access_token;
+      if (!token) return; // sem sessao nao ha o que gravar; o local ja tem
+
+      fetch(`${SUPABASE_URL}/rest/v1/progresso?on_conflict=usuario_id`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=minimal',
+        },
+        body: JSON.stringify(paraBanco(ultimoUid, ultimoEstado)),
+        keepalive: true,
+      }).catch(() => { /* aba fechando: nao ha a quem reportar */ });
+    } catch { /* jamais atrapalhar o fechamento da aba */ }
   });
 }
 

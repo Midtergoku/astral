@@ -10,6 +10,56 @@ const MODELO = Deno.env.get("MODELO_IA") ?? "claude-sonnet-4-6";
 // A Anthropic aceita ate 32 MB, mas edital de concurso nao passa disso aqui.
 const MAX_BYTES = 10 * 1024 * 1024;
 
+// Teto de paginas. O limite de 10 MB sozinho nao segura o custo: um PDF de
+// texto puro com 400 paginas cabe folgado em 10 MB e vira dezenas de milhares
+// de tokens de entrada. Edital de concurso raramente passa de 120 paginas.
+const MAX_PAGINAS = 150;
+
+/**
+ * Confere que o conteudo e MESMO um PDF, lendo os bytes iniciais.
+ *
+ * O navegador ja checa `file.type`, mas esse valor vem do sistema operacional
+ * e e trivialmente falsificavel por quem chamar a API direto. Sem esta
+ * conferencia, qualquer coisa podia ser mandada para a Anthropic dizendo ser
+ * PDF -- e a chamada falhada custa igual.
+ *
+ * Todo PDF valido comeca com "%PDF-" (25 50 44 46 2D).
+ */
+function pareceMesmoPdf(base64: string): boolean {
+  // 8 caracteres de base64 ja cobrem os 5 primeiros bytes com folga.
+  try {
+    const inicio = atob(base64.slice(0, 12));
+    return inicio.startsWith("%PDF-");
+  } catch {
+    return false; // base64 invalido
+  }
+}
+
+/**
+ * Conta paginas por aproximacao, sem biblioteca de PDF.
+ *
+ * ⚠️ E ESTIMATIVA, de proposito conservadora. Em PDFs com object streams
+ * comprimidos a contagem sai menor que a real. Por isso so recusa quando
+ * detecta MUITAS paginas -- se nao conseguir contar, LIBERA. Recusar um edital
+ * legitimo por erro de contagem seria pior que o custo que estou evitando.
+ */
+function paginasAproximadas(bytes: Uint8Array): number | null {
+  try {
+    // Le so o comeco: o catalogo de paginas costuma estar nos primeiros MB.
+    const texto = new TextDecoder("latin1").decode(bytes.slice(0, 4 * 1024 * 1024));
+
+    // 1) /Count N no no raiz de paginas -- o mais confiavel quando existe.
+    const contagens = [...texto.matchAll(/\/Count\s+(\d{1,5})/g)].map((m) => Number(m[1]));
+    if (contagens.length) return Math.max(...contagens);
+
+    // 2) Fallback: contar objetos de pagina.
+    const objetos = texto.match(/\/Type\s*\/Page[^s]/g);
+    return objetos ? objetos.length : null;
+  } catch {
+    return null;
+  }
+}
+
 interface Materia { nome: string; questoes: number; peso: number }
 interface Edital { concurso: string; dataProva: string | null; materias: Materia[] }
 
@@ -59,6 +109,24 @@ Deno.serve(servir("processar-edital", async (req: Request, _usuario: Usuario) =>
   }
   if (!/^[A-Za-z0-9+/]+=*$/.test(pdfBase64.slice(0, 256))) {
     throw new FalhaHttp(400, "Arquivo invalido. Envie um PDF.");
+  }
+
+  // O navegador ja checou o tipo, mas quem chama a API direto nao passa por la.
+  if (!pareceMesmoPdf(pdfBase64)) {
+    throw new FalhaHttp(400, "Esse arquivo nao e um PDF. Envie o edital em PDF.");
+  }
+
+  // Teto de paginas. Libera quando nao consegue contar -- ver comentario da
+  // funcao: recusar edital legitimo e pior que o custo evitado.
+  const paginas = paginasAproximadas(
+    Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0)),
+  );
+  if (paginas !== null && paginas > MAX_PAGINAS) {
+    throw new FalhaHttp(
+      413,
+      `Esse PDF tem cerca de ${paginas} paginas e o limite e ${MAX_PAGINAS}. ` +
+        `Envie so a parte do edital com o conteudo programatico.`,
+    );
   }
 
   return await comSegundaChance(async (tentativa) => {

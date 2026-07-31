@@ -13,7 +13,11 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/+esm';
 
 export const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
+// Exportada de proposito: e a chave PUBLICAVEL, ja visivel no codigo-fonte de
+// todas as paginas. Quem precisa dela e o estado.js, para a gravacao final com
+// `keepalive` ao fechar a aba -- caminho que o cliente supabase-js nao cobre.
+// A chave SECRETA nunca entra aqui; ela so existe no Supabase.
+export const SUPABASE_KEY = 'sb_publishable_n-PClIEGglZWhoEySjB8PA_z7KEgHfJ';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 

@@ -1439,6 +1439,127 @@ node tools/testa-isolamento.js  # um usuario alcanca o dado de outro?
 
 ---
 
+## 8.18. Endurecimento a partir da lista do Lucas (31/07/2026)
+
+Ele trouxe uma lista de 20 ataques + checklist de proteções (feita por outra IA) e mandou
+aplicar tudo, **menos o que é pago e menos 2FA**.
+
+> ⚠️ **A lista assume outro stack** — Next.js, React, Stripe, Zod, Sentry. O Astral é HTML/JS
+> puro na Vercel + Supabase + Mercado Pago. Vários itens **não existem aqui**, e outros viram
+> coisa diferente. O mapeamento honesto está na 8.19; esta seção é só o que foi construído.
+
+### O que foi feito nesta rodada
+
+**1. Sessão eterna → botão "Sair de todos os aparelhos"**
+
+`sessions_timebox = 0`: o JWT dura 1h mas o refresh token renovava **para sempre**. Token
+roubado valia indefinidamente. Tentei impor teto e levei **HTTP 402 — recurso do plano Pro**,
+igual à checagem de senha vazada.
+
+Construí o substituto grátis, que em alguns aspectos é melhor: `signOut({ scope: 'global' })`
+em `conta.html` **revoga todos os refresh tokens no servidor**, não só apaga o token local. A
+pessoa passa a ter o remédio na mão — e é o remédio certo para o caso real (lan house, escola,
+computador de amigo).
+
+**2. Upload de PDF: o servidor agora confere que é PDF de verdade**
+
+O navegador checava `file.type`, que vem do sistema operacional e é trivialmente falsificável
+por quem chama a API direto. O servidor só olhava o tamanho.
+
+- **Magic bytes**: todo PDF começa com `%PDF-`. Sem isso, qualquer coisa ia para a Anthropic
+  declarada como PDF — e chamada que falha custa igual.
+- **Teto de 150 páginas**: 10 MB de texto puro cabem ~400 páginas, o que vira dezenas de
+  milhares de tokens. A contagem é **aproximada de propósito** e **libera quando não consegue
+  contar** — recusar um edital legítimo seria pior que o custo evitado.
+
+**3. Log de auditoria (`auditoria`)**
+
+O registro de erros cobre o que quebrou. Faltava o que aconteceu quando **nada** quebrou.
+
+| Evento | Como é capturado |
+|---|---|
+| `plano_alterado` | trigger em `perfis`, com `de`/`para` |
+| `lead_removido` | trigger em `lista_espera`, com nome e concurso |
+
+**Trigger e não código de aplicação, de propósito:** pega também o que for feito pela Table
+Editor do painel ou por SQL na mão — que é exatamente como o Lucas promove beta tester (13.6).
+Auditoria que só cobre o caminho feliz não serve.
+
+Escopo estreito de propósito: só o que mexe em dinheiro, acesso ou existência. **Não** registra
+navegação nem login comum — isso seria vigilância do usuário e criaria passivo de LGPD.
+
+RLS ligada sem policy: nem o próprio usuário lê ou apaga o log do que fizeram com a conta dele.
+Testado: leitura e exclusão negadas com 403.
+
+**4. 🐛 Bug de perda de dados corrigido (achado no caminho)**
+
+O `pagehide` em `estado.js` dizia proteger o último passo do usuário e fazia o **oposto**:
+cancelava o salvamento pendente sem gravar. Quem marcasse uma sessão e fechasse a aba em menos
+de 600 ms perdia aquele passo no banco. Agora despacha com `keepalive`, igual ao relator de
+erros.
+
+> Não é falha de segurança, é de integridade — mas apareceu numa auditoria de segurança, o que
+> mostra que ler o código com outra pergunta na cabeça acha coisa diferente.
+
+**5. `rel="noopener"`** nos 4 links `target="_blank"`.
+
+### Verificado e já estava correto
+
+| Item da lista | Estado |
+|---|---|
+| SQL injection | ✅ sem SQL concatenado; só 2 funções, ambas com `search_path` fixo |
+| `SECURITY DEFINER` | ✅ 1 função, com `search_path` fixo e **`EXECUTE` revogado de todos** |
+| SSRF | ✅ **superfície zero** — nenhuma função busca URL fornecida pelo usuário. A busca web roda dentro da Anthropic, não aqui |
+| CSRF | ✅ token vai em header, não em cookie — não há cookie de sessão para forjar |
+| Clickjacking | ✅ `X-Frame-Options: DENY` + `frame-ancestors 'none'` |
+| Supply chain | ✅ **sem `npm`** — 2 dependências, ambas via CDN com versão travada. Não há `node_modules` para comprometer |
+| Segredos no git | ✅ nenhum, em toda a história |
+| Rate limit de custo | ✅ quota por unidade em `uso_ia`, verificada **antes** de gastar crédito |
+
+### O que continua aberto, e o motivo
+
+| Item | Por que não |
+|---|---|
+| Senha vazada (HaveIBeenPwned) | **HTTP 402** — plano Pro (~US$ 25/mês) |
+| Teto de duração de sessão | **HTTP 402** — plano Pro. Mitigado pelo botão do item 1 |
+| Confirmação de e-mail obrigatória | Depende de SMTP próprio, que depende de domínio (13.4) |
+| 2FA | **O Lucas pediu para não fazer agora** |
+| `'unsafe-inline'` no `script-src` | Exigiria etapa de build; o projeto não tem uma (8.8) |
+| XP validado no servidor | Ver 8.19 — hoje é risco aceito, com a condição que o muda |
+
+---
+
+## 8.19. O que da lista NÃO se aplica — e o que aprendi lendo ela
+
+Registrado porque o Lucas vai voltar com perguntas, e porque "não fiz" e "não existe aqui" são
+respostas muito diferentes.
+
+| Item da lista | Por que não se aplica |
+|---|---|
+| **Webhook do Stripe falsificado** | Não há Stripe (10.3: ele não tem CNPJ). Quando o Mercado Pago entrar, **a validação de assinatura é bloqueador de lançamento** — sem ela, qualquer POST vira "pagamento aprovado" |
+| **`dangerouslySetInnerHTML`** | Não há React. O equivalente aqui é `innerHTML` com template string — e é exatamente onde achei o XSS de hoje (8.17) |
+| **Zod em API routes** | Não há Next.js. A validação equivalente vive nas edge functions, escrita à mão |
+| **Cookies `SameSite`** | Não há cookie de sessão; o token fica no `localStorage` |
+| **Dependabot / `npm audit`** | Não há `package.json` |
+| **Sentry** | Substituído por sistema próprio (8.14) — não dá para eu criar conta de terceiro em nome dele |
+| **Preview da Vercel indexado** | Só há `main`; não há branch de staging publicada |
+
+### Dois riscos reais que a lista aponta e que eu quero deixar explícitos
+
+**1. XP é 100% confiável no cliente.** Qualquer pessoa abre o console e escreve
+`progresso.xp = 999999`. Hoje isso é **autoengano, não fraude**: XP não destrava nada pago — o
+gate é `tipo_plano`, que está protegido no servidor e foi testado.
+
+> 🔴 **A condição que muda isso:** no dia em que XP virar **ranking com prêmio, desconto ou
+> qualquer vantagem real**, isso deixa de ser inofensivo e precisa de validação no servidor.
+> Como o Lucas quer ranking na Etapa 3, **reler isto antes de construir.**
+
+**2. Duas abas abertas = última escrita vence.** O progresso é gravado como bloco inteiro, então
+duas abas sobrescrevem uma à outra. É perda de dado, não brecha. Aceitável enquanto o app for
+de uso individual; resolver exigiria escrita por campo ou versionamento otimista.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -1808,6 +1929,27 @@ de graça, para sempre. `beta` e `pro` têm exatamente o mesmo acesso.
 
 **Antes de começar, a pessoa precisa já ter entrado no site pelo menos uma vez** — pelo Google
 ou por e-mail. Sem isso ela ainda não existe no sistema e não há o que promover.
+
+> 🎭 **REGRA CONTRA ENGENHARIA SOCIAL — a mais importante desta seção.**
+>
+> **O Lucas é o porteiro manual, então ele é o ponto fraco.** No grupo de WhatsApp, alguém vai
+> pedir "libera meu acesso aí" — e pode não ser quem diz ser. O golpe clássico: a pessoa dá o
+> e-mail de OUTRA pessoa, ou um e-mail que ela controla, e ganha acesso vitalício de graça.
+>
+> **A regra é uma só, e não tem exceção:**
+> **só promover e-mail que já apareceu na tabela `perfis`** — ou seja, alguém que provou ter
+> acesso àquela caixa de e-mail, porque entrou no site com ela.
+>
+> Se o comando SQL responder **"Success. No rows returned"**, isso **não é erro de digitação
+> por padrão** — é o sistema dizendo que ninguém entrou com aquele e-mail. Peça para a pessoa
+> entrar primeiro, e só depois promova.
+>
+> **Nunca** criar conta em nome de alguém, nunca promover "adiantado", nunca aceitar e-mail
+> passado por terceiro. O custo de errar é acesso vitalício gratuito dado a um estranho — e
+> `beta` é promessa que não se desfaz (seção 9).
+>
+> A mudança fica registrada na tabela `auditoria` (8.18) de qualquer forma, então dá para
+> reconstruir depois quem virou beta e quando. Mas reconstruir é consolo, não prevenção.
 
 1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/sql/new
    (é o **SQL Editor**; se pedir login, entrar com a conta do Astral)
