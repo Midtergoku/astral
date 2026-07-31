@@ -1648,7 +1648,16 @@ secret                     SO no painel do Supabase -- conferido por grep que na
 > `astral-psi.vercel.app` foi cadastrado certo no painel do hCaptcha. Se estiver errado, o
 > **login por senha** quebra (o Google continua funcionando). Como hoje os 6 usuários entram
 > pelo Google, o risco real é baixo — mas **o Lucas precisa testar o login por senha** e avisar.
-> Reverter leva 30 segundos: `captcha-toggle.ps1` sem argumento.
+> **Reverter leva 30 segundos**, e a ferramenta está versionada no projeto:
+>
+> ```
+> powershell -File tools\captcha-toggle.ps1            # DESLIGA (emergência)
+> powershell -File tools\captcha-toggle.ps1 -Ligar     # liga de novo
+> ```
+>
+> Religar **não exige a secret em mãos** — o Supabase já a guarda. O script só a reenvia se
+> `$env:HCAPTCHA_SECRET` estiver definida, justamente para a chave nunca precisar entrar no
+> repositório (que é público).
 
 #### Como era antes (histórico): código pronto e inerte
 
