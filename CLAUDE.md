@@ -1,51 +1,48 @@
 # ASTRAL — Contexto do Projeto
 
 > Arquivo vivo. Atualizar ao fim de cada bloco de trabalho relevante.
-> Última atualização: 30/07/2026 — fim da sessão 2 (Blocos B1, B2 e B3).
+> Última atualização: 30/07/2026 — fim da sessão 3 (quota por unidade, gate, hCaptcha inerte).
 
 ---
 
 ## 0. ▶ RETOMAR AQUI
 
-**Estado:** Etapa 1 (blindagem). Blocos **A, B1, B2 e B3 concluídos.** O Bloco B está fechado.
-Próximo é o **Bloco C**, mas ele depende de uma decisão do Lucas (item 2 abaixo).
+**A Etapa 1 (blindagem) está fechada.** Blocos A, B1, B2, B3, C e D concluídos e em produção.
+Depois dela, ainda em 30/07/2026: quota por unidade (8.12), gate free vs pro (8.13) e o
+hCaptcha preparado e desligado (13.5).
 
-### ✅ Tudo do Bloco B está em produção
+**Combinado com o Lucas para a sessão 4: partir para o VISUAL/CSS.** Ele quer aprimorar
+várias coisas e vai trazer a lista. Ver Etapa 3 na seção 9.
 
-O Lucas fez o push em 30/07/2026. Verificado ao vivo:
+### Estado verificado em produção (tools/testa-site.js, 39 checagens)
 
 ```
-assets/js/astral.js   HTTP 200    frontend novo publicado
-assets/css/app.css    HTTP 200
-CSP, HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy → todos ativos
+16 páginas HTTP 200          6 cabeçalhos de segurança ativos
+4 assets compartilhados      5 edge functions recusam a chave pública (401)
+6 tabelas negam leitura anônima      login por e-mail e Google ligados
 ```
 
-> `https://astral-psi.vercel.app/vercel.json` devolver **404 é o esperado** — a Vercel consome
-> esse arquivo como configuração e não o serve. A prova de que funcionou são os headers acima.
+Rodar de novo com `node tools/testa-site.js`. Complementos: `node tools/valida-css.js`.
 
-Falta só **1 commit** local (documentação). O frontend e as edge functions estão em sincronia:
-o app manda o `access_token`, as funções aceitam.
+### O que depende do Lucas
 
-**O que ainda impede um teste de ponta a ponta:** não há créditos na Anthropic. Com o Bloco B
-completo e no ar, **agora é seguro adicionar** (~US$ 5). Antes disso, `processar-edital`,
-`gerar-questoes` e `buscar-recursos` respondem 500.
+| # | O quê | Bloqueia |
+|---|---|---|
+| 1 | **Créditos na Anthropic (~US$ 5).** Seguro faz tempo | teste real de edital e questões; e medir o custo estimado em 10.4 |
+| 2 | **Chaves do hCaptcha** — sitekey e secret, passo a passo corrigido em 13.5 | captcha no login e proteção da lista de espera |
+| 3 | **Decidir: desligar a busca de professores?** Números em 10.4 (economiza ~30%) | nada — é escolha de custo |
 
-### Decisões e passos manuais pendentes do Lucas
+### O que eu faria a seguir, se o visual não fosse a prioridade
 
-| # | O quê | Bloqueia | Passo a passo |
-|---|---|---|---|
-| 1 | ~~`git push`~~ — ✅ **feito em 30/07/2026, verificado em produção** | — | 13.1 |
-| 1b | **Créditos na Anthropic (~US$ 5)** — agora é seguro | testar o app de ponta a ponta | — |
-| 2 | **Auth por e-mail está DESLIGADA.** Ligar o provedor e construir o fluxo, ou remover os formulários de e-mail/senha das telas? Recomendação: remover por ora | **Bloco C inteiro** | 8.2, CRÍTICO 4 |
-| 3 | 🔴 **Segredo do webhook pela metade — notificação de cadastro NÃO está chegando.** Refazer as 3 partes na ordem certa | avisos de novo lead | 13.2 |
-| 4 | ~~Toggle de senha vazada~~ — **não faz sentido hoje**, ninguém tem senha | nada | 13.3 |
-
-> ⚠️ **Só adicione créditos na Anthropic depois do push.** Antes disso o ciclo não está fechado.
-
-### Depois disso
-
-**Bloco C** (senha, Termos de Uso, exportar/excluir conta) → **Bloco D** (`alert()` → toast com
-CSS, responsividade mobile) → fecha a Etapa 1 → **Etapa 2, pagamento** (seção 9).
+1. 🔴 **"Esqueci minha senha" não entrega para ninguém além do Lucas.** O SMTP padrão do
+   Supabase só manda para endereços da organização (13.4). Um beta tester que criar conta com
+   e-mail/senha e esquecer a senha **fica trancado para sempre**. Mitigação sem domínio:
+   orientar a entrar com Google, ou esconder o formulário de e-mail durante o beta.
+2. 🟠 **Nenhum monitoramento de erro.** Falha em produção é invisível — o beta tester some e
+   ninguém fica sabendo por quê.
+3. 🟠 **Promover alguém para `beta` é SQL na mão.** É a primeira coisa que acontece quando
+   alguém entra no grupo de WhatsApp, e não existe passo a passo escrito.
+4. 🟡 **`processar-edital` em janela mensal** em vez de diária (8.12).
 
 ---
 
@@ -86,6 +83,8 @@ priorização de um bloco inteiro de trabalho.
 | Erro | O que aprendi |
 |---|---|
 | Reescrevi 2 HTMLs com `Set-Content` do PowerShell e **destruí todos os acentos** (`Astral â€" Recursos`) | O PS 5.1 lê UTF-8 como ANSI. **Editar HTML deste projeto só com a ferramenta Edit ou com Node.** A regra já estava escrita na seção 2 — e eu não consultei antes de agir. Ter a regra no arquivo não basta se eu não a leio. |
+| Escrevi o passo a passo do hCaptcha **de memória**: mandei procurar "Hostnames" (hoje é **Domains**) e a secret dentro do site (é **da conta**). O Lucas travou seguindo. | **Interface de site de terceiro muda — nunca descrever de memória.** Antes de escrever qualquer clique a clique, abrir a documentação oficial. Vale o mesmo que a regra 1 da seção 0.1: painel de terceiro é "estado de sistema", e eu afirmei sem medir. |
+| Meu script de varredura esperava HTTP 400 num INSERT inválido e veio 401; **concluí que o formulário da landing estava quebrado** | Não estava. Validação que mora em **policy de RLS** volta como 401/42501, não 400 — o Postgres trata violação de policy como falta de permissão. Confirmei por fora antes de falar (INSERT válido → 201). Expectativa errada no teste vira falso alarme, que gasta a confiança do Lucas igual a um erro de verdade. |
 
 ---
 
@@ -564,8 +563,21 @@ Supabase Auth pode checar senhas contra o HaveIBeenPwned. Está desativado. É u
 
 ### Observação de produto
 
-A lista de espera tem **2 cadastros**. A landing fala em "vagas limitadas para beta testers", mas
-a demanda ainda não foi validada de verdade. Vale considerar isso ao priorizar distribuição.
+A lista de espera tinha **2 cadastros** em 29/07/2026. A landing fala em "vagas limitadas para
+beta testers", mas a demanda ainda não foi validada de verdade.
+
+> **Atualização de 30/07/2026 — a tabela está com 0 linhas, e isso está explicado.** A varredura
+> acusou vazio e eu levantei a hipótese de ter apagado sem querer. **Não fui eu:** o Lucas
+> confirmou que os 2 cadastros eram dele e de um amigo, e que **ele mesmo os removeu**. O amigo
+> vai se cadastrar de novo.
+>
+> Fica a lição de processo: eu **não tinha como provar** que não tinha sido eu, porque ninguém
+> registra quem apaga o quê nessa tabela. Antes do lançamento no WhatsApp vale considerar um
+> log de exclusões — quando entrar lead de verdade, "sumiu e não sei por quê" deixa de ser
+> aceitável.
+>
+> **Consequência prática:** a demanda continua sem validação nenhuma. Zero cadastros externos
+> até agora.
 
 ---
 
@@ -1177,12 +1189,78 @@ primeiros testadores entrarem.
 
 ## 10. Decisões em aberto
 
-- **Gateway de pagamento:** Stripe (planejado) vs Mercado Pago / Pagar.me. Público brasileiro
-  concurseiro usa muito Pix — Stripe só passou a suportar Pix recentemente e a conversão
-  costuma ser melhor com gateway nacional. **A decidir.**
-- **Onde fica a linha free/pro:** proposta — free processa 1 edital e vê o cronograma;
-  pro libera questões por IA, recursos, calendário e histórico. **A validar com o Lucas.**
-- **Distribuição e marketing:** Lucas vai trazer o plano. Ainda não definido.
+- ~~**Gateway de pagamento**~~ ✅ **decidido em 30/07/2026: Mercado Pago.** Ver 10.3.
+- ~~**Onde fica a linha free/pro**~~ ✅ **decidido: gate por quota, não por bloqueio de tela.**
+  Ver 8.13.
+- **Desligar a busca de professores/materiais?** O Lucas levantou em 30/07/2026 para economizar
+  enquanto não há receita. Números em 10.4. **A decidir.**
+- **Distribuição e marketing:** grupo de WhatsApp + beta testers vitalícios. Ver seção 9.
+
+---
+
+## 10.3. Gateway de pagamento — Mercado Pago (decidido em 30/07/2026)
+
+**O fato que decidiu: o Lucas não tem CNPJ.** A Stripe Brasil não abre conta para pessoa
+física, então ela estava fora antes de qualquer comparação de taxa.
+
+Taxas levantadas (não estimadas) sobre a mensalidade de R$ 19,90:
+
+| | Stripe | Mercado Pago |
+|---|---|---|
+| Pix | 1,19% → sobram R$ 19,66 | **0%** → sobram R$ 19,90 |
+| Cartão recorrente | 3,99% + R$ 0,39 + 0,4% → sobram R$ 18,64 | ~2%–3,5% → sobram R$ 19,20–19,50 |
+
+Fontes: [Stripe BR](https://stripe.com/br/payment-method/pix) ·
+[Mercado Pago](https://www.mercadopago.com.br/blog/quanto-custa-receber-pagamentos-via-pix-e-codigo-qr).
+O Pix do Mercado Pago é isento até **R$ 15 mil/mês** de faturamento — acima disso, 0,49%.
+
+Além do CNPJ, dois motivos secundários pesam a favor: **Pix grátis** (o público paga em Pix) e
+**confiança de marca no checkout** — site novo de uma pessoa só pedindo cartão converte melhor
+com uma marca que o brasileiro conhece.
+
+**O que se perde com essa escolha, e vale saber:** a Stripe tem recuperação automática de
+cobrança recusada (tenta de novo nos dias seguintes) e um portal pronto onde o assinante troca
+o cartão e cancela sozinho. No Mercado Pago isso é mais fraco, então **vai dar mais trabalho de
+código e mais suporte no WhatsApp do Lucas**. Reavaliar a Stripe se e quando houver CNPJ.
+
+> **Pagar.me ficou de fora por honestidade, não por análise:** não achei números de taxa
+> confiáveis. Se voltar à mesa, levantar antes de comparar.
+
+---
+
+## 10.4. Custo da Anthropic — medido em 30/07/2026
+
+Preço oficial `claude-sonnet-4-6` (US$ 3/1M entrada, US$ 15/1M saída), busca web a
+**US$ 10 por 1.000 buscas**, dólar a **R$ 5,07**.
+
+| Ação | Custo |
+|---|---|
+| Gerar 10 questões | **R$ 0,15** (R$ 0,015/questão) |
+| Processar 1 edital (~30 páginas) | **R$ 0,99** |
+| Buscar professores/materiais | **R$ 0,68** |
+
+**US$ 5 (R$ 25) compram** ~1.700 questões, ou ~25 editais, ou ~37 buscas. Para o primeiro teste
+de ponta a ponta, sobra.
+
+### Por mês, com gente usando
+
+| Cenário | Com professores | Sem professores |
+|---|---|---|
+| Só o Lucas testando | R$ 5–15 | R$ 3–10 |
+| 10 beta testers | R$ 50–140 | **R$ 35–99** |
+| 20 beta testers | R$ 100–280 | R$ 70–198 |
+| 50 assinantes Pro (receita R$ 995) | R$ 250–700 | R$ 175–495 |
+
+Desligar a busca de professores economiza **~30%**.
+
+> 🔴 **O beta tester custa e não paga.** Acesso vitalício = 60 questões/dia para sempre. Cada
+> um é ~R$ 7–14/mês saindo do bolso do Lucas, todo mês, sem receita. A intuição dele de fazer
+> "poucas pessoas, de propósito" está financeiramente certa: **10 a 15 é o teto sensato.**
+
+⚠️ **O que é medição e o que é estimativa:** o custo das questões é sólido (o `max_tokens` trava
+o teto no código). O do edital e o da busca são **estimativa** — chutei quantos tokens um PDF
+de edital e os resultados de busca viram. Sem créditos não dá para medir. Um edital de 100
+páginas custaria ~R$ 3, não R$ 1. **Primeira coisa a conferir quando houver crédito.**
 
 ---
 
@@ -1510,17 +1588,31 @@ continua sem solução real — as constraints limitam o conteúdo, não o volum
 
 **O que só o Lucas pode fazer (criar a conta):**
 
-1. Abrir https://www.hcaptcha.com e clicar em **Sign up** (é grátis)
-2. Confirmar o e-mail e entrar
-3. No painel, clicar em **Sites → New Site**
-4. Em **Hostnames**, adicionar: `astral-psi.vercel.app`
-5. Salvar. A tela mostra duas coisas — copiar as duas:
-   - **Sitekey** (pode aparecer no código, não é segredo)
-   - **Secret key** (em **Settings → Secret Key**; é senha, não colar em arquivo do projeto)
-6. Mandar as duas para mim
+> ⚠️ **Corrigido em 30/07/2026.** A versão anterior destas instruções estava errada em dois
+> pontos e o Lucas travou seguindo elas: falava em aba "Hostnames" (hoje é **Domains**) e dizia
+> que a secret ficava dentro do site (é **da conta inteira**, na página de perfil). Escrevi de
+> memória sem conferir. Fonte agora: [docs.hcaptcha.com](https://docs.hcaptcha.com/).
 
-**O que eu faço depois:** ligo `security_captcha_enabled` pela API de gerenciamento (10.2) e
-acrescento o widget nas telas de login, criar conta e lista de espera.
+As duas chaves ficam em **páginas diferentes** — é isso que confunde:
+
+| Chave | Onde | Escopo |
+|---|---|---|
+| **Sitekey** | https://dashboard.hcaptcha.com/sites | por site |
+| **Secret key** | https://dashboard.hcaptcha.com/settings | **da conta inteira** |
+
+1. Abrir https://www.hcaptcha.com → **Sign up** (grátis), confirmar o e-mail e entrar
+2. Ir em https://dashboard.hcaptcha.com/sites → **New Site**
+3. Dar um nome (ex.: `Astral`) e, em **Domains**, digitar `astral-psi.vercel.app` e clicar
+   no **+** para adicionar de fato — só digitar não adiciona
+4. Salvar. A **Sitekey** aparece na lista de sites
+5. Ir em https://dashboard.hcaptcha.com/settings e clicar em **Generate New Secret**
+
+> ⚠️ **A secret é uma só para a conta inteira.** Gerar uma nova invalida a anterior em todos os
+> sites. Gerar uma vez e guardar.
+
+**O que eu faço depois:** ligo `security_captcha_enabled` com a secret pela API de gerenciamento
+(10.2), preencho `HCAPTCHA_SITEKEY` em `assets/js/astral.js`, e construo a edge function
+`entrar-lista-espera` para cobrir o formulário público. **Nessa ordem** — ver o aviso acima.
 
 > ⚠️ Enquanto isso não acontecer, o freio existente é de conveniência, não de segurança.
 > Está escrito assim no próprio código, em `assets/js/astral.js`, para ninguém se enganar.
