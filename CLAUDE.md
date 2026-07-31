@@ -37,14 +37,18 @@ Rodar de novo com `node tools/testa-site.js`. Complementos: `node tools/valida-c
 
 | # | O quê | Bloqueia |
 |---|---|---|
-| 1 | 🔴 **Testar o login por e-mail e senha** em `astral-psi.vercel.app/login.html` — o captcha foi ligado em 31/07 e essa é a única ponta que não deu para testar sem navegador. **Se não conseguir entrar, me avisar: reverto em 30 s** | login por senha (o Google está verificado e intacto) |
-| 2 | **Créditos na Anthropic (~US$ 5).** Adiado por ele em 31/07 — vai colocar quando receber do serviço | teste real de edital e questões; e medir o custo estimado em 10.4 |
+| 1 | 🔴 **LEMBRAR ELE DE TESTAR O LOGIN POR E-MAIL E SENHA** em `astral-psi.vercel.app/login.html`. Pedido explícito dele em 31/07: *"deixe um lembrete de eu testar o login e senha"*. É a única ponta que não dá para verificar sem navegador — depende de o widget do captcha renderizar. **Cobrar isso dele até ele confirmar** | login por senha (o Google está verificado e intacto) |
+| 2 | **Créditos na Anthropic.** Adiado por ele em 31/07 — vai colocar quando receber do serviço. **Agora é gasto único, não mensal**: US$ 5 testa, US$ 15–20 faz o onboarding de 10 beta testers (10.4) | teste real do upload de edital; e medir o que hoje é estimativa |
 | 3 | ~~Chaves do hCaptcha~~ ✅ **entregues e aplicadas em 31/07** | — |
-| 4 | ~~Desligar a busca de professores?~~ ✅ **decidido: deixar ligada** e reavaliar com dados reais em ~2 semanas (10.4) | — |
+| 4 | ~~Desligar a busca de professores?~~ ✅ **resolvido de outro jeito**: ficou ligada, mas virou busca única e permanente (8.16) — custo recorrente foi a zero sem perder a funcionalidade | — |
+
+> **Se ele confirmar que o login por senha funciona,** apagar a linha 1 e registrar em 13.5 que
+> o ciclo do captcha foi validado de ponta a ponta.
 
 > ⚠️ **Dinheiro é restrição real aqui.** Ele disse em 31/07: *"nem sempre eu tenho dinheiro"*, e
-> que R$ 70–100/mês já pesaria. Não propor nada que custe sem dizer o preço na mesma frase, e
-> tratar "quantos beta testers" como a alavanca de custo principal — é a que ele controla.
+> que R$ 70–100/mês já pesaria. Não propor nada que custe sem dizer o preço na mesma frase.
+> **Isso ficou muito melhor em 31/07:** com questões desligadas e recursos permanentes, o custo
+> deixou de ser mensal e virou uma vez por pessoa (10.4).
 
 ### ✅ As três tarefas rápidas — feitas em 31/07/2026
 
@@ -168,6 +172,44 @@ data e dizer qual vale — o histórico da decisão vale tanto quanto a decisão
 o raciocínio e faz a mesma discussão voltar semanas depois.
 
 A única coisa que se apaga é o que a seção 0.4 define como inútil.
+
+---
+
+## 0.35. ⚠️ O LUCAS NÃO EXECUTA NADA — eu detecto e conserto
+
+> Ordem dele em 31/07/2026, depois de eu ter escrito "se der problema, abra o terminal e rode
+> este comando": *"não, eu não vou abrir nada. Você já vai identificar pra mim, se quebrar você
+> vai consertar pra mim. Eu não vou mexer em nada. Deixa isso guardado, você faz tudo, eu não
+> faço nada. E se não já houver maneira de fazer, você dá um jeito de fazer."*
+
+**Nunca mais entregar um conserto como instrução para ele executar.** Se existe um comando que
+resolve, quem roda sou eu.
+
+### A regra operacional
+
+**A PRIMEIRA coisa de toda sessão, antes de qualquer outro trabalho:**
+
+```
+node tools/checa-saude.js
+```
+
+São ~15 segundos. Ele responde uma pergunta só: *o usuário consegue usar o Astral agora?*
+Cobre site no ar, login por senha, login com Google, as 6 edge functions e a captação de leads.
+Quando algo quebra, a saída já diz o comando do conserto — e **eu rodo, sem perguntar**.
+
+A checagem mais importante dele é a do par captcha: detecta especificamente a combinação
+"servidor exige token / site não manda", que é o que derrubou o login em 31/07.
+
+### O limite honesto disto, que eu não devo esconder dele
+
+**Isto não é monitoramento 24 horas.** Eu só existo quando ele manda mensagem — entre uma
+sessão e outra, ninguém está olhando. O que a regra garante é que **nenhuma sessão comece em
+cima de um site quebrado sem eu perceber**, e que ele nunca precise diagnosticar nada.
+
+Para vigilância de verdade entre sessões seria preciso um agente agendado rodando na nuvem.
+Não montei por conta própria porque consome recursos da conta dele e **dinheiro é restrição
+real aqui** (ver 0.1 e a seção 1). É uma proposta a fazer, com o custo dito na mesma frase —
+nunca uma coisa a ligar sem avisar.
 
 ---
 
@@ -1264,6 +1306,70 @@ Se um dia o volume justificar, aí vale a tela.
 
 ---
 
+## 8.15. Questões desligadas — interruptor, não remoção (31/07/2026)
+
+**Decisão do Lucas**, com o raciocínio dele: *"as questões, ao meu ver, pesam mais que a busca
+de professores... no futuro, quando tiver rendendo mais capital pra gente, a gente já acrescenta
+novamente"*.
+
+Ele estava certo na comparação. Questões são a única ação com custo **recorrente** de verdade —
+a pessoa gera todo dia. Edital e busca de professores acontecem uma vez.
+
+### Três camadas, todas reversíveis
+
+| Camada | Onde | Como religar |
+|---|---|---|
+| Servidor | `FUNCOES_DESLIGADAS` em `_shared/comum.ts` | tirar `"gerar-questoes"` do `Set` |
+| Menu | comentário HTML nas 8 páginas | apagar 2 linhas (a instrução está dentro do próprio comentário) |
+| Tela | bloco em `questoes.html` + 4 linhas no `init()` | apagar o bloco |
+
+**Nada foi apagado.** O código, a quota, o cap de 10 por chamada e os testes continuam inteiros.
+
+O interruptor do servidor fica **antes da autenticação** de propósito: se a função está
+desligada, não há motivo para tocar no banco. Verificado: devolve **503 até com a chave
+`service_role`**, que é o nível mais alto de privilégio que existe no projeto.
+
+> ⚠️ Ao religar, lembrar de **reavaliar o preço** — ver 10.4, "Quando as questões voltarem".
+
+---
+
+## 8.16. Recursos: uma busca, permanente (31/07/2026)
+
+**Antes:** cache no `localStorage` com validade de 24h. Cada vencimento disparava outra busca
+na IA da **mesma matéria**, a ~R$ 0,68 por vez. Seis matérias por três meses ≈ **540 buscas,
+~R$ 367** de uma informação que quase não muda.
+
+**O argumento do Lucas não foi custo — foi produto:** *"isso a gente vai organizar mais ainda o
+conteúdo dele, o estudo dele, ele não vai ter que ficar procurando outros professores sempre"*.
+Uma lista estável de professores serve melhor a quem estuda do que uma lista que muda toda
+semana. A economia veio de brinde.
+
+### O que mudou
+
+| | Antes | Agora |
+|---|---|---|
+| Onde mora | `localStorage` do navegador | tabela `recursos_salvos`, na conta |
+| Validade | 24 horas | **nenhuma** — é permanente |
+| Troca de aparelho | perdia tudo | acompanha a conta |
+| Rebusca | automática e invisível | **só a pedido**, com confirmação |
+
+Uma linha por `(usuario_id, materia)`, com `unique` — o upsert substitui em vez de acumular.
+O campo `concurso` guarda o edital do momento da busca: se a pessoa trocar de edital, o valor
+deixa de bater e a tela sabe que precisa buscar de novo. É a única rebusca automática que
+sobrou, e ela é correta.
+
+### Duas decisões de robustez
+
+**Se o upsert falhar, o resultado ainda é mostrado.** Perder a gravação é ruim; negar à pessoa
+o que a IA já produziu — e que já foi pago — seria pior. Ela vê um aviso de que pode sumir ao
+recarregar.
+
+**O link "Buscar de novo" usa `addEventListener`, não `onclick` inline.** O nome da matéria vem
+do edital, que é dado não confiável (ver 8.2, CRÍTICO 1) e não pode ser interpolado dentro de
+atributo HTML.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -1379,51 +1485,71 @@ Preço oficial `claude-sonnet-4-6` (US$ 3/1M entrada, US$ 15/1M saída), busca w
 **US$ 5 (R$ 25) compram** ~1.700 questões, ou ~25 editais, ou ~37 buscas. Para o primeiro teste
 de ponta a ponta, sobra.
 
-### Por mês, com gente usando
+### 🔴 O modelo de custo MUDOU em 31/07/2026 — leia isto antes de qualquer tabela antiga
 
-| Cenário | Com professores | Sem professores |
+Duas decisões do Lucas no mesmo dia viraram a conta de cabeça para baixo:
+
+1. **Questões desligadas** (ver 8.15) — sai a ação que ele julgou mais pesada
+2. **Recursos buscados UMA VEZ e fixos** (ver 8.16) — deixa de ser despesa recorrente
+
+**Consequência: o custo deixou de ser mensal e virou uma única vez por pessoa.**
+
+| | Antes (até 30/07) | Agora |
 |---|---|---|
-| Só o Lucas testando | R$ 5–15 | R$ 3–10 |
-| 10 beta testers | R$ 50–140 | **R$ 35–99** |
-| 20 beta testers | R$ 100–280 | R$ 70–198 |
-| 50 assinantes Pro (receita R$ 995) | R$ 250–700 | R$ 175–495 |
+| Por usuário, **uma vez** | — | **R$ 5 a 8** |
+| Por usuário, **por mês** | R$ 5 a 14, para sempre | **~R$ 0** |
+| 10 beta testers, mês 1 | R$ 50–140 | **R$ 50–80** |
+| 10 beta testers, mês 2 em diante | R$ 50–140, todo mês | **~R$ 0** |
 
-Desligar a busca de professores economiza **~30%**.
+A conta do "uma vez por pessoa": 1 edital (R$ 0,99) + 6 a 10 matérias × R$ 0,68 de busca de
+professores = **R$ 5 a 8**. Depois disso a pessoa não gera custo novo, a menos que troque de
+edital ou peça para rebuscar uma matéria.
 
-> 🔴 **O beta tester custa e não paga.** Acesso vitalício = 60 questões/dia para sempre. Cada
-> um é ~R$ 7–14/mês saindo do bolso do Lucas, todo mês, sem receita. A intuição dele de fazer
-> "poucas pessoas, de propósito" está financeiramente certa: **10 a 15 é o teto sensato.**
+### Quanto colocar de crédito
 
-⚠️ **O que é medição e o que é estimativa:** o custo das questões é sólido (o `max_tokens` trava
-o teto no código). O do edital e o da busca são **estimativa** — chutei quantos tokens um PDF
-de edital e os resultados de busca viram. Sem créditos não dá para medir. Um edital de 100
+| Objetivo | Quanto | Observação |
+|---|---|---|
+| Testar o produto de ponta a ponta | **US$ 5 (R$ 25)** | dá para 3 a 5 pessoas completas |
+| Onboarding de 10 beta testers | **US$ 15–20 (R$ 75–100)** | **gasto único**, não mensal |
+| Onboarding de 20 | US$ 30–40 | idem |
+
+> 💡 **A mudança que importa para o bolso dele:** antes, 10 beta testers eram uma sangria de
+> R$ 50–140 **todo mês, para sempre**. Agora são R$ 50–80 **uma vez**. O medo dele de que
+> "R$ 70–100 por mês pesaria" deixou de se aplicar — vira R$ 70–100 e acabou.
+
+### Ponto de equilíbrio — praticamente resolvido
+
+Com custo recorrente perto de zero, cada assinante Pro rende ~R$ 19,50 líquidos por mês e custa
+~R$ 5–8 **uma vez**. **O assinante se paga no primeiro mês**; do segundo em diante é margem
+quase inteira.
+
+A pergunta "quantos pagantes para cobrir os beta testers" perdeu o sentido: eles custaram uma
+vez e não voltam a custar. **1 assinante paga o onboarding de 2 a 3 beta testers.**
+
+### Quando as questões voltarem
+
+O Lucas já sinalizou (31/07): *"talvez a gente aumente até o valor do site de dezenove e noventa
+pra vinte e cinco e noventa"*. Faz sentido — questões são a única ação com custo **recorrente**
+de verdade (10 questões = R$ 0,15, e a pessoa faz isso todo dia).
+
+A R$ 25,90, com 60 questões/dia no teto, o pior caso é ~R$ 9,90/mês de API contra R$ 25,50
+líquidos — margem confortável. A R$ 19,90 também sobrevive, com folga menor. **Decidir com o
+consumo real de `uso_ia` na mão, não agora.**
+
+### Referência antiga (30/07), mantida para comparação
+
+Estes números valiam **antes** das duas decisões acima. Ficam registrados porque mostram o
+tamanho do problema que as decisões resolveram — não são mais o custo atual.
+
+| Cenário | Com questões + cache 24h |
+|---|---|
+| 10 beta testers | R$ 50–140/mês, recorrente |
+| 20 beta testers | R$ 100–280/mês, recorrente |
+
+⚠️ **O que é medição e o que é estimativa:** o custo das questões era sólido (o `max_tokens`
+trava o teto no código). O do edital e o da busca são **estimativa** — chutei quantos tokens um
+PDF de edital e os resultados de busca viram. Sem créditos não dá para medir. Um edital de 100
 páginas custaria ~R$ 3, não R$ 1. **Primeira coisa a conferir quando houver crédito.**
-
-### Ponto de equilíbrio — quantos pagantes cobrem os beta testers
-
-Pergunta do Lucas em 31/07/2026. Margem por assinante = R$ 19,90 − taxa do Mercado Pago
-(~R$ 0,40 no cartão, zero no Pix) − o que **ele próprio** consome de IA (R$ 5 a 14):
-sobram **R$ 5,50 a R$ 14,50** de lucro por assinante.
-
-| Beta testers | Custo/mês | Assinantes só para empatar |
-|---|---|---|
-| **5** | **R$ 25–70** | **2 a 13** |
-| 10 | R$ 50–140 | 4 a 26 |
-| 15 | R$ 75–210 | 6 a 39 |
-
-**Regra de bolso: cada beta tester custa aproximadamente o lucro de 1 assinante pagante.**
-Sem a busca de professores, isso cai para ~0,6 — desligar corta o número pela metade.
-
-> 🔴 **A alavanca certa é o NÚMERO de beta testers, não a funcionalidade.** É o que o Lucas
-> controla diretamente, e ele disse que R$ 70–100/mês já pesaria. **Recomendação registrada:
-> começar com 5, não 10** — cabe no bolso dele, mantém a busca de professores ligada, e o
-> aprendizado do beta continua inteiro. Crescer depois é fácil; recuperar uma funcionalidade
-> que nunca foi testada, não.
-
-**Decisão do Lucas (31/07):** deixar a busca de professores **ligada** e reavaliar em ~2
-semanas com o consumo real, que a tabela `uso_ia` já registra. Não é palpite — é dado.
-
----
 
 ## 10.1. Ferramentas de acesso ao Supabase (montado em 29/07/2026)
 
@@ -1512,26 +1638,20 @@ tabela nova · validação no front E no back · nunca armazenar dado de cartão
 > O Lucas não é técnico. Toda instrução aqui é literal: onde clicar, o que digitar, e como
 > saber que deu certo. Não resumir.
 
-### 13.1. Publicar em produção (`git push`)
+### 13.1. Publicar em produção — quem faz sou eu
 
-**O que isso faz:** envia os 15 commits para o GitHub. O Vercel percebe sozinho e republica o
-site em ~1 minuto. É o que coloca no ar todo o trabalho dos blocos A, B1, B2 e B3.
+O passo a passo de `git push` que existia aqui foi removido em 31/07/2026: **o Lucas não
+executa comando** (ver 0.35), então instrução clique a clique para ele nunca seria usada.
 
-1. No VS Code, abrir o terminal: menu **Terminal → New Terminal** (ou `Ctrl + '`)
-2. Digitar exatamente e dar Enter:
-   ```
-   git push
-   ```
-3. Se pedir login do GitHub, aparece uma janela do navegador — entrar na conta `Midtergoku`
-   e autorizar. Isso é pedido só na primeira vez.
-4. Deu certo quando aparece algo como `main -> main` no final da saída.
-5. Conferir a publicação em **vercel.com** → projeto **astral** → aba **Deployments**. A
-   primeira linha deve estar como **Building** e, um minuto depois, **Ready**.
+O que importa guardar:
 
-**Como saber que o site está bom:** abrir https://astral-psi.vercel.app, entrar com o Google e
-carregar o dashboard. Se a sidebar e as cores aparecerem normais, o CSS extraído está certo.
-
-⚠️ O repositório é **público**. Já foi feita varredura de segredos e está limpo.
+- **`git push` para `main` publica o site.** A Vercel percebe sozinha e republica em ~1 min.
+- **Edge functions e migrations NÃO passam pelo git** — vão pela CLI (`supabase functions
+  deploy`, `supabase db push`) e entram no ar na hora, independente do push.
+- ⚠️ O repositório é **público**. Nenhum segredo pode entrar em arquivo. Conferir com `grep`
+  antes de commitar quando tiver mexido em chave.
+- O push às vezes demora minutos ou estoura o tempo limite. **Nunca disparar dois em paralelo**
+  (ver 0.1) — checar com `git ls-remote origin refs/heads/main` antes de concluir que falhou.
 
 ### 13.2. Segredo do webhook — ✅ RESOLVIDO em 30/07/2026
 
@@ -1574,54 +1694,7 @@ Depois `supabase secrets set WEBHOOK_SECRET=<mesmo segredo>`.
 > enquanto o webhook ainda não sabe a senha — e falha em silêncio, porque ninguém fica olhando
 > log de webhook.
 
-<details>
-<summary>Instruções pelo painel, caso um dia seja preciso</summary>
-
-**O problema:** hoje qualquer pessoa na internet consegue disparar e-mails de "novo cadastro"
-para a sua caixa, sem nem passar pelo formulário. O segredo faz a função aceitar só o webhook.
-
-**Parte 1 — gerar o segredo.** No terminal do VS Code:
-```
-node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
-```
-Vai imprimir uma linha de letras e números. **Copie essa linha** — é o seu segredo.
-⚠️ Não cole esse valor em nenhum arquivo do projeto: o repositório é público.
-⚠️ Deixe essa janela do terminal aberta até terminar a Parte 3 — o valor não aparece de novo.
-
-**Parte 2 — colocar o segredo no webhook. FAZER ANTES DA PARTE 3.**
-1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/integrations/hooks
-2. Na lista, achar o webhook que aponta para `lista_espera`
-3. Clicar nos **três pontinhos** à direita dele → **Edit hook**
-4. Rolar até a seção **HTTP Headers**
-5. Clicar em **Add new header**
-6. No campo da esquerda (nome), digitar: `x-astral-webhook-secret`
-7. No campo da direita (valor), colar o segredo gerado na Parte 1
-8. Clicar em **Confirm** / **Save**
-
-**Parte 3 — dar o mesmo segredo para a função.** No terminal, trocando `SEU_SEGREDO`:
-```
-supabase secrets set WEBHOOK_SECRET=SEU_SEGREDO
-```
-Deu certo quando aparece `Finished supabase secrets set.`
-
-**Como testar:** entrar em https://astral-psi.vercel.app/cadastro.html e preencher a lista de
-espera com um e-mail seu. Se o e-mail de aviso chegar, está funcionando.
-
-**Se não chegar**, conferir na fonte em vez de adivinhar:
-
-```
-mcp__supabase__get_logs  service=edge-function
-```
-
-- `notificar-cadastro POST 200` → a função aceitou; o problema é o Resend (ver 8.2, domínio
-  de teste só entrega para o e-mail do dono) ou a caixa de spam
-- `notificar-cadastro POST 401` → o cabeçalho do painel e o `WEBHOOK_SECRET` estão diferentes;
-  refazer as três partes com um valor novo
-- **nenhuma linha** → o webhook não disparou; conferir se ele está ativo no painel
-
-Lembrar de limpar as linhas de teste depois: `delete from lista_espera where email = '...'`
-
-</details>
+> As instruções clique a clique pelo painel foram removidas em 31/07/2026: o problema está resolvido e o Lucas não executa passo manual (0.35). Se precisar refazer, use o SQL acima.
 
 ### 13.6. Promover alguém a beta tester — o passo mais frequente do lançamento
 
@@ -1787,7 +1860,8 @@ secret                     SO no painel do Supabase -- conferido por grep que na
 > `astral-psi.vercel.app` foi cadastrado certo no painel do hCaptcha. Se estiver errado, o
 > **login por senha** quebra (o Google continua funcionando). Como hoje os 6 usuários entram
 > pelo Google, o risco real é baixo — mas **o Lucas precisa testar o login por senha** e avisar.
-> **Reverter leva 30 segundos**, e a ferramenta está versionada no projeto:
+> **Reverter leva 30 segundos — e quem reverte sou EU, não o Lucas** (ver 0.35). A ferramenta
+> está versionada em `tools/captcha-toggle.ps1`:
 >
 > ```
 > powershell -File tools\captcha-toggle.ps1            # DESLIGA (emergência)
@@ -1797,6 +1871,9 @@ secret                     SO no painel do Supabase -- conferido por grep que na
 > Religar **não exige a secret em mãos** — o Supabase já a guarda. O script só a reenvia se
 > `$env:HCAPTCHA_SECRET` estiver definida, justamente para a chave nunca precisar entrar no
 > repositório (que é público).
+>
+> **`node tools/checa-saude.js` detecta essa quebra sozinho** e imprime o comando do conserto.
+> Rodar no começo de toda sessão.
 
 #### Como era antes (histórico): código pronto e inerte
 
