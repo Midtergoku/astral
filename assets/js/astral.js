@@ -150,6 +150,52 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
   return json.data;
 }
 
+// ── Plano e quota ───────────────────────────────────────────────────────────
+/**
+ * `beta` e acesso pro VITALICIO, prometido a pessoas reais que entraram pelo
+ * grupo de WhatsApp em troca de feedback. Os dois andam sempre juntos e nenhuma
+ * mudanca futura pode rebaixar essas contas. Toda checagem de "tem acesso
+ * completo?" no app passa por aqui -- justamente para essa regra existir num
+ * lugar so e nao divergir entre paginas.
+ */
+export function ehCompleto(perfil) {
+  const plano = perfil?.tipo_plano || 'free';
+  return plano === 'pro' || plano === 'beta';
+}
+
+export function nomeDoPlano(perfil) {
+  return (perfil?.tipo_plano || 'free').toUpperCase();
+}
+
+/**
+ * Le quanto resta da quota do dia. Nao gasta quota nem credito da Anthropic.
+ *
+ * Devolve `null` em qualquer falha em vez de estourar: isto alimenta um aviso
+ * na tela, e um aviso que nao carrega nunca pode impedir a pessoa de usar o
+ * produto. Quem manda no limite e o servidor, nao esta tela.
+ */
+export async function buscarQuota() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+
+    const resposta = await fetch(`${SUPABASE_URL}/functions/v1/minha-quota`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: '{}',
+    });
+    if (!resposta.ok) return null;
+
+    const json = await resposta.json();
+    return json?.success ? json.data : null;
+  } catch {
+    return null;
+  }
+}
+
 // ── Freio de tentativas de senha ────────────────────────────────────────────
 /**
  * Medido em 30/07/2026 contra a API real: o Supabase so recusa a partir da

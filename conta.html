@@ -217,6 +217,16 @@
     <div class="dados-grid" id="dados-grid"></div>
   </div>
 
+  <!-- Meu plano e limites do dia -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="section-title">Meu plano</div>
+    <p class="section-sub">
+      Os recursos de inteligência artificial têm um limite diário, que depende do seu plano.
+      O limite não zera à meia-noite: cada uso volta a ficar disponível 24 horas depois.
+    </p>
+    <div class="dados-grid" id="plano-grid"></div>
+  </div>
+
   <!-- Exportar -->
   <div class="card" style="margin-bottom:1.25rem;">
     <div class="section-title">Baixar meus dados</div>
@@ -266,7 +276,7 @@
 <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
 <script type="module">
-  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL }
+  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL, buscarQuota }
     from './assets/js/astral.js';
 
   window.fazerLogout = fazerLogout;
@@ -314,6 +324,52 @@
     ];
 
     el('dados-grid').innerHTML = dados.map(([r, v]) => `
+      <div class="dado">
+        <div class="dado-label">${esc(r)}</div>
+        <div class="dado-valor">${esc(v)}</div>
+      </div>
+    `).join('');
+
+    mostrarPlano();
+  }
+
+  // ── Meu plano ───────────────────────────────────────────────────────────────
+  // Mostra o limite de cada recurso de IA e quanto ja foi gasto nas ultimas 24h.
+  // Antes disso o plano era so uma palavra no canto da tela, sem significado
+  // nenhum -- nada no app mudava por causa dele.
+  const NOME_FUNCAO = {
+    'gerar-questoes':   'Questões geradas por IA',
+    'processar-edital': 'Editais processados',
+    'buscar-recursos':  'Buscas de materiais',
+  };
+
+  async function mostrarPlano() {
+    const grid = el('plano-grid');
+    const quota = await buscarQuota();
+
+    // Sem dados, diz isso -- em vez de mostrar zeros que pareceriam limite batido.
+    if (!quota?.funcoes) {
+      grid.innerHTML = `
+        <div class="dado">
+          <div class="dado-label">Limites de hoje</div>
+          <div class="dado-valor">Não foi possível carregar agora.</div>
+        </div>`;
+      return;
+    }
+
+    const linhas = [
+      ['Plano atual', quota.completo
+        ? `${quota.plano.toUpperCase()} — acesso completo`
+        : `${quota.plano.toUpperCase()} — acesso gratuito`],
+    ];
+
+    for (const [chave, rotulo] of Object.entries(NOME_FUNCAO)) {
+      const f = quota.funcoes[chave];
+      if (!f) continue;
+      linhas.push([rotulo, `${f.restante} de ${f.limite} disponíveis hoje`]);
+    }
+
+    grid.innerHTML = linhas.map(([r, v]) => `
       <div class="dado">
         <div class="dado-label">${esc(r)}</div>
         <div class="dado-valor">${esc(v)}</div>

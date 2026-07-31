@@ -24,6 +24,13 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/buscar-recursos/index.ts"
 
+# Quota do usuario -- leitura pura, para a tela mostrar quanto resta do dia.
+# Nao gasta quota nem credito da Anthropic.
+[functions.minha-quota]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/minha-quota/index.ts"
+
 # Exclusao de conta (LGPD). Exige JWT de usuario -- a identidade e conferida
 # de novo dentro da funcao, como nas demais.
 [functions.excluir-conta]

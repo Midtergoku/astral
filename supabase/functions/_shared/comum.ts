@@ -124,16 +124,48 @@ export async function autenticar(req: Request): Promise<Usuario> {
 //
 // Para `processar-edital` e `buscar-recursos` uma chamada = 1 unidade, entao
 // nada muda no comportamento delas.
-type Funcao = "processar-edital" | "gerar-questoes" | "buscar-recursos";
+export type Funcao = "processar-edital" | "gerar-questoes" | "buscar-recursos";
 
-const LIMITE_DIARIO: Record<Usuario["plano"], Record<Funcao, number>> = {
+export const FUNCOES: Funcao[] = [
+  "processar-edital",
+  "gerar-questoes",
+  "buscar-recursos",
+];
+
+export const LIMITE_DIARIO: Record<Usuario["plano"], Record<Funcao, number>> = {
   // free: 10 questoes/dia empata com o plano gratuito do Qconcursos, que e a
   // referencia que o concurseiro ja conhece.
   free: { "processar-edital": 2, "gerar-questoes": 10, "buscar-recursos": 5 },
   // beta e promessa vitalicia de acesso pro -- os dois andam juntos, sempre.
+  // Nenhuma migracao futura pode rebaixar essas contas.
   beta: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 30 },
   pro: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 60 },
 };
+
+/** Quanto o usuario ja gastou de cada funcao nas ultimas 24h. */
+export async function consumoDoDia(
+  usuario: Usuario,
+): Promise<Record<Funcao, number>> {
+  const zerado = { "processar-edital": 0, "gerar-questoes": 0, "buscar-recursos": 0 };
+  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const { data, error } = await admin()
+    .from("uso_ia")
+    .select("funcao, unidades")
+    .eq("usuario_id", usuario.id)
+    .gte("criado_em", desde);
+
+  if (error) {
+    console.error("Falha ao ler consumo do dia:", error);
+    return zerado;
+  }
+
+  for (const linha of data ?? []) {
+    const f = linha.funcao as Funcao;
+    if (f in zerado) zerado[f] += Number(linha.unidades) || 1;
+  }
+  return zerado;
+}
 
 /**
  * Recusa a chamada se ela estourar a quota do dia.

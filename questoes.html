@@ -125,6 +125,19 @@ select option { background: var(--surface); color: var(--text); }
 
 input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 
+/* Aviso de quota: antes o usuario so descobria o limite ao bater nele, com um
+   erro seco depois de esperar a IA. Agora ele ve o saldo antes de clicar. */
+.aviso-quota {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.9rem;
+      min-height: 1.2em;
+    }
+
+.aviso-quota.acabou { color: var(--gold); font-weight: 600; }
+
+.aviso-quota a { color: var(--purple-lt); font-weight: 600; }
+
 .btn-primary {
       display: inline-flex;
       align-items: center;
@@ -697,6 +710,9 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
           <input type="number" id="input-quantidade" value="5" min="1" max="10" />
         </div>
       </div>
+      <!-- Preenchido por mostrarQuota(). Fica vazio se a consulta falhar: um
+           aviso que nao carregou nao pode impedir a pessoa de usar o produto. -->
+      <div class="aviso-quota" id="aviso-quota" role="status" aria-live="polite"></div>
       <button class="btn-primary" id="btn-gerar" onclick="gerarQuestoes()">
         Gerar questões →
       </button>
@@ -765,7 +781,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 </main>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, buscarQuota }
     from './assets/js/astral.js';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
 
@@ -812,6 +828,52 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
       opt.textContent = m.nome;
       select.appendChild(opt);
     });
+
+    // Sem await: a tela ja esta usavel, e o saldo aparece quando chegar.
+    mostrarQuota();
+  }
+
+  // ── QUOTA ──
+  // Guarda o que a ultima consulta disse, so para dar mensagem melhor no
+  // clique. Quem decide de verdade e o servidor -- isto aqui e conveniencia.
+  let quotaQuestoes = null;
+
+  async function mostrarQuota() {
+    const el = document.getElementById('aviso-quota');
+    if (!el) return;
+
+    const quota = await buscarQuota();
+    // Consulta falhou: melhor um aviso vazio do que um numero errado na tela.
+    if (!quota?.funcoes?.['gerar-questoes']) { el.textContent = ''; return; }
+
+    const q = quota.funcoes['gerar-questoes'];
+    quotaQuestoes = q;
+
+    // O input nunca deve oferecer mais do que a pessoa pode gastar.
+    const campo = document.getElementById('input-quantidade');
+    const teto  = Math.min(10, Math.max(1, q.restante));
+    campo.max = String(teto);
+    if (parseInt(campo.value) > teto) campo.value = String(teto);
+
+    const btn = document.getElementById('btn-gerar');
+
+    if (q.restante <= 0) {
+      el.classList.add('acabou');
+      campo.disabled = true;
+      btn.disabled = true;
+      el.innerHTML = quota.completo
+        ? `Você usou as ${q.limite} questões de hoje. O limite volta ao longo das próximas 24h.`
+        : `Você usou as ${q.limite} questões de hoje do plano gratuito. `
+          + `O limite volta ao longo das próximas 24h — ou veja o `
+          + `<a href="index.html#pricing">plano Pro</a>, com ${60} por dia.`;
+      return;
+    }
+
+    el.classList.remove('acabou');
+    campo.disabled = false;
+    btn.disabled = false;
+    el.textContent = `Restam ${q.restante} de ${q.limite} questões hoje `
+      + `(plano ${quota.plano.toUpperCase()}).`;
   }
 
   // ── GERAR QUESTÕES ──
@@ -823,6 +885,13 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 
     if (!materia) { toast('Selecione uma matéria.', 'error'); return; }
     if (quantidade < 1 || quantidade > 10) { toast('Escolha entre 1 e 10 questões.', 'error'); return; }
+
+    // Aviso antecipado. Nao substitui a checagem do servidor -- so evita que a
+    // pessoa espere a IA para descobrir que nao tinha saldo.
+    if (quotaQuestoes && quantidade > quotaQuestoes.restante) {
+      toast(`Restam só ${quotaQuestoes.restante} questões hoje no seu plano.`, 'error');
+      return;
+    }
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Gerando...';
@@ -844,12 +913,18 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
       document.getElementById('sessao-section').classList.add('show');
       renderQuestao();
 
+      // Saldo mudou. Nao espera terminar: quando a pessoa voltar para a tela
+      // de configuracao, o numero ja tem de estar certo.
+      mostrarQuota();
+
     } catch (err) {
       console.error(err);
       document.getElementById('loading-section').classList.remove('show');
       document.getElementById('config-section').style.display = 'block';
       btn.disabled = false;
       btn.innerHTML = 'Gerar questões →';
+      // Se o erro foi 429, o saldo na tela estava desatualizado. Reconsulta.
+      mostrarQuota();
       // A mensagem vem pronta de chamarIA: quota estourada, sessao expirada,
       // sem conexao. Antes era sempre o mesmo texto generico num alert().
       toast(err.message || 'Erro ao gerar questões. Tente novamente.', 'error');

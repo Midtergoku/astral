@@ -87,6 +87,37 @@ priorização de um bloco inteiro de trabalho.
 |---|---|
 | Reescrevi 2 HTMLs com `Set-Content` do PowerShell e **destruí todos os acentos** (`Astral â€" Recursos`) | O PS 5.1 lê UTF-8 como ANSI. **Editar HTML deste projeto só com a ferramenta Edit ou com Node.** A regra já estava escrita na seção 2 — e eu não consultei antes de agir. Ter a regra no arquivo não basta se eu não a leio. |
 
+---
+
+## 0.2. ⚠️ COMO FALAR COM O LUCAS — regra permanente
+
+> Ordem direta do Lucas em 30/07/2026: *"toda vez que você terminar algum processo, você vai
+> fazer um mini relatório pra mim, me explicando detalhadamente como se eu tivesse contando
+> pro meu pai que não sabe nada de internet"*.
+
+**Ao fim de todo bloco de trabalho, escrever um relatório em linguagem de leigo.** Não é
+resumo técnico com palavras mais fáceis — é explicar de verdade, para alguém que nunca ouviu
+falar de banco de dados, API ou deploy.
+
+O que o relatório precisa ter:
+
+1. **O que estava errado antes**, em termos do mundo real. Não "a quota contava chamadas" —
+   e sim "o limite dizia 50, mas cada uso valia até 20, então na prática eram 1.000".
+2. **O que eu fiz**, na ordem, sem jargão. Quando o termo técnico for inevitável, explicar
+   entre parênteses na primeira vez.
+3. **O que muda para quem usa o site.** Essa parte é a mais importante e é a que eu mais
+   esqueço.
+4. **O que eu testei para saber que funcionou** — e o resultado do teste, não a intenção.
+5. **O que ficou faltando**, e se depende dele ou de mim.
+
+Analogias são bem-vindas. Tabelas de antes/depois funcionam muito bem com ele.
+
+**Por que essa regra existe:** o Lucas é o dono do produto e toma todas as decisões, mas não
+é técnico. Se ele não entende o que mudou, ele não consegue decidir. Um relatório que ele não
+entende é o mesmo que nenhum relatório — e pior, dá a falsa impressão de que ele foi
+informado. Ver também 0.1: o risco aqui é sempre ele decidir com base em coisa que eu
+expliquei mal.
+
 Ferramentas que respondem rápido: `mcp__supabase__get_logs`, `execute_sql`, `get_advisors`,
 `supabase functions list`, e um POST direto na API com `Invoke-WebRequest`.
 
@@ -1017,6 +1048,73 @@ buscar-recursos   HTTP 401                            ✅
 
 ---
 
+## 8.13. O gate free vs pro (30/07/2026) ✅
+
+**`tipo_plano` deixou de ser cosmético.** Até aqui ele só pintava uma palavra na topbar —
+nenhum `if` no projeto inteiro mudava de comportamento por causa dele (era o 🔴 nº 1 da
+seção 8).
+
+### A decisão de formato: gate por quota, não por bloqueio de tela
+
+Duas formas de separar free de pro:
+
+| | como é | por que não |
+|---|---|---|
+| **Bloquear telas** | free não vê Questões nem Recursos | mata o produto para o free antes do lançamento, e boca a boca é o único canal do Lucas hoje |
+| **Limitar volume** ✅ | todos veem tudo; free rende menos por dia | a pessoa experimenta o valor inteiro e o teto é que convida a pagar |
+
+Escolhi o segundo. **Isso resolve a decisão que estava aberta na seção 10** ("onde fica a linha
+free/pro"). Se o Lucas quiser separação mais dura depois, o `ehCompleto()` já existe e é onde
+o bloqueio entraria — é uma mudança de uma linha por tela, não uma reescrita.
+
+### `minha-quota` — a sexta edge function
+
+Leitura pura: devolve plano, se é acesso completo, e `limite`/`usado`/`restante` das 3 funções
+de IA. **Não passa pelo `servir()`** — consultar o próprio limite não pode gastar limite. Usa
+`autenticar()` direto, que já recusa a chave pública.
+
+### O que o usuário vê agora
+
+| | antes | depois |
+|---|---|---|
+| Saber o limite | só ao bater nele, com erro seco **depois** de esperar a IA | "Restam 47 de 60 questões hoje (plano PRO)" antes de clicar |
+| Campo de quantidade | oferecia mais do que ele podia gastar | `max` desce junto com o saldo |
+| Limite esgotado | erro genérico | botão desabilitado + convite ao Pro (só para quem é free) |
+| Página da conta | só o badge | card **Meu plano** com os 3 limites e o consumo do dia |
+
+### Testado de ponta a ponta contra a API real
+
+Usuário descartável criado, promovido nos 3 planos, e removido no fim:
+
+```
+free  completo=false questoes 10/10  edital 2/2   recursos 5/5
+beta  completo=true  questoes 60/60  edital 10/10 recursos 30/30
+pro   completo=true  questoes 60/60  edital 10/10 recursos 60/60
+apos gastar 8 questoes: usado=8 restante=52 de 60   OK
+```
+
+A última linha é a que importa: gastar **8 questões** desconta **8**, não 1. A quota por
+unidade funciona de ponta a ponta. E `beta` dá `completo=true` — a promessa vitalícia está
+respeitada no código, não só na intenção.
+
+Chave pública em `minha-quota` → **401**, como nas outras cinco.
+
+### Erro meu que o teste pegou
+
+A primeira versão devolvia o objeto cru; as outras 5 funções embrulham em
+`{ success, data }`. `buscarQuota()` teria retornado `null` **em silêncio** — o aviso
+simplesmente nunca apareceria, sem erro no console. Só apareceu porque testei contra a API de
+verdade em vez de conferir o código no olho.
+
+### Ainda aberto
+
+- **`processar-edital` continua em janela diária.** O certo é mensal — ninguém processa 10
+  editais por dia, a pessoa tem um edital. O Lucas mandou manter 10 por ora (30/07/2026).
+- **Nada cobra ainda.** O gate distingue os planos; quem move alguém para `pro` é o gateway
+  de pagamento, que é a Etapa 2. Hoje a promoção é manual no Supabase.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -1042,11 +1140,13 @@ O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depoi
 
 ### Etapa 2 — Fundação do pagamento (mudança estrutural, apresentar antes)
 
-1. Migrar estado do localStorage para tabelas no Supabase (com RLS) — ver seção 5
-2. Implementar o gate real de `free` vs `pro`
-3. Gateway de pagamento — ver seção 10
+1. ~~Migrar estado do localStorage para tabelas no Supabase (com RLS)~~ ✅ feito — ver seção 5
+2. ~~Implementar o gate real de `free` vs `pro`~~ ✅ feito — ver 8.13
+3. **Gateway de pagamento** — ver seção 10. É o que falta para o gate virar receita:
+   hoje ele distingue os planos, mas só o Lucas promove alguém para `pro`, na mão
 4. Domínio próprio no Resend + e-mails transacionais
 5. Créditos Anthropic + teste end-to-end do upload de edital
+6. `processar-edital` em janela **mensal** em vez de diária (ver 8.13, "ainda aberto")
 
 ### Estratégia de lançamento — descrita pelo Lucas em 30/07/2026
 
