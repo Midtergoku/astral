@@ -694,7 +694,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
         </div>
         <div class="config-group">
           <label>Quantidade</label>
-          <input type="number" id="input-quantidade" value="5" min="1" max="20" />
+          <input type="number" id="input-quantidade" value="5" min="1" max="10" />
         </div>
       </div>
       <button class="btn-primary" id="btn-gerar" onclick="gerarQuestoes()">
@@ -822,7 +822,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     const btn        = document.getElementById('btn-gerar');
 
     if (!materia) { toast('Selecione uma matéria.', 'error'); return; }
-    if (quantidade < 1 || quantidade > 20) { toast('Escolha entre 1 e 20 questões.', 'error'); return; }
+    if (quantidade < 1 || quantidade > 10) { toast('Escolha entre 1 e 10 questões.', 'error'); return; }
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Gerando...';

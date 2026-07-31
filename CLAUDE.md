@@ -697,19 +697,32 @@ função ficou só com a sua regra de negócio.
 | Erro interno | vazava texto de billing da Anthropic | mensagem genérica; detalhe só no log |
 | Resposta fora de formato | `JSON.parse` estourava | recorte tolerante + validação de schema |
 
-### Quota diária, por plano
+### Quota diária, por plano — **em unidades consumidas, não em chamadas**
+
+Corrigido em 30/07/2026 (migration `..160000`). Ver 8.12 para o porquê — a versão
+anterior contava chamadas e vazava dinheiro.
 
 ```
               processar-edital  gerar-questoes  buscar-recursos
-free                 2                3                5
-beta                10               20               30
-pro                 20               50               60
+free                 2               10                5
+beta                10               60               30
+pro                 10               60               60
+                                  ^^^^^^ agora sao QUESTOES
 ```
 
-Registrada em `public.uso_ia` (migration `..130000`), escrita só pela `service_role`.
-Uso **só é contabilizado quando a chamada dá certo** — cobrar quota por erro nosso seria
-punir o usuário por problema que não é dele. Se a própria consulta de quota falhar, a
-chamada é liberada e o erro vai para o log: falhar fechado deixaria o produto fora do ar.
+`gerar-questoes` grava em `unidades` o número de questões pedidas; as outras duas gravam 1.
+Uma chamada de 8 questões gasta 8 do limite. **O número do plano significa o que aparenta
+significar** — o que antes não era verdade.
+
+Registrada em `public.uso_ia` (migrations `..130000` e `..160000`), escrita só pela
+`service_role`. Uso **só é contabilizado quando a chamada dá certo** — cobrar quota por erro
+nosso seria punir o usuário por problema que não é dele. Se a própria consulta de quota
+falhar, a chamada é liberada e o erro vai para o log: falhar fechado deixaria o produto
+fora do ar.
+
+A reserva acontece **antes** de gastar crédito: `servir()` faz um pré-check de 1 unidade
+(barra quem já esgotou), e o handler chama `ctx.cobrar(n)` com o custo real assim que sabe
+quanto vai consumir. Estourar dá 429 sem tocar na Anthropic.
 
 > O advisor `rls_enabled_no_policy` em `uso_ia` é **intencional**: RLS ligada sem policy
 > nenhuma nega todo acesso via PostgREST, e só a `service_role` enxerga. Não é para "consertar".
@@ -930,6 +943,77 @@ certo na repetição.
 **Só repete no 502.** Erro de crédito, quota ou rede não melhora repetindo, e gastaria o dobro
 à toa. A repetição consome créditos da Anthropic de novo, mas a **quota do usuário conta uma
 vez só**: ele não paga pelo erro do modelo.
+
+---
+
+## 8.12. Quota por unidade — o vazamento de dinheiro (30/07/2026) ✅
+
+**Descoberto respondendo uma pergunta do Lucas.** Ele achou que "50 questões por dia" no Pro
+era pouco e pediu 60. O número não era 50 questões: era **50 chamadas**, e cada chamada
+aceitava até 20 questões. O teto real do Pro era **1.000 questões por dia**.
+
+### A conta, medida
+
+Modelo `claude-sonnet-4-6` · US$ 3 por 1M de entrada, US$ 15 de saída · `max_tokens: 2000`.
+
+| | por chamada | Pro no teto antigo (50/dia) |
+|---|---|---|
+| Entrada (~800 tokens) | US$ 0,0024 | |
+| Saída (teto de 2.000 tokens) | US$ 0,030 | |
+| **Total** | **~US$ 0,032 ≈ R$ 0,18** | **~R$ 264/mês** |
+
+Contra uma assinatura de **R$ 19,90**. Prejuízo de ~R$ 244 por assinante que usasse o teto.
+5% dos Pro fazendo isso comeria a margem de outros 13 pagantes.
+
+`processar-edital` tinha o mesmo formato de furo e é pior por chamada (PDF de até 10 MB vira
+dezenas de milhares de tokens de entrada). Baixado de 20 para 10/dia como medida provisória —
+**o certo é janela mensal, não diária**, e isso fica para o gate. Ninguém processa 10 editais
+por dia; a pessoa tem um edital.
+
+### O que mudou
+
+- `uso_ia.unidades` (migration `..160000`): quanto a chamada consumiu, não que ela existiu
+- `conferirQuota(usuario, funcao, unidades)` soma `unidades` em vez de contar linhas
+- `servir()` expõe `ctx.cobrar(n)`; o handler reserva o custo real **antes** de chamar a IA
+- `gerar-questoes` capado em **10 por chamada**, não 20 — ver a armadilha abaixo
+- Frontend (`questoes.html`) alinhado: `max="10"` e validação em 10
+
+### Armadilha achada de lado: `max_tokens: 2000` não comportava 20 questões
+
+Cada questão com enunciado, 4 alternativas e explicação ocupa ~175 tokens no JSON. 20 × 175 ≈
+3.500 tokens contra um teto de 2.000: a resposta cortava no meio e o parse quebrava.
+
+⚠️ **Isso é estimativa aritmética, não medição** — não há créditos na Anthropic para testar de
+verdade. Quando houver, confirmar pedindo 10 questões e conferindo se o JSON fecha. O cap de 10
+foi escolhido para caber com folga.
+
+### Referência de mercado (buscada, não estimada)
+
+[Qconcursos](https://suporte.qconcursos.com/pt-BR/articles/12633533-guia-dos-planos-do-qconcursos):
+grátis = **10 questões/dia**; pago R$ 32/mês = **ilimitado**.
+
+O `free` do Astral foi para 10/dia justamente para empatar com o piso que o concurseiro já
+conhece. Mas **a comparação não se sustenta em volume**: o Qconcursos serve banco estático
+(custo marginal ~zero, por isso "ilimitado" sai de graça), o Astral **gera** cada questão e
+paga por ela. O argumento do Astral é que a questão é do *edital dele*, na matéria em que ele
+está fraco — não que tem mais questões.
+
+60/dia no Pro também não é pouco de verdade: rotina disciplinada de concurseiro fica em 30–50
+questões/dia.
+
+### Verificado depois do deploy
+
+```
+uso_ia.unidades          integer NOT NULL DEFAULT 1   ✅ existe
+gerar-questoes    HTTP 401 com a publishable key      ✅ sem regressão
+processar-edital  HTTP 401                            ✅
+buscar-recursos   HTTP 401                            ✅
+```
+
+> **Lição que vale além deste caso:** o limite estava escrito no código e eu tinha lido o
+> código antes. O que faltou foi multiplicar — ninguém tinha feito a conta de quanto o teto
+> custava em reais. Um número de quota só quer dizer alguma coisa depois de multiplicado pelo
+> preço unitário.
 
 ---
 

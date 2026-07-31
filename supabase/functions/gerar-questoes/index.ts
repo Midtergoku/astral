@@ -1,5 +1,5 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.27.0";
-import { servir, json, FalhaHttp, extrairJson, comSegundaChance, type Usuario } from "../_shared/comum.ts";
+import { servir, json, FalhaHttp, extrairJson, comSegundaChance, type Usuario, type Contexto } from "../_shared/comum.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 const MODELO = Deno.env.get("MODELO_IA") ?? "claude-sonnet-4-6";
@@ -57,17 +57,23 @@ function validar(d: unknown): { questoes: Questao[] } {
   return { questoes };
 }
 
-Deno.serve(servir("gerar-questoes", async (req: Request, _usuario: Usuario) => {
+Deno.serve(servir("gerar-questoes", async (req: Request, _usuario: Usuario, ctx: Contexto) => {
   const corpo = await req.json().catch(() => ({}));
 
   const materia = texto(corpo.materia, 120);
   const concurso = texto(corpo.concurso, 160);
-  const quantidade = Math.min(20, Math.max(1, Math.round(Number(corpo.quantidade) || 0)));
+  // Teto de 10, nao 20: cada questao com enunciado, alternativas e explicacao
+  // ocupa ~175 tokens no JSON, e o max_tokens abaixo e 2000. Pedir 20 corta a
+  // resposta no meio e o parse quebra.
+  const quantidade = Math.min(10, Math.max(1, Math.round(Number(corpo.quantidade) || 0)));
   const tipo = ["certo_errado", "multipla_escolha", "misto"].includes(corpo.tipo) ? corpo.tipo : "misto";
 
   if (!materia || !concurso || !quantidade) {
     throw new FalhaHttp(400, "Informe materia, concurso e quantidade.");
   }
+
+  // A quota conta questoes, nao chamadas. Reservado antes de gastar credito.
+  await ctx.cobrar(quantidade);
 
   const instrucaoTipo = tipo === "certo_errado"
     ? "Gere questões do tipo CERTO ou ERRADO (verdadeiro/falso), com uma afirmação que pode ser verdadeira ou falsa."

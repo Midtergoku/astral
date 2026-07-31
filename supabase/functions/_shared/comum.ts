@@ -115,24 +115,44 @@ export async function autenticar(req: Request): Promise<Usuario> {
 }
 
 // ── Quota ───────────────────────────────────────────────────────────────────
-// Limites por dia. Valores conservadores de propósito: o custo por chamada sai
-// da conta Anthropic do Lucas, e e mais facil afrouxar depois do que explicar
-// uma fatura inesperada.
+// Limites por dia, em UNIDADES CONSUMIDAS -- nao em chamadas.
+//
+// A distincao custa dinheiro de verdade. `gerar-questoes` aceita ate 10 questoes
+// por chamada, entao contar chamadas fazia "50 por dia" valer ate 1.000 questoes
+// por dia: ~R$ 264/mes de API para um assinante de R$ 19,90. Contando questoes,
+// o numero do plano significa o que aparenta significar.
+//
+// Para `processar-edital` e `buscar-recursos` uma chamada = 1 unidade, entao
+// nada muda no comportamento delas.
 type Funcao = "processar-edital" | "gerar-questoes" | "buscar-recursos";
 
 const LIMITE_DIARIO: Record<Usuario["plano"], Record<Funcao, number>> = {
-  free: { "processar-edital": 2, "gerar-questoes": 3, "buscar-recursos": 5 },
-  beta: { "processar-edital": 10, "gerar-questoes": 20, "buscar-recursos": 30 },
-  pro: { "processar-edital": 20, "gerar-questoes": 50, "buscar-recursos": 60 },
+  // free: 10 questoes/dia empata com o plano gratuito do Qconcursos, que e a
+  // referencia que o concurseiro ja conhece.
+  free: { "processar-edital": 2, "gerar-questoes": 10, "buscar-recursos": 5 },
+  // beta e promessa vitalicia de acesso pro -- os dois andam juntos, sempre.
+  beta: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 30 },
+  pro: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 60 },
 };
 
-export async function conferirQuota(usuario: Usuario, funcao: Funcao): Promise<void> {
+/**
+ * Recusa a chamada se ela estourar a quota do dia.
+ *
+ * `unidades` e quanto ESTA chamada vai consumir. A conferencia e feita antes de
+ * gastar credito na Anthropic, entao o teto e respeitado de verdade e nao so
+ * constatado depois do fato.
+ */
+export async function conferirQuota(
+  usuario: Usuario,
+  funcao: Funcao,
+  unidades = 1,
+): Promise<void> {
   const limite = LIMITE_DIARIO[usuario.plano][funcao];
   const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  const { count, error } = await admin()
+  const { data, error } = await admin()
     .from("uso_ia")
-    .select("id", { count: "exact", head: true })
+    .select("unidades")
     .eq("usuario_id", usuario.id)
     .eq("funcao", funcao)
     .gte("criado_em", desde);
@@ -144,18 +164,29 @@ export async function conferirQuota(usuario: Usuario, funcao: Funcao): Promise<v
     return;
   }
 
-  if ((count ?? 0) >= limite) {
+  const usado = (data ?? []).reduce(
+    (soma, linha) => soma + (Number(linha.unidades) || 1),
+    0,
+  );
+
+  if (usado + unidades > limite) {
+    const restante = Math.max(0, limite - usado);
     throw new FalhaHttp(
       429,
-      `Voce atingiu o limite de ${limite} usos por dia desta funcao no plano ${usuario.plano}.`,
+      `Voce atingiu o limite diario do plano ${usuario.plano}: ${limite} por dia. ` +
+        `Restam ${restante} e esta acao pediu ${unidades}.`,
     );
   }
 }
 
-export async function registrarUso(usuario: Usuario, funcao: Funcao): Promise<void> {
+export async function registrarUso(
+  usuario: Usuario,
+  funcao: Funcao,
+  unidades = 1,
+): Promise<void> {
   const { error } = await admin()
     .from("uso_ia")
-    .insert({ usuario_id: usuario.id, funcao });
+    .insert({ usuario_id: usuario.id, funcao, unidades });
   if (error) console.error("Falha ao registrar uso:", error);
 }
 
@@ -208,10 +239,20 @@ export async function comSegundaChance<T>(operacao: (tentativa: number) => Promi
 }
 
 // ── Envelope padrao ─────────────────────────────────────────────────────────
+/**
+ * Contexto da chamada. O handler usa `cobrar(n)` quando a chamada consome mais
+ * de uma unidade de quota -- caso do `gerar-questoes`, onde uma chamada pode
+ * valer varias questoes.
+ */
+export interface Contexto {
+  /** Reserva `n` unidades da quota do dia. Estoura com 429 antes de gastar credito. */
+  cobrar(n: number): Promise<void>;
+}
+
 /** Cuida de OPTIONS, metodo, autenticacao, quota, registro e erros. */
 export function servir(
   funcao: Funcao,
-  handler: (req: Request, usuario: Usuario) => Promise<Response>,
+  handler: (req: Request, usuario: Usuario, ctx: Contexto) => Promise<Response>,
 ) {
   return async (req: Request): Promise<Response> => {
     if (req.method === "OPTIONS") {
@@ -223,13 +264,24 @@ export function servir(
 
     try {
       const usuario = await autenticar(req);
-      await conferirQuota(usuario, funcao);
 
-      const resposta = await handler(req, usuario);
+      // Porta de entrada: recusa quem ja esgotou a quota antes de o handler
+      // sequer ler o corpo. O custo real e reservado depois, via ctx.cobrar().
+      await conferirQuota(usuario, funcao, 1);
+
+      let unidades = 1;
+      const ctx: Contexto = {
+        async cobrar(n: number) {
+          unidades = Math.max(1, Math.round(n));
+          await conferirQuota(usuario, funcao, unidades);
+        },
+      };
+
+      const resposta = await handler(req, usuario, ctx);
 
       // So conta o uso se a chamada deu certo. Cobrar quota por erro nosso
       // seria punir o usuario por um problema que nao e dele.
-      if (resposta.ok) await registrarUso(usuario, funcao);
+      if (resposta.ok) await registrarUso(usuario, funcao, unidades);
 
       return resposta;
     } catch (e) {
