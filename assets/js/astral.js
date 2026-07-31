@@ -196,6 +196,86 @@ export async function buscarQuota() {
   }
 }
 
+// ── Relato de erros ─────────────────────────────────────────────────────────
+/**
+ * Manda para o servidor todo erro de JavaScript que escapar.
+ *
+ * Antes disto, falha em producao era invisivel: a tela quebrava, o beta tester
+ * ia embora, e ninguem descobria. Nao ha servico de monitoramento contratado,
+ * entao o registro vai para a tabela `erros_cliente` do proprio banco.
+ *
+ * Regras que este codigo NUNCA pode violar, porque ele roda no caminho de um
+ * erro que ja aconteceu:
+ *   - nao estourar (um relator de erro que quebra e pior que nenhum)
+ *   - nao travar a tela (fire-and-forget, sem await)
+ *   - nao virar loop (o mesmo erro repetido e enviado uma vez so)
+ */
+const errosJaEnviados = new Set();
+let errosNestaPagina = 0;
+const TETO_ERROS_POR_PAGINA = 10;
+
+function relatarErro({ mensagem, origem, pilha }) {
+  try {
+    if (!mensagem) return;
+    if (errosNestaPagina >= TETO_ERROS_POR_PAGINA) return;
+
+    // Um erro dentro de um laco de render dispararia centenas de chamadas
+    // identicas. A primeira basta para eu diagnosticar.
+    const chave = `${mensagem}|${origem ?? ''}`;
+    if (errosJaEnviados.has(chave)) return;
+    errosJaEnviados.add(chave);
+    errosNestaPagina++;
+
+    // Token so se ja estiver no localStorage -- de proposito nao chama
+    // getSession(), que e assincrono e poderia falhar aqui dentro.
+    let autorizacao;
+    try {
+      const chaveSessao = Object.keys(localStorage).find(k => k.endsWith('-auth-token'));
+      const token = chaveSessao && JSON.parse(localStorage.getItem(chaveSessao))?.access_token;
+      if (token) autorizacao = `Bearer ${token}`;
+    } catch { /* sem sessao legivel: manda anonimo mesmo */ }
+
+    fetch(`${SUPABASE_URL}/functions/v1/registrar-erro`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(autorizacao ? { Authorization: autorizacao } : {}),
+      },
+      body: JSON.stringify({
+        mensagem: String(mensagem).slice(0, 2000),
+        origem: origem ? String(origem).slice(0, 300) : undefined,
+        pilha: pilha ? String(pilha).slice(0, 4000) : undefined,
+        pagina: location.pathname + location.search,
+      }),
+      // Faz a requisicao sobreviver se a pessoa fechar a aba logo depois --
+      // que e exatamente o que ela faz quando a tela quebra.
+      keepalive: true,
+    }).catch(() => { /* sem rede: perder o relato e aceitavel */ });
+  } catch { /* jamais propagar */ }
+}
+
+window.addEventListener('error', (e) => {
+  relatarErro({
+    mensagem: e.message || 'Erro sem mensagem',
+    origem: e.filename ? `${e.filename}:${e.lineno}:${e.colno}` : undefined,
+    pilha: e.error?.stack,
+  });
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+  const m = e.reason?.message || String(e.reason ?? 'Promise rejeitada sem motivo');
+  relatarErro({ mensagem: m, origem: 'unhandledrejection', pilha: e.reason?.stack });
+});
+
+/** Para relatar de dentro de um catch, quando a tela ja tratou o erro. */
+export function relatar(erro, contexto) {
+  relatarErro({
+    mensagem: erro?.message || String(erro),
+    origem: contexto,
+    pilha: erro?.stack,
+  });
+}
+
 // ── Captcha ─────────────────────────────────────────────────────────────────
 /**
  * Sitekey do hCaptcha. VAZIO = captcha desligado, e tudo abaixo vira no-op --

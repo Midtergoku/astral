@@ -24,6 +24,14 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/buscar-recursos/index.ts"
 
+# Relato de erro do navegador. verify_jwt = false de PROPOSITO: metade dos
+# erros que importam acontece na tela de login, onde ninguem esta autenticado.
+# A funcao trunca todo campo, tem teto global por hora e responde 204 sempre.
+[functions.registrar-erro]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/registrar-erro/index.ts"
+
 # Quota do usuario -- leitura pura, para a tela mostrar quanto resta do dia.
 # Nao gasta quota nem credito da Anthropic.
 [functions.minha-quota]

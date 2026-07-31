@@ -245,6 +245,10 @@
       font-size: 0.85rem;
       margin-bottom: 1rem;
       display: none;
+      /* A mensagem de "esqueci a senha" tem paragrafo. Como ela e inserida com
+         textContent (para nao permitir HTML), a quebra so aparece com isto. */
+      white-space: pre-line;
+      line-height: 1.5;
     }
 
     @media (max-width: 560px) {
@@ -481,7 +485,19 @@
 
     // Mensagem deliberadamente igual quer o e-mail exista ou nao: dizer "esse
     // e-mail nao tem conta" entrega para um curioso quem e cadastrado aqui.
-    mostrarOk('Se existir uma conta com esse e-mail, o link de redefinição chega em instantes. Confira também o spam.');
+    //
+    // O aviso do beta e honestidade obrigatoria, nao enfeite: o SMTP padrao do
+    // Supabase so entrega para endereco da organizacao (CLAUDE.md 13.4), entao
+    // para um concurseiro de verdade esse e-mail NAO CHEGA. Sem este aviso a
+    // pessoa fica esperando um e-mail que nunca vem e perde a conta em
+    // silencio. Remover quando houver SMTP proprio.
+    mostrarOk(
+      'Se existir uma conta com esse e-mail, o link de redefinição chega em instantes. ' +
+      'Confira também o spam.\n\n' +
+      '⚠️ Durante o beta o envio de e-mails ainda é limitado. Se o link não chegar em ' +
+      '10 minutos, fale com o Lucas no WhatsApp — ele libera seu acesso na hora. ' +
+      'Entrar com o Google nunca depende de e-mail.'
+    );
   }
 
   document.addEventListener('keydown', (e) => {

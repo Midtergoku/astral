@@ -1471,6 +1471,53 @@ Lembrar de limpar as linhas de teste depois: `delete from lista_espera where ema
 
 </details>
 
+### 13.6. Promover alguém a beta tester — o passo mais frequente do lançamento
+
+> É a **primeira coisa** que acontece quando alguém entra no grupo de WhatsApp. Vai ser feito
+> dezenas de vezes, então precisa ser à prova de erro.
+
+**O que isso faz:** dá àquela pessoa acesso completo (60 questões/dia, 10 editais, 30 buscas),
+de graça, para sempre. `beta` e `pro` têm exatamente o mesmo acesso.
+
+**Antes de começar, a pessoa precisa já ter entrado no site pelo menos uma vez** — pelo Google
+ou por e-mail. Sem isso ela ainda não existe no sistema e não há o que promover.
+
+1. Abrir https://supabase.com/dashboard/project/jjogmcacbdefwiwcyjxp/sql/new
+   (é o **SQL Editor**; se pedir login, entrar com a conta do Astral)
+2. Colar exatamente isto, **trocando o e-mail** pelo da pessoa:
+
+   ```sql
+   update public.perfis
+   set tipo_plano = 'beta'
+   where email = 'email-da-pessoa@gmail.com'
+   returning email, nome, tipo_plano;
+   ```
+
+3. Clicar em **Run** (ou `Ctrl + Enter`)
+4. **Como saber que deu certo:** aparece uma linha na tabela de resultados, com o e-mail da
+   pessoa e `beta` na coluna `tipo_plano`.
+   - Se aparecer **"Success. No rows returned"** → o e-mail está errado, ou a pessoa nunca
+     entrou no site. Conferir a grafia e pedir para ela entrar uma vez.
+5. A pessoa precisa **sair e entrar de novo** no Astral para o novo limite valer.
+
+**Para conferir quem já é beta**, a qualquer momento:
+
+```sql
+select email, nome, tipo_plano, criado_em
+from public.perfis
+order by criado_em desc;
+```
+
+**Para tirar o acesso** (se alguém sair do grupo), trocar `'beta'` por `'free'` no primeiro
+comando. ⚠️ Mas lembrar: **foi prometido acesso vitalício.** Rebaixar quem foi convidado é
+quebra de promessa — ver seção 9.
+
+> **Por que ainda é SQL na mão:** construir uma tela de administração seria mais uma superfície
+> de ataque para proteger, por causa de uma ação que acontece 10–15 vezes na vida do produto.
+> Quando o número passar de algumas dezenas, vale reavaliar.
+
+---
+
 ### 13.4. Login por e-mail e senha — ✅ JÁ APLICADO em 30/07/2026
 
 > **Decisão do Lucas:** quer os dois meios de entrada — e-mail/senha **e** Google.
