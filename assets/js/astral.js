@@ -276,6 +276,100 @@ export function relatar(erro, contexto) {
   });
 }
 
+// ── Mostrar/esconder senha ──────────────────────────────────────────────────
+/**
+ * Coloca o "olhinho" dentro do campo de senha.
+ *
+ * Nao e so conforto: quem nao consegue conferir o que digitou tende a escolher
+ * senha curta e obvia, ou erra e culpa o site. Em celular, com teclado que
+ * corrige sozinho, o problema e pior.
+ *
+ * Decisoes de seguranca embutidas:
+ *   - comeca SEMPRE escondido; mostrar e acao deliberada da pessoa
+ *   - volta a esconder ao enviar o formulario ou ao sair da pagina, para a
+ *     senha nao ficar visivel na tela num computador compartilhado
+ *   - o botao e `type="button"`: sem isso ele viraria submit dentro de <form>
+ *   - `aria-label` e `aria-pressed` para leitor de tela anunciar o estado
+ */
+export function olhinhoDeSenha(...idsDosCampos) {
+  const estilo = 'estilo-olhinho-senha';
+  if (!document.getElementById(estilo)) {
+    const css = document.createElement('style');
+    css.id = estilo;
+    css.textContent = `
+      .campo-com-olhinho { position: relative; }
+      .campo-com-olhinho > input { padding-right: 2.85rem !important; }
+      .olhinho-senha {
+        position: absolute; top: 50%; right: 0.55rem;
+        transform: translateY(-50%);
+        display: flex; align-items: center; justify-content: center;
+        width: 2rem; height: 2rem;
+        background: none; border: none; padding: 0; cursor: pointer;
+        color: #6B6B80; border-radius: 6px; transition: color .15s;
+      }
+      .olhinho-senha:hover { color: #A78BFA; }
+      .olhinho-senha:focus-visible { outline: 2px solid #7C5CFC; outline-offset: 1px; }
+    `;
+    // Primeiro filho do <head>: o CSS da pagina vem depois e vence em caso de
+    // empate de especificidade, entao paginas com estilo proprio nao quebram.
+    document.head.insertBefore(css, document.head.firstChild);
+  }
+
+  const OLHO_ABERTO = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const OLHO_FECHADO = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  const campos = [];
+
+  for (const id of idsDosCampos) {
+    const campo = document.getElementById(id);
+    if (!campo || campo.dataset.temOlhinho) continue;
+    campo.dataset.temOlhinho = '1';
+    campos.push(campo);
+
+    // Envolve o input sem mexer no HTML da pagina.
+    const caixa = document.createElement('div');
+    caixa.className = 'campo-com-olhinho';
+    campo.parentNode.insertBefore(caixa, campo);
+    caixa.appendChild(campo);
+
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'olhinho-senha';
+    botao.innerHTML = OLHO_FECHADO;
+    botao.setAttribute('aria-label', 'Mostrar senha');
+    botao.setAttribute('aria-pressed', 'false');
+    botao.tabIndex = -1; // nao entra no caminho do Tab entre os campos
+
+    botao.addEventListener('click', () => {
+      const mostrando = campo.type === 'text';
+      campo.type = mostrando ? 'password' : 'text';
+      botao.innerHTML = mostrando ? OLHO_FECHADO : OLHO_ABERTO;
+      botao.setAttribute('aria-label', mostrando ? 'Mostrar senha' : 'Esconder senha');
+      botao.setAttribute('aria-pressed', String(!mostrando));
+      campo.focus();
+    });
+
+    caixa.appendChild(botao);
+  }
+
+  // Esconde de novo quando a pessoa sai da pagina ou muda de aba. Evita deixar
+  // a senha legivel na tela de um computador compartilhado.
+  const esconderTudo = () => {
+    for (const c of campos) {
+      if (c.type !== 'text') continue;
+      c.type = 'password';
+      const b = c.parentNode.querySelector('.olhinho-senha');
+      if (b) {
+        b.innerHTML = OLHO_FECHADO;
+        b.setAttribute('aria-label', 'Mostrar senha');
+        b.setAttribute('aria-pressed', 'false');
+      }
+    }
+  };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) esconderTudo(); });
+  window.addEventListener('pagehide', esconderTudo);
+}
+
 // ── Captcha ─────────────────────────────────────────────────────────────────
 /**
  * Sitekey do hCaptcha. VAZIO = captcha desligado, e tudo abaixo vira no-op --

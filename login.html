@@ -341,8 +341,10 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            segundosBloqueado, registrarFalha, limparFreio, emPortugues,
-           montarCaptcha, tokenCaptcha, resetarCaptcha }
+           montarCaptcha, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
     from './assets/js/astral.js';
+
+  olhinhoDeSenha('senha');
 
   // null enquanto o captcha estiver desligado -- e ai tokenCaptcha() devolve
   // undefined, que o supabase-js simplesmente ignora.

@@ -379,8 +379,8 @@
       <div class="consent-row">
         <input type="checkbox" id="consentimento" class="custom-checkbox" />
         <label for="consentimento" class="consent-label">
-          Li e aceito os <a href="termos.html" target="_blank">Termos de Uso</a> e a
-      <a href="privacidade.html" target="_blank">Política de Privacidade</a> do Astral.
+          Li e aceito os <a href="termos.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a> e a
+      <a href="privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a> do Astral.
         </label>
       </div>
 
@@ -410,8 +410,10 @@
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
-           montarCaptcha, tokenCaptcha, resetarCaptcha }
+           montarCaptcha, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
     from './assets/js/astral.js';
+
+  olhinhoDeSenha('senha');
 
   let widgetCaptcha = null;
   montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });

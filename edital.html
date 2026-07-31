@@ -509,12 +509,12 @@
       <div id="edital-details">
         <div class="card">
           <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--white);margin-bottom:1.5rem;">
-            ${estado.edital.nome}
+            ${esc(estado.edital.nome)}
           </div>
           <div class="grid-2">
             <div>
               <div class="info-label">Data da Prova</div>
-              <div class="info-value">${estado.edital.dataProva || 'Não identificada'}</div>
+              <div class="info-value">${esc(estado.edital.dataProva) || 'Não identificada'}</div>
             </div>
             <div>
               <div class="info-label">Tipo</div>
@@ -522,7 +522,7 @@
             </div>
             <div>
               <div class="info-label">Matérias extraídas</div>
-              <div class="info-value">${estado.edital.materias}</div>
+              <div class="info-value">${esc(estado.edital.materias)}</div>
             </div>
           </div>
         </div>

@@ -37,13 +37,13 @@ Rodar de novo com `node tools/testa-site.js`. Complementos: `node tools/valida-c
 
 | # | O quê | Bloqueia |
 |---|---|---|
-| 1 | 🔴 **LEMBRAR ELE DE TESTAR O LOGIN POR E-MAIL E SENHA** em `astral-psi.vercel.app/login.html`. Pedido explícito dele em 31/07: *"deixe um lembrete de eu testar o login e senha"*. É a única ponta que não dá para verificar sem navegador — depende de o widget do captcha renderizar. **Cobrar isso dele até ele confirmar** | login por senha (o Google está verificado e intacto) |
-| 2 | **Créditos na Anthropic.** Adiado por ele em 31/07 — vai colocar quando receber do serviço. **Agora é gasto único, não mensal**: US$ 5 testa, US$ 15–20 faz o onboarding de 10 beta testers (10.4) | teste real do upload de edital; e medir o que hoje é estimativa |
+| 1 | **Créditos na Anthropic.** Adiado por ele em 31/07 — vai colocar quando receber do serviço. **Agora é gasto único, não mensal**: US$ 5 testa, US$ 15–20 faz o onboarding de 10 beta testers (10.4) | teste real do upload de edital; e medir o que hoje é estimativa |
+| 2 | ~~Testar o login por e-mail e senha~~ ✅ **CONFIRMADO POR ELE em 31/07**: *"consegui logar"*. O ciclo do captcha está validado de ponta a ponta, com widget renderizando e domínio aceito | — |
 | 3 | ~~Chaves do hCaptcha~~ ✅ **entregues e aplicadas em 31/07** | — |
 | 4 | ~~Desligar a busca de professores?~~ ✅ **resolvido de outro jeito**: ficou ligada, mas virou busca única e permanente (8.16) — custo recorrente foi a zero sem perder a funcionalidade | — |
 
-> **Se ele confirmar que o login por senha funciona,** apagar a linha 1 e registrar em 13.5 que
-> o ciclo do captcha foi validado de ponta a ponta.
+> ✅ **O captcha está validado de ponta a ponta.** Era a última incerteza da 13.5 — a única
+> ponta que não dava para verificar sem navegador. Ele testou e funcionou.
 
 > ⚠️ **Dinheiro é restrição real aqui.** Ele disse em 31/07: *"nem sempre eu tenho dinheiro"*, e
 > que R$ 70–100/mês já pesaria. Não propor nada que custe sem dizer o preço na mesma frase.
@@ -111,6 +111,9 @@ priorização de um bloco inteiro de trabalho.
 | 🔴 **Derrubei o login em produção por ~2 min** ligando o captcha no servidor antes de publicar a sitekey — **seguindo a ordem que eu mesmo tinha escrito errada** na 13.5 | Instrução minha errada no `CLAUDE.md` é pior que instrução nenhuma: eu a sigo com confiança. **Ao escrever um procedimento de duas pontas, simular mentalmente as duas ordens e anotar o que quebra em cada uma.** A ordem certa é sempre: primeiro o lado que só *envia* a mais, depois o lado que passa a *exigir*. |
 | Rodei **dois `git push` concorrentes** (um em background, um em foreground) e levei `cannot lock ref`; passei a achar que o push falhava | O primeiro tinha funcionado. **Nunca disparar dois pushes para o mesmo ref.** E ler o erro até o fim: ele dizia `is at f2502af`, que já era a resposta. |
 | Consultei a produção **40 vezes em 4 minutos** para ver se o deploy saiu, e a Vercel me bloqueou (`X-Vercel-Mitigated: challenge`) — passei a achar que o deploy não tinha saído | Polling agressivo vira autossabotagem: eu criei o sintoma que fui diagnosticar. **Esperar 20–45s entre consultas** e usar `User-Agent` de navegador. |
+| Escrevi `drop policy "qualquer um entra na lista de espera"` **com o nome de memória**. O nome real era outro, e o `if exists` transformou o erro num aviso silencioso — dei o trabalho por feito | **Nunca escrever `drop policy`/`drop index` com nome lembrado.** Consultar `pg_policies` antes. O `if exists` é uma faca: protege contra erro *e* esconde o engano. Salvou-me o `revoke` na mesma migration — duas barreiras existem para isso. |
+| Meu teste de invasão deu "tudo bloqueado" (401 em tudo) e eu quase comemorei — **o teste nem estava autenticando**: misturei a chave `anon` antiga com a publishable nova, e depois o próprio captcha barrou o login do script | **Resultado negativo em teste de segurança não vale sem prova de que o ataque foi tentado com credencial válida.** O teste agora confirma que o token do atacante lê o *próprio* dado antes de tentar ler o alheio. |
+| Deixei 3 interpolações sem escape em `edital.html` durante o Bloco B3 | Varri por **lista de nomes conhecidos** (`q.enunciado`, `m.nome`) e não por *origem do dado*. `estado.edital.*` não estava na minha lista mental. Por isso `tools/varre-xss.js` existe agora — a varredura não pode depender do que eu lembro. |
 
 ---
 
@@ -1370,6 +1373,72 @@ atributo HTML.
 
 ---
 
+## 8.17. Varredura de segurança (31/07/2026) — pedido dele antes das perguntas
+
+O Lucas pediu antes de sair: *"faça outra varredura de segurança... não queremos que nenhuma
+API pública seja exposta, nenhum deslize bobo"*.
+
+### O que foi verificado, e como
+
+| Frente | Método | Resultado |
+|---|---|---|
+| Segredos no código | grep por 6 padrões (`ES_`, `sbp_`, `sk-ant`, `re_`, JWT, genéricos) | ✅ nenhum |
+| **Segredos no histórico do git** | `git log -p --all -S` por commit que já tenha adicionado chave | ✅ **nenhum, nunca** |
+| Arquivos `.env`/`.pem`/`.key` versionados | `git log --diff-filter=A` em toda a história | ✅ nenhum |
+| XSS | `tools/varre-xss.js` — só dado não confiável, dentro de `innerHTML`, sem escape | 🔴 **3 achados, corrigidos** |
+| RLS e privilégios | `pg_tables` + `pg_policies` + `has_table_privilege` nas 8 tabelas | ✅ RLS em todas, `anon` sem nada |
+| **Isolamento entre usuários** | `tools/testa-isolamento.js` — ataque real com 2 contas | ✅ **nenhum vazamento** |
+| Advisors do Supabase | `get_advisors type=security` | ✅ só os 3 INFO intencionais + HIBP (plano Pro) |
+| Dependências de CDN | pin de versão | ✅ ambas travadas |
+| `target="_blank"` | `rel="noopener"` | 🟡 4 sem, corrigidos |
+
+### 🔴 O achado que valeu a varredura: XSS em `edital.html`
+
+Três interpolações **sem escape** dentro de `innerHTML`, todas com dado que vem da leitura do
+PDF pela IA — exatamente o vetor de prompt injection descrito no CRÍTICO 1 da 8.2:
+
+```
+${estado.edital.nome}        ${estado.edital.dataProva}        ${estado.edital.materias}
+```
+
+O `esc()` **estava importado no arquivo** e não foi usado ali. É uma falha que passou no
+Bloco B3, quando escapei os outros pontos. Corrigido nos três.
+
+> **Por que passou:** no B3 eu procurei pelos padrões que já conhecia (`q.enunciado`,
+> `m.nome`, `evento.obs`) e não pelo objeto `estado.edital`. Varredura por lista de nomes
+> conhecidos sempre deixa buraco. Por isso `tools/varre-xss.js` agora existe e roda sozinho.
+
+### O teste de isolamento — e por que ele quase deu falso positivo
+
+Duas armadilhas seguidas quase me fizeram acreditar em proteção que não estava sendo testada:
+
+1. A chave `anon` da CLI é o **JWT antigo**; o site usa a `sb_publishable_` nova. Misturar
+   devolve 401 em tudo — o que **parece** proteção funcionando.
+2. O captcha (que eu mesmo liguei) **bloqueia login por senha em script**. Sem sessão, 401 de
+   novo.
+
+Solução: o teste agora obtém sessão por **magic link da API de admin**, e **primeiro prova que
+o token do atacante autentica** antes de tentar invadir. Sem essa prova, o resultado não vale.
+
+> 🧠 **Regra que sai daqui:** num teste de segurança, um resultado "tudo bloqueado" só conta
+> depois de demonstrar que o ataque *chegou a ser tentado com credencial válida*.
+
+### Nova ferramenta
+
+```
+node tools/varre-xss.js         # dado nao confiavel sem escape
+node tools/testa-isolamento.js  # um usuario alcanca o dado de outro?
+```
+
+### O que continua aberto, e por quê
+
+- **Senha vazada (HaveIBeenPwned)** — exige plano Pro do Supabase (13.3). Mitigação atual:
+  mínimo de 8 caracteres no servidor + medidor de força.
+- **`'unsafe-inline'` no `script-src` da CSP** — o projeto não tem build, e todo JS é inline.
+  Remover exigiria hash ou nonce, que exige etapa de build (8.8).
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -1421,12 +1490,24 @@ O plano dele, na ordem:
 A landing **ainda não muda agora** — a troca de beta para free/pro é para depois que os
 primeiros testadores entrarem.
 
-### Etapa 3 — Visual e gamificação (pedido do Lucas, ainda não detalhado)
+### Etapa 3 — Visual e gamificação  ← **É AQUI QUE A PRÓXIMA SESSÃO COMEÇA**
 
-- Repaginada visual geral — o Lucas quer "mexer bastante"
-- **Tag em estilo de jogos** — ele citou explicitamente, falta definir o que é
-- **Mais quests** para aprofundar a gamificação além dos 8 badges atuais
-- Roadmap desta etapa deve ser montado **depois** que a Etapa 1 fechar
+Adiado três vezes. Ele confirmou em 31/07: *"a parte do visual, não vamos mexer agora, só mais
+tarde quando voltar do trabalho"*. Ele vai trazer a lista do que quer aprimorar.
+
+**Tudo o que ele já pediu para esta etapa, ao longo das sessões — nada disso pode ser esquecido:**
+
+| O quê | Quando pediu | Detalhe |
+|---|---|---|
+| **Repaginada visual geral** | 29/07 | *"quero mexer bastante"* |
+| **Tag em estilo de jogos** | 29/07 | Citou explicitamente. **Falta definir o que é** — perguntar antes de inventar |
+| **Mais quests** | 29/07 | Aprofundar a gamificação além dos 8 badges atuais |
+| **Ranking pessoal** | 30/07 | *"a parte do ranking pessoal e mais quests, quero fazer sim, mas vamos deixar para depois... quando formos partir mais para o visual"*. ⚠️ **Pessoal, não entre usuários** — ele disse "ranking pessoal" |
+| **Página Minha conta** | 31/07 | Ele apontou: *"a parte de minha conta ela ainda está sem a parte do visual"*. É a mais atrasada — foi a única página que construí do zero, funcional e sem acabamento |
+
+> ⚠️ **Ranking entre usuários seria um erro de produto.** Ele disse "ranking **pessoal**". Num
+> app de concurseiro, ranking público desmotiva quem está atrás — e a base é pequena demais para
+> um ranking fazer sentido. Confirmar com ele antes de qualquer coisa comparativa.
 
 ---
 
@@ -1626,10 +1707,31 @@ recuperação sem enviar e-mail).
 - Vercel: astral-psi.vercel.app
 - Supabase: projeto ref `jjogmcacbdefwiwcyjxp` (org `iahjplveolbyvffastxt`)
 - Resend / Google Cloud (projeto "Astral") / e-mail: lherdy2003@gmail.com
-- Secrets no Supabase: `RESEND_API_KEY`, `ANTHROPIC_API_KEY` (nunca no frontend)
+- hCaptcha: conta dele, sitekey pública no `astral.js`, secret **só** no Supabase
+- Secrets no Supabase: `RESEND_API_KEY`, `ANTHROPIC_API_KEY`, `WEBHOOK_SECRET`,
+  `HCAPTCHA_SECRET` (nunca no frontend, nunca em arquivo do repo)
 
 **Regras de segurança inegociáveis:** chave sensível só em Supabase Secrets · RLS em toda
 tabela nova · validação no front E no back · nunca armazenar dado de cartão.
+
+### Usuários reais (auditado em 31/07/2026)
+
+7 contas: 6 por Google e **1 por e-mail/senha** — esta última é o teste que o Lucas fez em
+31/07 para validar o captcha. São ele, amigos e testes; ainda não há usuário externo de
+verdade. Listar com a API de admin quando precisar reconferir.
+
+### De onde o projeto veio — contexto que explica escolhas
+
+O Lucas construiu o Astral até 29/07/2026 com **outras IAs**: Gemini e Opus dentro do
+**Antigravity IDE**, e Claude pelo navegador. Comprou o Claude Code especificamente para
+**elevar o nível técnico** do que já existia.
+
+Isso explica o estado que encontrei: design bem acabado e produto pensado, mas com XSS
+sistêmico, endpoints de IA abertos, nenhuma persistência em banco e zero versionamento local.
+Código gerado por conversa solta acumula isso — não é descuido dele.
+
+**Consequência prática:** quando algo parecer arbitrário no código antigo, provavelmente é
+resíduo daquela fase, não decisão. Vale perguntar antes de preservar por respeito.
 
 ---
 
@@ -1808,8 +1910,17 @@ registra o domínio e me passa o acesso ao DNS:**
    mailer_autoconfirm = false    <- volta a exigir confirmacao
    ```
 
-> O domínio não é só para o e-mail: cobrar R$ 37/mês a partir de `astral-psi.vercel.app`
-> custa conversão. É pré-requisito prático da Etapa 2 do projeto.
+> O domínio não é só para o e-mail: cobrar a partir de `astral-psi.vercel.app` custa conversão.
+> É pré-requisito prático da Etapa 2 do projeto.
+
+> ⏳ **Quando comprar — decisão dele em 30/07/2026, e o motivo importa:** *"quero criar um
+> domínio apenas quando o site estiver completo e pronto para rodar, porque aí não será um
+> dinheiro gasto em vão"*.
+>
+> **Não empurrar a compra antes disso.** É a mesma lógica financeira dos créditos da Anthropic:
+> ele adia gasto até o retorno estar próximo, porque nem sempre tem dinheiro (ver 0.1). Quando
+> o visual estiver pronto e os beta testers entrando, aí o domínio deixa de ser aposta e vira
+> investimento — e é quando eu proponho, com o preço na mesma frase.
 
 #### Disponibilidade do nome "Astral" — consultado em 30/07/2026
 
@@ -1856,10 +1967,10 @@ secret                     SO no painel do Supabase -- conferido por grep que na
 | **Login com Google** (rota dos 6 usuários existentes) | ✅ **302 → accounts.google.com, intacto** |
 | Login por senha sem token de captcha | ✅ recusado com `captcha_failed` |
 
-> ⚠️ **O que NÃO foi possível testar sem navegador:** se o widget renderiza e se o domínio
-> `astral-psi.vercel.app` foi cadastrado certo no painel do hCaptcha. Se estiver errado, o
-> **login por senha** quebra (o Google continua funcionando). Como hoje os 6 usuários entram
-> pelo Google, o risco real é baixo — mas **o Lucas precisa testar o login por senha** e avisar.
+> ✅ **VALIDADO DE PONTA A PONTA em 31/07/2026.** O Lucas testou no navegador: *"consegui
+> logar"*. Isso fecha a única incerteza que restava — o widget renderiza e o domínio
+> `astral-psi.vercel.app` está cadastrado corretamente no painel do hCaptcha. O ciclo completo
+> (widget → token → verificação no Supabase → sessão) funciona.
 > **Reverter leva 30 segundos — e quem reverte sou EU, não o Lucas** (ver 0.35). A ferramenta
 > está versionada em `tools/captcha-toggle.ps1`:
 >
