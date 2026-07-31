@@ -196,6 +196,79 @@ export async function buscarQuota() {
   }
 }
 
+// ── Captcha ─────────────────────────────────────────────────────────────────
+/**
+ * Sitekey do hCaptcha. VAZIO = captcha desligado, e tudo abaixo vira no-op --
+ * as telas funcionam exatamente como antes.
+ *
+ * Preencher aqui liga o widget nas telas de login, criar conta e lista de
+ * espera. A sitekey NAO e segredo (aparece no HTML de qualquer jeito); o que e
+ * segredo e a secret key, que vai no painel do Supabase, nunca neste arquivo.
+ *
+ * ⚠️ Ligar aqui SEM configurar a secret no Supabase quebra o login: o servidor
+ * passaria a exigir um token que ele nao sabe validar. A ordem correta e:
+ * 1) secret no Supabase  2) sitekey aqui. Ver CLAUDE.md 13.5.
+ */
+export const HCAPTCHA_SITEKEY = '';
+
+let promessaScript = null;
+
+function carregarScriptCaptcha() {
+  if (promessaScript) return promessaScript;
+  promessaScript = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+    s.async = true;
+    s.defer = true;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Nao foi possivel carregar o captcha.'));
+    document.head.appendChild(s);
+  });
+  return promessaScript;
+}
+
+/**
+ * Desenha o captcha dentro do elemento indicado. Devolve o id do widget, ou
+ * null se o captcha estiver desligado (ou se o script nao carregar).
+ *
+ * Falha em silencio de proposito: um captcha que nao carregou nao pode ser
+ * motivo para a pessoa nao conseguir entrar na propria conta. Enquanto a
+ * sitekey estiver vazia, o Supabase tambem nao exige token nenhum.
+ */
+export async function montarCaptcha(idDoElemento) {
+  if (!HCAPTCHA_SITEKEY) return null;
+  const alvo = document.getElementById(idDoElemento);
+  if (!alvo) return null;
+
+  try {
+    await carregarScriptCaptcha();
+    return window.hcaptcha.render(alvo, {
+      sitekey: HCAPTCHA_SITEKEY,
+      theme: 'dark',
+      size: 'normal',
+    });
+  } catch (e) {
+    console.error('Captcha nao carregou:', e);
+    return null;
+  }
+}
+
+/** Token para mandar junto do login/cadastro. `undefined` quando desligado. */
+export function tokenCaptcha(idDoWidget) {
+  if (!HCAPTCHA_SITEKEY || idDoWidget === null || idDoWidget === undefined) return undefined;
+  try {
+    return window.hcaptcha.getResponse(idDoWidget) || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Depois de um erro, o token queima. Sem isto, a segunda tentativa falha. */
+export function resetarCaptcha(idDoWidget) {
+  if (!HCAPTCHA_SITEKEY || idDoWidget === null || idDoWidget === undefined) return;
+  try { window.hcaptcha.reset(idDoWidget); } catch { /* widget ja foi embora */ }
+}
+
 // ── Freio de tentativas de senha ────────────────────────────────────────────
 /**
  * Medido em 30/07/2026 contra a API real: o Supabase so recusa a partir da

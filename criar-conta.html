@@ -384,6 +384,9 @@
         </label>
       </div>
 
+      <!-- Fica vazio enquanto HCAPTCHA_SITEKEY estiver em branco (ver astral.js). -->
+      <div id="caixa-captcha" style="margin-bottom:1rem;"></div>
+
       <button class="btn-primary" id="btn-cadastro" onclick="cadastroEmail()">
         Criar minha conta →
       </button>
@@ -406,8 +409,12 @@
 <footer>© 2026 Astral · Feito para concurseiros militares</footer>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
+           montarCaptcha, tokenCaptcha, resetarCaptcha }
     from './assets/js/astral.js';
+
+  let widgetCaptcha = null;
+  montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
 
   // Se já estiver logado, vai pro dashboard
   const { data: { session } } = await supabase.auth.getSession();
@@ -457,8 +464,11 @@
         // configurada no painel, que pode nao ser o dominio certo -- e o
         // usuario confirma a conta e cai numa pagina qualquer.
         emailRedirectTo: window.location.origin + '/dashboard.html',
+        captchaToken: tokenCaptcha(widgetCaptcha),
       }
     });
+    // Token de uso unico: sem reset, a segunda tentativa falha sozinha.
+    if (error) resetarCaptcha(widgetCaptcha);
 
     if (error) {
       const m = (error.message || '').toLowerCase();

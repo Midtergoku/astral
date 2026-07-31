@@ -319,6 +319,9 @@
 
     <a href="#" class="forgot-link" onclick="esqueceuSenha(event)">Esqueci minha senha</a>
 
+    <!-- Fica vazio enquanto HCAPTCHA_SITEKEY estiver em branco (ver astral.js). -->
+    <div id="caixa-captcha" style="margin-bottom:1rem;"></div>
+
     <button class="btn-primary" id="btn-login" onclick="loginEmail()">
       Entrar →
     </button>
@@ -333,8 +336,14 @@
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
-           segundosBloqueado, registrarFalha, limparFreio, emPortugues }
+           segundosBloqueado, registrarFalha, limparFreio, emPortugues,
+           montarCaptcha, tokenCaptcha, resetarCaptcha }
     from './assets/js/astral.js';
+
+  // null enquanto o captcha estiver desligado -- e ai tokenCaptcha() devolve
+  // undefined, que o supabase-js simplesmente ignora.
+  let widgetCaptcha = null;
+  montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
 
   // Se o usuario chegou aqui pelo link de redefinicao de senha, o token vem no
   // fragmento da URL. Mandamos para a pagina certa ANTES de qualquer coisa --
@@ -397,7 +406,15 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Entrando...';
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: senha,
+      options: { captchaToken: tokenCaptcha(widgetCaptcha) },
+    });
+
+    // O token do captcha e de uso unico: sem resetar, a segunda tentativa
+    // falha mesmo com a senha certa.
+    if (error) resetarCaptcha(widgetCaptcha);
 
     if (error) {
       const bloqueio = registrarFalha(email);
@@ -445,8 +462,10 @@
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       // Apontava para a propria login.html, que nao sabia o que fazer com o
       // token -- o usuario acabava logado sem nunca trocar a senha.
-      redirectTo: window.location.origin + '/redefinir-senha.html'
+      redirectTo: window.location.origin + '/redefinir-senha.html',
+      captchaToken: tokenCaptcha(widgetCaptcha),
     });
+    if (error) resetarCaptcha(widgetCaptcha);
 
     if (error) {
       const m = (error.message || '').toLowerCase();

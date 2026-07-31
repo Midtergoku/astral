@@ -1479,6 +1479,32 @@ O Bloco D acrescentou um freio no navegador (5 erros → espera crescente de 30s
 resolve o chute no formulário e o usuário martelando. **Mas quem chama a API direto passa por
 cima dele.** A proteção que não se contorna é o captcha no próprio endpoint de autenticação.
 
+#### Estado em 30/07/2026: código pronto e **inerte**, esperando as chaves
+
+O lado do frontend já está construído e no ar, **desligado de propósito**:
+
+| Onde | O quê |
+|---|---|
+| `assets/js/astral.js` | `HCAPTCHA_SITEKEY = ''` + `montarCaptcha()`, `tokenCaptcha()`, `resetarCaptcha()` |
+| `login.html` | container + token no `signInWithPassword` e no `resetPasswordForEmail` |
+| `criar-conta.html` | container + token no `signUp` |
+| `vercel.json` | CSP já libera `*.hcaptcha.com` em script/style/connect/frame-src |
+
+**Sitekey vazia = tudo vira no-op.** `tokenCaptcha()` devolve `undefined`, que o `supabase-js`
+ignora — as telas funcionam exatamente como antes. Verificado: 25 blocos de script sem erro de
+sintaxe e CSS resolvido idêntico.
+
+> ⚠️ **A ordem de ligar importa e é contraintuitiva:** primeiro a *secret* no Supabase, depois
+> a *sitekey* no `astral.js`. Inverter derruba o login de todo mundo — o servidor passaria a
+> exigir um token que o navegador ainda não manda.
+
+**`cadastro.html` (lista de espera) ficou de fora, de propósito.** O captcha do Supabase cobre
+só os endpoints de *autenticação*; a lista de espera é um INSERT direto no PostgREST, que ele
+não intercepta. Pôr o widget lá sem ninguém validá-lo seria segurança de mentira. O jeito certo
+é uma edge function `entrar-lista-espera` que confere o token com a API do hCaptcha e só então
+insere com `service_role` — vai junto quando as chaves chegarem, porque sem a secret real não
+dá para testar a verificação.
+
 Bônus: o mesmo captcha fecha a **bomba de e-mail da lista de espera** (seção 8.2, ALTO 5), que
 continua sem solução real — as constraints limitam o conteúdo, não o volume.
 
