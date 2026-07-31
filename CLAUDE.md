@@ -78,6 +78,14 @@ priorização de um bloco inteiro de trabalho.
 2. Quando não der para medir, dizer explicitamente que é estimativa.
 3. Ao registrar aqui, **guardar junto o comando que produziu o número**, para reconferir depois.
 4. Diagnóstico de falha começa em `get_logs` / `execute_sql`, nunca em hipótese.
+5. **Errou? Acrescente uma linha na tabela acima, na hora.** Ordem direta do Lucas em
+   30/07/2026: *"sempre que você cometer um erro você irá adicionar uma linha de contexto no
+   .md, para não cometer mais o mesmo erro"*. Ele trata erro como normal — o que não é normal
+   é repetir.
+
+| Erro | O que aprendi |
+|---|---|
+| Reescrevi 2 HTMLs com `Set-Content` do PowerShell e **destruí todos os acentos** (`Astral â€" Recursos`) | O PS 5.1 lê UTF-8 como ANSI. **Editar HTML deste projeto só com a ferramenta Edit ou com Node.** A regra já estava escrita na seção 2 — e eu não consultei antes de agir. Ter a regra no arquivo não basta se eu não a leio. |
 
 Ferramentas que respondem rápido: `mcp__supabase__get_logs`, `execute_sql`, `get_advisors`,
 `supabase functions list`, e um POST direto na API com `Invoke-WebRequest`.
@@ -93,7 +101,11 @@ personalizado com gamificação militar (patentes, XP, badges), questões gerada
 indicação de recursos de estudo.
 
 - **Nicho:** concurseiros de carreira militar (Bombeiros, Marinha, Exército, Aeronáutica, PM)
-- **Preço anunciado na landing:** R$ 37/mês (plano Pro, pós-lançamento)
+- **Preço anunciado na landing:** **R$ 19,90/mês** (plano Pro, pós-lançamento).
+  Alterado de R$ 37 em 30/07/2026, a pedido do Lucas — ele queria algo entre R$ 15 e R$ 20.
+  Escolhi 19,90 e não 19,99: no Brasil o padrão de mercado é a terminação `,90`, e `,99`
+  soa a varejo de eletrônico. Também não desce mais: abaixo de R$ 15 o produto passa a
+  parecer barato demais para algo que decide uma aprovação.
 - **Fase atual:** beta fechado — lista de espera + promoção manual para `beta` no Supabase
 - **Produção:** https://astral-psi.vercel.app
 
@@ -951,6 +963,24 @@ O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depoi
 3. Gateway de pagamento — ver seção 10
 4. Domínio próprio no Resend + e-mails transacionais
 5. Créditos Anthropic + teste end-to-end do upload de edital
+
+### Estratégia de lançamento — descrita pelo Lucas em 30/07/2026
+
+O plano dele, na ordem:
+
+1. **Criar um grupo de WhatsApp** e entrar em grupos de concurseiros já existentes.
+2. Quem entrar por esse link vira **beta tester**: acesso completo **gratuito para sempre**,
+   em troca de feedback. Poucas pessoas, de propósito.
+3. Só **depois** das primeiras pessoas entrarem, trocar a landing: tirar a parte de beta e
+   passar a mostrar **free vs pro**, com os benefícios de cada um lado a lado.
+
+> ⚠️ **Consequência direta para o gate:** `tipo_plano = 'beta'` não é um estado temporário de
+> testes — é uma **promessa vitalícia** feita a pessoas reais. O gate tem de tratar `beta`
+> com acesso igual ao `pro`, para sempre, e nenhuma migração futura pode rebaixar essas contas.
+> Isso já está previsto no CHECK da coluna (`free`, `beta`, `pro`) e nos limites de quota (8.7).
+
+A landing **ainda não muda agora** — a troca de beta para free/pro é para depois que os
+primeiros testadores entrarem.
 
 ### Etapa 3 — Visual e gamificação (pedido do Lucas, ainda não detalhado)
 
