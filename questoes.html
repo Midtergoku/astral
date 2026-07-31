@@ -677,6 +677,24 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
   </div>
 
   <!-- EMPTY STATE -->
+  <!-- Aviso de recurso desligado. Fica ANTES de tudo e o init() o mostra
+       sozinho, entao nem quem chegar por link direto consegue gerar. Para
+       religar: apagar este bloco e a linha em init(). Ver CLAUDE.md 8.15. -->
+  <div class="empty-state" id="desligado-section" style="display:none">
+    <div class="empty-icon">🔧</div>
+    <div class="empty-title">As questões voltam em breve</div>
+    <div class="empty-sub">
+      Desligamos a geração de questões por enquanto para manter o Astral sustentável
+      durante o beta. Todo o resto continua funcionando: seu edital, o cronograma,
+      o progresso, o calendário, o cronômetro e as indicações de professores.
+      <br /><br />
+      Ela volta assim que o projeto se pagar — e nada do seu histórico foi perdido.
+    </div>
+    <a class="btn-primary" href="dashboard.html" style="width:auto;display:inline-flex;margin-top:1.25rem;text-decoration:none;">
+      Voltar ao dashboard →
+    </a>
+  </div>
+
   <div class="empty-state" id="empty-section" style="display:none">
     <div class="empty-icon">❓</div>
     <div class="empty-title">Nenhum edital carregado</div>
@@ -803,6 +821,13 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
   async function init() {
     const session = await exigirSessao();
     if (!session) return;
+
+    // ⏸️ QUESTOES DESLIGADO em 31/07/2026 (custo). O servidor tambem recusa
+    // (503 em gerar-questoes), entao isto aqui e so para a pessoa entender o
+    // que houve em vez de ver um erro seco. Para religar: apagar este bloco.
+    document.getElementById('desligado-section').style.display = 'block';
+    document.getElementById('config-section').style.display = 'none';
+    return;
 
     usuario = session.user;
     const nome = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuário';

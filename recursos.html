@@ -439,6 +439,8 @@
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       Recursos
     </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
     <a class="nav-link" href="questoes.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
         <circle cx="12" cy="12" r="10"/>
@@ -447,6 +449,7 @@
       </svg>
       Questões
     </a>
+    -->
     <a class="nav-link" href="conquistas.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
       Missões
@@ -581,16 +584,15 @@
     document.getElementById('user-name').textContent = nome.split(' ')[0];
     document.getElementById('user-avatar').textContent = nome[0].toUpperCase();
 
-    // Progresso vem da conta. O cache de recursos continua no navegador de
-    // proposito: e cache com validade de 24h, nao dado do usuario.
     const dados = await carregarProgresso(usuario.id);
     materias = dados.materias;
     concurso = dados.edital?.nome || '';
 
-    try {
-      const cacheSalvo = localStorage.getItem(`astral_recursos_${usuario.id}`);
-      if (cacheSalvo) cacheRecursos = JSON.parse(cacheSalvo);
-    } catch { cacheRecursos = {}; }
+    // Os recursos agora moram NA CONTA, nao no navegador, e nao vencem.
+    // Antes eram cache de 24h no localStorage: cada vencimento disparava outra
+    // busca na IA (~R$ 0,68 cada) da mesma materia, e a lista de professores
+    // mudava sozinha toda semana. Uma lista estavel organiza melhor o estudo.
+    await carregarRecursosSalvos();
 
     if (!materias.length) {
       document.getElementById('seletor-section').style.display = 'none';
@@ -632,22 +634,42 @@
       if (c.textContent.trim().startsWith(nomeMateria)) c.classList.add('active');
     });
 
-    // Verifica cache
-    if (cacheRecursos[nomeMateria]) {
-      const cache = cacheRecursos[nomeMateria];
-      const agora = Date.now();
-      const umDia = 24 * 60 * 60 * 1000;
-      if (agora - cache.timestamp < umDia) {
-        mostrarResultado(nomeMateria, cache.dados, true, cache.timestamp);
-        return;
-      }
+    // Ja buscado alguma vez? Mostra o que esta salvo. NAO vence: a lista so
+    // muda se a pessoa pedir, ou se ela trocou de edital.
+    const salvo = cacheRecursos[nomeMateria];
+    if (salvo && salvo.concurso === concurso) {
+      mostrarResultado(nomeMateria, salvo.dados, true, salvo.criado_em);
+      return;
     }
 
-    // Busca na IA
+    // Primeira vez nesta matéria (ou o edital mudou): busca uma vez e guarda.
     await buscarRecursos(nomeMateria);
   }
 
-  // ── BUSCAR RECURSOS ──
+  // ── CARREGAR O QUE JÁ FOI BUSCADO ──
+  async function carregarRecursosSalvos() {
+    cacheRecursos = {};
+    try {
+      const { data, error } = await supabase
+        .from('recursos_salvos')
+        .select('materia, concurso, dados, criado_em')
+        .eq('usuario_id', usuario.id);
+      if (error) throw error;
+      for (const linha of data ?? []) {
+        cacheRecursos[linha.materia] = {
+          dados: linha.dados,
+          concurso: linha.concurso,
+          criado_em: linha.criado_em,
+        };
+      }
+    } catch (err) {
+      // Falhar aqui nao pode travar a tela: sem os salvos, a pessoa so vai
+      // ver o botao de buscar como se fosse a primeira vez.
+      console.error('Nao consegui carregar os recursos salvos:', err);
+    }
+  }
+
+  // ── BUSCAR RECURSOS (uma vez por matéria) ──
   async function buscarRecursos(nomeMateria) {
     document.getElementById('seletor-section').style.display = 'none';
     document.getElementById('loading-section').classList.add('show');
@@ -657,11 +679,24 @@
     try {
       const dados = await chamarIA('buscar-recursos', { materia: nomeMateria, concurso });
 
-      // Salva no cache
-      cacheRecursos[nomeMateria] = { dados, timestamp: Date.now() };
-      localStorage.setItem(`astral_recursos_${usuario.id}`, JSON.stringify(cacheRecursos));
+      // Guarda NA CONTA, para sempre. O upsert usa a chave (usuario, materia),
+      // entao rebuscar substitui em vez de acumular linha.
+      const agora = new Date().toISOString();
+      const { error } = await supabase
+        .from('recursos_salvos')
+        .upsert(
+          { usuario_id: usuario.id, materia: nomeMateria, concurso, dados, criado_em: agora },
+          { onConflict: 'usuario_id,materia' },
+        );
+      if (error) {
+        // O resultado ainda é mostrado: perder a gravação é ruim, mas negar à
+        // pessoa o que a IA já produziu (e que já foi pago) seria pior.
+        console.error('Nao consegui salvar os recursos:', error);
+        toast('Encontrei os recursos, mas não consegui salvá-los. Eles podem sumir ao recarregar.', 'error');
+      }
 
-      mostrarResultado(nomeMateria, dados, false, Date.now());
+      cacheRecursos[nomeMateria] = { dados, concurso, criado_em: agora };
+      mostrarResultado(nomeMateria, dados, false, agora);
 
     } catch (err) {
       console.error(err);
@@ -671,6 +706,13 @@
     }
   }
 
+  /** Refaz a busca de uma matéria a pedido explícito da pessoa. */
+  window.rebuscarMateria = async function(nomeMateria) {
+    if (!confirm(`Buscar professores de ${nomeMateria} de novo?\n\nA lista atual será substituída.`)) return;
+    delete cacheRecursos[nomeMateria];
+    await buscarRecursos(nomeMateria);
+  };
+
   // ── MOSTRAR RESULTADO ──
   function mostrarResultado(nomeMateria, dados, doCache, timestamp) {
     document.getElementById('loading-section').classList.remove('show');
@@ -679,13 +721,26 @@
     // Título
     document.getElementById('resultado-titulo').textContent = `Recursos para ${nomeMateria}`;
 
-    // Cache info
+    // Aviso de que a lista e fixa, com o caminho para refazer se a pessoa
+    // quiser. Sem isto, ela nao teria como saber que a lista nao muda mais.
     const cacheEl = document.getElementById('cache-info');
-    if (doCache && timestamp) {
+    cacheEl.innerHTML = '';
+    if (timestamp) {
       const data = new Date(timestamp).toLocaleDateString('pt-BR');
-      cacheEl.textContent = `Resultados salvos em cache · Atualizado em ${data}`;
-    } else {
-      cacheEl.textContent = '';
+      const texto = document.createElement('span');
+      texto.textContent = doCache
+        ? `Sua lista fixa desta matéria, montada em ${data}. `
+        : `Lista montada agora e salva na sua conta. `;
+      const link = document.createElement('a');
+      link.href = '#';
+      link.textContent = 'Buscar de novo';
+      link.style.color = 'var(--purple-lt)';
+      link.style.fontWeight = '600';
+      // addEventListener e nao onclick inline: o nome da materia vem do edital
+      // (dado nao confiavel) e nao pode ser interpolado dentro de atributo.
+      link.addEventListener('click', (e) => { e.preventDefault(); window.rebuscarMateria(nomeMateria); });
+      cacheEl.appendChild(texto);
+      cacheEl.appendChild(link);
     }
 
     // Dica

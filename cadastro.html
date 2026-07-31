@@ -473,6 +473,9 @@
         </label>
       </div>
 
+      <!-- Fica vazio enquanto HCAPTCHA_SITEKEY estiver em branco (ver astral.js). -->
+      <div id="caixa-captcha" style="margin-bottom:1rem;"></div>
+
       <button class="btn-submit" id="btn-submit" onclick="handleSubmit()">
         Quero minha vaga →
       </button>
@@ -516,8 +519,12 @@
 </footer>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
+           SUPABASE_URL, montarCaptcha, tokenCaptcha, resetarCaptcha }
     from './assets/js/astral.js';
+
+  let widgetCaptcha = null;
+  montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
 
   window.handleSubmit = async function() {
     const nome     = document.getElementById('nome').value.trim();
@@ -537,26 +544,43 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Salvando sua vaga...';
 
-    // Salva no Supabase
-    const { error } = await supabase
-      .from('lista_espera')
-      .insert([{ nome, email, concurso, whatsapp }]);
+    // Passa pela edge function, NAO mais direto na tabela. Ela confere o token
+    // do captcha com o hCaptcha antes de inserir. Antes disto, um script
+    // conseguia encher a lista e entupir a caixa de e-mail do Lucas -- era o
+    // ultimo crítico aberto da auditoria (8.2, ALTO 5).
+    let repetido = false;
+    try {
+      const resposta = await fetch(`${SUPABASE_URL}/functions/v1/entrar-lista-espera`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome, email, concurso, whatsapp,
+          captchaToken: tokenCaptcha(widgetCaptcha),
+        }),
+      });
+      const json = await resposta.json().catch(() => ({}));
 
-    if (error) {
-      if (error.code === '23505') {
-        toast('Este e-mail já está na lista de espera. 😊');
-      } else if (error.code === '42501' || error.code === '23514') {
-        // A policy e as CHECK constraints do Bloco B1 recusam nome muito curto
-        // ou e-mail fora de formato. Sem esta mensagem o usuario via "erro ao
-        // salvar" e nao fazia ideia do que corrigir.
-        toast('Confira os dados: nome com pelo menos 2 letras e e-mail válido.', 'error');
-      } else {
-        toast('Erro ao salvar. Tente novamente em instantes.', 'error');
-        console.error(error);
+      if (!resposta.ok || !json?.success) {
+        // O token do captcha e de uso unico: sem resetar, a segunda tentativa
+        // falha mesmo com tudo certo.
+        resetarCaptcha(widgetCaptcha);
+        toast(json?.error || 'Erro ao salvar. Tente novamente em instantes.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Quero minha vaga →';
+        return;
       }
+      repetido = json.data?.repetido === true;
+    } catch (err) {
+      resetarCaptcha(widgetCaptcha);
+      console.error(err);
+      toast('Sem conexão com o servidor. Verifique sua internet.', 'error');
       btn.disabled = false;
       btn.innerHTML = 'Quero minha vaga →';
       return;
+    }
+
+    if (repetido) {
+      toast('Este e-mail já está na lista de espera. 😊');
     }
 
     // Sucesso!

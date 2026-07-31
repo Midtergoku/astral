@@ -132,6 +132,19 @@ export const FUNCOES: Funcao[] = [
   "buscar-recursos",
 ];
 
+/**
+ * Funcoes desligadas -- interruptor de custo, nao remocao.
+ *
+ * O Lucas desligou `gerar-questoes` em 31/07/2026: ela custa mais que a busca
+ * de professores e ele nao tem receita ainda. Volta quando o site render
+ * capital, provavelmente junto com o preco subindo de R$ 19,90 para R$ 25,90.
+ *
+ * NADA foi apagado. Para religar, basta tirar o nome desta lista e devolver o
+ * link no menu (ver CLAUDE.md 8.15). O codigo, a quota e os testes continuam
+ * inteiros.
+ */
+const FUNCOES_DESLIGADAS = new Set<Funcao>(["gerar-questoes"]);
+
 export const LIMITE_DIARIO: Record<Usuario["plano"], Record<Funcao, number>> = {
   // free: 10 questoes/dia empata com o plano gratuito do Qconcursos, que e a
   // referencia que o concurseiro ja conhece.
@@ -292,6 +305,16 @@ export function servir(
     }
     if (req.method !== "POST") {
       return erro(req, "Metodo nao suportado.", 405);
+    }
+
+    // Interruptor de custo. Vem ANTES da autenticacao de proposito: se a
+    // funcao esta desligada, nao ha motivo para tocar no banco.
+    if (FUNCOES_DESLIGADAS.has(funcao)) {
+      return erro(
+        req,
+        "Este recurso esta temporariamente indisponivel. Ele volta em breve.",
+        503,
+      );
     }
 
     try {

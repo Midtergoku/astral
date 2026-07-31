@@ -144,6 +144,55 @@ Ferramentas que respondem rápido: `mcp__supabase__get_logs`, `execute_sql`, `ge
 
 ---
 
+## 0.3. ⚠️ GRAVAR A CADA PROMPT — regra permanente
+
+> Ordem do Lucas em 31/07/2026, depois de perguntar se eu gravava sozinho ou só quando ele
+> pedia: *"toda vez que eu lançar um prompt, você vai guardar tudo que for de importante lá.
+> Não é para sobrescrever, é para adicionar informação. Quanto mais informação melhor."*
+>
+> **Resposta honesta que motivou a regra: eu NÃO gravava sozinho.** Gravava quando ele pedia.
+> Isso significa que tudo o que ele disse entre um pedido e outro se perdia.
+
+**A cada prompt dele, antes de fechar a resposta, registrar aqui o que for durável.** Não
+esperar ele pedir, não esperar o fim da sessão.
+
+O que conta como durável:
+- **Decisão dele** (o quê e, principalmente, *por quê* — o porquê é o que evita reabrir depois)
+- **Restrição** que ele revelou (dinheiro, tempo, o que não quer fazer com as próprias mãos)
+- **Mudança de escopo** — o que entrou, o que saiu, e se saiu "por enquanto" ou de vez
+- **Número medido** e o comando que o produziu
+- **Erro meu** → linha na tabela da 0.1, na hora
+
+**Acrescentar, nunca sobrescrever.** Se um fato novo contradiz um antigo, deixar os dois com
+data e dizer qual vale — o histórico da decisão vale tanto quanto a decisão. Sobrescrever apaga
+o raciocínio e faz a mesma discussão voltar semanas depois.
+
+A única coisa que se apaga é o que a seção 0.4 define como inútil.
+
+---
+
+## 0.4. Limpeza — o que pode sair do arquivo
+
+> Ordem do Lucas em 31/07/2026: *"tudo que for inútil... coisas realmente inúteis que não vão
+> interferir no projeto, quero que você retire para não pesar o projeto. Apenas coisas inúteis
+> que não vão servir para nada, não quero que você mexa em nada que seja útil ou que você pense
+> que provavelmente vai ser útil em algum momento."*
+
+**Pode sair:**
+- Instrução para passo manual que ele **nunca vai executar** (ele não abre terminal nem painel)
+- Estado transitório já resolvido — "faltam 16 commits para enviar", "aguardando decisão X"
+- Texto duplicado que existe melhor em outro lugar do arquivo
+
+**Não pode sair, mesmo parecendo velho:**
+- Qualquer linha da 0.1 (tabela de erros) — ordem explícita dele
+- **O porquê** de uma decisão, mesmo já executada
+- Número medido + o comando que o produziu
+- Armadilha de ambiente (PowerShell/acentos, PATCH no PS 5.1, blob UTF-8)
+
+Na dúvida, **fica**. O critério dele foi explícito: só o que "não vai servir para nada".
+
+---
+
 ## 1. O produto
 
 **Astral** — "Transforme seu edital em um plano de aprovação em poucos minutos"
@@ -1149,6 +1198,72 @@ verdade em vez de conferir o código no olho.
 
 ---
 
+## 8.14. Monitoramento de erros (31/07/2026) ✅
+
+**Antes disto, falha em produção era invisível.** A tela quebrava, o beta tester ia embora, e
+ninguém descobria — nem ele reclamava, ele só sumia. Era o 🟠 nº 2 da fila.
+
+### Por que caseiro e não Sentry
+
+Sentry/LogRocket/Bugsnag têm plano grátis, mas **exigem criar conta em serviço de terceiro** —
+confirmar e-mail na caixa do Lucas e aceitar termos em nome dele. Não é coisa que eu possa
+fazer, e ele não quer executar passo manual. O banco já existe e o custo é zero.
+
+### As três peças
+
+| Peça | O quê |
+|---|---|
+| `erros_cliente` (migration `..100000`) | RLS ligada **sem policy** — mesma técnica de `uso_ia`: nega tudo via PostgREST, só `service_role` enxerga. Limites de tamanho por CHECK no próprio banco |
+| `registrar-erro` (edge function) | Recebe o relato. `verify_jwt = false` |
+| `astral.js` | `window.error` + `unhandledrejection` → envia com `keepalive` |
+
+### As decisões que importam
+
+**`verify_jwt = false`, de propósito.** Metade dos erros que interessam acontece na tela de
+login, onde ninguém está autenticado. Isso abre porta pública, então ela é estreita:
+
+- corpo de até 16 KB; todo campo truncado (mensagem 2.000, pilha 4.000)
+- teto global de **500 por hora** — protege contra um script enchendo a tabela
+- **responde 204 sempre**, mesmo quando descarta
+
+Esse último ponto é regra, não detalhe: **um relator de erro não pode virar mais uma fonte de
+erro na tela.** Ele roda no caminho de uma falha que já aconteceu.
+
+**`keepalive: true`** faz a requisição sobreviver ao fechamento da aba — que é exatamente o
+que a pessoa faz quando a tela quebra. Sem isso, justamente os erros piores se perdem.
+
+**Proteção no cliente também:** mesmo erro repetido vai uma vez só, máximo 10 por página. Um
+erro dentro de um laço de render dispararia centenas de chamadas idênticas.
+
+**`on delete set null`** no `usuario_id`, não cascade: se a conta for excluída (LGPD), o erro
+continua servindo para diagnóstico, só perde o vínculo com a pessoa.
+
+### Testado contra a API real
+
+| Cenário | Resultado |
+|---|---|
+| Relato anônimo comum | ✅ 204, 1 linha gravada |
+| Corpo de 20 KB | ✅ 204, **nada gravado** |
+| Mensagem vazia | ✅ 204, **nada gravado** |
+
+Linha de teste removida depois.
+
+### Como o Lucas vê os erros
+
+Ele não vê — **e isso é intencional por ora.** Construir uma tela de administração seria mais
+superfície para proteger. A consulta é minha:
+
+```sql
+select criado_em, mensagem, pagina, origem, usuario_id
+from public.erros_cliente
+order by criado_em desc
+limit 50;
+```
+
+Se um dia o volume justificar, aí vale a tela.
+
+---
+
 ## 9. Ordem de trabalho — acordada com o Lucas em 29/07/2026
 
 O Lucas definiu a sequência: **segurança e qualidade primeiro, pagamento depois, visual por
@@ -1283,6 +1398,30 @@ Desligar a busca de professores economiza **~30%**.
 o teto no código). O do edital e o da busca são **estimativa** — chutei quantos tokens um PDF
 de edital e os resultados de busca viram. Sem créditos não dá para medir. Um edital de 100
 páginas custaria ~R$ 3, não R$ 1. **Primeira coisa a conferir quando houver crédito.**
+
+### Ponto de equilíbrio — quantos pagantes cobrem os beta testers
+
+Pergunta do Lucas em 31/07/2026. Margem por assinante = R$ 19,90 − taxa do Mercado Pago
+(~R$ 0,40 no cartão, zero no Pix) − o que **ele próprio** consome de IA (R$ 5 a 14):
+sobram **R$ 5,50 a R$ 14,50** de lucro por assinante.
+
+| Beta testers | Custo/mês | Assinantes só para empatar |
+|---|---|---|
+| **5** | **R$ 25–70** | **2 a 13** |
+| 10 | R$ 50–140 | 4 a 26 |
+| 15 | R$ 75–210 | 6 a 39 |
+
+**Regra de bolso: cada beta tester custa aproximadamente o lucro de 1 assinante pagante.**
+Sem a busca de professores, isso cai para ~0,6 — desligar corta o número pela metade.
+
+> 🔴 **A alavanca certa é o NÚMERO de beta testers, não a funcionalidade.** É o que o Lucas
+> controla diretamente, e ele disse que R$ 70–100/mês já pesaria. **Recomendação registrada:
+> começar com 5, não 10** — cabe no bolso dele, mantém a busca de professores ligada, e o
+> aprendizado do beta continua inteiro. Crescer depois é fácil; recuperar uma funcionalidade
+> que nunca foi testada, não.
+
+**Decisão do Lucas (31/07):** deixar a busca de professores **ligada** e reavaliar em ~2
+semanas com o consumo real, que a tabela `uso_ia` já registra. Não é palpite — é dado.
 
 ---
 
@@ -1872,3 +2011,55 @@ memória permanente.
 **Estado ao fim:** Etapa 1 fechada, árvore limpa, `main` em sincronia com o GitHub. A sessão 4
 começa respondendo os tópicos da seção 0 — os três que dependem do Lucas e as três tarefas
 rápidas — e depois vai para o visual/CSS.
+
+---
+
+### Sessão 4 — 31/07/2026 · hCaptcha no ar, monitoramento de erros e as três tarefas rápidas
+
+Sessão curta e densa, feita com o Lucas **longe do computador** — ele autorizou aplicar tudo e
+avisou que talvez não estivesse por perto. **5 commits** (`f2502af` → `5a632f9`), todos enviados
+e verificados em produção.
+
+**hCaptcha ligado (13.5).** Ele criou a conta e mandou as duas chaves. A secret foi só para o
+painel do Supabase — conferido por `grep` que não entrou no repositório, que é público.
+Verificado: secret aceita pelo `siteverify`, sitekey publicada, **Google OAuth intacto** (302
+para `accounts.google.com`), login por senha exigindo token.
+
+**🔴 Derrubei o login por ~2 minutos no meio disso.** Liguei a secret antes de publicar a
+sitekey — **seguindo a ordem que eu mesmo tinha escrito errada na 13.5.** Detectei, reverti,
+refiz na ordem certa e corrigi a instrução. Ver a tabela da 0.1: *instrução minha errada é pior
+que instrução nenhuma, porque eu a sigo com confiança.*
+
+**As três tarefas rápidas, todas feitas:**
+
+| | O quê |
+|---|---|
+| Senha | A tela de "esqueci minha senha" passou a **dizer a verdade** — o e-mail pode não chegar, fale com o Lucas no WhatsApp. Antes a pessoa esperava um e-mail que nunca viria e perdia a conta em silêncio |
+| Erros | Sistema próprio de captura (8.14), sem contratar nada e sem criar conta de terceiro |
+| Beta tester | Passo a passo completo em **13.6** — era a peça que faltava para o lançamento no WhatsApp |
+
+**Ferramenta de emergência versionada.** Percebi tarde que o script que desliga o captcha —
+justamente o que devolve o login a todo mundo se algo quebrar — só existia na pasta temporária
+da sessão. Foi para `tools/captcha-toggle.ps1`. Religar não exige a secret em mãos.
+
+**Decisões e restrições registradas:** Anthropic adiada ("vou esperar receber do serviço");
+busca de professores **fica ligada** e reavalia em 2 semanas com dados; ponto de equilíbrio
+calculado em 10.4 com a recomendação de **começar com 5 beta testers, não 10**.
+
+> 💰 **Restrição que passa a valer sempre:** ele disse *"nem sempre eu tenho dinheiro"* e que
+> R$ 70–100/mês já pesaria. **Nunca propor algo que custe sem dizer o preço na mesma frase.**
+
+**Meus erros nesta sessão** (todos na tabela da 0.1):
+
+| O que eu fiz | O que aprendi |
+|---|---|
+| Derrubei o login seguindo minha própria instrução invertida | Ao escrever procedimento de duas pontas, simular as duas ordens. Primeiro o lado que só *envia* a mais, depois o que passa a *exigir* |
+| Dois `git push` concorrentes → `cannot lock ref`, e passei a achar que o push falhava | O primeiro tinha funcionado, e o erro dizia isso. Nunca dois pushes no mesmo ref |
+| 40 consultas à produção em 4 min → a Vercel me bloqueou como robô | Criei o sintoma que fui diagnosticar. Esperar 20–45 s entre consultas |
+| Citei "ver 8.14" antes de a seção existir | **Referência quebrada no próprio caderno.** Ao citar uma seção, criá-la na mesma edição |
+
+**Pendente do Lucas:** testar o **login por e-mail e senha** no navegador — única ponta que não
+dá para verificar sem browser. Se falhar, `tools\captcha-toggle.ps1` resolve em 30 s.
+
+**Sobrou na fila:** proteger a `lista_espera` contra robôs (agora construível, a secret existe),
+`processar-edital` em janela mensal, e o visual/CSS — que é o que ele quer fazer de verdade.

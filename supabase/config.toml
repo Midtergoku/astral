@@ -24,6 +24,15 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/buscar-recursos/index.ts"
 
+# Entrada na lista de espera. verify_jwt = false porque quem se cadastra ainda
+# nao tem conta -- a protecao aqui e o token do hCaptcha, conferido dentro da
+# funcao contra api.hcaptcha.com. O captcha do Supabase NAO cobre este caminho:
+# ele so protege os endpoints de autenticacao.
+[functions.entrar-lista-espera]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/entrar-lista-espera/index.ts"
+
 # Relato de erro do navegador. verify_jwt = false de PROPOSITO: metade dos
 # erros que importam acontece na tela de login, onde ninguem esta autenticado.
 # A funcao trunca todo campo, tem teto global por hora e responde 204 sempre.
