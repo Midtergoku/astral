@@ -37,21 +37,31 @@ Rodar de novo com `node tools/testa-site.js`. Complementos: `node tools/valida-c
 
 | # | O quê | Bloqueia |
 |---|---|---|
-| 1 | **Créditos na Anthropic (~US$ 5).** Seguro faz tempo | teste real de edital e questões; e medir o custo estimado em 10.4 |
-| 2 | **Chaves do hCaptcha** — sitekey e secret, passo a passo corrigido em 13.5 | captcha no login e proteção da lista de espera |
-| 3 | **Decidir: desligar a busca de professores?** Números em 10.4 (economiza ~30%) | nada — é escolha de custo |
+| 1 | 🔴 **Testar o login por e-mail e senha** em `astral-psi.vercel.app/login.html` — o captcha foi ligado em 31/07 e essa é a única ponta que não deu para testar sem navegador. **Se não conseguir entrar, me avisar: reverto em 30 s** | login por senha (o Google está verificado e intacto) |
+| 2 | **Créditos na Anthropic (~US$ 5).** Adiado por ele em 31/07 — vai colocar quando receber do serviço | teste real de edital e questões; e medir o custo estimado em 10.4 |
+| 3 | ~~Chaves do hCaptcha~~ ✅ **entregues e aplicadas em 31/07** | — |
+| 4 | ~~Desligar a busca de professores?~~ ✅ **decidido: deixar ligada** e reavaliar com dados reais em ~2 semanas (10.4) | — |
 
-### O que eu faria a seguir, se o visual não fosse a prioridade
+> ⚠️ **Dinheiro é restrição real aqui.** Ele disse em 31/07: *"nem sempre eu tenho dinheiro"*, e
+> que R$ 70–100/mês já pesaria. Não propor nada que custe sem dizer o preço na mesma frase, e
+> tratar "quantos beta testers" como a alavanca de custo principal — é a que ele controla.
 
-1. 🔴 **"Esqueci minha senha" não entrega para ninguém além do Lucas.** O SMTP padrão do
-   Supabase só manda para endereços da organização (13.4). Um beta tester que criar conta com
-   e-mail/senha e esquecer a senha **fica trancado para sempre**. Mitigação sem domínio:
-   orientar a entrar com Google, ou esconder o formulário de e-mail durante o beta.
-2. 🟠 **Nenhum monitoramento de erro.** Falha em produção é invisível — o beta tester some e
-   ninguém fica sabendo por quê.
-3. 🟠 **Promover alguém para `beta` é SQL na mão.** É a primeira coisa que acontece quando
-   alguém entra no grupo de WhatsApp, e não existe passo a passo escrito.
-4. 🟡 **`processar-edital` em janela mensal** em vez de diária (8.12).
+### ✅ As três tarefas rápidas — feitas em 31/07/2026
+
+1. ~~"Esqueci minha senha" não entrega para ninguém~~ → a tela agora **avisa a verdade** e manda
+   falar com o Lucas no WhatsApp. Some quando houver domínio próprio (13.4).
+2. ~~Nenhum monitoramento de erro~~ → tabela `erros_cliente` + função `registrar-erro` +
+   captura no `astral.js`. Ver 8.14.
+3. ~~Promover alguém para `beta` é SQL na mão~~ → passo a passo completo em **13.6**.
+
+### O que sobrou na fila
+
+1. 🟠 **A bomba de e-mail da `lista_espera` continua aberta** (8.2, ALTO 5). O captcha do
+   Supabase **não** cobre esse formulário — é INSERT direto no PostgREST. Falta a edge function
+   `entrar-lista-espera` que confere o token do hCaptcha. **Agora dá para construir**, porque a
+   secret existe.
+2. 🟡 **`processar-edital` em janela mensal** em vez de diária (8.12).
+3. 🟡 **Nenhum registro de quem apaga linha da `lista_espera`** — ver 8.3, "Observação de produto".
 
 ---
 
@@ -94,6 +104,9 @@ priorização de um bloco inteiro de trabalho.
 | Reescrevi 2 HTMLs com `Set-Content` do PowerShell e **destruí todos os acentos** (`Astral â€" Recursos`) | O PS 5.1 lê UTF-8 como ANSI. **Editar HTML deste projeto só com a ferramenta Edit ou com Node.** A regra já estava escrita na seção 2 — e eu não consultei antes de agir. Ter a regra no arquivo não basta se eu não a leio. |
 | Escrevi o passo a passo do hCaptcha **de memória**: mandei procurar "Hostnames" (hoje é **Domains**) e a secret dentro do site (é **da conta**). O Lucas travou seguindo. | **Interface de site de terceiro muda — nunca descrever de memória.** Antes de escrever qualquer clique a clique, abrir a documentação oficial. Vale o mesmo que a regra 1 da seção 0.1: painel de terceiro é "estado de sistema", e eu afirmei sem medir. |
 | Meu script de varredura esperava HTTP 400 num INSERT inválido e veio 401; **concluí que o formulário da landing estava quebrado** | Não estava. Validação que mora em **policy de RLS** volta como 401/42501, não 400 — o Postgres trata violação de policy como falta de permissão. Confirmei por fora antes de falar (INSERT válido → 201). Expectativa errada no teste vira falso alarme, que gasta a confiança do Lucas igual a um erro de verdade. |
+| 🔴 **Derrubei o login em produção por ~2 min** ligando o captcha no servidor antes de publicar a sitekey — **seguindo a ordem que eu mesmo tinha escrito errada** na 13.5 | Instrução minha errada no `CLAUDE.md` é pior que instrução nenhuma: eu a sigo com confiança. **Ao escrever um procedimento de duas pontas, simular mentalmente as duas ordens e anotar o que quebra em cada uma.** A ordem certa é sempre: primeiro o lado que só *envia* a mais, depois o lado que passa a *exigir*. |
+| Rodei **dois `git push` concorrentes** (um em background, um em foreground) e levei `cannot lock ref`; passei a achar que o push falhava | O primeiro tinha funcionado. **Nunca disparar dois pushes para o mesmo ref.** E ler o erro até o fim: ele dizia `is at f2502af`, que já era a resposta. |
+| Consultei a produção **40 vezes em 4 minutos** para ver se o deploy saiu, e a Vercel me bloqueou (`X-Vercel-Mitigated: challenge`) — passei a achar que o deploy não tinha saído | Polling agressivo vira autossabotagem: eu criei o sintoma que fui diagnosticar. **Esperar 20–45s entre consultas** e usar `User-Agent` de navegador. |
 
 ---
 
@@ -1613,7 +1626,31 @@ O Bloco D acrescentou um freio no navegador (5 erros → espera crescente de 30s
 resolve o chute no formulário e o usuário martelando. **Mas quem chama a API direto passa por
 cima dele.** A proteção que não se contorna é o captcha no próprio endpoint de autenticação.
 
-#### Estado em 30/07/2026: código pronto e **inerte**, esperando as chaves
+#### ✅ Estado em 31/07/2026: **LIGADO em produção**
+
+O Lucas criou a conta e mandou as chaves. Aplicado e verificado:
+
+```
+security_captcha_enabled   False -> True
+security_captcha_provider  hcaptcha
+sitekey em astral.js       1f644a7e-... (publica por natureza, pode ficar no repo)
+secret                     SO no painel do Supabase -- conferido por grep que nao esta no repo
+```
+
+| Verificação | Resultado |
+|---|---|
+| Secret aceita pela API do hCaptcha (`siteverify` com token falso) | ✅ `invalid-input-response` (= secret válida) |
+| Sitekey publicada em produção | ✅ |
+| **Login com Google** (rota dos 6 usuários existentes) | ✅ **302 → accounts.google.com, intacto** |
+| Login por senha sem token de captcha | ✅ recusado com `captcha_failed` |
+
+> ⚠️ **O que NÃO foi possível testar sem navegador:** se o widget renderiza e se o domínio
+> `astral-psi.vercel.app` foi cadastrado certo no painel do hCaptcha. Se estiver errado, o
+> **login por senha** quebra (o Google continua funcionando). Como hoje os 6 usuários entram
+> pelo Google, o risco real é baixo — mas **o Lucas precisa testar o login por senha** e avisar.
+> Reverter leva 30 segundos: `captcha-toggle.ps1` sem argumento.
+
+#### Como era antes (histórico): código pronto e inerte
 
 O lado do frontend já está construído e no ar, **desligado de propósito**:
 
