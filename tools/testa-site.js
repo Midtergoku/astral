@@ -15,7 +15,18 @@ const PAGINAS = [
   "cronometro.html", "conta.html", "privacidade.html", "termos.html",
 ];
 const ASSETS = ["assets/css/app.css", "assets/js/astral.js", "assets/js/estado.js", "assets/js/transicao.js"];
-const FUNCOES = ["processar-edital", "gerar-questoes", "buscar-recursos", "minha-quota", "excluir-conta"];
+// Codigo esperado por funcao. 401 = recusa a chave publica (o normal).
+// gerar-questoes responde 503 porque foi DESLIGADA em 31/07 (CLAUDE.md 8.15) --
+// o interruptor vem antes da autenticacao, entao ela nunca chega no 401.
+const FUNCOES = {
+  "processar-edital": 401,
+  "gerar-questoes": 503,
+  "buscar-recursos": 401,
+  "minha-quota": 401,
+  "excluir-conta": 401,
+  "entrar-lista-espera": 400,
+  "registrar-erro": 204,
+};
 const TABELAS = ["perfis", "lista_espera", "uso_ia", "progresso", "eventos", "sessoes_estudo"];
 
 const CHAVE_PUB = (fs.readFileSync("assets/js/astral.js", "utf8")
@@ -57,14 +68,14 @@ async function status(url, opts) {
     linha(ok, `${h.padEnd(28)} ${v ? (v.length > 42 ? v.slice(0, 42) + "..." : v) : "AUSENTE"}`);
   }
 
-  console.log("\n== 4. EDGE FUNCTIONS RECUSAM A CHAVE PUBLICA ==");
-  for (const f of FUNCOES) {
+  console.log("\n== 4. EDGE FUNCTIONS RESPONDEM O ESPERADO A CHAVE PUBLICA ==");
+  for (const [f, esperado] of Object.entries(FUNCOES)) {
     const s = await status(`${API}/functions/v1/${f}`, {
       method: "POST",
       headers: { Authorization: `Bearer ${CHAVE_PUB}`, "Content-Type": "application/json" },
       body: "{}",
     });
-    linha(s === 401, `${f.padEnd(20)} HTTP ${s} (esperado 401)`);
+    linha(s === esperado, `${f.padEnd(20)} HTTP ${s} (esperado ${esperado})`);
   }
 
   console.log("\n== 5. LEITURA ANONIMA DAS TABELAS E NEGADA ==");
