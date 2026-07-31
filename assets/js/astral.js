@@ -205,11 +205,16 @@ export async function buscarQuota() {
  * espera. A sitekey NAO e segredo (aparece no HTML de qualquer jeito); o que e
  * segredo e a secret key, que vai no painel do Supabase, nunca neste arquivo.
  *
- * ⚠️ Ligar aqui SEM configurar a secret no Supabase quebra o login: o servidor
- * passaria a exigir um token que ele nao sabe validar. A ordem correta e:
- * 1) secret no Supabase  2) sitekey aqui. Ver CLAUDE.md 13.5.
+ * ⚠️ ORDEM DE LIGAR -- eu errei isto na pratica em 30/07/2026 e derrubei o
+ * login por ~2 minutos. A ordem correta e:
+ *   1) sitekey AQUI, e publicar (o navegador passa a mandar token; o servidor
+ *      ainda nao confere, entao o token e simplesmente ignorado -- inofensivo)
+ *   2) so entao a secret no Supabase (o servidor passa a exigir o token que o
+ *      navegador ja manda)
+ * Inverter derruba o login de todo mundo, porque o servidor exige um token que
+ * ninguem esta mandando. Ver CLAUDE.md 13.5.
  */
-export const HCAPTCHA_SITEKEY = '';
+export const HCAPTCHA_SITEKEY = '1f644a7e-5b9e-47a2-8d3e-2c8c4b329b06';
 
 let promessaScript = null;
 

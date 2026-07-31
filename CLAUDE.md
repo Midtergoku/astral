@@ -1581,9 +1581,21 @@ O lado do frontend já está construído e no ar, **desligado de propósito**:
 ignora — as telas funcionam exatamente como antes. Verificado: 25 blocos de script sem erro de
 sintaxe e CSS resolvido idêntico.
 
-> ⚠️ **A ordem de ligar importa e é contraintuitiva:** primeiro a *secret* no Supabase, depois
-> a *sitekey* no `astral.js`. Inverter derruba o login de todo mundo — o servidor passaria a
-> exigir um token que o navegador ainda não manda.
+> 🔴 **A ordem de ligar importa — e a versão anterior desta seção dizia o CONTRÁRIO do certo.**
+> Eu segui a minha própria instrução errada em 30/07/2026 e **derrubei o login por ~2 minutos.**
+>
+> **Ordem correta:**
+> 1. **Sitekey** em `assets/js/astral.js` → publicar. O navegador passa a mandar o token; o
+>    servidor ainda não confere, então ele é **ignorado**. Inofensivo.
+> 2. **Só então a secret** no Supabase. O servidor passa a exigir o token que o navegador já
+>    está mandando.
+>
+> **Por que inverter quebra:** ligar a secret primeiro faz o servidor exigir um token que
+> ninguém está enviando → `400 captcha_failed` em todo login, cadastro e recuperação de senha.
+> Medido: `{"error_code":"captcha_failed","msg":"request disallowed (no captcha_token found)"}`.
+>
+> Para desligar em emergência existe `scratchpad/captcha-toggle.ps1` (recriar se sumir):
+> `PATCH /config/auth` com `security_captcha_enabled = false` volta tudo ao normal em segundos.
 
 **`cadastro.html` (lista de espera) ficou de fora, de propósito.** O captcha do Supabase cobre
 só os endpoints de *autenticação*; a lista de espera é um INSERT direto no PostgREST, que ele
