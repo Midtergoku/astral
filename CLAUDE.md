@@ -1,71 +1,73 @@
 # ASTRAL — Contexto do Projeto
 
 > Arquivo vivo. Atualizar ao fim de cada bloco de trabalho relevante.
-> Última atualização: 30/07/2026 — fim da sessão 3 (quota por unidade, gate, hCaptcha inerte).
+> Última atualização: 31/07/2026 — fim da sessão 5 (segurança endurecida, roadmap do design pronto).
 
 ---
 
 ## 0. ▶ RETOMAR AQUI
 
-**A Etapa 1 (blindagem) está fechada.** Blocos A, B1, B2, B3, C e D concluídos e em produção.
-Depois dela, ainda em 30/07/2026: quota por unidade (8.12), gate free vs pro (8.13) e o
-hCaptcha preparado e desligado (13.5).
+**A Etapa 1 (blindagem) está fechada, e os pendentes dela também.** Blocos A, B1, B2, B3, C e D,
+mais quota por unidade (8.12), gate free vs pro (8.13), hCaptcha **ligado e validado** (13.5),
+monitoramento de erros (8.14), lista de espera protegida, e o endurecimento de segurança da
+lista que ele trouxe (8.18).
 
-### ▶ A sessão 4 começa AQUI, nesta ordem
+### ▶ A SESSÃO 6 COMEÇA AQUI: **DESIGN, bloco V0**
 
-Ordem do Lucas ao fechar a sessão 3: *"partiremos a partir desse ponto respondendo os tópicos
-acima"*. Ou seja — **não abrir com CSS.** Abrir perguntando/resolvendo os dois blocos abaixo:
+Ordem do Lucas ao fechar a sessão 5: *"continuaremos exatamente daqui amanhã"*. E o "daqui" é
+o **design** — ele disse *"quero repaginar tudo"* e foi **baixar skills de design** antes de
+começar.
 
-1. **As três decisões dele** (tabela "O que depende do Lucas") — créditos, chaves do hCaptcha,
-   e ligar ou desligar a busca de professores
-2. **As três tarefas rápidas** (lista "O que eu faria a seguir") — ~1h30 somadas
+**Não há mais nada bloqueando.** Todos os tópicos que atrasavam o visual foram resolvidos nas
+sessões 4 e 5. A Etapa 1 e os pendentes dela estão fechados.
 
-**Só depois disso, o visual/CSS**, que é o que ele quer fazer de verdade nesta sessão. Ele vai
-trazer a lista do que quer aprimorar. Ver Etapa 3 na seção 9.
+**Abrir assim, nesta ordem:**
 
-### Estado verificado em produção (tools/testa-site.js, 39 checagens)
+1. `node tools/checa-saude.js` — regra 0.35, primeira coisa de toda sessão
+2. Perguntar quais **skills de design** ele baixou; elas podem trazer processo próprio que
+   substitui ou complementa o roadmap
+3. **Bloco V0 do roadmap (9.1)** — levar 3 direções visuais concretas, com paleta em hex, par
+   de fontes e referência real. Defender a **militar/insígnia**, pelos motivos da 9.1
+4. As 3 perguntas do V0: qual direção · o que é a "tag estilo de jogos" · tem site de referência
+
+> ⚠️ **Não começar mexendo em CSS.** O diagnóstico da 9.1 é que o problema não é feiura, é
+> genérico — e genérico vem da fundação, não do componente. Mexer em cor antes de decidir a
+> direção é retrabalho garantido.
+
+### Estado verificado em produção
 
 ```
-16 páginas HTTP 200          6 cabeçalhos de segurança ativos
-4 assets compartilhados      5 edge functions recusam a chave pública (401)
-6 tabelas negam leitura anônima      login por e-mail e Google ligados
+node tools/checa-saude.js      site, login por senha, Google, 6 funcoes, captacao de leads
+node tools/testa-site.js       39 checagens amplas
+node tools/varre-xss.js        dado nao confiavel sem escape
+node tools/testa-isolamento.js um usuario alcanca o dado de outro?
+node tools/testa-auditoria.js  o log de eventos criticos funciona?
+node tools/valida-css.js       CSS resolvido igual ao ref  (⚠️ muda de papel no V1 — ver 9.1)
 ```
 
-Rodar de novo com `node tools/testa-site.js`. Complementos: `node tools/valida-css.js`.
+Todas verdes em 31/07/2026.
 
 ### O que depende do Lucas
 
 | # | O quê | Bloqueia |
 |---|---|---|
-| 1 | **Créditos na Anthropic.** Adiado por ele em 31/07 — vai colocar quando receber do serviço. **Agora é gasto único, não mensal**: US$ 5 testa, US$ 15–20 faz o onboarding de 10 beta testers (10.4) | teste real do upload de edital; e medir o que hoje é estimativa |
-| 2 | ~~Testar o login por e-mail e senha~~ ✅ **CONFIRMADO POR ELE em 31/07**: *"consegui logar"*. O ciclo do captcha está validado de ponta a ponta, com widget renderizando e domínio aceito | — |
-| 3 | ~~Chaves do hCaptcha~~ ✅ **entregues e aplicadas em 31/07** | — |
-| 4 | ~~Desligar a busca de professores?~~ ✅ **resolvido de outro jeito**: ficou ligada, mas virou busca única e permanente (8.16) — custo recorrente foi a zero sem perder a funcionalidade | — |
+| 1 | **Créditos na Anthropic.** Adiado por ele — vai colocar quando receber do serviço. **Agora é gasto único, não mensal**: US$ 5 testa, US$ 15–20 faz o onboarding de 10 beta testers (10.4) | teste real do upload de edital; e medir o que hoje é estimativa |
+| 2 | **Alerta de custo no painel da Anthropic** — é na conta dele, eu não alcanço | aviso antes da fatura, se algo disparar consumo |
+| 3 | ~~Testar login por e-mail e senha~~ ✅ **confirmado em 31/07**: *"consegui logar"* | — |
+| 4 | ~~Chaves do hCaptcha~~ ✅ entregues e aplicadas | — |
 
-> ✅ **O captcha está validado de ponta a ponta.** Era a última incerteza da 13.5 — a única
-> ponta que não dava para verificar sem navegador. Ele testou e funcionou.
+> ⚠️ **Dinheiro é restrição real.** *"Nem sempre eu tenho dinheiro"*, e R$ 70–100/mês já pesaria.
+> Nunca propor algo que custe sem dizer o preço na mesma frase. **Isso melhorou muito em 31/07:**
+> com questões desligadas e recursos permanentes, o custo virou uma vez por pessoa (10.4).
 
-> ⚠️ **Dinheiro é restrição real aqui.** Ele disse em 31/07: *"nem sempre eu tenho dinheiro"*, e
-> que R$ 70–100/mês já pesaria. Não propor nada que custe sem dizer o preço na mesma frase.
-> **Isso ficou muito melhor em 31/07:** com questões desligadas e recursos permanentes, o custo
-> deixou de ser mensal e virou uma vez por pessoa (10.4).
+### O que sobrou na fila técnica (nada urgente)
 
-### ✅ As três tarefas rápidas — feitas em 31/07/2026
-
-1. ~~"Esqueci minha senha" não entrega para ninguém~~ → a tela agora **avisa a verdade** e manda
-   falar com o Lucas no WhatsApp. Some quando houver domínio próprio (13.4).
-2. ~~Nenhum monitoramento de erro~~ → tabela `erros_cliente` + função `registrar-erro` +
-   captura no `astral.js`. Ver 8.14.
-3. ~~Promover alguém para `beta` é SQL na mão~~ → passo a passo completo em **13.6**.
-
-### O que sobrou na fila
-
-1. 🟠 **A bomba de e-mail da `lista_espera` continua aberta** (8.2, ALTO 5). O captcha do
-   Supabase **não** cobre esse formulário — é INSERT direto no PostgREST. Falta a edge function
-   `entrar-lista-espera` que confere o token do hCaptcha. **Agora dá para construir**, porque a
-   secret existe.
-2. 🟡 **`processar-edital` em janela mensal** em vez de diária (8.12).
-3. 🟡 **Nenhum registro de quem apaga linha da `lista_espera`** — ver 8.3, "Observação de produto".
+1. 🟡 **`processar-edital` em janela mensal** em vez de diária (8.12) — ninguém processa 10
+   editais por dia, a pessoa tem um edital
+2. 🟡 **Backup nunca foi restaurado.** O Supabase faz diário no plano grátis, mas testar exigiria
+   um projeto separado. *Backup que nunca foi restaurado não é backup.*
+3. 🟡 **Validação de assinatura do webhook** — **bloqueador de lançamento** quando o Mercado Pago
+   entrar. Sem ela, qualquer POST vira "pagamento aprovado" (8.19)
 
 ---
 
@@ -1503,6 +1505,22 @@ erros.
 
 **5. `rel="noopener"`** nos 4 links `target="_blank"`.
 
+**6. Olhinho de ver a senha** (`olhinhoDeSenha()` em `astral.js`, nas 3 telas de senha)
+
+Pedido dele no mesmo prompt. Não é só conforto — **quem não consegue conferir o que digitou
+escolhe senha curta e óbvia**, ou erra e culpa o site. Em celular, com teclado que corrige
+sozinho, é pior.
+
+Três decisões de segurança embutidas:
+- **começa sempre escondido** — mostrar é ação deliberada da pessoa
+- **esconde sozinho** ao trocar de aba (`visibilitychange`) ou sair da página (`pagehide`), para
+  a senha não ficar legível na tela de um computador compartilhado
+- `type="button"` no botão, senão ele viraria submit dentro de `<form>`; e `aria-pressed` para
+  leitor de tela anunciar o estado
+
+Em `redefinir-senha.html` vale dobrado: são dois campos, e sem conferir o que digitou "as senhas
+não conferem" vira adivinhação — justamente na tela de quem já esqueceu a senha.
+
 ### Verificado e já estava correto
 
 | Item da lista | Estado |
@@ -2472,3 +2490,59 @@ dá para verificar sem browser. Se falhar, `tools\captcha-toggle.ps1` resolve em
 
 **Sobrou na fila:** proteger a `lista_espera` contra robôs (agora construível, a secret existe),
 `processar-edital` em janela mensal, e o visual/CSS — que é o que ele quer fazer de verdade.
+
+---
+
+### Sessão 5 — 31/07/2026 · Escopo enxugado, segurança endurecida e o design planejado
+
+Sessão longa, feita quase toda com o Lucas **fora do computador** — ele autorizou aplicar tudo
+e foi jantar no meio. **9 commits** (`8da42da` → `b9753b6`), todos enviados e verificados.
+
+**O produto encolheu de propósito, e isso salvou a conta.** Ele decidiu desligar as **questões**
+(*"pesam mais que a busca de professores"*) e transformar a busca de professores em **uma busca
+só, permanente**. O argumento dele para a segunda não foi custo, foi produto: *"vai organizar
+mais ainda o estudo dele, ele não vai ter que ficar procurando outros professores sempre"*.
+
+O efeito colateral é o número mais importante da sessão: **o custo da Anthropic deixou de ser
+mensal e virou ~R$ 5–8 uma vez por pessoa.** 10 beta testers eram R$ 50–140 *todo mês*; agora
+são R$ 50–80 e acabou. O medo dele de *"R$ 70–100 por mês pesaria"* deixou de se aplicar.
+
+**Duas regras novas dele, ambas permanentes:**
+
+| Regra | Onde | Por que nasceu |
+|---|---|---|
+| **Gravar a cada prompt** (0.3) | acrescentando, nunca sobrescrevendo | Ele perguntou se eu gravava sozinho. **Eu não gravava** — só quando pedido. Tudo entre um pedido e outro se perdia |
+| **Ele não executa nada** (0.35) | eu detecto e conserto | Eu tinha escrito "se der problema, abra o terminal". Resposta: *"não, eu não vou abrir nada... você dá um jeito de fazer"* |
+
+Da segunda saiu `tools/checa-saude.js`, que agora roda como **primeira coisa de toda sessão**.
+Com o limite dito na cara: **não é vigilância 24h**, só garante que nenhuma sessão comece em
+cima de um site quebrado.
+
+**Segurança.** Ele trouxe uma lista de 20 ataques + checklist (feita por outra IA) e mandou
+aplicar tudo menos o pago e menos 2FA. Resultado em 8.18 e 8.19 — e a distinção que mais
+importa: *"não fiz"* e *"não existe neste stack"* são respostas diferentes, e a lista assumia
+Next.js/React/Stripe.
+
+**Os dois achados que valeram a varredura:**
+1. 🔴 **XSS real em `edital.html`** — nome do edital, data da prova e contagem de matérias
+   interpolados sem escape, todos vindos da leitura do PDF pela IA. `esc()` **estava importado
+   no arquivo** e não foi usado ali.
+2. 🐛 **Bug de perda de dados** no `pagehide`: o comentário dizia proteger o último passo do
+   usuário e o código **cancelava** o salvamento.
+
+**Também nesta sessão:** captcha validado de ponta a ponta (ele testou: *"consegui logar"*),
+lista de espera fechada com duas travas, log de auditoria com trigger, olhinho de ver senha,
+documentos legais revisados (a **Anthropic não era mencionada** na Política, e o edital viaja
+para os EUA), e o **roadmap do design em 8 blocos** (9.1).
+
+**Meus erros nesta sessão** (todos na tabela da 0.1):
+
+| O que eu fiz | O que aprendi |
+|---|---|
+| `drop policy` com o nome **de memória**; o `if exists` virou aviso silencioso e eu dei por feito | Consultar `pg_policies` antes. O `if exists` protege contra erro *e* esconde o engano |
+| Teste de invasão deu "tudo bloqueado" e **nem estava autenticando** — chave errada, depois o próprio captcha barrando | Resultado negativo em teste de segurança **não vale sem prova de que o ataque foi tentado com credencial válida** |
+| Deixei 3 pontos sem escape no Bloco B3 | Varri por **lista de nomes que eu lembrava**, não por origem do dado. Por isso `tools/varre-xss.js` existe agora |
+| Criei um arquivo vazio chamado `por` com um script que quebrou no escape | Conferir `git status` antes de commitar, não só o que eu pretendia mudar |
+
+**Estado ao fim:** árvore limpa, `main` em sincronia, 6 ferramentas de verificação no projeto,
+todas verdes. **A sessão 6 abre no design, bloco V0** — sem nada bloqueando.
