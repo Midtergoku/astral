@@ -1613,8 +1613,9 @@ primeiros testadores entrarem.
 
 ### Etapa 3 — Visual e gamificação  ← **É AQUI QUE A PRÓXIMA SESSÃO COMEÇA**
 
-Adiado três vezes. Ele confirmou em 31/07: *"a parte do visual, não vamos mexer agora, só mais
-tarde quando voltar do trabalho"*. Ele vai trazer a lista do que quer aprimorar.
+Adiado três vezes. Em 31/07 ele decidiu: *"quero repaginar tudo"*, e vai **baixar skills de
+design** antes de começar. Objetivo declarado: *"deixar com menos cara de feita de IA
+possível"*. Roadmap completo em **9.1**.
 
 **Tudo o que ele já pediu para esta etapa, ao longo das sessões — nada disso pode ser esquecido:**
 
@@ -1631,6 +1632,84 @@ tarde quando voltar do trabalho"*. Ele vai trazer a lista do que quer aprimorar.
 > um ranking fazer sentido. Confirmar com ele antes de qualquer coisa comparativa.
 
 ---
+
+---
+
+## 9.1. Roadmap do design — Etapa 3 (montado em 31/07/2026)
+
+### Diagnóstico: o que **medidamente** denuncia "feito por IA"
+
+Não é opinião — foi contado no código em 31/07:
+
+| Sinal | Medição | Por que denuncia |
+|---|---|---|
+| **Roxo `#7C5CFC` sobre quase-preto `#0A0A0F`** | a paleta atual | É *a* paleta canônica de SaaS gerado por IA. Praticamente toda landing gerada nos últimos anos é roxo sobre preto |
+| **Inter** no corpo | fonte atual | A fonte mais "padrão de IA" que existe. Space Grotesk é melhor, mas também é escolha de template |
+| **118 emojis como ícone** | contados nas 16 páginas | Produto desenhado usa conjunto coerente. Emoji muda de desenho por sistema operacional |
+| **8 raios de borda** | 8, 10, 12, 14, 16, 20px, 50%, 999px | Não é sistema, é acúmulo. Produto desenhado tem 2 ou 3 |
+
+> **O site não é feio — é genérico.** E genérico é o que "cara de IA" significa. Isso **não se
+> conserta trocando componente**: vem da fundação (paleta, tipo, espaçamento, voz). Por isso o
+> roadmap começa por decidir *o que ele deve ser*.
+
+### A direção que eu quero defender no V0
+
+**Militar / insígnia.** O produto **já tem** patentes (Bombeiro 3ª Classe, Cabo, Sargento — ver
+seção 6). Isso é um mundo visual pronto: brasões, divisas, estêncil, verde-oliva ou
+azul-marinho, textura de tecido, medalha de metal.
+
+Três vantagens de uma vez:
+1. **Nenhuma IA gera isso por padrão** — resolve o pedido dele na raiz
+2. Combina exatamente com o público (concurseiro de carreira militar)
+3. **Resolve de graça a "tag estilo de jogos"** — a tag vira uma *divisa de patente*, não um
+   adesivo genérico
+
+Levar 3 direções concretas mesmo assim (paleta em hex, par de fontes, referência real), porque
+a escolha é dele. Mas esta é a recomendação.
+
+### Os 8 blocos
+
+| Bloco | O quê | Entrega |
+|---|---|---|
+| **V0** | **Direção** — 3 opções concretas, ele escolhe 1 | documento de 1 página; vira a lei do resto |
+| **V1** | **Fundação** — paleta, escala de tipo, espaçamento, raios, sombras | `estilo.html` para ele aprovar **antes** de tocar em 16 páginas |
+| **V2** | **Casca compartilhada** — sidebar, topbar, cartões, botões, campos | `app.css` reescrito; decide os 35 seletores que hoje divergem (8.5) |
+| **V3** | **118 emojis → conjunto de ícones** | maior efeito visual por linha de código do roadmap |
+| **V4** | **Landing** — hierarquia de verdade e narrativa do nicho | `index.html` |
+| **V5** | **Telas de entrada** — login, criar conta, lista de espera | primeira impressão de quem vem do WhatsApp |
+| **V6** | **Telas do app, uma a uma** — **Minha conta primeiro** | ele apontou que é a mais atrasada |
+| **V7** | **Gamificação** — tag, quests, ranking pessoal | ver avisos abaixo |
+| **V8** | **Movimento e celular** | `motion` já carregado e quase não usado |
+
+### Ordem sugerida de execução
+
+`V0 → V1 → V3 → V2 → V4 → V5 → V6 → V7 → V8`
+
+**V3 sobe para o 3º lugar** de propósito: trocar emoji por ícone é rápido, independente do
+resto, e o site já muda de cara antes de eu tocar no layout.
+
+### Avisos que valem mais que o roadmap
+
+> 🔴 **Ranking é PESSOAL, não entre usuários.** Ele disse "ranking pessoal" em 30/07. Ranking
+> público desmotiva quem está atrás e a base é pequena demais para fazer sentido. Confirmar
+> antes de qualquer coisa comparativa.
+
+> 🔴 **Se o ranking der prêmio, desconto ou vantagem, o XP precisa ser validado no servidor
+> ANTES.** Hoje qualquer um abre o console e escreve o XP que quiser (8.19). Enquanto for "você
+> contra você", é inofensivo. No instante em que valer algo, deixa de ser.
+
+> ⚠️ **A "tag em estilo de jogos" é a única peça do roadmap sem definição.** Ele citou em 29/07
+> e nunca detalhou. **Perguntar antes de inventar** — se a direção militar for escolhida, a
+> hipótese é que seja a divisa de patente.
+
+### O que muda no `valida-css.js` durante esta etapa
+
+A ferramenta existe para **provar que o CSS não mudou** — foi o que garantiu que as
+refatorações não quebravam nada. Durante a repaginada ela vai acusar diferença em tudo, porque
+a diferença é o objetivo.
+
+**Trocar o papel dela:** em vez de "provar que nada mudou", passa a **listar o que mudou**, para
+eu conferir que mudou só o pretendido. Adaptar no começo do V1.
 
 ## 10. Decisões em aberto
 
