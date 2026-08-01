@@ -218,6 +218,40 @@ nunca uma coisa a ligar sem avisar.
 
 ---
 
+## 0.36. Convenções de código — confirmadas pelo Lucas em 31/07/2026
+
+> Eu tinha adotado as duas por conta própria e nunca perguntei. Ao organizar o contexto, ele
+> confirmou que quer as duas escritas como regra.
+
+### 1. Comentário em código **sem acento**; em documento **com acento**
+
+| Onde | Como |
+|---|---|
+| `.ts`, `.js`, `.sql`, `.ps1` | português **sem acento** |
+| `.md`, `.html` (texto que o usuário lê) | português **com acento**, normal |
+
+**Por quê:** a armadilha do PowerShell (0.1) — o PS 5.1 lê UTF-8 como ANSI e destrói acento.
+Já aconteceu uma vez e corrompeu dois HTMLs inteiros. Comentário sem acento sobrevive a
+qualquer ferramenta que eu use por engano. O texto que o **usuário** lê nunca abre mão do
+acento — ali o cuidado é usar só `Edit` ou Node.
+
+### 2. Toda afirmação passa por teste contra a **API real**
+
+Não confiar em leitura de código. Se eu vou dizer que algo funciona, funciona *daquele jeito*,
+ou está protegido — **rodar contra o sistema de verdade primeiro**.
+
+**Por quê:** foi o que pegou quase todos os bugs desta sessão. Exemplos concretos:
+
+- `minha-quota` devolvia o objeto sem envelope → o aviso na tela **nunca apareceria**, sem erro
+  no console. Só apareceu porque testei contra a API.
+- O teste de invasão deu "tudo bloqueado" e **nem estava autenticando**.
+- O `drop policy` com nome errado virou aviso silencioso, e eu dei o trabalho por feito.
+
+É a mesma regra da 0.1, aplicada a código em vez de a número. As ferramentas em `tools/`
+existem para isso — usar, não recriar.
+
+---
+
 ## 0.4. Limpeza — o que pode sair do arquivo
 
 > Ordem do Lucas em 31/07/2026: *"tudo que for inútil... coisas realmente inúteis que não vão
@@ -281,34 +315,35 @@ indicação de recursos de estudo.
 
 ---
 
-## 3. Mapa de arquivos
+## 3. Mapa de arquivos — **não manter à mão**
 
-```
-ASTRAL/
-├── index.html          1154 linhas  Landing page (hero, features, pricing, FAQ)
-├── cadastro.html        538         Lista de espera (beta testers)
-├── criar-conta.html     448         Signup (email/senha + Google OAuth)
-├── login.html           374         Login
-├── dashboard.html      1454         Núcleo: upload edital, XP, cronograma do dia
-├── progresso.html       794         Progresso por matéria + modal rebalanceamento
-├── conquistas.html      854         Badges + habilidades ocultas
-├── edital.html          772         Gerenciar edital carregado (re-upload)
-├── calendario.html      829         Eventos e datas importantes
-├── recursos.html        834         Professores YouTube + materiais (IA + cache 24h)
-├── questoes.html       1060         Questões geradas por IA
-├── cronometro.html      431         Pomodoro + modo livre
-├── privacidade.html     188         Política LGPD
-├── CLAUDE.md                        Este arquivo
-└── supabase/
-    ├── config.toml                  Só declara 2 das 4 funções
-    └── functions/
-        ├── notificar-cadastro/      Resend → email pro Lucas
-        ├── processar-edital/        Claude lê PDF → JSON de matérias
-        ├── buscar-recursos/         Claude + web_search → professores/materiais
-        └── gerar-questoes/          Claude → questões da banca
+> ⚠️ **Aqui existia uma árvore de arquivos com contagem de linhas. Foi removida em 31/07/2026
+> porque estava errada em TODAS as linhas** — dizia 1154 para o `index.html` (eram 1300), 374
+> para o `login.html` (eram 539), e listava **4 edge functions quando já havia 8**. Um mapa
+> desatualizado é pior que mapa nenhum: eu poderia ler e concluir que uma função não existe.
+>
+> **Regra:** o que o código já responde, perguntar ao código. Não copiar para cá.
+
+```bash
+ls *.html                        # as paginas
+ls supabase/functions/           # as edge functions
+ls supabase/migrations/          # o schema, em ordem
+ls tools/                        # as ferramentas de verificacao
 ```
 
-Não existe pasta `migrations/` — **o schema do banco só existe na nuvem**, não versionado.
+**O que NÃO dá para descobrir olhando a pasta, e por isso fica escrito:**
+
+- **Não há build.** Nem npm, nem `package.json`, nem bundler. Todo JS é inline ou módulo ES
+  carregado direto. É por isso que a CSP precisa de `'unsafe-inline'` (8.8).
+- **O compartilhado vive em `assets/`**: `css/app.css` (casca das 8 telas do app),
+  `js/astral.js` (núcleo: escape, sessão, captcha, toast, chamada de IA),
+  `js/estado.js` (progresso no banco), `js/transicao.js`.
+- **`supabase/functions/_shared/comum.ts`** é o coração do backend: autenticação, quota,
+  CORS, interruptor de funções desligadas. Mexer ali afeta as 8 funções.
+
+> **Correção histórica:** até 29/07/2026 não existia pasta `migrations/` e **o schema só existia
+> na nuvem**. Isso foi resolvido no Bloco B1 (8.6) — hoje toda mudança de banco é migration
+> versionada. Fica registrado porque explica por que o schema antigo não tem histórico.
 
 ---
 
