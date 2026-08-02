@@ -196,6 +196,108 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   .sidebar ~ .main { margin-left: 0; padding: 1.25rem; max-width: 100vw; }
 }
 
+/* ═══ COMPONENTES DA CASCA — o que faltava ═══
+   Especificidade normal (0,1,0): a pagina que declarar a propria versao vence
+   pela ordem, porque o <style> inline vem depois do <link>. Isto e piso, nao teto.
+
+   🐛 Motivo (02/08/2026): `.card` NAO EXISTIA em lugar compartilhado nenhum --
+   nem no app.css. Cada pagina declarava a sua, e a conta.html simplesmente nao
+   declarava. O HTML dela ja dizia class="card" em 5 secoes e nenhuma virava
+   cartao: a pagina inteira era texto solto. Nao era falta de design, era falta
+   de CSS -- de novo. */
+.card {
+  background: var(--casco);
+  border: 1px solid var(--linha);
+  border-radius: var(--r-g);
+  padding: var(--e4);
+  margin-bottom: var(--e3);
+}
+.page-sub, .section-sub {
+  color: var(--texto-2);
+  font-size: var(--t-sm);
+  margin: 0 0 var(--e3);
+  max-width: 68ch;
+}
+.section-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--t-lg);
+  letter-spacing: -.01em;
+  margin: 0 0 var(--e1);
+  color: var(--texto);
+}
+/* uma marca de latao a esquerda do titulo -- a mesma linguagem da divisa */
+.card > .section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px; height: .85em;
+  background: var(--latao);
+  border-radius: 0 2px 2px 0;
+  margin-right: .6rem;
+  vertical-align: -.06em;
+}
+.dados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1px;
+  background: var(--linha);
+  border: 1px solid var(--linha);
+  border-radius: var(--r-p);
+  overflow: hidden;
+  margin-top: var(--e3);
+}
+.dados-grid > * { background: var(--casco-2); padding: var(--e3); }
+.dados-grid dt, .dados-grid .rotulo, .dados-grid strong {
+  display: block;
+  font-family: var(--dado);
+  font-size: var(--t-xs);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--texto-3);
+  margin-bottom: var(--e1);
+  font-weight: 700;
+}
+.dados-grid dd { margin: 0; font-size: var(--t-md); color: var(--texto); }
+
+/* ZONA DE PERIGO: fundo levemente quente e faixa de brasa. Ela tem que
+   PARECER diferente do resto, nao so estar escrita no fim da pagina. */
+.card.zona-perigo {
+  border-color: rgba(180,67,46,.45);
+  border-left: 3px solid var(--brasa);
+  background: linear-gradient(180deg, rgba(180,67,46,.07), transparent 60%), var(--casco);
+}
+.zona-perigo .section-title { color: var(--brasa-c); }
+.zona-perigo .section-title::before { background: var(--brasa); }
+.card.zona-perigo .aviso {
+  background: rgba(180,67,46,.09);
+  border: 1px solid rgba(180,67,46,.25);
+  border-radius: var(--r-p);
+  padding: var(--e3);
+  margin: var(--e3) 0;
+  font-size: var(--t-sm);
+}
+
+/* BOTOES da casca */
+.btn {
+  font-family: var(--display);
+  font-size: var(--t-sm); font-weight: 700;
+  letter-spacing: .05em;
+  padding: .7rem 1.15rem;
+  border-radius: var(--r-p);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--e2);
+  text-decoration: none;
+}
+.btn-roxo    { background: var(--latao); color: #121A24; border-color: var(--latao); }
+.btn-fantasma{ background: transparent; color: var(--texto); border-color: var(--linha); }
+.zona-perigo .btn-fantasma { color: var(--brasa-c); border-color: rgba(180,67,46,.5); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-roxo:hover     { background: var(--latao-c); border-color: var(--latao-c); }
+  .btn-fantasma:hover { border-color: var(--latao); color: var(--latao-c); }
+  .zona-perigo .btn-fantasma:hover { background: var(--brasa); color: #fff; border-color: var(--brasa); }
+}
+
 /* ═══ MENU LATERAL ═══
    A regra base de .nav-link mora INLINE em cada pagina (e um dos seletores que
    divergem, ver rules/paginas.md 8.5). CSS inline vem depois do <link> e vence
@@ -234,6 +336,107 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   TRANSICAO ENTRE PAGINAS — a correcao do "seco"
+   ══════════════════════════════════════════════════════════════════════════
+   O navegador fotografa a pagina velha, carrega a nova por baixo e faz a
+   passagem. Nao ha o descarregar-e-remontar que causava a piscada.
+
+   A barra lateral leva um NOME: o navegador entende que a sidebar da pagina
+   A e a MESMA da pagina B, e simplesmente nao a anima. Ela fica parada
+   enquanto o conteudo desliza -- que e o efeito de aplicativo, nao de site.
+
+   Navegador sem suporte ignora tudo isto e cai no fade do transicao.js.
+   Nada quebra. */
+@view-transition { navigation: auto; }
+
+.sidebar   { view-transition-name: barra-lateral; }
+.topbar    { view-transition-name: barra-topo; }
+.main      { view-transition-name: conteudo; }
+.page-title{ view-transition-name: titulo-pagina; }
+
+/* o conteudo entra deslizando e sai deslizando, na mesma direcao da leitura */
+::view-transition-old(conteudo) {
+  animation: conteudo-sai 180ms var(--saida) both;
+}
+::view-transition-new(conteudo) {
+  animation: conteudo-entra 320ms var(--saida) 40ms both;
+}
+@keyframes conteudo-sai   { to   { opacity: 0; transform: translateX(-14px) scale(.995); } }
+@keyframes conteudo-entra { from { opacity: 0; transform: translateX(22px)  scale(.995); } }
+
+/* o titulo tem vida propria: sobe enquanto o resto desliza */
+::view-transition-old(titulo-pagina) { animation: titulo-sai 160ms var(--saida) both; }
+::view-transition-new(titulo-pagina) { animation: titulo-entra 340ms var(--saida) 60ms both; }
+@keyframes titulo-sai   { to   { opacity: 0; transform: translateY(-10px); } }
+@keyframes titulo-entra { from { opacity: 0; transform: translateY(14px); } }
+
+/* a barra lateral e a do topo NAO se mexem: sao a moldura */
+::view-transition-old(barra-lateral),
+::view-transition-new(barra-lateral),
+::view-transition-old(barra-topo),
+::view-transition-new(barra-topo) { animation: none; mix-blend-mode: normal; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VIDA NAS PECAS — o que o Lucas chamou de "efeitos"
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* CARTOES: entram em cascata visivel e sobem ao passar o mouse.
+   O brilho e latao com pouca opacidade -- o metal aparecendo sob a luz. */
+.card, .stat-card, .materia-card, .habilidade-card, .recurso-card {
+  transition: transform 240ms var(--saida),
+              border-color 240ms ease,
+              box-shadow 240ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .card:hover, .stat-card:hover, .materia-card:hover,
+  .habilidade-card:hover, .recurso-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(192,138,46,.35);
+    box-shadow: 0 10px 30px -12px rgba(0,0,0,.6),
+                0 0 0 1px rgba(192,138,46,.12);
+  }
+}
+
+/* BOTOES: o brilho atravessa a peca quando o mouse passa.
+   Puro CSS, roda na placa de video, e o unico enfeite que eu deixei chamativo
+   -- os outros ficam quietos para este aparecer (a regra do V0: gastar ousadia
+   em um lugar so). */
+.btn-primary, .btn-1, button.primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after, .btn-1::after, button.primary::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 35%,
+              rgba(255,255,255,.28) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 600ms var(--percurso);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover::after, .btn-1:hover::after, button.primary:hover::after {
+    transform: translateX(120%);
+  }
+}
+
+/* NUMEROS grandes pulsam de leve quando a pagina abre -- o XP, a patente,
+   a porcentagem. Uma vez so, sem repetir: e comemoracao, nao piscar. */
+.stat-value, .xp-valor, .nivel-numero {
+  animation: astral-pulso 700ms var(--saida) both;
+}
+@keyframes astral-pulso {
+  0%   { opacity: 0; transform: scale(.94); }
+  60%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* BARRAS DE PROGRESSO crescem em vez de aparecer prontas */
+.progress-fill, .barra-progresso > *, .progresso-preenchido {
+  transition: width 900ms var(--percurso);
+}
+
 /* ═══ QUEM MARCOU "REDUZIR MOVIMENTO" NO APARELHO ═══
    Reduzido nao e zero: cor e opacidade ficam, deslocamento sai. */
 @media (prefers-reduced-motion: reduce) {
@@ -244,4 +447,6 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
     scroll-behavior: auto !important;
   }
   .cascata > * { opacity: 1; transform: none; }
+  .stat-value, .xp-valor, .nivel-numero { animation: none; opacity: 1; }
+  ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
