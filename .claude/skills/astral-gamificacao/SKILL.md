@@ -350,3 +350,39 @@ CONQUISTA   a MEDALHA         "Primeira Sessao"                 -> FICA PARA SEM
 > conquistas. Está trocado. Mas **não corrigir isoladamente** — o Lucas disse *"vamos completar
 > o V6 e depois eu vou olhando parte por parte"*. A tela de Missões ainda nem existe; renomear
 > antes de construí-la só troca uma confusão por outra.
+
+---
+
+## 9.2.5. Decisões dele sobre o catálogo (02/08/2026)
+
+| Item | Decisão |
+|---|---|
+| Tag **Reintegrado** (volta depois de 14 dias sumido) | ✅ **aprovada** — *"realmente dar uma medalha quando ela volta traz um impacto importante sim"* |
+| As 12 **conquistas secretas** novas | ✅ aprovadas |
+| As **18 missões** em 5 trilhas | ✅ aprovadas |
+| As **22 tags** em dois níveis | ✅ aprovadas |
+
+### 🔴 A mecânica da tag, decidida por ele — e é diferente do que eu tinha implementado
+
+> *"Eu acho interessante acumular tudo e eu poder escolher realmente o que vai aparecer. Ele
+> vai lá, clica em tags, abre uma [tela], aparecem as tags que ele possui e ele clica naquela
+> que quiser colocar, pra ficar de frente."*
+
+```
+ACUMULA   todas as tags conquistadas ficam guardadas, para sempre
+VESTE     UMA de cada vez, escolhida por ele, e e essa que vai na divisa
+```
+
+**Isso muda o que existe hoje.** O `assets/js/divisa.js` escolhe a tag **sozinho** — pega a
+matéria de maior domínio acima de 70%. Precisa passar a:
+
+1. **guardar** a tag escolhida (campo novo em `perfis`, ou no progresso do usuário);
+2. **listar** todas as conquistadas numa tela/painel;
+3. **usar a escolhida** na divisa, com a automática só como padrão inicial.
+
+> 💡 **Por que a decisão dele é melhor que a minha:** colecionar dá motivo para continuar
+> jogando; escolher dá identidade. A escolha automática entregava as duas coisas pela metade —
+> a pessoa nem sabia que tinha coleção, e não mandava em nada.
+
+⚠️ **Ordem de trabalho que ele deu:** *"vamos por partes (...) depois eu vou te mandar os links
+do 21st.dev"*. Não implementar o catálogo inteiro de uma vez — ele quer ver peça por peça.
