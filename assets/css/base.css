@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ASTRAL — FUNDACAO VISUAL
+   Direcao "do edital a divisa", aprovada no V0 (02/08/2026). Detalhe na
+   skill astral-design. A amostra clicavel e /estilo.html.
+
+   ⚠️ ESTE E O UNICO LUGAR ONDE COR, TIPO, ESPACO E MOVIMENTO SAO DEFINIDOS.
+
+   Antes desta data o bloco :root estava COPIADO em 16 HTMLs -- e ja havia
+   se desencontrado em 4 versoes diferentes. Era a causa raiz da
+   inconsistencia visual. Nunca mais redeclarar :root numa pagina: mexa aqui
+   e as 16 mudam juntas.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── COR ── seis tons, e nenhum e roxo ────────────────────────────────── */
+  --breu:      #0E1620;   /* campo institucional -- azul-grafite frio */
+  --casco:     #17222E;   /* superficie elevada: cartao, topbar, sidebar */
+  --casco-2:   #1E2B39;   /* superficie sobre superficie */
+  --linha:     #2A3947;   /* divisoria */
+  --papel:     #E7E4DB;   /* o edital -- branco-osso FRIO, nunca creme */
+  --latao:     #C08A2E;   /* o metal da insignia */
+  --latao-c:   #E0AE55;   /* latao claro -- texto e borda sobre escuro */
+  --latao-e:   #3A2B12;   /* latao escuro -- fundo de destaque discreto */
+  --oliva:     #5C6B47;   /* a farda -- apoio, sucesso, estado neutro */
+  --oliva-c:   #8CA06B;
+  --brasa:     #B4432E;   /* alerta e prazo */
+  --brasa-c:   #E0705A;
+
+  --texto:     #DDE4EA;
+  --texto-2:   #8FA0AE;
+  --texto-3:   #5F7183;
+
+  /* ── TIPO ── tres vozes, tres funcoes ─────────────────────────────────── */
+  --display:   "Archivo", "Arial Narrow", Arial, sans-serif;   /* titulo, patente, botao */
+  --corpo:     "Source Serif 4", Georgia, serif;               /* texto corrido */
+  --dado:      "JetBrains Mono", Consolas, monospace;          /* numero, prazo, % */
+
+  --t-xs: .75rem;  --t-sm: .875rem; --t-md: 1rem;
+  --t-lg: 1.25rem; --t-xl: 1.75rem; --t-2xl: 2.5rem;
+
+  /* ── ESPACO ── multiplos de 4 ─────────────────────────────────────────── */
+  --e1: .25rem; --e2: .5rem; --e3: 1rem; --e4: 1.5rem; --e5: 2.5rem; --e6: 4rem;
+
+  /* ── RAIO ── DOIS. Antes eram 8 (8/10/12/14/16/20/50%/999px) ──────────── */
+  --r-p: 3px;   /* peca pequena: botao, campo, chip */
+  --r-g: 6px;   /* peca grande: cartao, painel, modal */
+
+  /* ── MOVIMENTO ── curvas e duracoes (fonte: skill emil-design-eng) ──────
+     NUNCA ease-in em interface: comeca devagar e faz a tela parecer travada
+     exatamente no instante em que a pessoa esta olhando.                   */
+  --saida:     cubic-bezier(.23, 1, .32, 1);      /* entra e sai */
+  --percurso:  cubic-bezier(.77, 0, .175, 1);     /* move na tela */
+  --gaveta:    cubic-bezier(.32, .72, 0, 1);      /* gaveta estilo iOS */
+
+  --d-toque:   140ms;   /* botao apertado */
+  --d-dica:    160ms;   /* tooltip, chip, foco */
+  --d-menu:    200ms;   /* dropdown, popover */
+  --d-painel:  320ms;   /* modal, gaveta */
+  --d-fecha:   180ms;   /* SAIR e sempre mais rapido que ENTRAR */
+
+  /* ── ESTRUTURA ── */
+  --sidebar-w: 240px;
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     PONTE PARA OS NOMES ANTIGOS
+     As 16 paginas usam var(--purple), var(--bg), var(--gold)... espalhados
+     por centenas de linhas de CSS inline. Reapontar os nomes antigos para a
+     paleta nova troca o visual do site inteiro SEM editar essas linhas.
+     Trocar 70 valores na mao seria erro garantido em algum canto.
+     Esta ponte sai quando as paginas forem reescritas uma a uma (V4 a V6).
+     ═══════════════════════════════════════════════════════════════════════ */
+  --bg:         var(--breu);
+  --surface:    var(--casco);
+  --surface2:   var(--casco-2);
+  --border:     var(--linha);
+  --purple:     var(--latao);      /* o antigo roxo de marca vira o latao */
+  --purple-lt:  var(--latao-c);
+  --purple-dim: var(--latao-e);
+  --gold:       var(--latao-c);    /* dourado e roxo faziam o mesmo papel; agora e um so */
+  --green:      var(--oliva-c);
+  --red:        var(--brasa-c);
+  --text:       var(--texto);
+  --muted:      var(--texto-2);
+  --white:      var(--papel);      /* branco puro vira branco-osso */
+}
+
+/* ═══ TIPOGRAFIA BASE ═══
+   Aplicada com seletor de baixa especificidade para nao brigar com o CSS
+   inline que ja existe nas paginas. */
+body {
+  font-family: var(--corpo);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5, h6, button, .btn, .page-title, .nav-label, .sidebar-logo {
+  font-family: var(--display);
+}
+h1, h2, h3 { text-wrap: balance; letter-spacing: -.01em; }
+
+/* numero, prazo e percentual alinham em coluna como planilha oficial */
+.num, .stat-value, .xp, [data-num] {
+  font-family: var(--dado);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ FOCO VISIVEL ═══ obrigatorio, nunca remover: e como quem navega por
+   teclado sabe onde esta. */
+:focus-visible {
+  outline: 2px solid var(--latao-c);
+  outline-offset: 2px;
+  border-radius: var(--r-p);
+}
+
+/* ═══ TOQUE ═══ todo elemento apertavel responde ao dedo. */
+button, .btn, [role="button"] {
+  transition: transform var(--d-toque) var(--saida),
+              background-color var(--d-toque) ease,
+              border-color var(--d-toque) ease,
+              color var(--d-toque) ease;
+}
+button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
+
+/* ═══ A DIVISA ═══ nivel a esquerda (vem do XP), tag a direita (se conquista).
+   O bico e o que faz ler como insignia e nao como etiqueta de plano. */
+.divisa {
+  display: inline-flex; align-items: stretch;
+  font-family: var(--display); font-size: var(--t-xs); font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+  transition: transform var(--d-dica) var(--saida);
+}
+.divisa .nivel {
+  background: linear-gradient(180deg, var(--latao-c), var(--latao));
+  color: #121A24; padding: .34rem .75rem .34rem 1.15rem;
+  clip-path: polygon(0 0, 100% 0, calc(100% - .5rem) 50%, 100% 100%, 0 100%, .5rem 50%);
+}
+.divisa .tag {
+  color: var(--latao-c); border: 1px solid var(--latao); border-left: none;
+  padding: .34rem .8rem; font-weight: 700;
+}
+.divisa .tag.vazia {
+  color: var(--texto-3); border-color: var(--linha); font-weight: 400;
+  font-family: var(--corpo); text-transform: none; letter-spacing: 0;
+}
+.divisa.enferrujada { opacity: .55; }
+
+/* ═══ ENTRADA EM CASCATA ═══ CSS puro, no lugar da biblioteca de CDN.
+   Roda fora da thread principal: nao perde quadro enquanto a pagina carrega.
+   Nada nasce de scale(0) -- nada no mundo real some e reaparece do nada. */
+.cascata > * {
+  opacity: 0; transform: translateY(10px);
+  animation: astral-surge 420ms var(--saida) forwards;
+}
+.cascata > *:nth-child(1) { animation-delay:   0ms; }
+.cascata > *:nth-child(2) { animation-delay:  60ms; }
+.cascata > *:nth-child(3) { animation-delay: 120ms; }
+.cascata > *:nth-child(4) { animation-delay: 180ms; }
+.cascata > *:nth-child(5) { animation-delay: 240ms; }
+.cascata > *:nth-child(6) { animation-delay: 300ms; }
+@keyframes astral-surge { to { opacity: 1; transform: translateY(0); } }
+
+/* ═══ HOVER SO PARA QUEM TEM MOUSE ═══
+   No celular o toque dispara hover e o elemento fica aceso e grudado. */
+@media (hover: hover) and (pointer: fine) {
+  .divisa:hover { transform: translateY(-1px); }
+}
+
+/* ═══ QUEM MARCOU "REDUZIR MOVIMENTO" NO APARELHO ═══
+   Reduzido nao e zero: cor e opacidade ficam, deslocamento sai. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cascata > * { opacity: 1; transform: none; }
+}

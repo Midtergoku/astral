@@ -2,27 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/base.css"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Meu Edital</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="assets/css/app.css" />
 <style>
-:root {
-      --bg:        #0A0A0F;
-      --surface:   #13131A;
-      --surface2:  #1A1A24;
-      --border:    #1E1E2E;
-      --purple:    #7C5CFC;
-      --purple-lt: #A78BFA;
-      --purple-dim:#2D1F6E;
-      --gold:      #F5C542;
-      --green:     #34D399;
-      --red:       #F87171;
-      --text:      #E8E8F0;
-      --muted:     #6B6B80;
-      --white:     #FFFFFF;
-      --sidebar-w: 240px;
-    }
 
 .user-details { overflow: hidden; }
 
@@ -35,7 +22,7 @@
       align-items: center;
       gap: 0.65rem;
       padding: 0.65rem 0.75rem;
-      border-radius: 10px;
+      border-radius: 6px;
       color: var(--muted);
       text-decoration: none;
       font-size: 0.88rem;
@@ -50,7 +37,7 @@
 
 .nav-link:hover { background: var(--surface2); color: var(--text); }
 
-.nav-link.active { background: rgba(124,92,252,0.12); color: var(--purple-lt); }
+.nav-link.active { background: rgba(192,138,46,0.12); color: var(--purple-lt); }
 
 /* ── MAIN ── */
     .main {
@@ -81,8 +68,8 @@
       color: #fff;
       border: none;
       padding: 0.7rem 1.5rem;
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
+      border-radius: 6px;
+      font-family: var(--corpo);
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
@@ -95,7 +82,7 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 6px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
     }
@@ -110,7 +97,7 @@
 /* ── UPLOAD SECTION ── */
     .upload-card {
       border: 2px dashed var(--border);
-      border-radius: 16px;
+      border-radius: 6px;
       padding: 3.5rem 2rem;
       text-align: center;
       transition: border-color 0.2s;
@@ -121,13 +108,13 @@
 
 .upload-card:hover { border-color: var(--purple); }
 
-.upload-card.drag-over { border-color: var(--purple); background: rgba(124,92,252,0.04); }
+.upload-card.drag-over { border-color: var(--purple); background: rgba(192,138,46,0.04); }
 
 .upload-icon {
       width: 64px;
       height: 64px;
-      border-radius: 16px;
-      background: rgba(124,92,252,0.12);
+      border-radius: 6px;
+      background: rgba(192,138,46,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -135,7 +122,7 @@
     }
 
 .upload-card h3 {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       font-size: 1.15rem;
       color: var(--white);
@@ -158,8 +145,8 @@
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: rgba(124,92,252,0.12);
-      border: 2px solid rgba(124,92,252,0.3);
+      background: rgba(192,138,46,0.12);
+      border: 2px solid rgba(192,138,46,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -169,12 +156,12 @@
     }
 
 @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.3); }
-      50% { box-shadow: 0 0 0 12px rgba(124,92,252,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192,138,46,0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(192,138,46,0); }
     }
 
 .ai-processing h3 {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       color: var(--white);
       margin-bottom: 0.4rem;
@@ -188,7 +175,7 @@
 .info-value { font-size: 1.1rem; color: var(--white); font-weight: 600; }
 
 .section-title {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       font-size: 1.15rem;
       color: var(--white);
@@ -204,7 +191,7 @@
       gap: 0.4rem;
       background: var(--surface2);
       padding: 1.25rem;
-      border-radius: 12px;
+      border-radius: 6px;
       border: 1px solid var(--border);
     }
 
@@ -225,12 +212,12 @@
 .peso-fill { height: 100%; border-radius: 999px; background: var(--purple-lt); }
 
 .btn-danger {
-      background: rgba(248,113,113,0.1);
+      background: rgba(224,112,90,0.1);
       color: var(--red);
-      border: 1px solid rgba(248,113,113,0.25);
+      border: 1px solid rgba(224,112,90,0.25);
       padding: 0.7rem 1.5rem;
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
+      border-radius: 6px;
+      font-family: var(--corpo);
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
@@ -240,7 +227,7 @@
     }
 
 .btn-danger:hover {
-      background: rgba(248,113,113,0.2);
+      background: rgba(224,112,90,0.2);
     }
 
 @media (max-width: 768px) {
@@ -262,8 +249,8 @@
   }
 
 .nav-link:hover {
-    background: rgba(124, 92, 252, 0.08);
-    box-shadow: inset 4px 0 0 rgba(124, 92, 252, 0.5);
+    background: rgba(192,138,46, 0.08);
+    box-shadow: inset 4px 0 0 rgba(192,138,46, 0.5);
   }
 
 .nav-link.active {
@@ -508,7 +495,7 @@
 
       <div id="edital-details">
         <div class="card">
-          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--white);margin-bottom:1.5rem;">
+          <div style="font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--white);margin-bottom:1.5rem;">
             ${esc(estado.edital.nome)}
           </div>
           <div class="grid-2">

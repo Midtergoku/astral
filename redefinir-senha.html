@@ -2,30 +2,20 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/base.css"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Redefinir senha</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:        #0A0A0F;
-      --surface:   #13131A;
-      --border:    #1E1E2E;
-      --purple:    #7C5CFC;
-      --purple-lt: #A78BFA;
-      --text:      #E8E8F0;
-      --muted:     #6B6B80;
-      --white:     #FFFFFF;
-      --red:       #F87171;
-      --green:     #34D399;
-      --gold:      #F5C542;
-    }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: var(--corpo);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -40,7 +30,7 @@
     }
 
     .logo {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 800;
       font-size: 1.4rem;
       color: var(--white);
@@ -67,14 +57,14 @@
       transform: translateX(-50%);
       width: 600px;
       height: 400px;
-      background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(192,138,46,0.12) 0%, transparent 70%);
       pointer-events: none;
     }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 6px;
       padding: 2.25rem;
       width: 100%;
       max-width: 440px;
@@ -83,7 +73,7 @@
     }
 
     .card h1 {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 800;
       font-size: 1.6rem;
       color: var(--white);
@@ -99,17 +89,17 @@
     input {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 6px;
       padding: 0.8rem 1rem;
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: var(--corpo);
       font-size: 0.95rem;
       width: 100%;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     input::placeholder { color: var(--muted); }
-    input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,92,252,0.15); }
+    input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(192,138,46,0.15); }
 
     /* Medidor de forca da senha */
     .forca { margin: -0.35rem 0 1rem; }
@@ -123,14 +113,14 @@
       color: #fff;
       border: none;
       padding: 0.9rem;
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
+      border-radius: 6px;
+      font-family: var(--corpo);
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
     }
-    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,92,252,0.35); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(192,138,46,0.35); }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .spinner {
@@ -145,14 +135,14 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .msg {
-      border-radius: 8px;
+      border-radius: 3px;
       padding: 0.7rem 1rem;
       font-size: 0.85rem;
       margin-bottom: 1rem;
       display: none;
     }
-    .msg.erro    { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--red); }
-    .msg.ok      { background: rgba(52,211,153,0.08);  border: 1px solid rgba(52,211,153,0.25);  color: var(--green); }
+    .msg.erro    { background: rgba(224,112,90,0.08); border: 1px solid rgba(224,112,90,0.25); color: var(--red); }
+    .msg.ok      { background: rgba(140,160,107,0.08);  border: 1px solid rgba(140,160,107,0.25);  color: var(--green); }
 
     .estado-icone { font-size: 2.2rem; margin-bottom: 0.75rem; }
 
@@ -171,7 +161,7 @@
     @media (max-width: 560px) {
       nav { padding: 1rem 1.25rem; }
       main { padding: 2rem 1rem; }
-      .card { padding: 1.5rem; border-radius: 16px; }
+      .card { padding: 1.5rem; border-radius: 6px; }
       .card h1 { font-size: 1.35rem; }
     }
   </style>
@@ -269,12 +259,12 @@
     if (/[^A-Za-z0-9]/.test(senha)) pontos++;
 
     const niveis = [
-      { pct: 15,  cor: '#F87171', txt: 'Muito fraca' },
-      { pct: 30,  cor: '#F87171', txt: 'Fraca' },
-      { pct: 55,  cor: '#F5C542', txt: 'Razoável' },
-      { pct: 75,  cor: '#F5C542', txt: 'Boa' },
-      { pct: 100, cor: '#34D399', txt: 'Forte' },
-      { pct: 100, cor: '#34D399', txt: 'Muito forte' },
+      { pct: 15,  cor: '#E0705A', txt: 'Muito fraca' },
+      { pct: 30,  cor: '#E0705A', txt: 'Fraca' },
+      { pct: 55,  cor: '#E0AE55', txt: 'Razoável' },
+      { pct: 75,  cor: '#E0AE55', txt: 'Boa' },
+      { pct: 100, cor: '#8CA06B', txt: 'Forte' },
+      { pct: 100, cor: '#8CA06B', txt: 'Muito forte' },
     ];
     return niveis[Math.min(pontos, niveis.length - 1)];
   }

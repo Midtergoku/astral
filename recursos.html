@@ -2,27 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/base.css"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Recursos de Estudo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="assets/css/app.css" />
 <style>
-:root {
-      --bg:        #0A0A0F;
-      --surface:   #13131A;
-      --surface2:  #1A1A24;
-      --border:    #1E1E2E;
-      --purple:    #7C5CFC;
-      --purple-lt: #A78BFA;
-      --gold:      #F5C542;
-      --green:     #34D399;
-      --red:       #F87171;
-      --blue:      #60A5FA;
-      --text:      #E8E8F0;
-      --muted:     #6B6B80;
-      --white:     #FFFFFF;
-      --sidebar-w: 240px;
-    }
 
 .user-details { overflow: hidden; }
 
@@ -31,7 +18,7 @@
       align-items: center;
       gap: 0.65rem;
       padding: 0.65rem 0.75rem;
-      border-radius: 10px;
+      border-radius: 6px;
       color: var(--muted);
       text-decoration: none;
       font-size: 0.88rem;
@@ -46,7 +33,7 @@
 
 .nav-link:hover { background: var(--surface2); color: var(--text); }
 
-.nav-link.active { background: rgba(124,92,252,0.12); color: var(--purple-lt); }
+.nav-link.active { background: rgba(192,138,46,0.12); color: var(--purple-lt); }
 
 /* ── MAIN ── */
     .main {
@@ -70,13 +57,13 @@
     .materia-selector {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 6px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
     }
 
 .materia-selector h3 {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       font-size: 0.95rem;
       color: var(--white);
@@ -104,7 +91,7 @@
 .materia-chip:hover { border-color: var(--purple-lt); color: var(--purple-lt); }
 
 .materia-chip.active {
-      background: rgba(124,92,252,0.15);
+      background: rgba(192,138,46,0.15);
       border-color: var(--purple);
       color: var(--purple-lt);
       font-weight: 600;
@@ -114,7 +101,7 @@
     .loading-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 6px;
       padding: 3rem;
       text-align: center;
       display: none;
@@ -126,8 +113,8 @@
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: rgba(124,92,252,0.12);
-      border: 2px solid rgba(124,92,252,0.3);
+      background: rgba(192,138,46,0.12);
+      border: 2px solid rgba(192,138,46,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -137,12 +124,12 @@
     }
 
 @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.3); }
-      50% { box-shadow: 0 0 0 12px rgba(124,92,252,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(192,138,46,0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(192,138,46,0); }
     }
 
 .loading-title {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       color: var(--white);
       margin-bottom: 0.4rem;
@@ -163,7 +150,7 @@
     }
 
 .resultado-titulo {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 800;
       font-size: 1.2rem;
       color: var(--white);
@@ -177,20 +164,20 @@
       border: 1px solid var(--border);
       color: var(--muted);
       padding: 0.5rem 1rem;
-      border-radius: 8px;
+      border-radius: 3px;
       font-size: 0.82rem;
       cursor: pointer;
       transition: all 0.15s;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--corpo);
     }
 
 .btn-voltar:hover { border-color: var(--purple-lt); color: var(--purple-lt); }
 
 /* ── DICA DA IA ── */
     .dica-card {
-      background: linear-gradient(135deg, rgba(124,92,252,0.08), var(--surface));
-      border: 1px solid rgba(124,92,252,0.25);
-      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(192,138,46,0.08), var(--surface));
+      border: 1px solid rgba(192,138,46,0.25);
+      border-radius: 6px;
       padding: 1.25rem 1.5rem;
       margin-bottom: 1.5rem;
       display: flex;
@@ -224,7 +211,7 @@
 .secao-icone {
       width: 32px;
       height: 32px;
-      border-radius: 8px;
+      border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -233,7 +220,7 @@
     }
 
 .secao-titulo {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       font-size: 0.95rem;
       color: var(--white);
@@ -251,7 +238,7 @@
 .recurso-card {
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 6px;
       padding: 1.1rem 1.25rem;
       display: flex;
       flex-direction: column;
@@ -259,7 +246,7 @@
       transition: border-color 0.15s, transform 0.15s;
     }
 
-.recurso-card:hover { border-color: rgba(124,92,252,0.35); transform: translateY(-2px); }
+.recurso-card:hover { border-color: rgba(192,138,46,0.35); transform: translateY(-2px); }
 
 .recurso-top {
       display: flex;
@@ -296,21 +283,21 @@
       flex-shrink: 0;
     }
 
-.tag-gratis { background: rgba(52,211,153,0.12); color: var(--green); }
+.tag-gratis { background: rgba(140,160,107,0.12); color: var(--green); }
 
-.tag-pago   { background: rgba(245,197,66,0.12);  color: var(--gold); }
+.tag-pago   { background: rgba(224,174,85,0.12);  color: var(--gold); }
 
-.tag-yt     { background: rgba(248,113,113,0.12); color: var(--red); }
+.tag-yt     { background: rgba(224,112,90,0.12); color: var(--red); }
 
 .btn-acessar {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      background: rgba(124,92,252,0.1);
-      border: 1px solid rgba(124,92,252,0.25);
+      background: rgba(192,138,46,0.1);
+      border: 1px solid rgba(192,138,46,0.25);
       color: var(--purple-lt);
       padding: 0.5rem 0.85rem;
-      border-radius: 8px;
+      border-radius: 3px;
       font-size: 0.78rem;
       font-weight: 600;
       text-decoration: none;
@@ -320,7 +307,7 @@
     }
 
 .btn-acessar:hover {
-      background: rgba(124,92,252,0.2);
+      background: rgba(192,138,46,0.2);
       border-color: var(--purple);
     }
 
@@ -328,7 +315,7 @@
     .empty-state {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 6px;
       padding: 3rem;
       text-align: center;
     }
@@ -336,7 +323,7 @@
 .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
 
 .empty-title {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: var(--display);
       font-weight: 700;
       color: var(--white);
       font-size: 1rem;
@@ -387,8 +374,8 @@
   }
 
 .nav-link:hover {
-    background: rgba(124, 92, 252, 0.08);
-    box-shadow: inset 4px 0 0 rgba(124, 92, 252, 0.5);
+    background: rgba(192,138,46, 0.08);
+    box-shadow: inset 4px 0 0 rgba(192,138,46, 0.5);
   }
 
 .nav-link.active {
@@ -492,7 +479,7 @@
     <div class="empty-icon">📚</div>
     <div class="empty-title">Nenhum edital carregado</div>
     <div class="empty-sub">Suba seu edital no dashboard para que a IA identifique as matérias e recomende os melhores recursos para cada uma.</div>
-    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:1.25rem;background:var(--purple);color:#fff;padding:0.7rem 1.25rem;border-radius:10px;text-decoration:none;font-weight:600;font-size:0.88rem;">
+    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:1.25rem;background:var(--purple);color:#fff;padding:0.7rem 1.25rem;border-radius: 6px;text-decoration:none;font-weight:600;font-size:0.88rem;">
       Ir para o Dashboard
     </a>
   </div>
@@ -527,7 +514,7 @@
     <!-- Professores YouTube -->
     <div class="secao" id="secao-professores">
       <div class="secao-header">
-        <div class="secao-icone" style="background:rgba(248,113,113,0.12);">▶️</div>
+        <div class="secao-icone" style="background:rgba(224,112,90,0.12);">▶️</div>
         <div>
           <div class="secao-titulo">Professores no YouTube</div>
           <div class="secao-sub">Gratuito · Selecionados para este concurso</div>
@@ -539,7 +526,7 @@
     <!-- Materiais Gratuitos -->
     <div class="secao" id="secao-gratuitos">
       <div class="secao-header">
-        <div class="secao-icone" style="background:rgba(52,211,153,0.12);">📂</div>
+        <div class="secao-icone" style="background:rgba(140,160,107,0.12);">📂</div>
         <div>
           <div class="secao-titulo">Materiais Gratuitos</div>
           <div class="secao-sub">PDFs, apostilas e sites sem custo</div>
@@ -551,7 +538,7 @@
     <!-- Cursos Pagos -->
     <div class="secao" id="secao-pagos">
       <div class="secao-header">
-        <div class="secao-icone" style="background:rgba(245,197,66,0.12);">🎓</div>
+        <div class="secao-icone" style="background:rgba(224,174,85,0.12);">🎓</div>
         <div>
           <div class="secao-titulo">Cursos Recomendados</div>
           <div class="secao-sub">Pagos · Para aprofundamento</div>
