@@ -86,6 +86,8 @@ node tools/varre-xss.js         dado nao confiavel sem escape
 node tools/testa-isolamento.js  um usuario alcanca o dado de outro?
 node tools/testa-auditoria.js   o log de eventos criticos funciona?
 node tools/valida-css.js        CSS resolvido igual ao ref (muda de papel no V1 -- ver skill design)
+node tools/versiona-css.js      OBRIGATORIO ao mexer em CSS, ANTES do commit. Sem isto o conserto
+                                so chega ao usuario 1 HORA depois -- ja aconteceu (historico/erros.md)
 git push origin main            publica o site (Vercel republica em ~1 min). NUNCA dois em paralelo
 supabase functions deploy       edge functions NAO passam pelo git, entram no ar na hora
 ```
