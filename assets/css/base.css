@@ -675,3 +675,25 @@ input:focus, textarea:focus, select:focus {
   .btn::before, .btn-roxo::before, .btn-primary::before, .btn-1::before { display: none; }
   .card:hover, .btn:hover, .btn-roxo:hover, .btn-fantasma:hover { transform: none; }
 }
+
+/* ═══ A DIVISA NA BARRA LATERAL ═══ V7, 02/08/2026
+   Substitui o badge FREE/PRO que ficava no cartao do usuario.
+   O badge de plano era a empresa falando do usuario ("voce e o cliente
+   barato"); a divisa e o usuario falando de si ("voce e o Estrategista").
+   O plano continua existindo -- so que em Minha Conta, que e onde ele
+   interessa: na hora de decidir assinar. */
+.user-divisa { margin-top: .3rem; }
+.user-divisa .divisa { font-size: .58rem; letter-spacing: .1em; }
+.user-divisa .divisa .nivel { padding: .22rem .5rem .22rem .8rem; }
+.user-divisa .divisa .tag   { padding: .22rem .5rem; }
+
+/* EM FORMACAO -- a peca mais importante do conjunto.
+   Sem ela o usuario novo troca um badge que dizia algo por um espaco vazio,
+   que e PIOR. "Calculista · 45%" mostra o alvo e a distancia: e um motivo
+   para estudar hoje. Um cadeado nao e. */
+.divisa .tag.emformacao {
+  color: var(--texto-2);
+  border-color: var(--linha);
+  border-style: dashed;
+  font-weight: 500;
+}

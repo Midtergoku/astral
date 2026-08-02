@@ -193,8 +193,8 @@ sangue no olho na revisão do V7.
 
 | Passo | O quê | Depende de |
 |---|---|---|
-| **V7.1** | **NÍVEL + TAG na topbar** das 8 páginas (`RECRUTA · ESTRATEGISTA`) | V1 (fundação visual) |
-| **V7.2** | Badge de plano **sai** da topbar; fica só em Minha conta | V7.1 |
+| ✅ **V7.1** | **NÍVEL + TAG nas 10 páginas** — feito em 02/08/2026 | — |
+| ✅ **V7.2** | Badge de plano **saiu**; só existe em Minha conta — feito em 02/08 | — |
 | **V7.3** | **Catálogo de tags** — muitas, por área de matéria. Ordem dele: *"eu quero várias (...) isso aí é com você também"* | — |
 | **V7.4** | Sistema de **quests** — permanentes, nunca expiram (9.2.2) | V7.3 |
 | **V7.5** | A tag como **divisa** (forma de galão/insígnia), não retângulo arredondado | V1 |
@@ -270,3 +270,47 @@ QUEST = condicao verificavel  ->  desbloqueio permanente
 > ⚠️ **O que ainda não está definido:** a lista concreta de quests. A pesquisa deu o *formato*,
 > não o *conteúdo*. Isso é V7.4 e vem depois do catálogo de tags — não faz sentido escrever a
 > recompensa antes de existir o que recompensar.
+
+---
+
+## 9.2.3. O que foi construído no V7.1/7.2/7.5 (02/08/2026)
+
+**`assets/js/divisa.js`** — a fonte única. As tabelas de patente moravam **dentro** do
+`dashboard.html`; foram extraídas por script (não copiadas à mão: são 80 linhas onde um erro de
+digitação passaria despercebido) e conferidas — **6 forças × 11 níveis**.
+
+```
+nivelDe(xp, edital)   -> { nome, indice, proximo, faltam, fracao, tipo }
+tagDe(materias)       -> a materia mais dominada acima de 70%, ou null
+proximaTag(materias)  -> o alvo mais proximo e quanto falta
+divisaHTML(dados,esc) -> o HTML pronto, com o nome da materia escapado
+aplicarDivisa(...)    -> preenche todo [data-divisa] da pagina
+```
+
+**Medido com o módulo real, não afirmado:**
+
+| Entrada | Saída |
+|---|---|
+| 5.000 XP · edital "CBMERJ" | `3º Sargento BM` |
+| 5.000 XP · edital "Polícia Militar SP" | `1º Sargento PM` |
+| 40.000 XP · edital "Marinha do Brasil" | `Capitão-Tenente` |
+| 82% em Português | tag `Orador de Guerra` |
+| 45% em Matemática | sem tag · em formação `Calculista · 45%` |
+
+**Os quatro estados existem e foram vistos na tela:** conquistada · em formação · recém-chegado
+· enferrujada.
+
+> ⚠️ **A armadilha que quase passou:** ao tirar o `#user-plan` da barra lateral, **6 páginas
+> continuavam escrevendo nele por JS**. `planoEl.textContent = x` em `null` estoura e derruba
+> **todo o resto do bloco** — inclusive o carregamento do nome do usuário, que vinha logo
+> depois. 12 referências protegidas. Isso não apareceria lendo o HTML: o elemento sumiu de um
+> trecho e a referência ficou em outro, no mesmo arquivo.
+
+### A regra que fecha o sistema
+
+**Tag se ganha.** Quem acabou de entrar vê só o nível e um espaço marcado *"sem especialidade"*.
+Se todo mundo nascesse com tag, ela não valeria nada — e o vazio ao lado do nível é, ele
+próprio, um convite.
+
+**"Em formação" é a peça que impede o vazio de ser pior que o badge antigo.** `Calculista · 45%`
+mostra o alvo **e** a distância. Um cadeado não mostra nem um nem outro.
