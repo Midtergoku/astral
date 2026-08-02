@@ -159,6 +159,43 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 .cascata > *:nth-child(6) { animation-delay: 300ms; }
 @keyframes astral-surge { to { opacity: 1; transform: translateY(0); } }
 
+/* ═══ CASCA — REDE DE SEGURANCA ═══
+   Escrito com :where(), que tem especificidade ZERO: qualquer regra da pagina
+   vence sem esforco. Nao existe para padronizar nada -- existe para que nenhuma
+   pagina fique SEM a casca.
+
+   🐛 Motivo real, achado em 02/08/2026 quando o Lucas disse que Minha Conta
+   estava "escangalhada": a conta.html nao tinha `.nav-link` nenhum (o menu
+   renderizava como link azul sublinhado do navegador) e nao tinha o `.main` de
+   desktop -- so a versao dentro do @media de celular. No computador o conteudo
+   ficava ESCONDIDO ATRAS da barra lateral fixa.
+
+   Nao era feiura de design: era CSS faltando. E ninguem percebeu porque cada
+   pagina carrega a propria copia da casca -- o mesmo defeito de raiz do :root
+   e do menu. */
+:where(.nav-link) {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .75rem; border-radius: var(--r-p);
+  color: var(--muted); text-decoration: none;
+  font-size: .88rem; font-weight: 500; cursor: pointer;
+  border: none; background: none; width: 100%; text-align: left;
+}
+/* Aqui NAO da para usar :where(): especificidade zero perde para a regra
+   `.main` que as paginas declaram dentro do @media de celular, e o conteudo
+   voltava a ficar atras da barra. `.sidebar ~ .main` (0,2,0) e deterministico
+   e so atinge quem TEM barra lateral -- landing e login nao sao afetados.
+   O par de celular abaixo precisa da mesma especificidade, senao o desktop
+   venceria no telefone. */
+.sidebar ~ .main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 2rem 2.5rem;
+  max-width: calc(100vw - var(--sidebar-w));
+}
+@media (max-width: 768px) {
+  .sidebar ~ .main { margin-left: 0; padding: 1.25rem; max-width: 100vw; }
+}
+
 /* ═══ MENU LATERAL ═══
    A regra base de .nav-link mora INLINE em cada pagina (e um dos seletores que
    divergem, ver rules/paginas.md 8.5). CSS inline vem depois do <link> e vence
