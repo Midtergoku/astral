@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Astral — Fundação visual (V1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   ASTRAL — FUNDACAO VISUAL  ·  V1  ·  02/08/2026
+   Direcao aprovada no V0: "do edital a divisa" -- papel em metal.
+   Esta pagina NAO toca no site. E a amostra para o Lucas aprovar.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── COR ── seis, e nenhuma e roxa ── */
+  --breu:    #0E1620;   /* campo institucional -- azul-grafite frio */
+  --casco:   #17222E;   /* superficie elevada */
+  --casco-2: #1E2B39;   /* superficie sobre superficie */
+  --linha:   #2A3947;   /* divisoria */
+  --papel:   #E7E4DB;   /* o edital -- branco-osso FRIO, nao creme */
+  --latao:   #C08A2E;   /* o metal da insignia */
+  --latao-c: #E0AE55;   /* latao claro, para texto sobre escuro */
+  --oliva:   #5C6B47;   /* a farda -- apoio, nunca protagonista */
+  --brasa:   #B4432E;   /* alerta e prazo */
+  --brasa-c: #E0705A;
+
+  --texto:   #DDE4EA;
+  --texto-2: #8FA0AE;   /* secundario */
+  --texto-3: #5F7183;   /* terciario, legendas */
+
+  /* ── TIPO ── tres vozes, tres funcoes ── */
+  --display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --corpo:   "Source Serif 4", Georgia, serif;
+  --dado:    "JetBrains Mono", Consolas, monospace;
+
+  /* escala de tipo -- 6 degraus, e so */
+  --t-xs: .75rem;  --t-sm: .875rem; --t-md: 1rem;
+  --t-lg: 1.25rem; --t-xl: 1.75rem; --t-2xl: 2.5rem;
+
+  /* ── ESPACO ── multiplos de 4, 6 degraus ── */
+  --e1: .25rem; --e2: .5rem; --e3: 1rem;
+  --e4: 1.5rem; --e5: 2.5rem; --e6: 4rem;
+
+  /* ── RAIO ── DOIS, contra os 8 de hoje ── */
+  --r-p: 3px;    /* peca pequena: botao, campo, chip */
+  --r-g: 6px;    /* peca grande: cartao, painel, modal */
+
+  /* ── MOVIMENTO ── curvas e duracoes, do Emil Kowalski ──
+     Nunca ease-in: comeca devagar e faz a interface parecer lenta
+     exatamente no instante em que o usuario esta olhando.        */
+  --saida:    cubic-bezier(0.23, 1, 0.32, 1);      /* entra/sai -- responde na hora */
+  --percurso: cubic-bezier(0.77, 0, 0.175, 1);     /* move na tela */
+  --gaveta:   cubic-bezier(0.32, 0.72, 0, 1);      /* gaveta estilo iOS */
+
+  --d-toque:  140ms;  /* botao apertado */
+  --d-dica:   160ms;  /* tooltip, chip */
+  --d-menu:   200ms;  /* dropdown, popover */
+  --d-painel: 320ms;  /* modal, gaveta */
+  --d-fecha:  180ms;  /* SAIR e sempre mais rapido que ENTRAR */
+}
+
+/* ═══ base ═══ */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--breu); color: var(--texto);
+  font-family: var(--corpo); font-size: var(--t-md); line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.env { max-width: 64rem; margin: 0 auto; padding: var(--e5) var(--e3) var(--e6); }
+
+h1, h2, h3, .rotulo, .btn, .divisa, .topo-marca, .chip, th {
+  font-family: var(--display);
+}
+h1 { font-size: clamp(2rem, 6vw, var(--t-2xl)); font-weight: 800; line-height: 1;
+     letter-spacing: -.02em; text-transform: uppercase; margin: 0 0 var(--e3);
+     text-wrap: balance; }
+h2 { font-size: var(--t-xl); font-weight: 800; line-height: 1.1; letter-spacing: -.01em;
+     text-transform: uppercase; margin: 0 0 var(--e3); }
+h3 { font-size: var(--t-md); font-weight: 700; margin: 0 0 var(--e2); }
+p  { margin: 0 0 var(--e3); max-width: 64ch; }
+a  { color: var(--latao-c); }
+
+.rotulo {
+  display: block; font-family: var(--dado); font-size: var(--t-xs); font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--latao-c);
+  margin-bottom: var(--e2);
+}
+.leg { color: var(--texto-3); font-size: var(--t-sm); }
+section { border-top: 1px solid var(--linha); margin-top: var(--e6); padding-top: var(--e4); }
+
+/* foco visivel -- obrigatorio, nunca remover */
+:focus-visible { outline: 2px solid var(--latao-c); outline-offset: 2px; border-radius: var(--r-p); }
+
+/* ═══ BOTOES ═══ */
+.btn {
+  font-size: var(--t-sm); font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: .7rem 1.2rem; border-radius: var(--r-p); border: 1px solid transparent;
+  cursor: pointer; display: inline-flex; align-items: center; gap: var(--e2);
+  /* propriedade a propriedade -- nunca "all" */
+  transition: transform var(--d-toque) var(--saida),
+              background-color var(--d-toque) ease,
+              border-color var(--d-toque) ease,
+              color var(--d-toque) ease;
+}
+.btn:active { transform: scale(.97); }          /* a interface responde ao dedo */
+.btn-1 { background: var(--latao); color: #121A24; }
+.btn-2 { background: transparent; color: var(--texto); border-color: var(--linha); }
+.btn-3 { background: transparent; color: var(--texto-2); padding-inline: .6rem; }
+.btn-perigo { background: transparent; color: var(--brasa-c); border-color: var(--brasa); }
+
+/* hover so em quem tem mouse -- no celular o toque dispara hover falso */
+@media (hover: hover) and (pointer: fine) {
+  .btn-1:hover { background: var(--latao-c); }
+  .btn-2:hover { border-color: var(--latao); color: var(--latao-c); }
+  .btn-3:hover { color: var(--texto); }
+  .btn-perigo:hover { background: var(--brasa); color: #fff; }
+}
+
+/* ═══ CAMPOS ═══ */
+.campo { display: flex; flex-direction: column; gap: var(--e1); max-width: 22rem; }
+.campo label { font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .12em;
+               text-transform: uppercase; color: var(--texto-2); }
+.campo input {
+  font-family: var(--corpo); font-size: var(--t-md); color: var(--texto);
+  background: var(--breu); border: 1px solid var(--linha); border-radius: var(--r-p);
+  padding: .7rem .85rem;
+  transition: border-color var(--d-dica) ease, box-shadow var(--d-dica) ease;
+}
+.campo input:focus { outline: none; border-color: var(--latao);
+                     box-shadow: 0 0 0 3px rgba(192,138,46,.16); }
+.campo input::placeholder { color: var(--texto-3); }
+
+/* ═══ CARTAO ═══ */
+.cartao { background: var(--casco); border: 1px solid var(--linha); border-radius: var(--r-g);
+          padding: var(--e4); }
+.grade { display: grid; gap: var(--e3); grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+
+/* ═══ A DIVISA — o elemento-assinatura ═══ */
+.divisa { display: inline-flex; align-items: stretch; font-size: var(--t-xs);
+          font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+          transition: transform var(--d-dica) var(--saida); }
+.divisa .nivel {
+  background: linear-gradient(180deg, var(--latao-c), var(--latao));
+  color: #121A24; padding: .34rem .75rem .34rem 1.15rem;
+  clip-path: polygon(0 0, 100% 0, calc(100% - .5rem) 50%, 100% 100%, 0 100%, .5rem 50%);
+}
+.divisa .tag { color: var(--latao-c); border: 1px solid var(--latao); border-left: none;
+               padding: .34rem .8rem; font-weight: 700; }
+.divisa .tag.vazia { color: var(--texto-3); border-color: var(--linha); font-weight: 500;
+                     font-family: var(--corpo); text-transform: none; letter-spacing: 0;
+                     font-size: var(--t-xs); }
+@media (hover: hover) and (pointer: fine) { .divisa:hover { transform: translateY(-1px); } }
+
+/* ═══ BARRA DO TOPO ═══ */
+.topo { display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
+        background: var(--casco); border: 1px solid var(--linha);
+        border-left: 3px solid var(--latao); border-radius: var(--r-p);
+        padding: .8rem 1.1rem; flex-wrap: wrap; }
+.topo-marca { font-weight: 800; letter-spacing: .06em; color: var(--papel); }
+
+/* ═══ CHIP / ESTADO ═══ */
+.chip { display: inline-block; font-size: var(--t-xs); font-weight: 700; letter-spacing: .1em;
+        text-transform: uppercase; padding: .25rem .6rem; border-radius: var(--r-p);
+        border: 1px solid currentColor; }
+.chip-ok    { color: var(--oliva); }
+.chip-aviso { color: var(--latao-c); }
+.chip-risco { color: var(--brasa-c); }
+
+/* ═══ MOVIMENTO — as demonstracoes ═══ */
+.palco { background: var(--casco); border: 1px solid var(--linha); border-radius: var(--r-g);
+         padding: var(--e4); display: flex; flex-direction: column; gap: var(--e3); }
+
+/* entrada em cascata: 60ms entre pecas. Nada nasce de scale(0). */
+.cascata > * {
+  opacity: 0; transform: translateY(10px);
+  animation: surge 420ms var(--saida) forwards;
+}
+.cascata > *:nth-child(1) { animation-delay:  0ms; }
+.cascata > *:nth-child(2) { animation-delay: 60ms; }
+.cascata > *:nth-child(3) { animation-delay: 120ms; }
+.cascata > *:nth-child(4) { animation-delay: 180ms; }
+@keyframes surge { to { opacity: 1; transform: translateY(0); } }
+
+/* modal: entra de scale(.96), NUNCA de zero. Origem no centro (nao tem gatilho fixo). */
+.veu { position: fixed; inset: 0; background: rgba(6,11,16,.72); backdrop-filter: blur(3px);
+       display: grid; place-items: center; padding: var(--e3); z-index: 50;
+       opacity: 0; pointer-events: none;
+       transition: opacity var(--d-fecha) var(--saida); }
+.veu[data-aberto] { opacity: 1; pointer-events: auto;
+                    transition-duration: var(--d-painel); }
+.modal { background: var(--casco); border: 1px solid var(--linha); border-radius: var(--r-g);
+         padding: var(--e4); max-width: 26rem; width: 100%;
+         transform: scale(.96) translateY(8px); opacity: 0;
+         transition: transform var(--d-fecha) var(--saida), opacity var(--d-fecha) var(--saida); }
+.veu[data-aberto] .modal { transform: scale(1) translateY(0); opacity: 1;
+                           transition-duration: var(--d-painel); }
+
+/* gaveta: percentagem, entao funciona em qualquer altura */
+.gaveta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+          background: var(--casco); border-top: 3px solid var(--latao);
+          border-radius: var(--r-g) var(--r-g) 0 0; padding: var(--e4);
+          transform: translateY(100%);
+          transition: transform var(--d-fecha) var(--gaveta); }
+.gaveta[data-aberto] { transform: translateY(0); transition-duration: var(--d-painel); }
+
+/* aviso: entra e sai pelo mesmo lado -- e o que faz arrastar-para-dispensar
+   parecer natural depois */
+.aviso { position: fixed; right: var(--e3); bottom: var(--e3); z-index: 60;
+         background: var(--casco-2); border: 1px solid var(--linha);
+         border-left: 3px solid var(--oliva); border-radius: var(--r-p);
+         padding: .8rem 1.1rem; font-size: var(--t-sm); max-width: 20rem;
+         transform: translateY(150%); opacity: 0;
+         transition: transform var(--d-fecha) var(--saida), opacity var(--d-fecha) var(--saida); }
+.aviso[data-aberto] { transform: translateY(0); opacity: 1;
+                      transition-duration: var(--d-painel); }
+
+/* barra de progresso: percurso, porque ela se move na tela */
+.barra { height: 6px; background: var(--breu); border: 1px solid var(--linha);
+         border-radius: 999px; overflow: hidden; }
+.barra i { display: block; height: 100%; width: 12%;
+           background: linear-gradient(90deg, var(--latao), var(--latao-c));
+           transition: width 900ms var(--percurso); }
+
+/* lentidao proposital para o Lucas VER a curva */
+.lento { --d-toque: 900ms; --d-menu: 900ms; --d-painel: 1400ms; --d-fecha: 900ms; }
+
+/* ═══ TABELAS ═══ */
+.rolagem { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); min-width: 32rem; }
+th, td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--linha);
+         vertical-align: top; }
+th { font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .14em;
+     text-transform: uppercase; color: var(--texto-3); font-weight: 700; }
+td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--latao-c); }
+.num { font-family: var(--dado); font-variant-numeric: tabular-nums; }
+
+/* ═══ PALETA ═══ */
+.paleta { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+          gap: 1px; background: var(--linha); border: 1px solid var(--linha);
+          border-radius: var(--r-g); overflow: hidden; }
+.tom { background: var(--casco); padding: var(--e3); }
+.tom .amostra { height: 3rem; border-radius: var(--r-p); margin-bottom: var(--e2);
+                border: 1px solid rgba(0,0,0,.3); }
+.tom b { font-family: var(--display); font-size: var(--t-sm); letter-spacing: .08em;
+         text-transform: uppercase; display: block; }
+.tom code { font-family: var(--dado); font-size: var(--t-xs); color: var(--texto-3); }
+
+.nota { border-left: 3px solid var(--brasa); background: var(--casco);
+        border-radius: 0 var(--r-p) var(--r-p) 0; padding: var(--e3) var(--e4); margin: var(--e4) 0; }
+.nota :last-child { margin-bottom: 0; }
+.nota .rotulo { color: var(--brasa-c); }
+
+/* ═══ QUEM TEM ENJOO DE MOVIMENTO ═══
+   Reduzido nao e zero: cor e opacidade ficam, deslocamento sai. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .cascata > * { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+<div class="env">
+
+  <span class="rotulo">Astral · Etapa 3 · Bloco V1 · 02.08.2026</span>
+  <h1>A fundação</h1>
+  <p style="font-size:var(--t-lg)">A direção do V0, aplicada de verdade: cores, fontes carregadas, componentes e <strong>movimento</strong>. Nenhuma página do site foi tocada — isto é a amostra.</p>
+
+  <div class="nota">
+    <span class="rotulo">Leia antes de olhar o resto</span>
+    <p><strong>Esta é a hora barata de discordar.</strong> Mudar qualquer coisa aqui custa uma tarde. Mudar depois que as 16 páginas estiverem prontas custa refazer tudo.</p>
+    <p>Aperte os botões. Abra o modal. Puxe a gaveta. <em>“Não gostei”</em> é resposta suficiente.</p>
+  </div>
+
+  <!-- ══════════════════ COR ══════════════════ -->
+  <section>
+    <span class="rotulo">01 · Cor</span>
+    <h2>Tinta, latão e papel</h2>
+    <div class="paleta">
+      <div class="tom"><div class="amostra" style="background:#0E1620"></div><b>Breu</b><code>#0E1620</code></div>
+      <div class="tom"><div class="amostra" style="background:#17222E"></div><b>Casco</b><code>#17222E</code></div>
+      <div class="tom"><div class="amostra" style="background:#E7E4DB"></div><b>Papel</b><code>#E7E4DB</code></div>
+      <div class="tom"><div class="amostra" style="background:#C08A2E"></div><b>Latão</b><code>#C08A2E</code></div>
+      <div class="tom"><div class="amostra" style="background:#5C6B47"></div><b>Oliva</b><code>#5C6B47</code></div>
+      <div class="tom"><div class="amostra" style="background:#B4432E"></div><b>Brasa</b><code>#B4432E</code></div>
+    </div>
+    <p style="margin-top:var(--e3)"><strong>A regra que segura tudo:</strong> latão só aparece no que foi <em>conquistado</em>. Se virar cor de botão comum, a divisa deixa de valer.</p>
+  </section>
+
+  <!-- ══════════════════ TIPO ══════════════════ -->
+  <section>
+    <span class="rotulo">02 · Tipografia</span>
+    <h2>Três vozes</h2>
+    <div class="grade">
+      <div class="cartao">
+        <div style="font-family:var(--display);font-weight:800;font-size:var(--t-xl);text-transform:uppercase;line-height:1.05">3º Sargento BM</div>
+        <p class="leg" style="margin:var(--e2) 0 0">Archivo · títulos, patente, divisa, botões</p>
+      </div>
+      <div class="cartao">
+        <div style="font-family:var(--corpo);font-size:var(--t-lg);line-height:1.4">Você estudou 4 de 6 sessões esta semana.</div>
+        <p class="leg" style="margin:var(--e2) 0 0">Source Serif · texto corrido. Serifa porque o produto é sobre documento, e cansa menos em leitura longa</p>
+      </div>
+      <div class="cartao">
+        <div class="num" style="font-size:var(--t-lg);color:var(--latao-c)">2.480 XP · 47% · 12/09</div>
+        <p class="leg" style="margin:var(--e2) 0 0">JetBrains Mono · números, prazos, percentuais. Alinham em coluna</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ MOVIMENTO ══════════════════ -->
+  <section>
+    <span class="rotulo">03 · Movimento</span>
+    <h2>Fluido, e com regra</h2>
+    <p>Você pediu fluidez. Fluidez não é “animar tudo” — é animar a coisa certa, na velocidade certa. Estas são as regras que eu segui, do <a href="https://animations.dev/" target="_blank" rel="noopener">Emil Kowalski</a>, que escreveu as bibliotecas de animação que meio mundo usa.</p>
+
+    <div class="rolagem">
+      <table>
+        <tr><th>Regra</th><th>Por quê</th></tr>
+        <tr><td>Nunca começar devagar</td><td>Animação que arranca lenta faz o site parecer travado <em>exatamente</em> no instante em que a pessoa está olhando</td></tr>
+        <tr><td>Nada acima de 300ms</td><td>Passou disso, vira espera. Um menu de 180ms parece mais rápido que um de 400ms — e é o mesmo menu</td></tr>
+        <tr><td>Sair é mais rápido que entrar</td><td>Ao fechar, a pessoa já decidiu. Fazer ela esperar a saída é desrespeito</td></tr>
+        <tr><td>Nada nasce do zero</td><td>Nada no mundo real some e reaparece do nada. Tudo entra de 96%, nunca de 0%</td></tr>
+        <tr><td>Só mexer em posição e transparência</td><td>São as duas coisas que a placa de vídeo faz sozinha. O resto trava em celular fraco</td></tr>
+        <tr><td>Hover só em quem tem mouse</td><td>No celular, o toque dispara hover falso e o botão fica “grudado” aceso</td></tr>
+        <tr><td>Quem tem enjoo, desliga</td><td>Quem marcou “reduzir movimento” no aparelho recebe o site sem deslocamento. Cor e transparência ficam</td></tr>
+      </table>
+    </div>
+
+    <h3 style="margin-top:var(--e4)">Aperte, abra, puxe</h3>
+    <p class="leg">É para tocar. A caixa embaixo tem um interruptor que deixa tudo em câmera lenta, para você ver a curva.</p>
+
+    <div class="palco" id="palco">
+      <div style="display:flex;gap:var(--e2);flex-wrap:wrap">
+        <button class="btn btn-1">Gerar cronograma</button>
+        <button class="btn btn-2">Ver edital</button>
+        <button class="btn btn-3">Cancelar</button>
+        <button class="btn btn-perigo">Excluir conta</button>
+      </div>
+      <div style="display:flex;gap:var(--e2);flex-wrap:wrap">
+        <button class="btn btn-2" id="b-modal">Abrir janela</button>
+        <button class="btn btn-2" id="b-gaveta">Puxar gaveta</button>
+        <button class="btn btn-2" id="b-aviso">Mostrar aviso</button>
+        <button class="btn btn-2" id="b-barra">Avançar progresso</button>
+      </div>
+      <div class="barra"><i id="barra"></i></div>
+      <label style="display:flex;gap:var(--e2);align-items:center;font-size:var(--t-sm);color:var(--texto-2);cursor:pointer">
+        <input type="checkbox" id="b-lento"/> Câmera lenta — para ver a curva
+      </label>
+    </div>
+  </section>
+
+  <!-- ══════════════════ COMPONENTES ══════════════════ -->
+  <section>
+    <span class="rotulo">04 · Componentes</span>
+    <h2>As peças</h2>
+
+    <h3>A barra do topo, com a divisa</h3>
+    <div class="topo" style="margin-bottom:var(--e4)">
+      <span class="topo-marca">ASTRAL</span>
+      <span class="divisa"><span class="nivel">3º Sargento</span><span class="tag">Estrategista</span></span>
+    </div>
+
+    <h3>Os cinco estados da divisa</h3>
+    <div class="palco cascata" style="gap:var(--e2)">
+      <div><span class="divisa"><span class="nivel">Recruta</span><span class="tag vazia">sem especialidade</span></span>
+        <span class="leg" style="margin-left:var(--e2)">quem acabou de entrar</span></div>
+      <div><span class="divisa"><span class="nivel">Recruta</span><span class="tag">Estrategista · 47%</span></span>
+        <span class="leg" style="margin-left:var(--e2)">em formação — falta pouco</span></div>
+      <div><span class="divisa"><span class="nivel">Cabo BM</span><span class="tag">Orador de Guerra</span></span>
+        <span class="leg" style="margin-left:var(--e2)">conquistada</span></div>
+      <div><span class="divisa" style="opacity:.55"><span class="nivel">Cabo BM</span><span class="tag">Orador de Guerra</span></span>
+        <span class="leg" style="margin-left:var(--e2)">enferrujada — 7 dias parado</span></div>
+    </div>
+
+    <h3 style="margin-top:var(--e4)">Campos e estados</h3>
+    <div class="grade">
+      <div class="cartao">
+        <div class="campo">
+          <label for="ex-email">E-mail</label>
+          <input id="ex-email" type="email" placeholder="voce@exemplo.com"/>
+        </div>
+      </div>
+      <div class="cartao" style="display:flex;gap:var(--e2);align-items:center;flex-wrap:wrap">
+        <span class="chip chip-ok">Em dia</span>
+        <span class="chip chip-aviso">Atrasado</span>
+        <span class="chip chip-risco">Prova em 12 dias</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ O QUE MUDA ══════════════════ -->
+  <section>
+    <span class="rotulo">05 · O que muda</span>
+    <h2>Antes e depois</h2>
+    <div class="rolagem">
+      <table>
+        <tr><th></th><th>Hoje</th><th>V1</th></tr>
+        <tr><td>Cor base</td><td><code>#7C5CFC</code> roxo sobre <code>#0A0A0F</code></td><td><code>#C08A2E</code> latão sobre <code>#0E1620</code></td></tr>
+        <tr><td>Fonte do corpo</td><td>Inter</td><td>Source Serif 4</td></tr>
+        <tr><td>Raios de borda</td><td class="num">8 diferentes</td><td class="num">2 — 3px e 6px</td></tr>
+        <tr><td>Animação</td><td>biblioteca JS de CDN externo</td><td>CSS puro — não trava e some uma dependência</td></tr>
+        <tr><td>Curvas</td><td>ease-out genérico</td><td>3 curvas próprias, por função</td></tr>
+        <tr><td>Enjoo de movimento</td><td>não tratado</td><td>respeitado</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid var(--linha);margin-top:var(--e6);padding-top:var(--e3)">
+    <p class="leg" style="font-family:var(--dado);font-size:var(--t-xs);letter-spacing:.1em;text-transform:uppercase">
+      Astral · V1 · a amostra. O site ainda não mudou.
+    </p>
+  </footer>
+</div>
+
+<!-- ══════════════════ PECAS FLUTUANTES ══════════════════ -->
+<div class="veu" id="veu">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-t">
+    <h3 id="modal-t">Excluir sua conta?</h3>
+    <p class="leg">Seu cronograma, seu progresso e suas conquistas são apagados. Não dá para desfazer.</p>
+    <div style="display:flex;gap:var(--e2);justify-content:flex-end;margin-top:var(--e3)">
+      <button class="btn btn-3" data-fecha>Cancelar</button>
+      <button class="btn btn-perigo" data-fecha>Excluir conta</button>
+    </div>
+  </div>
+</div>
+
+<div class="gaveta" id="gaveta">
+  <h3>Sessão de hoje</h3>
+  <p class="leg" style="margin-bottom:var(--e3)">Direito Constitucional · 45 minutos · peso 4</p>
+  <button class="btn btn-1" data-fecha-gaveta>Começar</button>
+  <button class="btn btn-3" data-fecha-gaveta>Depois</button>
+</div>
+
+<div class="aviso" id="aviso">Cronograma salvo.</div>
+
+<script>
+// Nada aqui e essencial: e so o que liga os botoes da demonstracao.
+// O movimento em si e 100% CSS -- roda fora da thread principal e nao trava.
+(function () {
+  var veu = document.getElementById('veu');
+  var gaveta = document.getElementById('gaveta');
+  var aviso = document.getElementById('aviso');
+  var barra = document.getElementById('barra');
+  var palco = document.getElementById('palco');
+  var t;
+
+  function abrir(el) { el.setAttribute('data-aberto', ''); }
+  function fechar(el) { el.removeAttribute('data-aberto'); }
+
+  document.getElementById('b-modal').onclick = function () { abrir(veu); };
+  document.getElementById('b-gaveta').onclick = function () { abrir(gaveta); };
+  document.getElementById('b-aviso').onclick = function () {
+    abrir(aviso); clearTimeout(t); t = setTimeout(function () { fechar(aviso); }, 2600);
+  };
+  document.getElementById('b-barra').onclick = function () {
+    var v = parseInt(barra.style.width || '12', 10);
+    barra.style.width = (v >= 100 ? 12 : Math.min(100, v + 22)) + '%';
+  };
+  document.getElementById('b-lento').onchange = function (e) {
+    document.body.classList.toggle('lento', e.target.checked);
+    palco.classList.toggle('lento', e.target.checked);
+  };
+
+  veu.addEventListener('click', function (e) {
+    if (e.target === veu || e.target.hasAttribute('data-fecha')) fechar(veu);
+  });
+  gaveta.addEventListener('click', function (e) {
+    if (e.target.hasAttribute('data-fecha-gaveta')) fechar(gaveta);
+  });
+  // Esc fecha -- acao de teclado NAO ganha animacao extra, so a que ja existe
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { fechar(veu); fechar(gaveta); }
+  });
+})();
+</script>
+</body>
+</html>

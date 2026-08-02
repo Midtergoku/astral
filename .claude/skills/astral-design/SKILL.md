@@ -77,7 +77,43 @@ a escolha é dele. Mas esta é a recomendação.
 | **V5** | **Telas de entrada** — login, criar conta, lista de espera | primeira impressão de quem vem do WhatsApp |
 | **V6** | **Telas do app, uma a uma** — **Minha conta primeiro** | ele apontou que é a mais atrasada |
 | **V7** | **Gamificação** — tag, quests, ranking pessoal | **destrinchado em 9.2** |
-| **V8** | **Movimento e celular** | `motion` já carregado e quase não usado |
+| ~~**V8**~~ | ~~Movimento e celular~~ | ⬆️ **movimento subiu para o V1 em 02/08** — ver abaixo. Sobra o celular |
+
+### 🔄 O movimento saiu do V8 e entrou no V1 (02/08/2026)
+
+Pedido do Lucas ao aprovar o V0: *"quero que o site seja fluido (...) os botões com animaçãozinha
+leve, se clicar e abrir uma aba, que ela desça, que seja bonita, que seja fluida os motions dela"*.
+
+**Eu tinha colocado movimento no último bloco, e isso estava errado.** Duração e curva de
+animação são **token de fundação**, igual a cor e tipo — não acabamento. Construir V1..V6 sem
+elas e retrofitar depois é o retrabalho exato que eu avisei que sairia caro.
+
+**Os tokens que ficaram (fonte: skill `emil-design-eng`):**
+
+```
+--saida:    cubic-bezier(.23, 1, .32, 1)     entra/sai
+--percurso: cubic-bezier(.77, 0, .175, 1)    move na tela
+--gaveta:   cubic-bezier(.32, .72, 0, 1)     gaveta estilo iOS
+
+--d-toque 140ms · --d-dica 160ms · --d-menu 200ms · --d-painel 320ms · --d-fecha 180ms
+```
+
+**As 7 regras que valem para todo o resto do roadmap:**
+1. **Nunca `ease-in`** em UI — começa devagar e faz parecer travado no instante em que a pessoa olha
+2. **Nada acima de 300ms** em interface; sair sempre mais rápido que entrar
+3. **Nada nasce de `scale(0)`** — entra de `.95`/`.96` com opacidade
+4. **Só `transform` e `opacity`** — as duas que a GPU faz sozinha
+5. **Nunca `transition: all`** — propriedade a propriedade
+6. **Hover atrás de `@media (hover:hover) and (pointer:fine)`** — no celular o toque gruda o estado
+7. **`prefers-reduced-motion` respeitado** — reduzido não é zero: cor fica, deslocamento sai
+
+> ⚠️ **Ação de teclado não ganha animação.** Emil é categórico: o que se repete centenas de
+> vezes por dia deve ser instantâneo.
+
+> 🔌 **Decisão técnica junto:** o site animava com a biblioteca `motion@10.16.4` vinda de CDN.
+> Animação de entrada é previsível, então vira **CSS puro** — roda fora da thread principal (não
+> perde quadro quando a página está carregando) **e some uma dependência de CDN**, que a
+> auditoria já tinha marcado como superfície de supply chain. Ganho duplo.
 
 ### Ordem sugerida de execução
 
