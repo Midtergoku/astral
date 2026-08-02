@@ -437,6 +437,203 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   transition: width 900ms var(--percurso);
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   PECAS — o acabamento
+   ══════════════════════════════════════════════════════════════════════════
+   Ordem do Lucas em 02/08/2026: "o site nao e baseado so em cores, ele
+   precisa de botoes personalizados bonitos (...) quando passa o mouse por
+   cima, eles levantam". Referencias: 21st.dev e o repertorio de
+   micro-interacao de SaaS premium.
+
+   As tecnicas daqui sao as mesmas que as bibliotecas caras usam. O que muda
+   e que ali vem em React+Tailwind e aqui e CSS puro -- traduzido, nao copiado.
+
+   TUDO roda em transform, opacity e filter: as tres coisas que a placa de
+   video faz sozinha, entao nao engasga em celular fraco.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* @property faz o navegador saber INTERPOLAR o angulo. Sem isto, gradiente
+   girando so pula de um valor para outro. E o truque por tras de toda borda
+   que "corre" nos sites caros. */
+@property --giro {
+  syntax: '<angle>'; inherits: false; initial-value: 0deg;
+}
+
+/* ── BOTOES ───────────────────────────────────────────────────────────────
+   Tres coisas acontecem juntas no hover: a peca SOBE, a sombra CRESCE por
+   baixo (e o que faz parecer que levantou de verdade, nao que so mudou de
+   cor), e um brilho ATRAVESSA. */
+.btn, .btn-roxo, .btn-fantasma, .btn-primary, .btn-1 {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  will-change: transform;
+  transition: transform 220ms var(--saida),
+              box-shadow 220ms var(--saida),
+              background-color 200ms ease,
+              border-color 200ms ease,
+              color 200ms ease;
+}
+
+/* o brilho: uma faixa clara inclinada que cruza a peca */
+.btn::before, .btn-roxo::before, .btn-primary::before, .btn-1::before {
+  content: '';
+  position: absolute; inset: -1px;
+  background: linear-gradient(100deg, transparent 30%,
+              rgba(255,255,255,.30) 48%, rgba(255,255,255,.10) 56%, transparent 72%);
+  transform: translateX(-130%);
+  transition: transform 700ms var(--percurso);
+  pointer-events: none; z-index: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover, .btn-roxo:hover, .btn-fantasma:hover,
+  .btn-primary:hover, .btn-1:hover {
+    transform: translateY(-2px);
+  }
+  .btn-roxo:hover, .btn-primary:hover, .btn-1:hover {
+    box-shadow: 0 8px 20px -6px rgba(192,138,46,.55),
+                0 2px 6px -2px rgba(0,0,0,.5);
+  }
+  .btn-fantasma:hover {
+    box-shadow: 0 8px 18px -8px rgba(0,0,0,.7);
+    border-color: var(--latao);
+  }
+  .btn:hover::before, .btn-roxo:hover::before,
+  .btn-primary:hover::before, .btn-1:hover::before { transform: translateX(130%); }
+}
+/* ao APERTAR, ela afunda -- e a resposta ao dedo */
+.btn:active, .btn-roxo:active, .btn-fantasma:active,
+.btn-primary:active, .btn-1:active {
+  transform: translateY(0) scale(.975);
+  transition-duration: var(--d-toque);
+}
+
+/* a setinha anda quando o mouse chega: "vai por aqui" */
+.btn .seta, .btn [data-seta] { transition: transform 260ms var(--saida); display: inline-block; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover .seta, .btn:hover [data-seta] { transform: translateX(4px); }
+}
+
+/* ── CARTOES ──────────────────────────────────────────────────────────────
+   Sobem, ganham fio de latao e uma sombra funda. O ::after e um contorno
+   que so acende no hover -- borda de verdade mudaria o tamanho e empurraria
+   o layout. */
+.card, .stat-card, .materia-card, .habilidade-card, .recurso-card {
+  position: relative;
+  will-change: transform;
+  transition: transform 280ms var(--saida), box-shadow 280ms var(--saida);
+}
+.card::after, .stat-card::after, .materia-card::after,
+.habilidade-card::after, .recurso-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(224,174,85,.55), rgba(224,174,85,0) 45%,
+                                      rgba(224,174,85,0) 60%, rgba(224,174,85,.30));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 280ms ease;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .card:hover, .stat-card:hover, .materia-card:hover,
+  .habilidade-card:hover, .recurso-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -20px rgba(0,0,0,.75),
+                0 4px 12px -6px rgba(0,0,0,.4);
+  }
+  .card:hover::after, .stat-card:hover::after, .materia-card:hover::after,
+  .habilidade-card:hover::after, .recurso-card:hover::after { opacity: 1; }
+}
+
+/* LUZ QUE SEGUE O MOUSE. As coordenadas vem do JS (pecas.js); sem JS o cartao
+   fica normal, sem quebrar nada. */
+.card[data-luz]::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%),
+              rgba(224,174,85,.10), transparent 62%);
+  opacity: 0; transition: opacity 320ms ease;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .card[data-luz]:hover::before { opacity: 1; }
+}
+
+/* ── DESTAQUE ─────────────────────────────────────────────────────────────
+   Fio de latao girando na borda. Reservado ao que MERECE: a patente, a
+   conquista recem-desbloqueada, a chamada principal. Regra do V0: gastar
+   ousadia num lugar so. Se isto aparecer em tudo, deixa de valer. */
+.destaque {
+  position: relative;
+  border-radius: var(--r-g);
+  isolation: isolate;
+}
+.destaque::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit; padding: 1.5px;
+  background: conic-gradient(from var(--giro),
+              rgba(224,174,85,0) 0deg, var(--latao-c) 70deg,
+              rgba(224,174,85,0) 150deg, rgba(224,174,85,0) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: gira 4s linear infinite;
+  pointer-events: none; z-index: -1;
+}
+@keyframes gira { to { --giro: 360deg; } }
+
+/* ── CAMPOS ───────────────────────────────────────────────────────────────
+   O halo de latao ao focar diz "e aqui que voce esta digitando". */
+input, textarea, select {
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--latao) !important;
+  box-shadow: 0 0 0 3px rgba(192,138,46,.16);
+}
+
+/* ── LINHA QUE ACENDE ─────────────────────────────────────────────────────
+   Para link de texto: o sublinhado CRESCE da esquerda em vez de aparecer. */
+.link-vivo { position: relative; text-decoration: none; color: var(--latao-c); }
+.link-vivo::after {
+  content: ''; position: absolute; left: 0; bottom: -2px;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 260ms var(--saida);
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-vivo:hover::after { transform: scaleX(1); }
+}
+
+/* ── PILULA DE ESTADO ─────────────────────────────────────────────────────
+   Ponto que respira nos estados vivos ("estudando agora", "em dia"). */
+.pilula {
+  display: inline-flex; align-items: center; gap: .45rem;
+  font-family: var(--dado); font-size: var(--t-xs); font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: .3rem .7rem; border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.pilula::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; box-shadow: 0 0 0 0 currentColor;
+  animation: respira 2.4s var(--saida) infinite;
+}
+@keyframes respira {
+  0%   { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+  70%  { box-shadow: 0 0 0 6px transparent; opacity: .75; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+}
+.pilula-ok    { color: var(--oliva-c); }
+.pilula-aviso { color: var(--latao-c); }
+.pilula-risco { color: var(--brasa-c); }
+
 /* ═══ QUEM MARCOU "REDUZIR MOVIMENTO" NO APARELHO ═══
    Reduzido nao e zero: cor e opacidade ficam, deslocamento sai. */
 @media (prefers-reduced-motion: reduce) {
@@ -449,4 +646,7 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   .cascata > * { opacity: 1; transform: none; }
   .stat-value, .xp-valor, .nivel-numero { animation: none; opacity: 1; }
   ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .destaque::before, .pilula::before { animation: none; }
+  .btn::before, .btn-roxo::before, .btn-primary::before, .btn-1::before { display: none; }
+  .card:hover, .btn:hover, .btn-roxo:hover, .btn-fantasma:hover { transform: none; }
 }

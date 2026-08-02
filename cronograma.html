@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=55a5bdf5"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Cronograma</title>
+  <link rel="stylesheet" href="assets/css/app.css?v=a6f08b86" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  .semana {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--e3);
+    margin-top: var(--e4);
+  }
+
+  .dia { display: flex; flex-direction: column; gap: var(--e2); }
+  .dia-cabeca {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--e2); margin-bottom: var(--e1);
+  }
+  .dia-nome {
+    font-family: var(--display); font-weight: 800;
+    font-size: var(--t-sm); letter-spacing: .1em; text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .dia-data {
+    font-family: var(--dado); font-size: var(--t-xs);
+    color: var(--texto-3); font-variant-numeric: tabular-nums;
+  }
+  .dia.hoje .dia-nome { color: var(--latao-c); }
+
+  .sessao {
+    display: flex; align-items: center; gap: var(--e2);
+    background: var(--casco); border: 1px solid var(--linha);
+    border-left: 3px solid var(--oliva);
+    border-radius: var(--r-p); padding: .7rem .85rem;
+    transition: transform 220ms var(--saida), border-color 220ms ease,
+                box-shadow 220ms var(--saida);
+  }
+  .sessao.pesada { border-left-color: var(--latao); }
+  @media (hover: hover) and (pointer: fine) {
+    .sessao:hover {
+      transform: translateX(3px);
+      border-color: rgba(192,138,46,.4);
+      box-shadow: 0 8px 20px -14px rgba(0,0,0,.8);
+    }
+  }
+  .sessao-materia {
+    flex: 1; font-size: var(--t-sm); color: var(--texto);
+    line-height: 1.35;
+  }
+  .sessao-tempo {
+    font-family: var(--dado); font-size: var(--t-xs);
+    color: var(--texto-3); white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .sessao-xp {
+    font-family: var(--dado); font-size: var(--t-xs); font-weight: 700;
+    color: var(--latao-c); white-space: nowrap;
+  }
+
+  .dia.descanso .sessao {
+    border-left-color: var(--linha);
+    color: var(--texto-3);
+    justify-content: center;
+    font-style: italic;
+  }
+
+  .resumo {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px; background: var(--linha);
+    border: 1px solid var(--linha); border-radius: var(--r-p);
+    overflow: hidden; margin-top: var(--e3);
+  }
+  .resumo > div { background: var(--casco-2); padding: var(--e3); }
+  .resumo dt {
+    font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--texto-3); margin-bottom: var(--e1);
+    font-weight: 700;
+  }
+  .resumo dd {
+    margin: 0; font-family: var(--dado); font-size: var(--t-xl);
+    font-weight: 700; color: var(--texto); font-variant-numeric: tabular-nums;
+  }
+
+  .vazio {
+    text-align: center; padding: var(--e5) var(--e3);
+    color: var(--texto-2);
+  }
+  .vazio .titulo {
+    font-family: var(--display); font-weight: 700;
+    font-size: var(--t-lg); color: var(--texto); margin-bottom: var(--e2);
+  }
+
+  @media (max-width: 768px) {
+    .semana { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-details">
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-plan" id="user-plan">FREE</div>
+    </div>
+  </div>
+
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link active" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Recursos
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <h1 class="page-title">Cronograma</h1>
+  </div>
+
+  <p class="page-sub">Sua semana montada a partir dos pesos do edital. Quanto mais uma matéria vale na prova, mais tempo ela recebe.</p>
+
+  <div id="conteudo">
+    <div class="card"><div class="vazio">Carregando seu cronograma...</div></div>
+  </div>
+</main>
+
+<script type="module">
+  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, nomeDoPlano }
+    from './assets/js/astral.js';
+  import { carregarProgresso } from './assets/js/estado.js';
+
+  const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+  /* Monta a semana a partir dos PESOS do edital.
+     Regra: a materia mais pesada aparece mais vezes. Nada de IA aqui -- e conta
+     simples, roda no navegador e nao gasta credito nenhum.
+     Domingo fica de descanso de proposito: cronograma sem folga e cronograma
+     que a pessoa abandona na segunda semana. */
+  function montarSemana(materias) {
+    if (!materias || !materias.length) return null;
+
+    const ordenadas = [...materias].sort((a, b) => (b.peso || 1) - (a.peso || 1));
+    const semana = [];
+
+    for (let d = 0; d < 7; d++) {
+      if (d === 0) { semana.push({ descanso: true, sessoes: [] }); continue; }
+
+      const sessoes = [];
+      // 2 a 3 sessoes por dia, girando a lista para variar sem ficar aleatorio
+      const quantas = Math.min(3, ordenadas.length);
+      for (let s = 0; s < quantas; s++) {
+        const m = ordenadas[((d - 1) * quantas + s) % ordenadas.length];
+        const peso = m.peso || 1;
+        sessoes.push({
+          materia: m.nome,
+          tempo: Math.max(30, Math.round(peso * 2)),
+          xp: Math.round(peso * 5),
+          pesada: peso >= (ordenadas[0].peso || 1) * 0.8,
+        });
+      }
+      semana.push({ descanso: false, sessoes });
+    }
+    return semana;
+  }
+
+  function datasDaSemana() {
+    const hoje = new Date();
+    const domingo = new Date(hoje);
+    domingo.setDate(hoje.getDate() - hoje.getDay());
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(domingo);
+      d.setDate(domingo.getDate() + i);
+      return d;
+    });
+  }
+
+  function render(semana) {
+    const alvo = document.getElementById('conteudo');
+
+    if (!semana) {
+      alvo.innerHTML = `
+        <div class="card">
+          <div class="vazio">
+            <div class="titulo">Seu cronograma aparece aqui</div>
+            <p>Suba o PDF do seu edital e o Astral monta a semana a partir dos pesos de cada matéria.</p>
+            <a class="btn btn-roxo" href="edital.html" style="margin-top:1rem">
+              Enviar meu edital <span class="seta">→</span>
+            </a>
+          </div>
+        </div>`;
+      return;
+    }
+
+    const datas = datasDaSemana();
+    const hojeIdx = new Date().getDay();
+
+    const totalMin = semana.reduce((t, d) => t + d.sessoes.reduce((s, x) => s + x.tempo, 0), 0);
+    const totalXp  = semana.reduce((t, d) => t + d.sessoes.reduce((s, x) => s + x.xp, 0), 0);
+    const totalSes = semana.reduce((t, d) => t + d.sessoes.length, 0);
+
+    alvo.innerHTML = `
+      <div class="card">
+        <div class="section-title">Esta semana</div>
+        <p class="section-sub">Domingo é descanso — cronograma sem folga é cronograma abandonado.</p>
+        <dl class="resumo">
+          <div><dt>Sessões</dt><dd>${totalSes}</dd></div>
+          <div><dt>Tempo total</dt><dd>${Math.floor(totalMin / 60)}h${String(totalMin % 60).padStart(2, '0')}</dd></div>
+          <div><dt>XP possível</dt><dd>${totalXp}</dd></div>
+        </dl>
+      </div>
+
+      <div class="semana cascata">
+        ${semana.map((dia, i) => `
+          <section class="dia ${i === hojeIdx ? 'hoje' : ''} ${dia.descanso ? 'descanso' : ''}">
+            <div class="dia-cabeca">
+              <span class="dia-nome">${DIAS[i]}${i === hojeIdx ? ' · hoje' : ''}</span>
+              <span class="dia-data">${String(datas[i].getDate()).padStart(2, '0')}/${String(datas[i].getMonth() + 1).padStart(2, '0')}</span>
+            </div>
+            ${dia.descanso
+              ? '<div class="sessao">descanso</div>'
+              : dia.sessoes.map(s => `
+                  <div class="sessao ${s.pesada ? 'pesada' : ''}">
+                    <span class="sessao-materia">${esc(s.materia)}</span>
+                    <span class="sessao-tempo">${s.tempo} min</span>
+                    <span class="sessao-xp">+${s.xp}</span>
+                  </div>`).join('')}
+          </section>`).join('')}
+      </div>`;
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    const uid = sessao.user.id;
+
+    document.getElementById('user-name').textContent = await nomeDoUsuario(sessao);
+    document.getElementById('user-avatar').textContent =
+      (await nomeDoUsuario(sessao)).charAt(0).toUpperCase();
+
+    const dados = await carregarProgresso(uid);
+    const plano = dados?.perfil?.tipo_plano || 'free';
+    document.getElementById('user-plan').textContent = nomeDoPlano(plano).toUpperCase();
+
+    render(montarSemana(dados?.materias));
+  })();
+
+  document.getElementById('btn-sair').addEventListener('click', fazerLogout);
+</script>
+<script src="assets/js/transicao.js"></script>
+</body>
+</html>
