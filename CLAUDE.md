@@ -43,6 +43,21 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
 7. **ERROU? Acrescente a linha em `historico/erros.md` na hora.** Ordem direta dele. Ele trata
    erro como normal — o que não é normal é repetir.
 
+## Autonomia — respondido por ele em 01/08/2026
+
+8. **PUBLICAR: aplicar direto.** *"Quando eu pedir pra você me avisar, você me avisa. Se eu não
+   pedir pra avisar antes de aplicar, você pode aplicar."* Pedido de aviso vale **só para o
+   pedido em que ele fez** — não vira permanente, e não se estende ao próximo bloco.
+9. **QUEBROU E ELE NÃO ESTÁ ONLINE: reverter sozinho, na hora.** *"Você pode reverter sozinho
+   sim, sem problema algum."* Não esperar resposta com o site fora do ar.
+10. **PODE MEXER EM QUALQUER PASTA** — *"desde que não faça nada de errado, o que vai me
+    prejudicar ou prejudicar o site"*. Não há pasta proibida; há **resultado** proibido. O teste
+    antes de agir é *"isto pode prejudicar o Lucas ou o site?"*, não *"posso tocar aqui?"*.
+11. **URGENTE INTERROMPE.** *"Se é uma coisa urgente, você pode escrever durante o relatório
+    urgente e escrever o que aconteceu, no meio de uma tarefa, já que é urgente pro seu saber
+    rápido."* Achou buraco de segurança grave, perda de dado ou custo disparando **no meio de
+    outra tarefa**: escrever **🚨 URGENTE** na hora, não guardar para o relatório final.
+
 ## Os 5 erros que mais custaram (a tabela inteira: `historico/erros.md`)
 
 | O que eu fiz | O que aprendi |
