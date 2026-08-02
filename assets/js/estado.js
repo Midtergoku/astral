@@ -21,6 +21,7 @@ const VAZIO = () => ({
   cronogramaHoje: [],
   edital: null,
   badges: [],
+  tagEscolhida: null,   // nulo = o Astral escolhe. Ver skills/astral-gamificacao.
 });
 
 const chaveLocal = (uid) => `astral_dados_${uid}`;
@@ -50,6 +51,10 @@ function normalizar(bruto) {
                       ? (bruto.cronogramaHoje ?? bruto.cronograma_hoje) : v.cronogramaHoje,
     edital:         bruto.edital ?? null,
     badges:         Array.isArray(bruto.badges) ? bruto.badges : v.badges,
+    // aceita os dois nomes: o do banco (tag_escolhida) e o do app (tagEscolhida).
+    // Sem isto, quem escolheu a tag num aparelho a perderia ao abrir noutro.
+    tagEscolhida:   (typeof (bruto.tagEscolhida ?? bruto.tag_escolhida) === 'string')
+                      ? (bruto.tagEscolhida ?? bruto.tag_escolhida) : null,
   };
 }
 
@@ -62,6 +67,10 @@ const paraBanco = (uid, e) => ({
   materias:        Array.isArray(e.materias) ? e.materias : [],
   cronograma_hoje: Array.isArray(e.cronogramaHoje) ? e.cronogramaHoje : [],
   badges:          Array.isArray(e.badges) ? e.badges : [],
+  // A tag que o usuario escolheu vestir. NULO = deixa o Astral escolher,
+  // que e o padrao e o comportamento de quem nunca abriu a tela de tags.
+  tag_escolhida:   typeof e.tagEscolhida === "string" && e.tagEscolhida.trim()
+                     ? e.tagEscolhida.trim().slice(0, 60) : null,
 });
 
 // ── Carregar ────────────────────────────────────────────────────────────────

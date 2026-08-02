@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=fea6bb76"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Minhas tags</title>
+  <link rel="stylesheet" href="assets/css/app.css?v=a6f08b86" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  .vitrine {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--e3);
+    margin-top: var(--e4);
+  }
+
+  /* Cada tag e um botao: a tela inteira existe para ESCOLHER, entao
+     nada aqui e apenas decorativo. */
+  .peca {
+    text-align: left;
+    background: var(--casco);
+    border: 1px solid var(--linha);
+    border-radius: var(--r-g);
+    padding: var(--e3);
+    cursor: pointer;
+    display: grid; gap: var(--e2);
+    transition: transform 240ms var(--saida), border-color 240ms ease,
+                box-shadow 240ms var(--saida);
+  }
+  .peca[aria-pressed="true"] {
+    border-color: var(--latao);
+    box-shadow: 0 0 0 1px var(--latao), 0 14px 34px -20px rgba(0,0,0,.8);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .peca:hover { transform: translateY(-3px); border-color: rgba(192,138,46,.45); }
+  }
+  .peca-topo { display: flex; align-items: center; justify-content: space-between; gap: var(--e2); }
+  .peca-origem {
+    font-family: var(--dado); font-size: var(--t-xs);
+    color: var(--texto-3); letter-spacing: .06em;
+  }
+  .peca-dominio {
+    font-family: var(--dado); font-size: var(--t-xs); font-weight: 700;
+    color: var(--latao-c); font-variant-numeric: tabular-nums;
+  }
+  .peca-estado {
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+  .peca[aria-pressed="true"] .peca-estado { color: var(--latao-c); }
+
+  .vitrine-atual {
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--latao); border-radius: var(--r-p);
+    padding: var(--e3); display: flex; align-items: center;
+    gap: var(--e3); flex-wrap: wrap; margin-bottom: var(--e4);
+  }
+  .vitrine-atual .rot {
+    font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  @media (max-width: 768px) { .vitrine { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-details">
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-divisa" data-divisa></div>
+    </div>
+  </div>
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Recursos
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+    <a class="nav-link active" href="tags.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
+      Minhas tags
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Minhas tags</h1>
+      <p class="page-sub">Tudo que você conquistou fica guardado. Escolha qual vai na sua divisa.</p>
+    </div>
+  </div>
+
+  <div id="conteudo">
+    <div class="esqueleto-linha media"></div>
+    <div class="esqueleto-linha curta"></div>
+    <div class="vitrine">
+      <div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
+    from './assets/js/astral.js';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
+  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js';
+  import { icone } from './assets/js/icones.js';
+
+  let estado = null;
+  let uid = null;
+
+  function render() {
+    const alvo = document.getElementById('conteudo');
+    const minhas = tagsConquistadas(estado.materias);
+    const vestida = tagVestida(estado.materias, estado.tagEscolhida);
+
+    if (!minhas.length) {
+      alvo.innerHTML = `
+        <div class="card">
+          <div class="vazio">
+            <div class="vazio-fantasma"><div></div><div></div><div></div></div>
+            <div class="vazio-conteudo">
+              <span class="vazio-icone">${icone('medalha', 24)}</span>
+              <p class="vazio-titulo">Sua primeira tag ainda está por vir</p>
+              <p class="vazio-texto">Tags são especialidades. Você ganha a primeira ao chegar a
+                <strong>70% de domínio</strong> em qualquer matéria do seu edital — e ela fica sua para sempre.</p>
+              <a class="btn btn-roxo" href="progresso.html">Ver meu progresso <span class="seta">→</span></a>
+            </div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    const n = nivelDe(estado.xp, estado.edital?.nome || estado.edital || '');
+
+    alvo.innerHTML = `
+      <div class="vitrine-atual">
+        <span class="rot">na sua divisa</span>
+        ${divisaHTML({ xp: estado.xp, edital: estado.edital?.nome || estado.edital || '',
+                       materias: estado.materias, tagEscolhida: estado.tagEscolhida }, esc)}
+      </div>
+
+      <p class="page-sub" style="margin-bottom:0">
+        Você tem <strong>${minhas.length}</strong> ${minhas.length === 1 ? 'tag conquistada' : 'tags conquistadas'}.
+        Clique numa para vesti-la.
+      </p>
+
+      <div class="vitrine cascata">
+        ${minhas.map((t) => `
+          <button type="button" class="peca" data-tag="${esc(t.nome)}"
+                  aria-pressed="${t.nome === vestida?.nome ? 'true' : 'false'}">
+            <div class="peca-topo">
+              <span class="divisa"><span class="nivel">${esc(n.nome)}</span><span class="tag">${esc(t.nome)}</span></span>
+            </div>
+            <div class="peca-topo">
+              <span class="peca-origem">${esc(t.materia)}</span>
+              <span class="peca-dominio">${t.dominio}%</span>
+            </div>
+            <span class="peca-estado">${t.nome === vestida?.nome ? '● vestindo' : 'vestir esta'}</span>
+          </button>`).join('')}
+      </div>`;
+
+    /* addEventListener, nunca onclick inline: o nome da matéria vem do edital,
+       que é dado NÃO CONFIÁVEL (regra 4 do CLAUDE.md). */
+    alvo.querySelectorAll('.peca').forEach((b) => {
+      b.addEventListener('click', () => escolher(b.getAttribute('data-tag')));
+    });
+  }
+
+  async function escolher(nome) {
+    if (estado.tagEscolhida === nome) return;
+    estado.tagEscolhida = nome;
+    render();
+    // a divisa da barra lateral muda na hora, sem esperar o banco
+    document.querySelectorAll('[data-divisa]').forEach((el) => {
+      el.innerHTML = divisaHTML({ xp: estado.xp, edital: estado.edital?.nome || estado.edital || '',
+                                  materias: estado.materias, tagEscolhida: nome }, esc);
+    });
+    try {
+      await salvarProgresso(uid, estado, { imediato: true });
+      toast(`Agora você veste ${nome}.`, 'success');
+    } catch (e) {
+      toast('Não consegui salvar sua escolha. Tente de novo.', 'error');
+    }
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    uid = sessao.user.id;
+
+    const nome = await nomeDoUsuario(sessao);
+    document.getElementById('user-name').textContent = nome;
+    document.getElementById('user-avatar').textContent = nome.charAt(0).toUpperCase();
+
+    estado = await carregarProgresso(uid);
+    render();
+  })();
+
+  document.getElementById('btn-sair').addEventListener('click', fazerLogout);
+</script>
+<script type="module" src="/assets/js/divisa.js"></script>
+<script src="assets/js/transicao.js"></script>
+</body>
+</html>

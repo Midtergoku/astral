@@ -722,3 +722,95 @@ input:focus, textarea:focus, select:focus {
   max-width: 62ch;
 }
 .main .topbar-right { display: flex; align-items: center; gap: var(--e2); flex-wrap: wrap; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TELA VAZIA — o que o usuario novo mais ve
+   ══════════════════════════════════════════════════════════════════════════
+   Medido em 02/08/2026: `progresso` e `edital` nao tinham NENHUM tratamento
+   de vazio. Quem clicava no primeiro dia via um espaco em branco e nao sabia
+   se o site tinha quebrado.
+
+   Uma tela vazia boa faz TRES coisas, e as tres importam:
+     1. mostra a FORMA do que vai aparecer (o fantasma), para a pessoa
+        entender o que aquela tela e
+     2. diz o que falta, em uma frase
+     3. tem o botao que resolve, ali mesmo
+
+   O fantasma e a parte que quase todo mundo pula. Texto sozinho explica; o
+   fantasma faz a pessoa QUERER preencher -- ela ve o formato do resultado.
+   ══════════════════════════════════════════════════════════════════════════ */
+.vazio {
+  position: relative;
+  display: grid; place-items: center;
+  text-align: center;
+  padding: var(--e5) var(--e3);
+  min-height: 16rem;
+}
+.vazio-fantasma {
+  position: absolute; inset: 0;
+  padding: var(--e3);
+  display: grid; gap: .55rem; align-content: start;
+  filter: blur(3px);
+  opacity: .22;
+  pointer-events: none;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 88%);
+          mask-image: linear-gradient(180deg, #000 0%, transparent 88%);
+}
+.vazio-fantasma > * {
+  height: 2.6rem;
+  background: var(--casco-2);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--linha);
+  border-radius: var(--r-p);
+}
+.vazio-conteudo { position: relative; z-index: 1; max-width: 34ch; }
+.vazio-icone {
+  display: inline-grid; place-items: center;
+  width: 3rem; height: 3rem; margin-bottom: var(--e3);
+  border: 1px solid var(--latao); border-radius: 50%;
+  color: var(--latao-c);
+  background: rgba(192,138,46,.08);
+}
+.vazio-titulo {
+  font-family: var(--display); font-weight: 800; font-size: var(--t-lg);
+  letter-spacing: -.01em; margin: 0 0 var(--e2); color: var(--texto);
+}
+.vazio-texto { color: var(--texto-2); font-size: var(--t-sm); margin: 0 0 var(--e3); }
+.vazio .btn { margin-top: var(--e1); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ESQUELETO — o que aparece enquanto carrega
+   ══════════════════════════════════════════════════════════════════════════
+   Antes: a palavra "Carregando...". O problema nao e feiura -- e que a
+   palavra nao diz NADA sobre o que vem, entao a tela pula de texto para
+   conteudo e a pessoa perde a referencia.
+
+   O esqueleto tem a FORMA do conteudo que vai chegar. A troca deixa de ser um
+   salto e vira um preenchimento. Efeito medido em produto: a espera PARECE
+   mais curta, mesmo com o tempo identico.
+   ══════════════════════════════════════════════════════════════════════════ */
+.esqueleto, .esqueleto-linha, .esqueleto-bloco {
+  position: relative; overflow: hidden;
+  background: var(--casco-2);
+  border-radius: var(--r-p);
+}
+.esqueleto-linha { height: .85rem; margin-bottom: .5rem; }
+.esqueleto-linha.curta { width: 45%; }
+.esqueleto-linha.media { width: 70%; }
+.esqueleto-bloco { height: 4.5rem; margin-bottom: .6rem; }
+
+/* o brilho que atravessa e o que diferencia "carregando" de "quebrado":
+   bloco cinza parado parece erro; bloco cinza que se move parece trabalho */
+.esqueleto::after, .esqueleto-linha::after, .esqueleto-bloco::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.055), transparent);
+  transform: translateX(-100%);
+  animation: esqueleto-brilho 1.4s ease-in-out infinite;
+}
+@keyframes esqueleto-brilho { to { transform: translateX(100%); } }
+
+/* respeita quem pediu menos movimento -- sem o brilho, mas ainda cinza */
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto::after, .esqueleto-linha::after, .esqueleto-bloco::after { animation: none; }
+}

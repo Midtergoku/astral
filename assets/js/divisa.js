@@ -208,11 +208,44 @@ export function proximaTag(materias = []) {
            faltam: Math.max(0, 70 - Math.round(m.progresso || 0)) };
 }
 
+
+/* Todas as tags que a pessoa JA CONQUISTOU -- a colecao.
+   Ordem do Lucas em 02/08/2026: "acumular tudo e eu poder escolher realmente o
+   que vai aparecer". Entao aqui devolvemos tudo, e quem decide o que veste e
+   ele, nao o algoritmo. */
+export function tagsConquistadas(materias = []) {
+  const vistas = new Set();
+  const fora = [];
+  for (const m of (materias || [])) {
+    const p = m.progresso || 0;
+    if (p < 70) continue;
+    const nome = TAGS_POR_MATERIA[normalizar(m.nome)] || "Especialista";
+    if (vistas.has(nome)) continue;
+    vistas.add(nome);
+    fora.push({ nome, materia: m.nome, dominio: Math.round(p) });
+  }
+  return fora.sort((a, b) => b.dominio - a.dominio);
+}
+
+/* A tag que vai na divisa.
+   A escolha do usuario ganha SEMPRE, desde que ele ainda a possua -- se ele
+   escolheu uma e depois o progresso caiu abaixo de 70%, a escolha some
+   sozinha em vez de exibir algo que ele nao tem mais. */
+export function tagVestida(materias = [], escolhida = null) {
+  const minhas = tagsConquistadas(materias);
+  if (!minhas.length) return null;
+  if (escolhida) {
+    const achada = minhas.find((t) => t.nome === escolhida);
+    if (achada) return achada;
+  }
+  return minhas[0];   // padrao: a de maior dominio
+}
+
 /* Devolve o HTML da divisa. `esc` vem de astral.js: o nome da materia sai do
    edital, que e dado NAO CONFIAVEL (regra 4 do CLAUDE.md). */
-export function divisaHTML({ xp = 0, edital = '', materias = [] }, esc = (s) => s) {
+export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = null }, esc = (s) => s) {
   const n = nivelDe(xp, edital);
-  const t = tagDe(materias);
+  const t = tagVestida(materias, tagEscolhida);
   const p = t ? null : proximaTag(materias);
 
   const nivel = `<span class="nivel">${esc(n.nome)}</span>`;
@@ -246,6 +279,10 @@ export function aplicarDivisa(dados, esc) {
    insignia ausente e um detalhe; uma pagina em branco e um produto fora do
    ar. */
 (async function ligarDivisa() {
+  // fora do navegador (teste em Node) nao ha nada para ligar -- sair em silencio
+  // deixa o modulo testavel sem estourar. Foi assim que eu verifiquei a logica
+  // das tags antes de publicar.
+  if (typeof document === 'undefined') return;
   if (!document.querySelector('[data-divisa]')) return;
   try {
     const { supabase, esc } = await import('./astral.js');
@@ -260,6 +297,7 @@ export function aplicarDivisa(dados, esc) {
       xp: d?.xp || 0,
       edital: d?.edital?.nome || d?.edital || '',
       materias: d?.materias || [],
+      tagEscolhida: d?.tagEscolhida || null,
     }, esc);
   } catch (e) {
     /* silencio proposital -- ver comentario acima */
