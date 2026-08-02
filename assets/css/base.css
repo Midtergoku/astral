@@ -814,3 +814,106 @@ input:focus, textarea:focus, select:focus {
 @media (prefers-reduced-motion: reduce) {
   .esqueleto::after, .esqueleto-linha::after, .esqueleto-bloco::after { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BOTAO: REVELA A SETA + ESTADO DE CARREGANDO
+   ══════════════════════════════════════════════════════════════════════════
+   Referencia escolhida pelo Lucas no 21st.dev: "get-started-button" do
+   ozantekin -- "an animated call-to-action button that reveals a chevron icon
+   on hover".
+
+   O codigo de la e React + Tailwind + Framer Motion e nao roda aqui, entao o
+   que foi trazido e a TECNICA, reconstruida em CSS puro.
+
+   A REGRA QUE MAIS IMPORTA: a seta nao pode EMPURRAR nada.
+   Se ela entrar no fluxo, o botao cresce ao passar o mouse e o layout inteiro
+   danca. Por isso ela e posicionada por cima, e o que se move e so o rotulo --
+   uns poucos pixels para a esquerda, abrindo espaco visual sem abrir espaco
+   real. Botao que muda de tamanho no hover e o erro classico deste efeito.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.btn, .btn-roxo, .btn-fantasma, .btn-primary, .btn-1, .btn-upload, .btn-acessar {
+  position: relative;
+  isolation: isolate;
+}
+
+/* o rotulo precisa ser um elemento proprio para poder deslizar sozinho */
+.btn > .rotulo, .btn-primary > .rotulo, .btn-roxo > .rotulo,
+.btn-upload > .rotulo, .btn-acessar > .rotulo {
+  display: inline-flex; align-items: center; gap: .5rem;
+  transition: transform 260ms var(--saida);
+}
+
+/* a seta mora por cima, encostada na direita, e comeca invisivel e recuada.
+   Nunca de opacity 0 + translate 0: entrar sem vir de lugar nenhum e o que
+   faz a peca parecer que "pisca" em vez de "chegar". */
+.btn > .seta-revela, .btn-primary > .seta-revela, .btn-roxo > .seta-revela,
+.btn-upload > .seta-revela, .btn-acessar > .seta-revela {
+  position: absolute;
+  right: .8rem; top: 50%;
+  display: inline-flex;
+  transform: translateY(-50%) translateX(-7px);
+  opacity: 0;
+  transition: transform 280ms var(--saida), opacity 200ms ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover > .rotulo, .btn-primary:hover > .rotulo, .btn-roxo:hover > .rotulo,
+  .btn-upload:hover > .rotulo, .btn-acessar:hover > .rotulo {
+    transform: translateX(-9px);
+  }
+  .btn:hover > .seta-revela, .btn-primary:hover > .seta-revela,
+  .btn-roxo:hover > .seta-revela, .btn-upload:hover > .seta-revela,
+  .btn-acessar:hover > .seta-revela {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+  }
+}
+
+/* quem navega por teclado tambem ve a seta -- o efeito nao pode ser
+   exclusivo de quem tem mouse */
+.btn:focus-visible > .rotulo, .btn-primary:focus-visible > .rotulo { transform: translateX(-9px); }
+.btn:focus-visible > .seta-revela, .btn-primary:focus-visible > .seta-revela {
+  transform: translateY(-50%) translateX(0); opacity: 1;
+}
+
+/* ── CARREGANDO ───────────────────────────────────────────────────────────
+   Hoje NENHUM botao do site tem este estado. Quem clica em "Analisar edital"
+   -- que chama a IA e demora segundos -- ve o botao parado, do jeitinho que
+   estava. A pessoa clica de novo. E clicar de novo em chamada de IA e clicar
+   de novo em dinheiro gasto.
+
+   O botao guarda a LARGURA que tinha: trocar o texto por "Carregando..." faz
+   a peca encolher ou crescer, e o layout pula. */
+[data-carregando="true"] {
+  pointer-events: none;
+  cursor: wait;
+}
+[data-carregando="true"] > .rotulo,
+[data-carregando="true"] > .seta-revela {
+  opacity: 0;
+  transform: translateX(0) scale(.96);
+  transition: opacity 140ms ease, transform 140ms var(--saida);
+}
+[data-carregando="true"]::after {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  width: 1.05em; height: 1.05em;
+  margin: -.525em 0 0 -.525em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girando 620ms linear infinite;
+  opacity: .9;
+}
+@keyframes girando { to { transform: rotate(360deg); } }
+
+/* Roda mais rapido do que parece necessario, e e de proposito: pesquisa de
+   produto mostra que roda-de-espera rapida faz a espera PARECER menor, com o
+   tempo real identico. */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn > .seta-revela, .btn-primary > .seta-revela { transition: opacity 120ms ease; }
+  [data-carregando="true"]::after { animation-duration: 1.6s; }
+}
