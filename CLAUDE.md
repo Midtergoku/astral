@@ -293,8 +293,18 @@ delas, não a instalação.
 ### Onde ficam, e por que fora do projeto
 
 ```
-C:\Users\Lucas\.claude\skills\      36 skills, 13 MB
+C:\Users\Lucas\.claude\skills\      44 skills, 19 MB
 ```
+
+> **Atualização de 01/08/2026, mesmo dia:** eu recomendei 8 skills extras e ele aprovou todas
+> de uma vez — *"pode baixar as skills que você recomendou, já que você vai achar útil"*.
+> Foram de 36 para 44. As 8: `webapp-testing`, `algorithmic-art`, `canvas-design`, `launch`,
+> `onboarding`, `community-marketing`, `pricing`, `paywalls`. Todas grátis.
+>
+> **A mais importante das 8 é `webapp-testing`**, e vale entender por quê: ela abre um
+> navegador de verdade e tira foto da tela. Até aqui eu escrevia CSS **sem nunca ver o
+> resultado** — dependia de o Lucas olhar e me contar. Numa repaginada de 16 páginas isso
+> seria o gargalo de tudo.
 
 **Instaladas no escopo do usuário (`-g`), não do projeto, de propósito:** o repositório do
 Astral é **público**. Jogar 13 MB de código de terceiro lá dentro engordaria o repo à toa e
@@ -1846,6 +1856,20 @@ Três vantagens de uma vez:
 Levar 3 direções concretas mesmo assim (paleta em hex, par de fontes, referência real), porque
 a escolha é dele. Mas esta é a recomendação.
 
+> 🔄 **MUDANÇA em 01/08/2026: a escolha passou a ser minha.** Ele delegou: *"em relação aos
+> skills de design, eu vou deixar na sua mão. Você vai analisar de acordo com o que eu pedi e
+> você vai avaliar qual que é melhor, qual que faz mais sentido. Se eu gostar, a gente usa. Se
+> eu não gostar, a gente simplesmente muda."*
+>
+> **O V0 deixa de ser um menu de 3 opções e vira uma decisão defendida.** Continua valendo
+> mostrar as alternativas descartadas e *por quê* — ele precisa poder discordar com base em
+> algo. O que muda é que eu chego com uma escolha feita, não com uma pergunta.
+>
+> ⚠️ **O "se eu não gostar, a gente muda" tem custo desigual, e ele precisa saber:** trocar os
+> nomes das tags é uma tarde; trocar paleta e tipografia depois de 16 páginas prontas é
+> refazer o V1 ao V6. Por isso o `estilo.html` do V1 existe — **é a hora barata de discordar**,
+> e eu tenho de dizer isso a ele naquele momento, com essas palavras.
+
 > 🎖️ **Confirmação independente, em 01/08/2026.** Ao instalar as skills que o Lucas pediu
 > (0.5), apareceu a `industrial-brutalist-ui` do `taste-skill`: *"military terminal aesthetics,
 > rigid grids, extreme type scale contrast, utilitarian color (...) declassified blueprints"*.
@@ -1864,7 +1888,7 @@ a escolha é dele. Mas esta é a recomendação.
 | **V4** | **Landing** — hierarquia de verdade e narrativa do nicho | `index.html` |
 | **V5** | **Telas de entrada** — login, criar conta, lista de espera | primeira impressão de quem vem do WhatsApp |
 | **V6** | **Telas do app, uma a uma** — **Minha conta primeiro** | ele apontou que é a mais atrasada |
-| **V7** | **Gamificação** — tag, quests, ranking pessoal | ver avisos abaixo |
+| **V7** | **Gamificação** — tag, quests, ranking pessoal | **destrinchado em 9.2** |
 | **V8** | **Movimento e celular** | `motion` já carregado e quase não usado |
 
 ### Ordem sugerida de execução
@@ -1884,9 +1908,12 @@ resto, e o site já muda de cara antes de eu tocar no layout.
 > ANTES.** Hoje qualquer um abre o console e escreve o XP que quiser (8.19). Enquanto for "você
 > contra você", é inofensivo. No instante em que valer algo, deixa de ser.
 
-> ⚠️ **A "tag em estilo de jogos" é a única peça do roadmap sem definição.** Ele citou em 29/07
-> e nunca detalhou. **Perguntar antes de inventar** — se a direção militar for escolhida, a
-> hipótese é que seja a divisa de patente.
+> ✅ **A "tag em estilo de jogos" foi DEFINIDA em 01/08/2026 — ver 9.2.** Ele explicou: vai no
+> lugar do badge de plano, na topbar, e diz a especialidade dele conforme a matéria
+> (*"um mago, um piromante, um necromante, essas coisas assim"*). Descoberta ao registrar:
+> **o sistema já existe no código**, com 51 nomes, escondido em `conquistas.html` atrás de 70%
+> de domínio. Minha hipótese anterior (divisa de patente) estava só meio certa — a divisa é a
+> *forma*, a especialidade é o *conteúdo*.
 
 ### O que muda no `valida-css.js` durante esta etapa
 
@@ -1896,6 +1923,150 @@ a diferença é o objetivo.
 
 **Trocar o papel dela:** em vez de "provar que nada mudou", passa a **listar o que mudou**, para
 eu conferir que mudou só o pretendido. Adaptar no começo do V1.
+
+---
+
+## 9.2. A TAG e a gamificação — o V7 detalhado (01/08/2026)
+
+> Ordem do Lucas: *"vamos aprofundar mais ela já também... quero acrescentar mais também, mexer
+> mais nessa gamificação do site"*. O V7 era uma linha na tabela; virou esta seção.
+
+### 🔴 A descoberta que muda tudo: **a tag já existe, e ninguém nunca viu**
+
+O Lucas descreveu a tag assim:
+
+> *"ali onde fica isso hoje, na página inicial, ali vai ter a tag dele (...) com a matéria que
+> ele escolher, ele vai ser, sei lá, um mago, um piromante, um necromante, essas coisas assim.
+> Não necessariamente isso, mas você consegue se basear mais ou menos nisso."*
+
+**Isso está construído no código desde antes de eu chegar.** `HABILIDADES_MILITARES` em
+[conquistas.html:465](conquistas.html#L465) — medido: **51 entradas**.
+
+```
+português          -> Orador de Guerra        matemática      -> Calculista
+química            -> Alquimista              raciocínio lóg. -> Estrategista
+biologia           -> Médico de Combate       informática     -> Operador Cyber
+geografia          -> Navegador               física          -> Engenheiro de Campo
+direito const.     -> Guardião da Lei         história        -> Memória da Nação
+```
+
+É **exatamente** o mecanismo que ele pediu — inclusive com um "Alquimista", que é praticamente
+o "mago" que ele citou. Cada uma tem nome, ícone e uma frase de personagem.
+
+**Por que ele nunca viu, e por que achou que não existia — três motivos empilhados:**
+
+1. **Mora na página errada.** Está em `conquistas.html`, não no dashboard. Ele pediu a tag
+   *"na página inicial"*, e ela nunca esteve lá.
+2. **Trancada atrás de 70% de domínio** ([conquistas.html:507](conquistas.html#L507):
+   `if (progresso < 70) return 'bloqueada'`). Ninguém no Astral tem dado de estudo suficiente
+   para chegar perto disso.
+3. **Ainda não há usuário real estudando.** Sem progresso, tudo aparece como 🔒 Bloqueada.
+
+> 🧠 **A lição de produto, que vale além deste caso:** *recompensa que ninguém consegue ver não
+> é recompensa — é segredo.* O sistema estava certo e invisível ao mesmo tempo. O trabalho do
+> V7 não é **criar** a tag, é **desenterrar** a que já existe e colocá-la onde ela é vista todo
+> dia.
+>
+> Isso também é um aviso sobre o resto do código: pode haver mais coisa pronta e escondida.
+> Antes de construir qualquer feature "nova" na Etapa 3, **procurar se ela já existe.**
+
+### O que o Lucas decidiu sobre o lugar da tag
+
+| Onde | Hoje | Depois |
+|---|---|---|
+| **Topbar do dashboard** | badge `FREE` / `BETA` / `PRO` ([dashboard.html:1051](dashboard.html#L1051)) | **a tag do usuário** |
+| **Minha conta** | card "Meu plano" com limites (8.13) | continua lá — **é o único lugar do plano** |
+
+Ele foi explícito: *"lá onde hoje fica escrito free/profissional, eu não quero que aquilo fique
+lá (...) ele vai saber se é free ou profissional [em Minha conta]"*. E: *"não precisa fazer isso
+agora, vamos fazer depois."*
+
+> 💡 **Por que isso é bom produto, e não só gosto:** o badge de plano é informação **da
+> empresa para o usuário** ("você é o cliente barato"). A tag é informação **do usuário sobre
+> ele mesmo** ("você é o Estrategista"). O lugar mais nobre da tela — canto superior, visto em
+> toda página — estava ocupado pela menos interessante das duas. Trocar é ganho puro.
+>
+> Efeito colateral que vale dizer: some da cara do usuário `free` o lembrete permanente de que
+> ele é free. Isso **não** enfraquece a conversão — o convite ao Pro continua onde ele decide
+> (limite atingido, tela de conta), e sai de onde ele só atrapalha.
+
+### O problema que a mudança de lugar cria, e como resolver
+
+Se a tag só aparece a partir de 70% de domínio, **o usuário novo vê um espaço vazio** — pior
+que o badge que estava lá. Então a tag precisa de estados, não de um interruptor:
+
+| Estado | Quando | O que aparece |
+|---|---|---|
+| **Recruta** | sem edital, ou sem nenhuma sessão estudada | `RECRUTA` — todo mundo começa aqui, e isso já é uma identidade |
+| **Em formação** | tem edital, melhor matéria abaixo de 70% | `ESTRATEGISTA · em formação 47%` — mostra o alvo e a distância |
+| **Ativa** | domínio ≥ 70% | `ESTRATEGISTA` cheia |
+| **Enferrujada** | 7 dias sem estudar aquela matéria | mesma tag, com marca de desgaste |
+| **Suspensa** | 14 dias | mesma tag, apagada |
+
+Os três últimos estados **já estão implementados** ([conquistas.html:507-509](conquistas.html#L507)).
+Os dois primeiros são o que falta — e são justamente os que todo usuário novo vive.
+
+> ⚠️ **"Em formação" é a peça mais importante da lista**, e é a que não existe. Uma barra com
+> "faltam 23% para virar Estrategista" é um motivo para estudar hoje. Um cadeado não é.
+
+### Como a tag conversa com a patente
+
+São dois eixos diferentes, e é bom que sejam:
+
+```
+PATENTE        quanto voce estudou   (XP total)     -> Cabo BM, 3o Sargento...
+TAG            no que voce e bom     (dominio %)    -> Estrategista, Orador de Guerra...
+```
+
+Juntos leem como identificação militar de verdade: **`CABO BM · ESTRATEGISTA`**. Um diz o
+tempo de serviço, o outro a especialidade. Nenhum concorrente do nicho tem isso.
+
+### 🎖️ A decisão de estilo — militar, não fantasia
+
+O Lucas citou *"mago, piromante, necromante"* e completou *"não necessariamente isso"*.
+**Fico com o mundo militar**, e o motivo importa:
+
+1. **Não cabe junto.** "Necromante Cabo BM" quebra os dois. As patentes são militares e são o
+   esqueleto da gamificação — a tag tem de morar no mesmo mundo.
+2. **O militar já tem classes, e são reais.** Sniper, Sapador, Calculista de Tiro,
+   Comunicações, Inteligência, Mergulhador de Combate. São as "classes de RPG" de um mundo que
+   **existe** — e o usuário está literalmente tentando entrar nele. É mais forte do que
+   fantasia genérica, não mais fraco.
+3. **Resolve o pedido central dele.** *"Menos cara de IA possível"*: IA nenhuma gera insígnia
+   militar por padrão; gera mago e dragão o dia inteiro.
+4. **Já está escrito.** 51 nomes prontos, com frase de personagem cada um.
+
+**O que eu levo da ideia dele, porque é o que importa:** o *sabor*. "Mago" carrega orgulho e
+especificidade — "eu sou ISSO". Os 51 nomes atuais entregam isso; alguns só precisam de mais
+sangue no olho na revisão do V7.
+
+> ↩️ **Reversível.** Se ele olhar pronto e preferir fantasia, é uma tabela de nomes — troca em
+> uma tarde. O que não se troca barato é a paleta e a tipografia, e por isso a direção visual
+> (V0/V1) vem antes desta decisão, não depois.
+
+### O V7 destrinchado
+
+| Passo | O quê | Depende de |
+|---|---|---|
+| **V7.1** | Tag na topbar das 8 páginas do app, com os 5 estados | V1 (fundação visual) |
+| **V7.2** | Badge de plano **sai** da topbar; fica só em Minha conta | V7.1 |
+| **V7.3** | Estado "em formação" com barra de progresso até a próxima tag | V7.1 |
+| **V7.4** | Revisar os 51 nomes — coerência militar e mais personalidade | — |
+| **V7.5** | A tag como **divisa** (forma de galão/insígnia), não retângulo arredondado | V1 |
+| **V7.6** | **Mais quests** — pedido dele de 29/07, ainda sem definição | perguntar a ele |
+| **V7.7** | **Ranking pessoal** — você contra você, ver os dois avisos abaixo | V7.6 |
+
+> 🔴 **Ranking é PESSOAL.** Ele disse isso em 30/07. Ranking entre usuários desmotiva quem está
+> atrás, e a base é pequena demais para fazer sentido.
+
+> 🔴 **Se o ranking der prêmio, desconto ou qualquer vantagem, o XP precisa ser validado no
+> servidor ANTES** (8.19). Hoje qualquer um abre o console e escreve o XP que quiser. Enquanto
+> for "você contra você", é autoengano e não faz mal a ninguém. No instante em que valer algo,
+> vira fraude.
+
+> ⚠️ **V7.6 continua sem definição.** "Mais quests" foi citado em 29/07 e nunca detalhado.
+> **Perguntar antes de inventar** — a hipótese é missão semanal ligada ao cronograma
+> ("3 sessões de Português esta semana"), mas é hipótese minha, não pedido dele.
 
 ## 10. Decisões em aberto
 
