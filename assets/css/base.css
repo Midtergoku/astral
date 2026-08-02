@@ -304,15 +304,40 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
    com a mesma especificidade -- entao aqui usamos `.sidebar .nav-link` (0,2,0)
    para ganhar de `.nav-link` (0,1,0) INDEPENDENTE DA ORDEM. Mesmo truque do
    menu de celular (blocos executados, 8.11). */
+/* 🐛 TERCEIRA VEZ o mesmo defeito, corrigido de vez em 02/08/2026.
+   O Lucas mandou dois prints: o menu do Progresso e o do Cronograma tinham
+   espacamentos diferentes. O HTML era identico (conferido por hash) -- o que
+   divergia era o CSS: 8 paginas declaravam as PROPRIAS 6 regras de .nav-link
+   (e o dashboard declarava duas vezes), enquanto Conta e Cronograma caiam no
+   compartilhado. Duas aparencias.
+
+   Agora esta e a UNICA definicao. As copias das paginas foram removidas.
+   A especificidade `.sidebar .nav-link` (0,2,0) ganha de `.nav-link` (0,1,0)
+   independente da ordem -- entao mesmo que alguem cole uma copia de novo no
+   futuro, o menu continua igual. */
 .sidebar .nav-link {
   position: relative;
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .75rem;
   border-radius: var(--r-p);
+  color: var(--muted);
+  text-decoration: none;
+  font-family: var(--corpo);
+  font-size: .88rem; font-weight: 500;
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left;
   transition: color var(--d-dica) ease,
               background-color var(--d-dica) ease,
               padding-left var(--d-dica) var(--saida);
 }
-.sidebar .nav-link.active { color: var(--latao-c); background: rgba(192,138,46,.10); }
-.sidebar .nav-link svg { transition: transform var(--d-dica) var(--saida); }
+.sidebar .nav-link svg {
+  width: 16px; height: 16px; flex-shrink: 0;
+  transition: transform var(--d-dica) var(--saida);
+}
+.sidebar .nav-link.active {
+  color: var(--latao-c);
+  background: rgba(192,138,46,.10);
+}
 
 /* ═══ HOVER SO PARA QUEM TEM MOUSE ═══
    No celular o toque dispara hover e o elemento fica aceso e grudado. */
