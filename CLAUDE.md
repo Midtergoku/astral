@@ -1,7 +1,7 @@
 # ASTRAL — Contexto do Projeto
 
 > Arquivo vivo. Atualizar ao fim de cada bloco de trabalho relevante.
-> Última atualização: 31/07/2026 — fim da sessão 5 (segurança endurecida, roadmap do design pronto).
+> Última atualização: 01/08/2026 — sessão 6, skills de design instaladas (ver 0.5).
 
 ---
 
@@ -24,8 +24,8 @@ sessões 4 e 5. A Etapa 1 e os pendentes dela estão fechados.
 **Abrir assim, nesta ordem:**
 
 1. `node tools/checa-saude.js` — regra 0.35, primeira coisa de toda sessão
-2. Perguntar quais **skills de design** ele baixou; elas podem trazer processo próprio que
-   substitui ou complementa o roadmap
+2. ~~Perguntar quais **skills de design** ele baixou~~ ✅ **feito em 01/08/2026** — ele mandou
+   os 7 nomes e eu instalei 36 skills. Inventário completo e como usar em **0.5**
 3. **Bloco V0 do roadmap (9.1)** — levar 3 direções visuais concretas, com paleta em hex, par
    de fontes e referência real. Defender a **militar/insígnia**, pelos motivos da 9.1
 4. As 3 perguntas do V0: qual direção · o que é a "tag estilo de jogos" · tem site de referência
@@ -271,6 +271,132 @@ existem para isso — usar, não recriar.
 - Armadilha de ambiente (PowerShell/acentos, PATCH no PS 5.1, blob UTF-8)
 
 Na dúvida, **fica**. O critério dele foi explícito: só o que "não vai servir para nada".
+
+---
+
+## 0.5. Skills instaladas — inventário e como funcionam (01/08/2026)
+
+> Pedido do Lucas: *"vou falar os nomes das skills e vc vai baixar e colocar na claude.md.
+> Não estou conseguindo achar na internet de jeito nenhum"*. Ele nomeou 7; **todas as 7
+> existem** e foram instaladas. Nenhuma foi inventada nem substituída por nome parecido.
+
+### O que é uma skill, e o que ela NÃO é
+
+Uma skill é uma pasta com um `SKILL.md` — instruções que eu carrego **sozinho** quando o
+assunto da conversa bate com a descrição dela. Não é biblioteca, não vai para o site, não muda
+uma linha do Astral. **Muda como eu penso, não o que o usuário vê.**
+
+⚠️ **Skill não mora dentro do `CLAUDE.md`.** São coisas diferentes: a skill mora em
+`~/.claude/skills/<nome>/`, o `CLAUDE.md` é o caderno do projeto. Esta seção é o **registro**
+delas, não a instalação.
+
+### Onde ficam, e por que fora do projeto
+
+```
+C:\Users\Lucas\.claude\skills\      36 skills, 13 MB
+```
+
+**Instaladas no escopo do usuário (`-g`), não do projeto, de propósito:** o repositório do
+Astral é **público**. Jogar 13 MB de código de terceiro lá dentro engordaria o repo à toa e
+misturaria o que é nosso com o que não é. No escopo do usuário elas valem para qualquer
+projeto dele e não sujam o git.
+
+### As 7 que ele pediu
+
+| Ele pediu | O que é de verdade | Repositório |
+|---|---|---|
+| **UI/UX Pro Max** | banco de dados de design consultável: 84 estilos, 192 paletas, 74 pares de fonte, 98 regras de UX, em 22 stacks | `nextlevelbuilder/ui-ux-pro-max-skill` |
+| **Emilkowalski design** | Emil Kowalski (autor do Sonner e do Vaul) — polimento de UI e **animação**. É a mais específica das 7 | `emilkowalski/skills` |
+| **Impeccable design** | Paul Bakaus. Dá um **vocabulário compartilhado**: 23 comandos (`polish`, `critique`, `distill`, `bolder`, `quieter`) para dirigir o design com uma palavra | `pbakaus/impeccable` |
+| **Taste skill** | anti-genérico. Traz `industrial-brutalist-ui` e `redesign-existing-projects`, os dois mais úteis para nós | `leonxlnx/taste-skill` |
+| **Superpowers** | ⚠️ **não é design** — é metodologia de engenharia (TDD, planos, debug sistemático, revisão). Jesse Vincent | `obra/superpowers` |
+| **Frontend design** | oficial da **Anthropic**. Direção visual comprometida em vez de template | `anthropics/skills` |
+| **Copywriting** | texto que vende, de um repositório de marketing | `coreyhaines31/marketingskills` |
+
+### As 36 instaladas, por grupo
+
+```
+DESIGN / VISUAL  frontend-design  impeccable  ui-ux-pro-max  ui-styling  design-system
+                 design-taste-frontend  high-end-visual-design  minimalist-ui
+                 industrial-brutalist-ui  redesign-existing-projects
+                 brand-guidelines  theme-factory  emil-design-eng  apple-design
+MOVIMENTO        review-animations  improve-animations  find-animation-opportunities
+                 animation-vocabulary  prototype  pick-ui-library
+TEXTO            copywriting  copy-editing
+ENGENHARIA       brainstorming  writing-plans  executing-plans  test-driven-development
+(superpowers)    systematic-debugging  verification-before-completion  writing-skills
+                 requesting-code-review  receiving-code-review  using-git-worktrees
+                 subagent-driven-development  dispatching-parallel-agents
+                 finishing-a-development-branch  using-superpowers
+```
+
+### Como usar — a pergunta que ele fez
+
+> *"me diga como usar elas aqui no claude ou se só por estar baixado já vai ser utilizado
+> por você"*
+
+**As duas coisas, e é importante ele saber a diferença:**
+
+1. **Automático (o padrão).** Cada skill tem uma descrição de quando serve. Eu leio todas as
+   descrições no começo da sessão e carrego a que bate com o assunto. Ele **não precisa fazer
+   nada** — pedir "melhora essa tela" já aciona as de design.
+2. **Chamando pelo nome**, quando ele quer forçar uma específica: *"usa a impeccable nessa
+   tela"*, *"roda a review-animations"*. Serve quando ele quer o olhar de uma e não da outra.
+
+**O limite honesto do automático:** com 36 skills, a escolha é minha e eu posso escolher
+errado — pegar a genérica quando ele queria a do Emil. Se o resultado vier com cara de padrão,
+**mandar o nome da skill** resolve na hora. Não é falha dele não ter pedido; é limite do
+mecanismo.
+
+### O que essas skills NÃO resolvem
+
+- **Não decidem a direção visual.** Elas executam bem depois que a direção existe. O bloco V0
+  (9.1) continua necessário — nenhuma skill escolhe por ele entre militar, editorial ou outra.
+- **Não veem o site.** Nenhuma abre o navegador nem olha a tela pronta.
+- **Não custam nada** — nenhuma delas chama IA paga. ⚠️ **Exceção deliberada:** as skills de
+  geração de imagem do `taste-skill` (`imagegen-*`, `brandkit`, `image-to-code`) e o
+  `design`/`banner-design` do UI/UX Pro Max **não foram instaladas** — dependem de API de
+  imagem paga (Gemini), e dinheiro é restrição real aqui (0.1). Estão a um comando de
+  distância se ele quiser.
+
+### ⚠️ Duas ressalvas que ele precisa saber, e que eu não vou esconder
+
+**1. Quase todas assumem React + Tailwind. O Astral é HTML puro sem build.**
+Isso não as inutiliza — o raciocínio de tipografia, cor, espaçamento e hierarquia vale em
+qualquer lugar. Mas **os exemplos de código vão vir em React**, e sou eu que traduzo para o
+nosso HTML. A exceção é `redesign-existing-projects`, que diz explicitamente *"works with any
+CSS framework or vanilla CSS"* — por isso ela é a mais alinhada ao que vamos fazer.
+
+**2. Superpowers não é design, e muda como eu trabalho.**
+Ele pediu pelo nome, então instalei. Mas é honesto avisar: são 14 skills de método de
+engenharia — escrever plano antes de codar, TDD, branch separada, revisão. Deixam o trabalho
+**mais cuidadoso e mais lento**. Para o design isso quase não entra; para código de verdade,
+entra. Se ele achar que virou burocracia, dá para remover só esse grupo.
+
+### 🎖️ O achado que importa para o V0
+
+`industrial-brutalist-ui`, do `taste-skill`, se descreve como:
+
+> *"Raw mechanical interfaces fusing Swiss typographic print with **military terminal
+> aesthetics**. Rigid grids, extreme type scale contrast, utilitarian color, analog degradation
+> effects. For data-heavy dashboards (...) that need to feel like **declassified blueprints**."*
+
+**É a direção militar/insígnia da 9.1, já empacotada por outra pessoa.** Eu havia recomendado
+essa direção *antes* de saber que a skill existia — chegar ao mesmo lugar por dois caminhos
+independentes é o sinal mais forte que temos de que a aposta está certa. Levar isso ao V0.
+
+### Manutenção
+
+```
+npx skills list                                  # o que esta instalado
+npx skills update -g -y                          # atualiza todas
+npx skills remove -g --skill <nome> -y           # tira uma
+npx skills add <owner>/<repo> -g -a claude-code --skill <nome> -y   # adiciona
+```
+
+⚠️ **Skill roda com permissão total de agente.** Só instalar de fonte conhecida — as 7 acima
+são repositórios públicos de autores identificáveis. Não instalar por indicação de IA sem
+conferir o repositório.
 
 ---
 
@@ -1719,6 +1845,13 @@ Três vantagens de uma vez:
 
 Levar 3 direções concretas mesmo assim (paleta em hex, par de fontes, referência real), porque
 a escolha é dele. Mas esta é a recomendação.
+
+> 🎖️ **Confirmação independente, em 01/08/2026.** Ao instalar as skills que o Lucas pediu
+> (0.5), apareceu a `industrial-brutalist-ui` do `taste-skill`: *"military terminal aesthetics,
+> rigid grids, extreme type scale contrast, utilitarian color (...) declassified blueprints"*.
+> **É esta mesma direção, empacotada por outra pessoa.** Eu a recomendei *antes* de saber que a
+> skill existia — dois caminhos independentes chegando ao mesmo lugar. Não prova que está
+> certo, mas é o sinal mais forte disponível, e vale dizer isso ao Lucas no V0.
 
 ### Os 8 blocos
 
