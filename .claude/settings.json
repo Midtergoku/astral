@@ -1,0 +1,50 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lembrete.js\"",
+            "timeout": 15,
+            "statusMessage": "Carregando o contexto do Astral"
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lembrete.js\"",
+            "timeout": 15,
+            "statusMessage": "Carregando o contexto do Astral"
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lembrete.js\"",
+            "timeout": 15,
+            "statusMessage": "Carregando o contexto do Astral"
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/lembrete.js\"",
+            "timeout": 15,
+            "statusMessage": "Carregando o contexto do Astral"
+          }
+        ]
+      }
+    ]
+  }
+}

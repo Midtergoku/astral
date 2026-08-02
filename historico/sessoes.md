@@ -238,3 +238,53 @@ para os EUA), e o **roadmap do design em 8 blocos** (9.1).
 
 **Estado ao fim:** árvore limpa, `main` em sincronia, 6 ferramentas de verificação no projeto,
 todas verdes. **A sessão 6 abre no design, bloco V0** — sem nada bloqueando.
+
+---
+
+### Sessão 6 — 01/08/2026 · Skills, a tag definida, e o contexto em camadas
+
+Sessão de preparação. **Nenhuma linha do site foi tocada** — foi toda sobre ferramentas,
+definição de produto e organização. 5 commits (`0d2b690` → o do hook), todos enviados.
+
+**As skills.** Ele mandou 7 nomes e disse que não achava nenhuma na internet. **As 7 existiam.**
+Instaladas 36, mais 8 que eu recomendei e ele aprovou = **44**, em `~/.claude/skills` (escopo de
+usuário, porque o repo é público). A que mais muda o trabalho é `webapp-testing`: **eu passo a
+ver a tela**. Até aqui eu escrevia CSS e dependia de ele olhar e me contar.
+
+**A tag foi definida — e eu errei três vezes definindo.** Ele explicou que a tag substitui o
+badge de plano na topbar. Fui olhar o código e achei `HABILIDADES_MILITARES`, 51 nomes, em
+`conquistas.html`. Concluí que estava tudo errado: página errada, tranca errada, invisível.
+
+**As três correções dele, todas na tabela de erros:**
+
+| Eu disse | Ele corrigiu |
+|---|---|
+| "recompensa que ninguém vê não é recompensa" | **"é proposital"** — é conquista secreta, descobrir é o pico de dopamina. A pesquisa que ele mandou fazer me contradiz: *surprise rewards* dão resposta mais forte que as esperadas |
+| Pus `RECRUTA` como estado da tag | **"Tag é tag, nível é nível"** — Recruta é patente, sai do XP e muda com o edital |
+| Propus quest que expira no domingo | **"a missão não some"** — quest é desbloqueio permanente |
+
+> 🧠 **A lição da sessão:** eu medi o código certo e **interpretei a intenção errado**. Perguntei
+> *"quem quebrou isso?"* onde cabia *"por que fizeram assim?"*. Regra que saiu daqui: antes de
+> chamar algo de bug, escrever *"isto foi feito de propósito porque ___"* e ver se fecha.
+
+**O contexto virou camadas.** O `CLAUDE.md` tinha 2.989 linhas carregadas em toda sessão,
+incluindo 364 de passo manual e 228 de log. Ele mandou reorganizar com meta de 100 linhas — o
+que batia de frente com as regras 0.1, 0.3 e 0.4 que ele mesmo deu. Levantei o conflito e ele
+decidiu: **mover, não apagar.** Resultado medido: **47/47 seções e 1.860/1.860 linhas** presentes
+nos 17 arquivos novos. Zero perdido, com o original inteiro guardado como rede de segurança.
+
+**Bug pego por teste, não por leitura:** 5 dos 9 frontmatter tinham dois-pontos no meio do
+`description`, que é YAML inválido. **Falharia em silêncio** — a regra nunca carregaria e ninguém
+saberia. Todo valor agora entre aspas.
+
+**As 4 regras de autonomia** que faltavam foram respondidas por ele e escritas (8 a 11 do
+`CLAUDE.md`). A mais importante: eu vinha esticando uma autorização de 30/07 sobre **um bloco**
+como se valesse para tudo, para sempre.
+
+**O hook.** Ele perguntou se havia como eu *sempre* lembrar do histórico. Havia:
+`.claude/hooks/lembrete.js` dispara em toda sessão e injeta o índice no contexto — **não depende
+de disciplina minha**, que já falhou aqui.
+
+**Estado ao fim:** site intacto e verificado (`checa-saude` verde), árvore limpa, `main` em
+sincronia. **A sessão 7 abre no V0 do design** — a direção visual fechada, decidida por mim, que
+foi o que ele delegou.
