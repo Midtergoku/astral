@@ -336,6 +336,30 @@ export function aplicarDivisa(dados, esc) {
     if (!uid) return;
 
     const d = await carregarProgresso(uid);
+
+    /* IDENTIDADE -- nome e inicial, num lugar so.
+       Medido em 02/08/2026 a pedido do Lucas: as 10 paginas resolviam o nome
+       de CINCO jeitos diferentes. Umas mostravam o nome inteiro, outras so o
+       primeiro; quatro tinham a propria cadeia de fallback repetida inline; e
+       o dashboard ficava preso em "Carregando..." quando a cadeia dele
+       falhava. Quinta vez que o mesmo defeito aparece neste projeto: peca
+       compartilhada copiada em cada pagina.
+
+       Aqui e uma vez so, e reaproveita a busca que ja esta acontecendo -- nao
+       custa nem uma requisicao a mais. */
+    try {
+      const u = data.session.user;
+      const nome = d?.perfil?.nome || u?.user_metadata?.full_name
+                || u?.email?.split("@")[0] || "Concurseiro";
+      const primeiro = String(nome).trim().split(/s+/)[0];
+
+      const elNome = document.getElementById("user-name");
+      if (elNome) elNome.textContent = primeiro;
+
+      const elAvatar = document.getElementById("user-avatar");
+      if (elAvatar) elAvatar.textContent = primeiro.charAt(0).toUpperCase();
+    } catch { /* a divisa nao pode cair por causa do nome */ }
+
     aplicarDivisa({
       xp: d?.xp || 0,
       edital: d?.edital?.nome || d?.edital || '',

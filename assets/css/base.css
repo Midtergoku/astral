@@ -355,7 +355,19 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
    Só o miolo anima na troca de pagina. A sidebar fica parada de proposito:
    identica nas 9 paginas e sem animacao, ela parece ter PERMANECIDO enquanto
    so o conteudo trocou -- que e o efeito que o Lucas pediu. */
-.main { animation: astral-entra 260ms var(--saida) both; }
+/* 🐛 CORRIGIDO em 02/08/2026 -- o Lucas relatou "a fluidez foi embora, esta
+   seco e bugando quando clico no outro". Ele estava certo, e a causa era eu.
+
+   O .main tem view-transition-name: o navegador TIRA UMA FOTO dele e anima a
+   foto. Se o elemento REAL tambem tem animation de entrada, os dois animam ao
+   mesmo tempo -- e como esta comeca em opacity 0, a tela pisca no meio da
+   passagem. Duas animacoes disputando o mesmo elemento nao somam: brigam.
+
+   Agora a animacao de entrada so existe onde NAO ha transicao de pagina, como
+   ultimo recurso. Onde ha, quem anima e o navegador, sozinho. */
+@supports not (view-transition-name: none) {
+  .main { animation: astral-entra 260ms var(--saida) both; }
+}
 @keyframes astral-entra {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
