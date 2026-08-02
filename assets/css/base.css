@@ -917,3 +917,107 @@ input:focus, textarea:focus, select:focus {
   .btn > .seta-revela, .btn-primary > .seta-revela { transition: opacity 120ms ease; }
   [data-carregando="true"]::after { animation-duration: 1.6s; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CARTAO COM GRAFICO — a semana de estudo
+   ══════════════════════════════════════════════════════════════════════════
+   Referencia escolhida pelo Lucas: "activity-chart-card" do ravikatiyar162
+   -- titulo, total, e barras por dia da semana que sobem em cascata.
+
+   Cai como uma luva aqui: o Astral JA TEM esse dado (horas do cronometro por
+   dia) e nunca o mostrou em forma nenhuma. Nao e enfeite novo -- e dado que
+   ja existia e estava invisivel.
+
+   Sem biblioteca de grafico: sao sete divs com altura em porcentagem. Uma
+   biblioteca de grafico para desenhar sete barras custaria mais bytes que a
+   pagina inteira.
+   ══════════════════════════════════════════════════════════════════════════ */
+.gsemana { display: grid; gap: var(--e3); }
+.gsemana-topo {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--e2);
+}
+.gsemana-rotulo {
+  font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--texto-3);
+}
+.gsemana-total {
+  font-family: var(--dado); font-size: var(--t-xl); font-weight: 700;
+  color: var(--texto); font-variant-numeric: tabular-nums; line-height: 1;
+}
+.gsemana-barras {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: .4rem; align-items: end; height: 6.5rem;
+}
+.gsemana-col { display: grid; align-content: end; gap: .4rem; height: 100%; }
+.gsemana-barra {
+  position: relative;
+  background: linear-gradient(180deg, var(--latao-c), var(--latao));
+  border-radius: 2px 2px 0 0;
+  min-height: 3px;
+  /* as barras crescem DE BAIXO, uma depois da outra. Crescer e o que faz
+     parecer que o dado esta sendo medido; aparecer pronto nao diz nada. */
+  transform-origin: bottom;
+  transform: scaleY(0);
+  animation: gsemana-sobe 520ms var(--saida) forwards;
+}
+.gsemana-barra.vazio { background: var(--casco-2); }
+.gsemana-barra.hoje { box-shadow: 0 0 0 1px var(--latao-c); }
+.gsemana-col:nth-child(1) .gsemana-barra { animation-delay:  40ms; }
+.gsemana-col:nth-child(2) .gsemana-barra { animation-delay:  90ms; }
+.gsemana-col:nth-child(3) .gsemana-barra { animation-delay: 140ms; }
+.gsemana-col:nth-child(4) .gsemana-barra { animation-delay: 190ms; }
+.gsemana-col:nth-child(5) .gsemana-barra { animation-delay: 240ms; }
+.gsemana-col:nth-child(6) .gsemana-barra { animation-delay: 290ms; }
+.gsemana-col:nth-child(7) .gsemana-barra { animation-delay: 340ms; }
+@keyframes gsemana-sobe { to { transform: scaleY(1); } }
+
+.gsemana-dia {
+  font-family: var(--dado); font-size: .6rem; text-align: center;
+  color: var(--texto-3); letter-spacing: .04em;
+}
+.gsemana-col.hoje .gsemana-dia { color: var(--latao-c); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gsemana-barra { animation: none; transform: scaleY(1); }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EFEITO BENTO — o conteudo desliza quando o mouse chega
+   ══════════════════════════════════════════════════════════════════════════
+   Referencia escolhida pelo Lucas: o "bento-grid" do manuarora700 (Aceternity).
+   ⚠️ Nao consegui o codigo-fonte -- a documentacao mostra so a estrutura, e o
+   efeito mora no arquivo do componente. O que esta aqui e a tecnica visivel
+   reconstruida, nao copia.
+
+   O gesto: ao passar o mouse, o BLOCO DE TEXTO desliza alguns pixels para o
+   lado, enquanto o cartao fica parado. E sutil de proposito -- o cartao ja
+   sobe e ja acende o fio de latao; se o texto tambem saltasse, virava festa.
+
+   So em `.bento`, nao em todo cartao: se tudo se mexe, nada chama atencao. */
+.bento { position: relative; overflow: hidden; }
+.bento-corpo { transition: transform 280ms var(--saida); }
+.bento-visual {
+  border-radius: var(--r-p);
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(192,138,46,.16), transparent 60%),
+    var(--casco-2);
+  border: 1px solid var(--linha);
+  min-height: 5.5rem;
+  margin-bottom: var(--e3);
+  overflow: hidden;
+}
+/* Duas formas de usar, e a segunda existe porque eu quase quebrei o dashboard:
+   1. com <div class="bento-corpo"> explicito, quando eu escrevo a peca do zero
+   2. SEM tocar no HTML, quando o cartao ja existe -- ai deslizam os filhos
+      diretos. Tentei envolver o conteudo dos cartoes prontos num corpo novo e
+      abri duas <div> sem fechar; o balanco de tags acusou (101 x 103) antes de
+      ir para o ar, mas a licao fica: mexer na ESTRUTURA de HTML pronto por
+      script e caro. Efeito visual deve ser resolvido no CSS. */
+@media (hover: hover) and (pointer: fine) {
+  .bento:hover > .bento-corpo { transform: translateX(7px); }
+  .bento:not(:has(> .bento-corpo)):hover > *:not(.bento-visual) { transform: translateX(7px); }
+}
+.bento:not(:has(> .bento-corpo)) > * { transition: transform 280ms var(--saida); }
+@media (prefers-reduced-motion: reduce) {
+  .bento:hover .bento-corpo { transform: none; }
+}

@@ -263,3 +263,41 @@ export async function sessoesDeHoje(uid) {
   if (error) { console.error('Falha ao ler as sessões de hoje.', error); return []; }
   return data;
 }
+
+/** Sessoes dos ultimos 7 dias, ja somadas por dia.
+ *
+ *  Existe para o cartao de grafico da semana (peca C2 do roadmap). O dado ja
+ *  estava no banco desde que o cronometro foi feito -- nunca tinha sido
+ *  mostrado em forma nenhuma.
+ *
+ *  Devolve SEMPRE 7 posicoes, do dia mais antigo ao de hoje, mesmo que o
+ *  usuario nao tenha estudado em nenhum. Um grafico com buracos e pior que um
+ *  grafico zerado: o zero conta uma historia, o buraco parece defeito.
+ */
+export async function sessoesDaSemana(uid) {
+  const dias = [];
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(hoje);
+    d.setDate(hoje.getDate() - i);
+    dias.push({ data: d, segundos: 0, hoje: i === 0 });
+  }
+
+  const inicio = new Date(dias[0].data);
+  const { data, error } = await supabase
+    .from('sessoes_estudo')
+    .select('segundos, criado_em')
+    .eq('usuario_id', uid)
+    .gte('criado_em', inicio.toISOString());
+
+  // Falhar aqui nao pode derrubar a tela: devolve a semana zerada, e o cartao
+  // mostra "nenhuma sessao ainda" em vez de sumir.
+  if (error) { console.error('Falha ao ler as sessões da semana.', error); return dias; }
+
+  for (const s of (data || [])) {
+    const d = new Date(s.criado_em); d.setHours(0, 0, 0, 0);
+    const alvo = dias.find((x) => x.data.getTime() === d.getTime());
+    if (alvo) alvo.segundos += Number(s.segundos) || 0;
+  }
+  return dias;
+}
