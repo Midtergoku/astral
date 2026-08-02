@@ -115,6 +115,9 @@ priorização de um bloco inteiro de trabalho.
 | Consultei a produção **40 vezes em 4 minutos** para ver se o deploy saiu, e a Vercel me bloqueou (`X-Vercel-Mitigated: challenge`) — passei a achar que o deploy não tinha saído | Polling agressivo vira autossabotagem: eu criei o sintoma que fui diagnosticar. **Esperar 20–45s entre consultas** e usar `User-Agent` de navegador. |
 | Escrevi `drop policy "qualquer um entra na lista de espera"` **com o nome de memória**. O nome real era outro, e o `if exists` transformou o erro num aviso silencioso — dei o trabalho por feito | **Nunca escrever `drop policy`/`drop index` com nome lembrado.** Consultar `pg_policies` antes. O `if exists` é uma faca: protege contra erro *e* esconde o engano. Salvou-me o `revoke` na mesma migration — duas barreiras existem para isso. |
 | Meu teste de invasão deu "tudo bloqueado" (401 em tudo) e eu quase comemorei — **o teste nem estava autenticando**: misturei a chave `anon` antiga com a publishable nova, e depois o próprio captcha barrou o login do script | **Resultado negativo em teste de segurança não vale sem prova de que o ataque foi tentado com credencial válida.** O teste agora confirma que o token do atacante lê o *próprio* dado antes de tentar ler o alheio. |
+| 🔴 Achei as habilidades trancadas atrás de 70% e **diagnostiquei o design deliberado como bug**. Escrevi no `CLAUDE.md`: *"recompensa que ninguém vê não é recompensa, é segredo"* — e a resposta dele foi **"é proposital"**, é conquista secreta, e descobrir é o pico de dopamina | **Inverti o produto inteiro.** A pesquisa que ele mandou fazer me contradiz na cara: *"surprise rewards often create stronger dopamine responses than expected ones"*. Não bastava eu ter medido o código — eu medi certo e **interpretei a intenção errado**. A seção 11 diz *"vale perguntar antes de preservar"*; eu não perguntei, concluí. **Código que parece errado pode estar certo: a pergunta é "por que fizeram assim?", não "quem quebrou isso?"** |
+| Chamei as habilidades de **tag** e pus `RECRUTA` como estado da tag | *"Tag é tag, nível é nível"* — ordem direta dele. Recruta é **patente**, que sai do XP e muda conforme o edital. Tag é **especialidade**. Juntei dois sistemas que ele tinha separado de propósito, e quase construí em cima da confusão |
+| Propus quest semanal que **expira no domingo** | *"a missão não some"*. Quest é desbloqueio **permanente**: cumpriu, ganhou, é seu. O que expira é liga/desafio semanal, que é outra coisa e ele não pediu |
 | Deixei 3 interpolações sem escape em `edital.html` durante o Bloco B3 | Varri por **lista de nomes conhecidos** (`q.enunciado`, `m.nome`) e não por *origem do dado*. `estado.edital.*` não estava na minha lista mental. Por isso `tools/varre-xss.js` existe agora — a varredura não pode depender do que eu lembro. |
 
 ---
@@ -1931,7 +1934,27 @@ eu conferir que mudou só o pretendido. Adaptar no começo do V1.
 > Ordem do Lucas: *"vamos aprofundar mais ela já também... quero acrescentar mais também, mexer
 > mais nessa gamificação do site"*. O V7 era uma linha na tabela; virou esta seção.
 
-### 🔴 A descoberta que muda tudo: **a tag já existe, e ninguém nunca viu**
+> 🔴 **ESTA SEÇÃO FOI REESCRITA EM 01/08/2026, no mesmo dia, porque a primeira versão estava
+> errada em três pontos.** Eu tinha encontrado as habilidades no código e concluído que estavam
+> na página errada, trancadas por engano, e que eram "a tag". **Nada disso.** As correções dele
+> estão em 9.2.1; o texto abaixo já está corrigido. As três linhas de erro foram para a 0.1.
+
+### Os TRÊS sistemas, que eu tinha juntado num só
+
+> *"Tag é tag, nível é nível."* — Lucas, 01/08/2026, corrigindo o relatório anterior
+
+| Sistema | O que mede | De onde vem | Onde aparece |
+|---|---|---|---|
+| **NÍVEL** (patente) | **quanto** você estudou — XP acumulado | automático; muda conforme o **edital** (bombeiro ≠ PM) | já existe, 11 níveis por força |
+| **TAG** | **no que** você é | ganha, escolhe, veste | topbar, no lugar do badge de plano |
+| **CONQUISTA SECRETA** | descoberta | escondida até disparar | `conquistas.html` — **e está certo assim** |
+| **QUEST** | tarefa cumprida | *"se estudar tanto, libera isso"* | a construir |
+
+São quatro caixas separadas e **elas se alimentam**: cumprir uma quest ou descobrir um secreto
+pode **entregar uma tag** — foi o que ele disse com *"você também pode colocar elas pra serem
+tags"*. O que não pode é tratar tudo como a mesma coisa, que foi o meu erro.
+
+### As conquistas secretas — eu chamei de bug, e é o oposto
 
 O Lucas descreveu a tag assim:
 
@@ -1950,25 +1973,37 @@ geografia          -> Navegador               física          -> Engenheiro de 
 direito const.     -> Guardião da Lei         história        -> Memória da Nação
 ```
 
-É **exatamente** o mecanismo que ele pediu — inclusive com um "Alquimista", que é praticamente
-o "mago" que ele citou. Cada uma tem nome, ícone e uma frase de personagem.
+Cada uma tem nome, ícone e uma frase de personagem. Trancadas atrás de 70% de domínio
+([conquistas.html:507](conquistas.html#L507): `if (progresso < 70) return 'bloqueada'`).
 
-**Por que ele nunca viu, e por que achou que não existia — três motivos empilhados:**
+**Eu escrevi que isso era um defeito em três camadas** — página errada, tranca alta demais,
+ninguém vê. **A resposta dele:**
 
-1. **Mora na página errada.** Está em `conquistas.html`, não no dashboard. Ele pediu a tag
-   *"na página inicial"*, e ela nunca esteve lá.
-2. **Trancada atrás de 70% de domínio** ([conquistas.html:507](conquistas.html#L507):
-   `if (progresso < 70) return 'bloqueada'`). Ninguém no Astral tem dado de estudo suficiente
-   para chegar perto disso.
-3. **Ainda não há usuário real estudando.** Sem progresso, tudo aparece como 🔒 Bloqueada.
+> *"isso não são tags, isso aí são secretas (...) ela não está na página errada, ela está na
+> página certa. (...) Ela foi feita pra ser secreta. Então só vou descobrir ela por acaso,
+> então vai ser um pico de dopamina sim. 'Oh meu Deus, descobri uma!' Então é proposital."*
 
-> 🧠 **A lição de produto, que vale além deste caso:** *recompensa que ninguém consegue ver não
-> é recompensa — é segredo.* O sistema estava certo e invisível ao mesmo tempo. O trabalho do
-> V7 não é **criar** a tag, é **desenterrar** a que já existe e colocá-la onde ela é vista todo
-> dia.
+**Ele está certo, e a pesquisa que ele mandou fazer me contradiz diretamente:**
+
+> *"Surprise rewards often create stronger dopamine responses than expected ones, and
+> unexpected achievements can feel more satisfying than those deliberately pursued."*
+> — [Simply Put Psych](https://simplyputpsych.co.uk/gaming-psych/3l1sb9syu0313770n7n3ip4e4u1x6b),
+> [COGconnected](https://cogconnected.com/2025/10/gaming-achievement-dopamine-hits-and-their-real-effects/)
+
+Ou seja: **a tranca não é o defeito, é o mecanismo.** Uma conquista anunciada de véspera vira
+tarefa; uma que aparece sozinha vira surpresa. O valor está na descoberta.
+
+> 🧠 **A lição, e ela é maior que este caso:** eu medi o código certo e **interpretei a
+> intenção errado**. Achei algo que parecia quebrado e perguntei *"quem quebrou isso?"* em vez
+> de *"por que fizeram assim?"*. A seção 11 já mandava perguntar antes de mexer em código
+> antigo — eu não perguntei, concluí, e escrevi a conclusão errada no caderno como se fosse
+> lição. **Instrução minha errada é pior que instrução nenhuma** (0.1), e eu quase repeti isso.
 >
-> Isso também é um aviso sobre o resto do código: pode haver mais coisa pronta e escondida.
-> Antes de construir qualquer feature "nova" na Etapa 3, **procurar se ela já existe.**
+> Regra prática: **antes de chamar qualquer coisa de bug, escrever a frase "isto foi feito de
+> propósito porque ____" e ver se ela fecha.** Aqui fechava.
+
+**O que ele quer daqui pra frente:** *"eu também quero mais tags secretas, mas vou mexer nisso
+mais pra frente"*. Fica registrado como pedido, não como tarefa aberta.
 
 ### O que o Lucas decidiu sobre o lugar da tag
 
@@ -1990,36 +2025,47 @@ agora, vamos fazer depois."*
 > ele é free. Isso **não** enfraquece a conversão — o convite ao Pro continua onde ele decide
 > (limite atingido, tela de conta), e sai de onde ele só atrapalha.
 
-### O problema que a mudança de lugar cria, e como resolver
+### Como se escreve a tag — regra dele, curta e literal
 
-Se a tag só aparece a partir de 70% de domínio, **o usuário novo vê um espaço vazio** — pior
-que o badge que estava lá. Então a tag precisa de estados, não de um interruptor:
-
-| Estado | Quando | O que aparece |
-|---|---|---|
-| **Recruta** | sem edital, ou sem nenhuma sessão estudada | `RECRUTA` — todo mundo começa aqui, e isso já é uma identidade |
-| **Em formação** | tem edital, melhor matéria abaixo de 70% | `ESTRATEGISTA · em formação 47%` — mostra o alvo e a distância |
-| **Ativa** | domínio ≥ 70% | `ESTRATEGISTA` cheia |
-| **Enferrujada** | 7 dias sem estudar aquela matéria | mesma tag, com marca de desgaste |
-| **Suspensa** | 14 dias | mesma tag, apagada |
-
-Os três últimos estados **já estão implementados** ([conquistas.html:507-509](conquistas.html#L507)).
-Os dois primeiros são o que falta — e são justamente os que todo usuário novo vive.
-
-> ⚠️ **"Em formação" é a peça mais importante da lista**, e é a que não existe. Uma barra com
-> "faltam 23% para virar Estrategista" é um motivo para estudar hoje. Um cadeado não é.
-
-### Como a tag conversa com a patente
-
-São dois eixos diferentes, e é bom que sejam:
+> *"Não quero que seja tipo 'eu sou'. Só vai estar lá assim: Estrategista. Não vai ter isso de
+> 'eu sou'. Não tem."*
 
 ```
-PATENTE        quanto voce estudou   (XP total)     -> Cabo BM, 3o Sargento...
-TAG            no que voce e bom     (dominio %)    -> Estrategista, Orador de Guerra...
+ERRADO   "Eu sou Estrategista"   "Voce e um Estrategista"   "Especialidade: Estrategista"
+CERTO    ESTRATEGISTA
 ```
 
-Juntos leem como identificação militar de verdade: **`CABO BM · ESTRATEGISTA`**. Um diz o
-tempo de serviço, o outro a especialidade. Nenhum concorrente do nicho tem isso.
+**A palavra sozinha.** Sem verbo, sem rótulo, sem frase. É insígnia, não legenda — e insígnia
+não se explica. Vale para a tela e vale para o `estilo.html` do V1.
+
+### O NÍVEL, que é outra coisa, e que já está pronto
+
+> *"O nível vai ser essa parte recruta, e isso vai variar de edital pra edital, porque as
+> patentes dos bombeiros é diferente das patentes do policial militar. (...) Se a pessoa subir
+> um edital dos bombeiros, as patentes serão dos bombeiros. (...) Esse é o nome do nível dele:
+> recruta. E aí no futuro ele vai subir para major, coronel."*
+
+**Isso já funciona.** `detectarTipoConcurso()` lê o nome do edital e escolhe a tabela;
+são 6 tabelas (bombeiros, marinha, aeronáutica, exército, PM, padrão) × 11 níveis, de 0 a
+35.000 XP (seção 6). É exatamente o comportamento que ele descreveu — ele estava me explicando
+uma coisa que ele mesmo pediu para outra IA e que **está construída e correta**.
+
+O que **não** existe: o nível e a tag lado a lado, na topbar, como identificação.
+
+```
+NIVEL   quanto voce estudou    XP acumulado, muda conforme o edital   -> Recruta, Cabo BM, Major
+TAG     no que voce e          ganha por quest / secreto / dominio    -> Estrategista, Sapador
+```
+
+Lidos juntos: **`RECRUTA · ESTRATEGISTA`**. Um é tempo de serviço, o outro é especialidade —
+é assim que identificação militar de verdade funciona.
+
+> ❓ **A única pergunta em aberto da tag, e eu não vou inventar a resposta:** o usuário que
+> acabou de entrar **não tem tag nenhuma** — tag se ganha. O que aparece na topbar dele?
+>
+> Minha recomendação: **só o nível** (`RECRUTA`), e o espaço da tag vazio até ele conquistar a
+> primeira. Motivo: se todo mundo já nasce com uma tag, ela deixa de valer alguma coisa — e o
+> vazio ao lado do nível é, ele próprio, um convite. Mas isso é recomendação, não decisão.
 
 ### 🎖️ A decisão de estilo — militar, não fantasia
 
@@ -2048,13 +2094,13 @@ sangue no olho na revisão do V7.
 
 | Passo | O quê | Depende de |
 |---|---|---|
-| **V7.1** | Tag na topbar das 8 páginas do app, com os 5 estados | V1 (fundação visual) |
+| **V7.1** | **NÍVEL + TAG na topbar** das 8 páginas (`RECRUTA · ESTRATEGISTA`) | V1 (fundação visual) |
 | **V7.2** | Badge de plano **sai** da topbar; fica só em Minha conta | V7.1 |
-| **V7.3** | Estado "em formação" com barra de progresso até a próxima tag | V7.1 |
-| **V7.4** | Revisar os 51 nomes — coerência militar e mais personalidade | — |
+| **V7.3** | **Catálogo de tags** — muitas, por área de matéria. Ordem dele: *"eu quero várias (...) isso aí é com você também"* | — |
+| **V7.4** | Sistema de **quests** — permanentes, nunca expiram (9.2.2) | V7.3 |
 | **V7.5** | A tag como **divisa** (forma de galão/insígnia), não retângulo arredondado | V1 |
-| **V7.6** | **Mais quests** — pedido dele de 29/07, ainda sem definição | perguntar a ele |
-| **V7.7** | **Ranking pessoal** — você contra você, ver os dois avisos abaixo | V7.6 |
+| **V7.6** | **Mais conquistas secretas** — *"vou mexer nisso mais pra frente"* | adiado por ele |
+| **V7.7** | **Ranking pessoal** — você contra você, ver os dois avisos abaixo | V7.4 |
 
 > 🔴 **Ranking é PESSOAL.** Ele disse isso em 30/07. Ranking entre usuários desmotiva quem está
 > atrás, e a base é pequena demais para fazer sentido.
@@ -2064,9 +2110,65 @@ sangue no olho na revisão do V7.
 > for "você contra você", é autoengano e não faz mal a ninguém. No instante em que valer algo,
 > vira fraude.
 
-> ⚠️ **V7.6 continua sem definição.** "Mais quests" foi citado em 29/07 e nunca detalhado.
-> **Perguntar antes de inventar** — a hipótese é missão semanal ligada ao cronograma
-> ("3 sessões de Português esta semana"), mas é hipótese minha, não pedido dele.
+---
+
+## 9.2.2. Quests — o que são, depois de eu errar e ele mandar pesquisar
+
+Eu tinha proposto **missão semanal que expira no domingo**. A resposta:
+
+> *"Não, esse negócio, a missão não some, entendeu? Não é isso que você está pensando.
+> Quests são literalmente quests. Por exemplo: se você estudar tanto, você libera isso. Se
+> você fizer isso, você vai liberar uma quest (...) tipo, se você estudar quinze minutos.
+> Pesquisa, faz uma pesquisa sobre quests de jogos e conquistas recebidas por elas, você vai
+> ter uma noção maior sobre o que é isso."*
+
+### O que a pesquisa mostrou — e ela confirma ele, não a mim
+
+| Achado | Fonte |
+|---|---|
+| *"Bootleg quests convert temporary pressure into **permanent rewards** — the user endures a challenge, hits a milestone, and unlocks a capability they **keep forever**"* | [Yu-kai Chou](https://yukaichou.com/gamification-analysis/quest-design-gamification-bootleg-quests-boss-fights/) |
+| **Duolingo: Daily Quests → +25% de usuários ativos por dia** | [Strivecloud](https://www.strivecloud.io/play/duolingo) |
+| Separar a manutenção do streak da meta diária → **+40%** de gente com 7 dias ou mais | [Orizon](https://www.orizon.co/blog/duolingos-gamification-secrets) |
+| *"Surprise rewards often create **stronger dopamine responses** than expected ones"* | [Simply Put Psych](https://simplyputpsych.co.uk/gaming-psych/3l1sb9syu0313770n7n3ip4e4u1x6b) |
+| Streak funciona por **aversão à perda**, não por prêmio: o medo de perder 10 dias pesa mais que qualquer recompensa | [AppStorys](https://appstorys.com/blog-Streaks-Milestones-Habit-Gamification) |
+
+**A distinção que eu tinha embaralhado** — são coisas diferentes e o Astral quer a primeira:
+
+| | Expira? | Exemplo | Serve para |
+|---|---|---|---|
+| **QUEST** ✅ o que ele pediu | ❌ **nunca** | "estude 15 min" → cumpriu, é seu para sempre | dar objetivo e entregar desbloqueio |
+| Liga / desafio semanal | ✅ zera toda semana | ranking de XP da semana | competição — **ele não pediu** |
+| Missão diária | ✅ some à meia-noite | "estude hoje" | frequência — cria culpa em quem falha |
+
+> 🔴 **Missão que expira é dívida, não jogo.** Para um concurseiro que já vive com culpa de
+> não ter estudado, uma tarefa que some sozinha e vira "você falhou" é o pior mecanismo
+> possível. **Quest que espera** é o oposto: ela fica lá, e no dia em que ele volta, ela ainda
+> está esperando. Isso é acolhimento, não cobrança — e é exatamente o que ele descreveu sem
+> usar essas palavras.
+
+### O formato que a pesquisa recomenda para o caso do Astral
+
+```
+QUEST = condicao verificavel  ->  desbloqueio permanente
+
+  "Estude 15 minutos seguidos"           -> primeira quest, cumpre-se no dia 1
+  "Complete 10 sessoes de uma materia"   -> desbloqueia a TAG daquela area
+  "Estude 7 dias seguidos"               -> nivel de XP + insignia
+  "Termine todas as sessoes da semana"   -> avanca uma etapa da cadeia
+```
+
+**Duas regras que saem da pesquisa e que valem escrever no código:**
+
+1. **Encadear, não empilhar.** Quest fechada abre a próxima. Uma lista de 40 tarefas soltas
+   paralisa; uma corrente onde só a próxima aparece puxa. É o *"se você fizer isso, você vai
+   liberar uma quest"* que ele descreveu.
+2. **A recompensa da quest é a TAG.** Assim os quatro sistemas se fecham: quest dá tag, tag
+   aparece na topbar, nível sobe por XP, e o secreto continua sendo surpresa. Nenhum deles
+   duplica o outro.
+
+> ⚠️ **O que ainda não está definido:** a lista concreta de quests. A pesquisa deu o *formato*,
+> não o *conteúdo*. Isso é V7.4 e vem depois do catálogo de tags — não faz sentido escrever a
+> recompensa antes de existir o que recompensar.
 
 ## 10. Decisões em aberto
 
