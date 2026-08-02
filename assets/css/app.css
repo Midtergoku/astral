@@ -132,7 +132,7 @@ body {
 .btn-logout:hover { color: var(--red); }
 
 .page-title {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--display);
   font-weight: 800;
   font-size: 1.5rem;
   color: var(--white);
@@ -161,7 +161,17 @@ to { opacity: 0; transform: translateY(-8px); }
   }
 body.saindo { pointer-events: none; }
 
-body.saindo .main { animation: pageExit 0.22s ease-in forwards; }
+/* SAIR e sempre mais rapido que ENTRAR: ao clicar, a pessoa ja decidiu.
+   Antes era 220ms com ease-in -- ease-in comeca devagar e faz a troca parecer
+   travada exatamente no instante em que ela esta olhando. Era a causa do
+   "corte seco" que o Lucas apontou. */
+body.saindo .main { animation: pageExit 150ms var(--saida) forwards; }
+
+/* A BARRA LATERAL NAO ANIMA, DE PROPOSITO.
+   A navegacao recarrega a pagina inteira. Se a sidebar tambem aparecesse com
+   animacao, ela piscaria a cada clique. Sem animacao e identica nas 9 paginas,
+   ela parece ter FICADO no lugar enquanto so o conteudo trocou. */
+.sidebar { animation: none !important; }
 
 .card:nth-child(1) { animation-delay: 0.05s; }
 
@@ -173,15 +183,26 @@ body.saindo .main { animation: pageExit 0.22s ease-in forwards; }
 
 .card:nth-child(5) { animation-delay: 0.25s; }
 
+/* A BARRINHA DO ITEM ATIVO.
+   🐛 Bug corrigido em 02/08/2026, apontado pelo Lucas num print: ela nascia
+   desalinhada com o texto. Causa: usava `animation: fadeUp`, e o fadeUp
+   TERMINA em `transform: translateY(0)` -- o que apagava o `translateY(-50%)`
+   que centraliza a barra. Ela acabava com o topo no meio do item, nao o centro.
+   Licao: keyframe que mexe em `transform` sobrescreve o transform do elemento.
+   Quem precisa de centralizacao E animacao tem que carregar as duas no keyframe. */
 .nav-link.active::before {
   content: '';
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--purple);
+  background: var(--latao);
   border-radius: 0 3px 3px 0;
-  animation: fadeUp 0.3s ease forwards;
+  transform: translateY(-50%) scaleY(0);
+  transform-origin: center;
+  animation: divisaEntra 260ms var(--saida) 60ms forwards;
+}
+@keyframes divisaEntra {
+  to { transform: translateY(-50%) scaleY(1); }
 }

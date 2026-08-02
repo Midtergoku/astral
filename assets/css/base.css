@@ -159,10 +159,42 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 .cascata > *:nth-child(6) { animation-delay: 300ms; }
 @keyframes astral-surge { to { opacity: 1; transform: translateY(0); } }
 
+/* ═══ MENU LATERAL ═══
+   A regra base de .nav-link mora INLINE em cada pagina (e um dos seletores que
+   divergem, ver rules/paginas.md 8.5). CSS inline vem depois do <link> e vence
+   com a mesma especificidade -- entao aqui usamos `.sidebar .nav-link` (0,2,0)
+   para ganhar de `.nav-link` (0,1,0) INDEPENDENTE DA ORDEM. Mesmo truque do
+   menu de celular (blocos executados, 8.11). */
+.sidebar .nav-link {
+  position: relative;
+  border-radius: var(--r-p);
+  transition: color var(--d-dica) ease,
+              background-color var(--d-dica) ease,
+              padding-left var(--d-dica) var(--saida);
+}
+.sidebar .nav-link.active { color: var(--latao-c); background: rgba(192,138,46,.10); }
+.sidebar .nav-link svg { transition: transform var(--d-dica) var(--saida); }
+
 /* ═══ HOVER SO PARA QUEM TEM MOUSE ═══
    No celular o toque dispara hover e o elemento fica aceso e grudado. */
 @media (hover: hover) and (pointer: fine) {
   .divisa:hover { transform: translateY(-1px); }
+  .sidebar .nav-link:not(.active):hover {
+    color: var(--texto);
+    background: rgba(255,255,255,.04);
+    padding-left: 1rem;                 /* o item desliza de leve na direcao do clique */
+  }
+  .sidebar .nav-link:not(.active):hover svg { transform: translateX(1px); }
+}
+
+/* ═══ ENTRADA DO CONTEUDO ═══
+   Só o miolo anima na troca de pagina. A sidebar fica parada de proposito:
+   identica nas 9 paginas e sem animacao, ela parece ter PERMANECIDO enquanto
+   so o conteudo trocou -- que e o efeito que o Lucas pediu. */
+.main { animation: astral-entra 260ms var(--saida) both; }
+@keyframes astral-entra {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ═══ QUEM MARCOU "REDUZIR MOVIMENTO" NO APARELHO ═══
