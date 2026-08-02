@@ -1021,3 +1021,334 @@ input:focus, textarea:focus, select:focus {
 @media (prefers-reduced-motion: reduce) {
   .bento:hover .bento-corpo { transform: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PECAS C4 a C11 — as referencias que o Lucas escolheu no 21st.dev
+   ══════════════════════════════════════════════════════════════════════════
+   ⚠️ NENHUMA DELAS VEIO COM CODIGO. O 21st.dev mostra o exemplo de uso e
+   guarda o fonte; alem disso tudo la e React + Tailwind + Framer Motion, que
+   nao roda neste projeto. Entao o que esta aqui e a TECNICA que cada nome
+   descreve, reconstruida em CSS puro e adaptada a nossa direcao visual --
+   como ele pediu: "logico que voce vai adaptar, nao e pra escrever o mesmo".
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── C7 · ANEL DE PORCENTAGEM (radial progress) ───────────────────────────
+   Serve ao dominio por materia, que hoje so aparece como barra. O anel diz
+   "quanto de um todo"; a barra diz "quanto ja andou". Sao leituras
+   diferentes, e materia pede a primeira.
+   conic-gradient com --pct: um elemento, sem SVG, sem biblioteca. */
+.anel {
+  --pct: 0;
+  position: relative;
+  width: 4.5rem; height: 4.5rem;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: conic-gradient(var(--latao) calc(var(--pct) * 1%), var(--linha) 0);
+  transition: background 700ms var(--percurso);
+}
+.anel::before {
+  content: ""; position: absolute; inset: 5px;
+  border-radius: 50%; background: var(--casco);
+}
+.anel > span {
+  position: relative;
+  font-family: var(--dado); font-size: var(--t-sm); font-weight: 700;
+  color: var(--texto); font-variant-numeric: tabular-nums;
+}
+.anel.baixo { background: conic-gradient(var(--brasa)   calc(var(--pct)*1%), var(--linha) 0); }
+.anel.medio { background: conic-gradient(var(--latao)   calc(var(--pct)*1%), var(--linha) 0); }
+.anel.alto  { background: conic-gradient(var(--oliva-c) calc(var(--pct)*1%), var(--linha) 0); }
+.anel.p { width: 2.6rem; height: 2.6rem; }
+.anel.p::before { inset: 3px; }
+.anel.p > span { font-size: .62rem; }
+
+/* ── C7 · BARRA COM MARCOS ────────────────────────────────────────────────
+   Os marcos sao os degraus que valem alguma coisa: 25, 50, 70 (onde nasce a
+   TAG) e 90 (a versao elite). Sem eles a barra so informa; com eles ela da
+   alvo -- a pessoa ve o proximo degrau e sabe quanto falta. */
+.barra-marcos {
+  position: relative; height: 8px;
+  background: var(--breu); border: 1px solid var(--linha);
+  border-radius: 999px;
+}
+.barra-marcos > i {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--latao), var(--latao-c));
+  transition: width 900ms var(--percurso);
+}
+.barra-marcos > b {
+  position: absolute; top: 50%; width: 2px; height: 10px;
+  background: var(--linha); transform: translate(-50%, -50%);
+}
+.barra-marcos > b.batido { background: var(--latao-c); }
+
+/* ── C10 · ESQUELETO, variacoes ───────────────────────────────────────────
+   Formas diferentes para conteudos diferentes: circulo para avatar, linha
+   para texto, bloco para cartao. Esqueleto que nao tem a FORMA do que vem
+   nao ajuda ninguem -- vira so um retangulo cinza. */
+.esqueleto-circulo {
+  width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  background: var(--casco-2); position: relative; overflow: hidden;
+}
+.esqueleto-circulo::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.055), transparent);
+  transform: translateX(-100%);
+  animation: esqueleto-brilho 1.4s ease-in-out infinite;
+}
+.esqueleto-grupo { display: flex; gap: var(--e2); align-items: center; }
+.esqueleto-grupo > div:last-child { flex: 1; }
+
+/* ── C10 · TEXTO CINTILANTE (shimmer) ─────────────────────────────────────
+   Para o texto que espera resposta da IA. "Lendo seu edital..." com a luz
+   passando por cima diz "estou trabalhando"; o mesmo texto parado diz
+   "travei". A diferenca e so uma animacao, e muda tudo na percepcao. */
+.cintila {
+  background: linear-gradient(90deg,
+    var(--texto-3) 0%, var(--texto) 42%, var(--latao-c) 50%,
+    var(--texto) 58%, var(--texto-3) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: cintilar 2.2s linear infinite;
+}
+@keyframes cintilar { to { background-position: -220% 0; } }
+
+/* ── C4 · CAMINHO DE VOLTA (breadcrumb) ───────────────────────────────────
+   So faz sentido onde ha profundidade de verdade. No Astral isso e raro:
+   vale para "Progresso > Materia" e "Conquistas > Habilidade".
+   NAO vai em toda tela -- caminho de uma etapa so e ruido. */
+.caminho {
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+  font-family: var(--dado); font-size: var(--t-xs);
+  color: var(--texto-3); margin-bottom: var(--e2);
+}
+.caminho a { color: var(--texto-2); text-decoration: none; transition: color 160ms ease; }
+.caminho a:hover { color: var(--latao-c); }
+.caminho .sep { opacity: .5; }
+.caminho [aria-current] { color: var(--texto); }
+
+/* ── C9 · FOLHA (sheet) ───────────────────────────────────────────────────
+   No celular sobe do rodape: fica ao alcance do polegar e nao cobre a tela
+   inteira. No computador entra pela lateral, que e o gesto certo la.
+   E o mesmo componente -- o que muda e o lado de onde ele vem. */
+.folha {
+  position: fixed; z-index: 60;
+  background: var(--casco); border: 1px solid var(--linha);
+  box-shadow: 0 -20px 60px -30px rgba(0,0,0,.95);
+  transition: transform var(--d-fecha) var(--gaveta);
+}
+.folha:not([data-aberta]) { pointer-events: none; }
+@media (max-width: 767px) {
+  .folha {
+    left: 0; right: 0; bottom: 0;
+    border-radius: var(--r-g) var(--r-g) 0 0;
+    padding: var(--e4) var(--e3) calc(var(--e4) + env(safe-area-inset-bottom));
+    transform: translateY(101%);
+  }
+  .folha[data-aberta] { transform: translateY(0); transition-duration: var(--d-painel); }
+  /* a alcinha diz "isto se puxa" sem precisar escrever */
+  .folha::before {
+    content: ""; position: absolute; top: .6rem; left: 50%;
+    width: 2.4rem; height: 4px; border-radius: 999px;
+    background: var(--linha); transform: translateX(-50%);
+  }
+}
+@media (min-width: 768px) {
+  .folha {
+    top: 0; bottom: 0; right: 0; width: min(28rem, 92vw);
+    border-radius: var(--r-g) 0 0 var(--r-g); padding: var(--e4);
+    transform: translateX(101%);
+  }
+  .folha[data-aberta] { transform: translateX(0); transition-duration: var(--d-painel); }
+}
+
+/* ── C11 · CONQUISTA DESBLOQUEADA ────────────────────────────────────────
+   O momento mais importante da gamificacao inteira -- e hoje ele NAO EXISTE:
+   a pessoa sobe de patente e so o texto muda de lugar.
+
+   Tres coisas acontecem juntas, e a ordem importa:
+     1. o fundo escurece   -> isola o momento do resto da tela
+     2. a insignia CHEGA   -> de 88% e girada 8 graus, assentando no lugar
+     3. os raios abrem     -> por tras, girando devagar
+
+   A curva da insignia passa de 1 e volta (cubic-bezier com 1.5): e o
+   "assentar" de uma medalha sendo colocada, nao um retangulo aparecendo. */
+.veu-conquista {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center; padding: var(--e3);
+  background: rgba(6,11,16,.82); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--d-fecha) var(--saida);
+}
+.veu-conquista[data-aberto] {
+  opacity: 1; pointer-events: auto; transition-duration: var(--d-painel);
+}
+.conquista {
+  position: relative; text-align: center; max-width: 22rem;
+  padding: var(--e5) var(--e4);
+  background: var(--casco); border: 1px solid var(--latao);
+  border-radius: var(--r-g);
+  transform: scale(.88) rotate(-8deg); opacity: 0;
+  transition: transform 520ms cubic-bezier(.2, 1.5, .4, 1),
+              opacity 260ms var(--saida);
+}
+.veu-conquista[data-aberto] .conquista { transform: scale(1) rotate(0deg); opacity: 1; }
+
+/* os raios, atras da peca */
+.conquista::before {
+  content: ""; position: absolute; inset: -40%;
+  background: conic-gradient(from 0deg,
+    rgba(224,174,85,.16) 0deg 6deg,  transparent 6deg 26deg,
+    rgba(224,174,85,.16) 26deg 32deg, transparent 32deg 52deg,
+    rgba(224,174,85,.16) 52deg 58deg, transparent 58deg 78deg);
+  border-radius: 50%; opacity: 0; z-index: -1;
+  transition: opacity 500ms ease;
+}
+.veu-conquista[data-aberto] .conquista::before {
+  opacity: 1; animation: raios 22s linear infinite;
+}
+@keyframes raios { to { transform: rotate(360deg); } }
+
+.conquista-medalha {
+  width: 5rem; height: 5rem; margin: 0 auto var(--e3);
+  display: grid; place-items: center; border-radius: 50%;
+  background: linear-gradient(160deg, var(--latao-c), var(--latao));
+  color: #121A24;
+  box-shadow: 0 0 0 6px rgba(192,138,46,.14), 0 14px 34px -14px rgba(192,138,46,.6);
+}
+.conquista-rot {
+  display: block; margin-bottom: var(--e2);
+  font-family: var(--dado); font-size: .64rem; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--latao-c);
+}
+.conquista-nome {
+  font-family: var(--display); font-weight: 800; font-size: var(--t-xl);
+  line-height: 1.1; margin: 0 0 var(--e2); color: var(--texto);
+}
+.conquista-frase { color: var(--texto-2); font-size: var(--t-sm); margin: 0 0 var(--e4); }
+
+@media (prefers-reduced-motion: reduce) {
+  .conquista { transform: none; transition: opacity 200ms ease; }
+  .veu-conquista[data-aberto] .conquista::before { animation: none; }
+  .cintila { animation: none; background: none; color: var(--texto-2); }
+  .esqueleto-circulo::after { animation: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   C3 · BARRA LATERAL RECOLHIVEL
+   ══════════════════════════════════════════════════════════════════════════
+   Referencias que o Lucas escolheu: "dashboard-with-collapsible-sidebar"
+   (uniquesonu) e "sidebar" (manuarora700). Nenhuma das duas entregou codigo,
+   entao aqui esta a tecnica padrao adaptada.
+
+   POR QUE ISTO VALE A PENA NO ASTRAL:
+   a barra ocupa 240px fixos. Numa tela de notebook de 1366px isso e 18% da
+   largura, permanentemente, para um menu que a pessoa usa poucas vezes por
+   sessao. Recolher devolve esse espaco ao CONTEUDO, que e o que ela veio ver.
+
+   A LARGURA E UMA VARIAVEL, e isso importa: `--sidebar-w` ja era usada pelo
+   `.main` para calcular a margem. Trocar so o valor da variavel move a barra
+   E o conteudo juntos, sem uma linha a mais. Se fosse pixel fixo em dois
+   lugares, um deles ficaria para tras.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root { --sidebar-recolhida: 68px; }
+
+body[data-menu="recolhido"] { --sidebar-w: var(--sidebar-recolhida); }
+
+.sidebar { transition: width var(--d-painel) var(--gaveta); }
+.main    { transition: margin-left var(--d-painel) var(--gaveta),
+                       max-width  var(--d-painel) var(--gaveta); }
+
+/* o que some ao recolher: rotulo, titulo de secao, nome do usuario.
+   Some por opacidade E largura -- so opacidade deixaria o texto ocupando
+   espaco invisivel e a barra nao encolheria de verdade. */
+body[data-menu="recolhido"] .sidebar .nav-link > span,
+body[data-menu="recolhido"] .sidebar .nav-link { }
+
+/* 🐛 O .sidebar-logo span NAO entra aqui: eu o inclui na primeira versao
+   achando que era rotulo, e o logo virou "Ast al" -- aquele span e a letra R
+   colorida de AstRal. Erro pego na foto, nao no codigo. Recolhido, o logo
+   inteiro vira so a inicial (regra logo abaixo). */
+body[data-menu="recolhido"] .nav-label,
+body[data-menu="recolhido"] .user-details,
+body[data-menu="recolhido"] .btn-logout span {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 120ms ease, width var(--d-painel) var(--gaveta);
+}
+
+/* o texto solto dentro dos links (que nao esta em <span>) precisa sumir tambem */
+body[data-menu="recolhido"] .sidebar .nav-link {
+  justify-content: center;
+  padding-left: 0; padding-right: 0;
+  font-size: 0;                      /* zera o texto solto */
+  gap: 0;
+}
+body[data-menu="recolhido"] .sidebar .nav-link svg { font-size: 1rem; }
+body[data-menu="recolhido"] .sidebar { padding-left: .5rem; padding-right: .5rem; }
+
+/* o logo recolhido vira a inicial, centralizada. Esconder o texto e manter a
+   caixa deixaria um buraco no topo da barra. */
+body[data-menu="recolhido"] .sidebar-logo {
+  font-size: 0; text-align: center;
+}
+body[data-menu="recolhido"] .sidebar-logo::before {
+  content: "A";
+  font-family: var(--display); font-weight: 800; font-size: 1.5rem;
+  color: var(--papel);
+}
+body[data-menu="recolhido"] .sidebar-logo span { display: none; }
+body[data-menu="recolhido"] .user-info { justify-content: center; padding: .5rem; }
+body[data-menu="recolhido"] .btn-logout { justify-content: center; }
+
+/* DICA AO PASSAR O MOUSE: recolhido, o icone sozinho nao diz o que e.
+   Sem isto, recolher troca espaco por confusao -- que e um mau negocio. */
+body[data-menu="recolhido"] .sidebar .nav-link { position: relative; }
+body[data-menu="recolhido"] .sidebar .nav-link::after {
+  content: attr(data-dica);
+  position: absolute; left: calc(100% + .5rem); top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  background: var(--casco-2); color: var(--texto);
+  border: 1px solid var(--linha); border-radius: var(--r-p);
+  padding: .35rem .6rem;
+  font-family: var(--corpo); font-size: .8rem; white-space: nowrap;
+  opacity: 0; pointer-events: none; z-index: 70;
+  transition: opacity var(--d-dica) ease, transform var(--d-dica) var(--saida);
+  box-shadow: 0 8px 22px -12px rgba(0,0,0,.9);
+}
+@media (hover: hover) and (pointer: fine) {
+  body[data-menu="recolhido"] .sidebar .nav-link:hover::after {
+    opacity: 1; transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* O BOTAO DE RECOLHER */
+.btn-recolher {
+  display: none;                      /* so no computador -- ver abaixo */
+  align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; margin-bottom: var(--e2);
+  padding: .5rem;
+  background: transparent; border: 1px solid var(--linha);
+  border-radius: var(--r-p); color: var(--texto-3);
+  cursor: pointer;
+  transition: color var(--d-dica) ease, border-color var(--d-dica) ease;
+}
+.btn-recolher svg { transition: transform var(--d-painel) var(--gaveta); }
+body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-recolher:hover { color: var(--latao-c); border-color: var(--latao); }
+}
+
+/* No celular a barra ja e uma gaveta que abre e fecha inteira (bloco 8.11).
+   Recolher para icones ali nao resolve nada e ainda brigaria com a gaveta.
+   Por isso o botao so existe a partir de 768px. */
+@media (min-width: 768px) { .btn-recolher { display: flex; } }
+@media (max-width: 767px) { body[data-menu="recolhido"] { --sidebar-w: 240px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .main, .btn-recolher svg { transition: none; }
+}
