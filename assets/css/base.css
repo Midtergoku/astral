@@ -387,49 +387,49 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
    Nada quebra. */
 @view-transition { navigation: auto; }
 
-.sidebar   { view-transition-name: barra-lateral; }
-.topbar    { view-transition-name: barra-topo; }
-.main      { view-transition-name: conteudo; }
-.page-title{ view-transition-name: titulo-pagina; }
+/* ⚠️ SO A BARRA LATERAL RECEBE NOME. Isto e a correcao de 02/08/2026.
 
-/* o conteudo entra deslizando e sai deslizando, na mesma direcao da leitura */
-/* 🐛 CORRIGIDO em 02/08/2026. O Lucas: "a transicao esta muito rapida, nao da
-   tempo das letras mudarem, elas se sobrepoem por um instante".
+   Elemento com view-transition-name sai do retrato geral e vira uma camada
+   propria. Eu tinha nomeado a barra do topo tambem, e mandado que ela NAO
+   animasse -- "e a moldura", pensei.
 
-   Medido: o velho saia em 180ms e o novo COMECAVA EM 40ms. Sobreposicao de
-   140ms com os dois textos na tela ao mesmo tempo -- e como o titulo velho e o
-   novo ocupam o mesmo lugar, as letras se misturavam.
+   Mas o conteudo da barra do topo MUDA de pagina para pagina: o titulo e o
+   subtitulo sao outros. Resultado: o topo velho e o novo ficavam empilhados,
+   parados, um por cima do outro. Foi isso que o Lucas viu e descreveu como
+   "as letras se sobrepoem" -- e nao era velocidade, era camada.
 
-   A regra: o novo so comeca DEPOIS que o velho termina. O atraso do novo tem
-   de ser >= a duracao do velho. E o total ficou mais longo de proposito: ele
-   pediu para dar tempo de ver. */
-::view-transition-old(conteudo) {
-  animation: conteudo-sai 220ms var(--saida) both;
-}
-::view-transition-new(conteudo) {
-  animation: conteudo-entra 400ms var(--saida) 220ms both;
-}
-@keyframes conteudo-sai   { to   { opacity: 0; transform: translateX(-14px) scale(.995); } }
-@keyframes conteudo-entra { from { opacity: 0; transform: translateX(22px)  scale(.995); } }
-
-/* o titulo tem vida propria: sobe enquanto o resto desliza */
-::view-transition-old(titulo-pagina) { animation: titulo-sai 200ms var(--saida) both; }
-::view-transition-new(titulo-pagina) { animation: titulo-entra 420ms var(--saida) 210ms both; }
-@keyframes titulo-sai   { to   { opacity: 0; transform: translateY(-10px); } }
-@keyframes titulo-entra { from { opacity: 0; transform: translateY(14px); } }
-
-/* A RAIZ nao faz cross-fade proprio.
-   Por padrao o navegador funde a pagina INTEIRA por cima das partes nomeadas.
-   Como ja animamos conteudo e titulo um a um, essa fusao extra era uma
-   terceira camada aparecendo junto -- parte do embolamento que ele viu. */
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-
-/* a barra lateral e a do topo NAO se mexem: sao a moldura */
+   A barra LATERAL e a unica coisa de fato identica entre as paginas. Ela fica
+   parada, e e o que da a sensacao de aplicativo. Todo o resto -- topo, titulo
+   e miolo -- viaja junto no retrato geral, com uma unica passagem limpa. Uma
+   camada, um movimento, nenhuma sobreposicao. */
+.sidebar { view-transition-name: barra-lateral; }
 ::view-transition-old(barra-lateral),
-::view-transition-new(barra-lateral),
-::view-transition-old(barra-topo),
-::view-transition-new(barra-topo) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(barra-lateral) { animation: none; mix-blend-mode: normal; }
+
+/* A PASSAGEM, no retrato geral.
+   O antigo sai inteiro ANTES do novo entrar: o atraso do novo e igual a
+   duracao do antigo. Zero sobreposicao, por construcao. */
+::view-transition-old(root) {
+  animation: astral-sai 240ms var(--saida) both;
+}
+::view-transition-new(root) {
+  animation: astral-entra-pg 420ms var(--saida) 240ms both;
+}
+@keyframes astral-sai {
+  to   { opacity: 0; transform: translateX(-22px); }
+}
+@keyframes astral-entra-pg {
+  from { opacity: 0; transform: translateX(34px); }
+}
+
+/* O deslocamento e maior do que o de antes (22 e 34px contra 14 e 22): o
+   movimento anterior era tao pequeno que a troca parecia um corte. Fluidez
+   que nao se ve nao e fluidez. */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation-duration: 1ms; }
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    VIDA NAS PECAS — o que o Lucas chamou de "efeitos"
@@ -1463,4 +1463,12 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
    deixa o filho transbordar mesmo com o filho comportado */
 .user-info { min-width: 0; }
 .user-details { min-width: 0; overflow: hidden; }
-.user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 🐛 "Luca" em vez de "Lucas": o corte com reticencias estava apertado demais
+   para o nome, que e curto e importante. Nome de pessoa nao se corta -- se
+   houver aperto, quem cede e o tamanho da letra, nao a ultima sílaba. */
+.user-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+  font-size: clamp(.78rem, 1.6vw, .95rem);
+}
