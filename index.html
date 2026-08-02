@@ -78,15 +78,128 @@
         }
 
         /* ── HERO ── */
+        /* ═══ HEROI V4 ═══ deixa de ser texto centralizado e passa a ser
+           texto a esquerda + a transformacao mostrada a direita. */
         .hero {
-            min-height: 92vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 4rem 1.5rem 3rem;
+            padding: 4.5rem 1.5rem 4rem;
             position: relative;
+        }
+        .hero-grade {
+            max-width: 1180px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr; gap: 3.5rem;
+            align-items: center;
+        }
+        @media (min-width: 1000px) {
+            .hero-grade { grid-template-columns: 1fr 1.05fr; gap: 4rem; }
+        }
+        .hero-texto { text-align: left; }
+        .hero-etiqueta {
+            display: inline-block;
+            font-family: var(--dado); font-size: .68rem; font-weight: 700;
+            letter-spacing: .2em; text-transform: uppercase;
+            color: var(--latao-c); margin-bottom: 1.1rem;
+        }
+
+        /* ── O EDITAL, como ele chega ── */
+        .hero-prova { display: grid; gap: 1.1rem; }
+        @media (min-width: 560px) {
+            .hero-prova { grid-template-columns: 1fr auto 1fr; align-items: center; gap: .9rem; }
+        }
+        .papel {
+            position: relative; margin: 0;
+            background: var(--papel); color: #1B2430;
+            border-radius: 2px; padding: 1rem .95rem 1.6rem;
+            font-family: var(--corpo); font-size: .72rem; line-height: 1.5;
+            box-shadow: 0 18px 40px -22px rgba(0,0,0,.9);
+            transform: rotate(-1.4deg);
+        }
+        .papel-cabeca {
+            display: flex; justify-content: space-between;
+            font-family: var(--dado); font-size: .54rem; letter-spacing: .14em;
+            text-transform: uppercase; color: #6B7686;
+            border-bottom: 1px solid #C3BDB0; padding-bottom: .4rem; margin-bottom: .7rem;
+        }
+        .papel-titulo {
+            font-family: var(--display); font-weight: 800; font-size: .74rem;
+            letter-spacing: .06em; text-align: center; margin-bottom: .6rem;
+        }
+        .papel-lista { list-style: none; margin: 0; padding: 0; }
+        .papel-lista li { padding: .18rem 0; border-bottom: 1px dotted #C9C3B6; }
+        .papel-lista b { font-weight: 700; margin-right: .3rem; }
+        .papel-lista i { color: #71798A; font-style: normal; font-size: .66rem; }
+        .papel-rodape {
+            margin-top: .7rem; font-size: .62rem; color: #8A8F98;
+            font-style: italic; text-align: center;
+        }
+        .papel-carimbo {
+            position: absolute; right: .55rem; bottom: .5rem;
+            font-family: var(--dado); font-size: .58rem; font-weight: 700;
+            letter-spacing: .16em; color: #B4432E;
+            border: 1.5px solid #B4432E; border-radius: 2px;
+            padding: .12rem .34rem; transform: rotate(-8deg); opacity: .75;
+        }
+
+        /* ── A SETA ── */
+        .hero-seta { display: grid; justify-items: center; gap: .4rem; }
+        .hero-seta-linha {
+            width: 2px; height: 34px;
+            background: linear-gradient(180deg, transparent, var(--latao), transparent);
+        }
+        @media (min-width: 560px) {
+            .hero-seta-linha { width: 34px; height: 2px;
+                background: linear-gradient(90deg, transparent, var(--latao), transparent); }
+        }
+        .hero-seta-texto {
+            font-family: var(--dado); font-size: .56rem; letter-spacing: .16em;
+            text-transform: uppercase; color: var(--latao-c); white-space: nowrap;
+        }
+
+        /* ── O PLANO, o que sai ── */
+        .plano {
+            margin: 0; background: var(--casco);
+            border: 1px solid var(--linha); border-top: 2px solid var(--latao);
+            border-radius: var(--r-g); padding: .9rem;
+            box-shadow: 0 22px 46px -24px rgba(0,0,0,.95);
+            transform: rotate(.8deg);
+        }
+        .plano-topo {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: .6rem; margin-bottom: .9rem; flex-wrap: wrap;
+        }
+        .plano-marca {
+            font-family: var(--display); font-weight: 800; font-size: .72rem;
+            letter-spacing: .1em; color: var(--papel);
+        }
+        .plano-dia {
+            font-family: var(--dado); font-size: .58rem; letter-spacing: .16em;
+            text-transform: uppercase; color: var(--texto-3); margin-bottom: .45rem;
+        }
+        .plano-sessao {
+            display: flex; align-items: center; gap: .5rem;
+            background: var(--breu); border: 1px solid var(--linha);
+            border-left: 2px solid var(--oliva);
+            border-radius: 2px; padding: .42rem .55rem; margin-bottom: .32rem;
+            font-size: .72rem; color: var(--texto);
+        }
+        .plano-sessao.alta { border-left-color: var(--latao); }
+        .plano-sessao span { flex: 1; }
+        .plano-sessao em {
+            font-family: var(--dado); font-style: normal;
+            font-size: .6rem; color: var(--texto-3);
+        }
+        .plano-sessao b {
+            font-family: var(--dado); font-size: .6rem; color: var(--latao-c);
+        }
+        .plano-barra {
+            height: 4px; background: var(--breu); border-radius: 999px;
+            overflow: hidden; margin: .7rem 0 .45rem;
+        }
+        .plano-barra i {
+            display: block; height: 100%; width: 62%;
+            background: linear-gradient(90deg, var(--latao), var(--latao-c));
+        }
+        .plano-nota {
+            font-size: .6rem; color: var(--texto-3); font-style: italic; text-align: right;
         }
 
         .hero::before {
@@ -907,23 +1020,86 @@
     </nav>
 
     <!-- HERO -->
+    <!-- ══════════════════════════════════════════════════════════════════
+         HEROI — V4, 02/08/2026
+         Antes era manchete centralizada + dois botoes: a resposta que
+         qualquer gerador de site entrega, para qualquer produto.
+
+         Agora ele MOSTRA a transformacao em vez de descrever. A esquerda o
+         edital como ele chega -- papel oficial, denso, numerado, com carimbo.
+         A direita o que sai -- a semana montada, com a divisa. E a coisa mais
+         caracteristica do mundo do usuario, e e literalmente o que o produto
+         faz: papel virando metal.
+
+         Tudo em CSS: nenhuma imagem, nada para baixar.
+         ══════════════════════════════════════════════════════════════════ -->
     <section class="hero">
-        <h1>Transforme seu edital em um <span class="highlight">plano de aprovação</span> em poucos minutos</h1>
-        <p>Pare de perder tempo sem saber o que estudar. O Astral lê o edital do seu concurso militar, calcula os pesos e monta seu cronograma
-            — com gamificação para você não desistir.</p>
-        <div class="hero-actions">
-            <a href="login.html" class="btn-primary">Começar agora →</a>
+      <div class="hero-grade">
+
+        <div class="hero-texto">
+          <span class="hero-etiqueta">Para concurseiro de carreira militar</span>
+          <h1>Seu edital vira <span class="highlight">plano de estudo</span> em poucos minutos</h1>
+          <p>São centenas de páginas, dezenas de matérias e pesos diferentes. O Astral lê tudo, calcula o que vale mais na sua prova e monta a sua semana — com patente, XP e conquistas para você não largar no meio.</p>
+          <div class="hero-actions">
+            <a href="login.html" class="btn-primary">Começar agora <span class="seta">→</span></a>
             <a href="#como-funciona" class="btn-ghost">Ver como funciona</a>
-        </div>
-        <div class="hero-proof">
+          </div>
+          <div class="hero-proof">
             <div class="avatars">
-                <div class="avatar av1">M</div>
-                <div class="avatar av2">J</div>
-                <div class="avatar av3">A</div>
-                <div class="avatar av4">R</div>
+              <div class="avatar av1">M</div>
+              <div class="avatar av2">J</div>
+              <div class="avatar av3">A</div>
+              <div class="avatar av4">R</div>
             </div>
             <span>Primeiros concurseiros já estão na lista de espera</span>
+          </div>
         </div>
+
+        <!-- A TRANSFORMACAO, mostrada -->
+        <div class="hero-prova" aria-hidden="true">
+
+          <figure class="papel">
+            <div class="papel-cabeca">
+              <span>Diário Oficial</span><span>Anexo II</span>
+            </div>
+            <div class="papel-titulo">CONTEÚDO PROGRAMÁTICO</div>
+            <ol class="papel-lista">
+              <li><b>1.</b> Língua Portuguesa <i>— 20 questões</i></li>
+              <li><b>2.</b> Matemática <i>— 15 questões</i></li>
+              <li><b>3.</b> Raciocínio Lógico <i>— 10 questões</i></li>
+              <li><b>4.</b> Legislação Militar <i>— 15 questões</i></li>
+              <li><b>5.</b> Informática <i>— 8 questões</i></li>
+            </ol>
+            <div class="papel-rodape">…continua por mais 148 páginas</div>
+            <span class="papel-carimbo">PDF</span>
+          </figure>
+
+          <div class="hero-seta">
+            <span class="hero-seta-linha"></span>
+            <span class="hero-seta-texto">o Astral lê</span>
+          </div>
+
+          <figure class="plano">
+            <div class="plano-topo">
+              <span class="plano-marca">ASTRAL</span>
+              <span class="divisa"><span class="nivel">Recruta</span><span class="tag">Estrategista</span></span>
+            </div>
+            <div class="plano-dia">Segunda-feira</div>
+            <div class="plano-sessao alta">
+              <span>Língua Portuguesa</span><em>50 min</em><b>+40</b>
+            </div>
+            <div class="plano-sessao">
+              <span>Legislação Militar</span><em>45 min</em><b>+35</b>
+            </div>
+            <div class="plano-sessao">
+              <span>Raciocínio Lógico</span><em>30 min</em><b>+20</b>
+            </div>
+            <div class="plano-barra"><i></i></div>
+            <div class="plano-nota">peso da prova, não ordem alfabética</div>
+          </figure>
+
+        </div>
+      </div>
     </section>
 
     <!-- PROBLEM -->
