@@ -314,3 +314,39 @@ próprio, um convite.
 
 **"Em formação" é a peça que impede o vazio de ser pior que o badge antigo.** `Calculista · 45%`
 mostra o alvo **e** a distância. Um cadeado não mostra nem um nem outro.
+
+---
+
+## 9.2.4. MISSÃO ≠ CONQUISTA — definido pelo Lucas em 02/08/2026
+
+Eu tinha perguntado se "Missões" e "Conquistas" eram a mesma coisa com dois nomes. **Não são.**
+A resposta dele, com o exemplo que fecha a dúvida:
+
+> *"A Sony da PlayStation, cada jogo dela tem várias conquistas. São missões que você
+> desbloqueia e depois que você cumpre elas, você recebe uma conquista. Por exemplo, se você
+> lavar a sua louça da sua casa, você está cumprindo uma missão. Depois que você completa ela,
+> você desbloqueia uma conquista (...) é como se fosse uma medalha que você recebe e fica lá,
+> por você ter completado isso."*
+
+```
+MISSAO      a TAREFA          "estude 15 minutos seguidos"      -> some da lista quando cumprida
+CONQUISTA   a MEDALHA         "Primeira Sessao"                 -> FICA PARA SEMPRE na estante
+```
+
+**As duas existem e são telas diferentes:**
+
+| | Missões | Conquistas |
+|---|---|---|
+| O que mostra | o que **fazer agora** | o que **já foi feito** |
+| Ciclo de vida | sai da lista ao ser cumprida | **nunca sai** |
+| Sentimento | objetivo | orgulho |
+| Analogia dele | a louça na pia | o troféu na estante |
+
+> 🔗 **É o que fecha os quatro sistemas:** cumprir a **missão** entrega a **conquista**; a
+> conquista pode entregar a **tag**; a tag aparece na divisa ao lado do **nível**. Cada peça
+> alimenta a seguinte e nenhuma duplica a outra.
+
+> ⚠️ **Consequência imediata:** a `conquistas.html` de hoje tem título "Missões" e mostra
+> conquistas. Está trocado. Mas **não corrigir isoladamente** — o Lucas disse *"vamos completar
+> o V6 e depois eu vou olhando parte por parte"*. A tela de Missões ainda nem existe; renomear
+> antes de construí-la só troca uma confusão por outra.
