@@ -547,7 +547,7 @@
 
 
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
+<script src="/assets/js/movimento.js"></script>
 </head>
 <body>
 
@@ -645,7 +645,7 @@
     </div>
     <div class="topbar-right">
       <div class="streak-badge" id="streak-badge">
-        <span style="width:7px;height:7px;border-radius:50%;background:#8CA06B;display:inline-block;margin-right:4px;animation:pulseGreen 2s ease-in-out infinite;"></span>🔥 <span id="streak-count">0</span> dias
+        <span style="width:7px;height:7px;border-radius:50%;background:#8CA06B;display:inline-block;margin-right:4px;animation:pulseGreen 2s ease-in-out infinite;"></span><i data-icone="chama"></i> <span id="streak-count">0</span> dias
       </div>
     </div>
   </div>
@@ -710,7 +710,7 @@
 
     <!-- AI Processing -->
     <div class="card ai-processing" id="ai-processing">
-      <div class="ai-icon">🤖</div>
+      <div class="ai-icon"><i data-icone="ia"></i></div>
       <h3>Lendo seu edital.</h3>
       <p>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
     </div>
@@ -720,7 +720,7 @@
   <div id="main-content" style="display:none;">
 
 <div class="balanco-banner" id="balanco-banner">
-  <div class="balanco-banner-icon">⚖️</div>
+  <div class="balanco-banner-icon"><i data-icone="balanca"></i></div>
   <div class="balanco-banner-info">
     <div class="balanco-banner-titulo" id="balanco-titulo">Desequilíbrio detectado</div>
     <div class="balanco-banner-sub" id="balanco-sub">Algumas matérias estão muito à frente de outras.</div>
@@ -778,6 +778,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { icone } from './assets/js/icones.js';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js';
 
   // ── NÍVEIS ──
@@ -875,14 +876,14 @@
 
   // ── BADGES ──
   const BADGES_DEF = [
-    { id: 'primeiro_dia',   icon: '🎖️',  nome: 'Primeiro Dia',    xp_req: 1    },
-    { id: 'primeira_hora',  icon: '⏱️',  nome: '1h Estudada',     xp_req: 50   },
-    { id: 'sequencia_3',    icon: '🔥',  nome: 'Streak 3 dias',   streak_req: 3 },
-    { id: 'sequencia_7',    icon: '💪',  nome: 'Semana Completa', streak_req: 7 },
-    { id: 'nivel_3',        icon: '⭐',  nome: 'Nível 3',         nivel_req: 3  },
-    { id: 'nivel_5',        icon: '🌟',  nome: 'Nível 5',         nivel_req: 5  },
-    { id: 'primeiro_edital',icon: '📋',  nome: 'Edital Lido',     edital_req: true },
-    { id: 'maratonista',    icon: '🏅',  nome: 'Maratonista',     xp_req: 5000 },
+    { id: 'primeiro_dia',   icon: 'medalha',  nome: 'Primeiro Dia',    xp_req: 1    },
+    { id: 'primeira_hora',  icon: 'relogio',  nome: '1h Estudada',     xp_req: 50   },
+    { id: 'sequencia_3',    icon: 'chama',  nome: 'Streak 3 dias',   streak_req: 3 },
+    { id: 'sequencia_7',    icon: 'subindo',  nome: 'Semana Completa', streak_req: 7 },
+    { id: 'nivel_3',        icon: 'estrela',  nome: 'Nível 3',         nivel_req: 3  },
+    { id: 'nivel_5',        icon: 'estrela',  nome: 'Nível 5',         nivel_req: 5  },
+    { id: 'primeiro_edital',icon: 'prancheta',  nome: 'Edital Lido',     edital_req: true },
+    { id: 'maratonista',    icon: 'medalha',  nome: 'Maratonista',     xp_req: 5000 },
   ];
 
 // XP flutuante — aparece onde o usuário clicou
@@ -938,7 +939,7 @@ function mostrarLevelUp(nomeNivel) {
   const el = document.createElement('div');
   el.className = 'levelup-banner';
   el.innerHTML = `
-    <div class="levelup-icon">⭐</div>
+    <div class="levelup-icon"><i data-icone="estrela"></i></div>
     <div class="levelup-title">Subiu de nível!</div>
     <div class="levelup-sub">Você agora é <strong>${nomeNivel}</strong></div>
   `;
@@ -1126,7 +1127,7 @@ function verificarBalanco() {
             text-align:center;
             padding:1rem;
           ">
-            <div style="font-size:1.25rem;">📋</div>
+            <div style="font-size:1.25rem;"><i data-icone="prancheta"></i></div>
             <div style="font-weight:600;color:var(--white);font-size:0.88rem;">Seu cronograma aparece aqui</div>
             <div style="color:var(--muted);font-size:0.78rem;">Suba seu edital para gerar as sessões de hoje</div>
           </div>
@@ -1215,7 +1216,7 @@ function verificarBalanco() {
         <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
           ${BADGES_DEF.slice(0, 3).map(b => `
             <div class="badge-item locked" style="flex:1;opacity:0.3;">
-              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-icon">${icone(b.icon)}</div>
               <div class="badge-name">${b.nome}</div>
             </div>
           `).join('')}
@@ -1230,7 +1231,7 @@ function verificarBalanco() {
       <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
         ${ultimos3.map(b => `
           <div class="badge-item" style="flex:1;">
-            <div class="badge-icon">${b.icon}</div>
+            <div class="badge-icon">${icone(b.icon)}</div>
             <div class="badge-name">${b.nome}</div>
           </div>
         `).join('')}
@@ -1272,7 +1273,7 @@ function verificarBalanco() {
       }, 300);
     }
 
-    mostrarToast(`Sessão concluída! Continue assim. 🚀`);
+    mostrarToast(`Sessão concluída! Continue assim. <i data-icone="foguete"></i>`);
   }
 
   // ── UPLOAD / PROCESSAMENTO DO EDITAL ──
@@ -1452,5 +1453,6 @@ function verificarBalanco() {
 </script>
 
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

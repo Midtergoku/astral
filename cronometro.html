@@ -227,8 +227,8 @@ select.materia-select:focus { border-color:var(--purple); }
   </div>
 
   <div class="modo-selector">
-    <button class="modo-btn active" id="btn-livre" onclick="setModo('livre')">⏱ Livre</button>
-    <button class="modo-btn" id="btn-pomodoro" onclick="setModo('pomodoro')">🍅 Pomodoro</button>
+    <button class="modo-btn active" id="btn-livre" onclick="setModo('livre')"><i data-icone="relogio"></i> Livre</button>
+    <button class="modo-btn" id="btn-pomodoro" onclick="setModo('pomodoro')"><i data-icone="relogio"></i> Pomodoro</button>
   </div>
 
   <div class="crono-container">
@@ -400,8 +400,8 @@ select.materia-select:focus { border-color:var(--purple); }
       atualizarAnel(pomodoroSeg/totalPomodoroSeg);
       if(pomodoroSeg<=0){
         clearInterval(intervalo);
-        if(fasePomodoro==='foco'){registrarSessao();fasePomodoro='pausa';mostrarNotif('🍅 Foco concluído! Hora da pausa.');}
-        else{fasePomodoro='foco';mostrarNotif('⚡ Pausa encerrada! Vamos estudar.');}
+        if(fasePomodoro==='foco'){registrarSessao();fasePomodoro='pausa';mostrarNotif('<i data-icone="relogio"></i> Foco concluído! Hora da pausa.');}
+        else{fasePomodoro='foco';mostrarNotif('<i data-icone="raio"></i> Pausa encerrada! Vamos estudar.');}
         iniciarPomodoro();
       }
     },1000);
@@ -486,7 +486,7 @@ select.materia-select:focus { border-color:var(--purple); }
     if(!historico.length){lista.innerHTML='<div class="historico-vazio">Nenhuma sessão ainda. Inicie o cronômetro para começar!</div>';return;}
     lista.innerHTML=historico.map(s=>`
       <div class="historico-item">
-        <div class="historico-icone">⏱</div>
+        <div class="historico-icone"><i data-icone="relogio"></i></div>
         <div class="historico-info">
           <div class="historico-materia">${esc(s.materia)}</div>
           <div class="historico-detalhe">${Math.floor(s.segundos/60)} min · ${s.hora}</div>
@@ -512,5 +512,6 @@ select.materia-select:focus { border-color:var(--purple); }
   init();
 </script>
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

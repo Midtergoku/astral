@@ -400,7 +400,7 @@
       transform: rotate(45deg);
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
+<script src="/assets/js/movimento.js"></script>
 </head>
 <body>
 
@@ -486,7 +486,7 @@
 
     <!-- SUCCESS STATE -->
     <div class="success-state" id="success-state">
-      <div class="success-icon">🎉</div>
+      <div class="success-icon"><i data-icone="estrela"></i></div>
       <h2>Você está dentro, <span class="success-name" id="success-name"></span>!</h2>
       <p>Sua vaga está reservada. Você será um dos primeiros a acessar o Astral com desconto exclusivo de lançamento.</p>
 
@@ -571,7 +571,7 @@
     }
 
     if (repetido) {
-      toast('Este e-mail já está na lista de espera. 😊');
+      toast('Este e-mail já está na lista de espera. <i data-icone="sorriso"></i>');
     }
 
     // Sucesso!
@@ -629,5 +629,6 @@
 })();
 </script>
 
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

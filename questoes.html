@@ -662,7 +662,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
        sozinho, entao nem quem chegar por link direto consegue gerar. Para
        religar: apagar este bloco e a linha em init(). Ver CLAUDE.md 8.15. -->
   <div class="empty-state" id="desligado-section" style="display:none">
-    <div class="empty-icon">🔧</div>
+    <div class="empty-icon"><i data-icone="chave"></i></div>
     <div class="empty-title">As questões voltam em breve</div>
     <div class="empty-sub">
       Desligamos a geração de questões por enquanto para manter o Astral sustentável
@@ -677,7 +677,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
   </div>
 
   <div class="empty-state" id="empty-section" style="display:none">
-    <div class="empty-icon">❓</div>
+    <div class="empty-icon"><i data-icone="duvida"></i></div>
     <div class="empty-title">Nenhum edital carregado</div>
     <div class="empty-sub">Suba seu edital no dashboard para que a IA gere questões personalizadas para o seu concurso.</div>
     <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--purple);color:#fff;padding:0.7rem 1.25rem;border-radius: 6px;text-decoration:none;font-weight:600;font-size:0.88rem;">
@@ -720,7 +720,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 
   <!-- LOADING -->
   <div class="loading-card" id="loading-section">
-    <div class="ai-spinner">🤖</div>
+    <div class="ai-spinner"><i data-icone="ia"></i></div>
     <div class="loading-title">Gerando suas questões...</div>
     <div class="loading-sub">A IA está elaborando questões no estilo do seu concurso. Isso leva alguns segundos.</div>
   </div>
@@ -733,7 +733,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
         <div class="placar">
           <div class="placar-item placar-acertos">✓ <span id="placar-acertos">0</span></div>
           <div class="placar-item placar-erros">✗ <span id="placar-erros">0</span></div>
-          <div class="placar-item placar-xp">⚡ <span id="placar-xp">0</span> XP</div>
+          <div class="placar-item placar-xp"><i data-icone="raio"></i> <span id="placar-xp">0</span> XP</div>
         </div>
       </div>
       <button class="btn-secondary" onclick="encerrarSessao()">Encerrar sessão</button>
@@ -750,7 +750,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 
   <!-- RESULTADO FINAL -->
   <div class="resultado-final" id="resultado-section">
-    <div class="resultado-emoji" id="resultado-emoji">🎯</div>
+    <div class="resultado-emoji" id="resultado-emoji"><i data-icone="alvo"></i></div>
     <div class="resultado-titulo" id="resultado-titulo">Sessão concluída!</div>
     <div class="resultado-sub" id="resultado-sub"></div>
     <div class="resultado-stats">
@@ -1039,12 +1039,12 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
         ${acertou ? `<span class="xp-ganho">+${XP_ACERTO} XP</span>` : ''}
       </div>
       <button class="btn-explicacao" onclick="toggleExplicacao(this)">
-        💡 Ver explicação e referência
+        <i data-icone="ideia"></i> Ver explicação e referência
       </button>
       <div class="explicacao-body" id="explicacao-body">
         <div class="explicacao-texto">${esc(q.explicacao)}</div>
         <div class="referencia">
-          <span class="ref-label">📌 Referência:</span>
+          <span class="ref-label"><i data-icone="marcador"></i> Referência:</span>
           <span class="ref-texto">${esc(q.referencia)}</span>
         </div>
       </div>
@@ -1060,7 +1060,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
   window.toggleExplicacao = function(btn) {
     const body = document.getElementById('explicacao-body');
     const aberto = body.classList.toggle('show');
-    btn.textContent = aberto ? '💡 Ocultar explicação' : '💡 Ver explicação e referência';
+    btn.textContent = aberto ? '<i data-icone="ideia"></i> Ocultar explicação' : '<i data-icone="ideia"></i> Ver explicação e referência';
   }
 
   // ── PRÓXIMA QUESTÃO ──
@@ -1081,10 +1081,10 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     const pct   = Math.round((acertos / total) * 100);
 
     let emoji, titulo, sub;
-    if (pct >= 80) { emoji = '🏆'; titulo = 'Excelente desempenho!'; sub = 'Você está bem preparado nesta matéria. Continue assim!'; }
-    else if (pct >= 60) { emoji = '💪'; titulo = 'Bom resultado!'; sub = 'Você está no caminho certo. Revise os pontos onde errou.'; }
-    else if (pct >= 40) { emoji = '📚'; titulo = 'Precisa revisar.'; sub = 'Dedique mais tempo a esta matéria. A prática leva à perfeição.'; }
-    else { emoji = '⚔️'; titulo = 'Hora de estudar mais.'; sub = 'Esta matéria precisa de atenção. Revise o conteúdo e tente novamente.'; }
+    if (pct >= 80) { emoji = '<i data-icone="trofeu"></i>'; titulo = 'Excelente desempenho!'; sub = 'Você está bem preparado nesta matéria. Continue assim!'; }
+    else if (pct >= 60) { emoji = '<i data-icone="subindo"></i>'; titulo = 'Bom resultado!'; sub = 'Você está no caminho certo. Revise os pontos onde errou.'; }
+    else if (pct >= 40) { emoji = '<i data-icone="livro"></i>'; titulo = 'Precisa revisar.'; sub = 'Dedique mais tempo a esta matéria. A prática leva à perfeição.'; }
+    else { emoji = '<i data-icone="espada"></i>'; titulo = 'Hora de estudar mais.'; sub = 'Esta matéria precisa de atenção. Revise o conteúdo e tente novamente.'; }
 
     document.getElementById('resultado-emoji').textContent  = emoji;
     document.getElementById('resultado-titulo').textContent = titulo;
@@ -1148,5 +1148,6 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 </script>
 
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

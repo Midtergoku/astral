@@ -461,7 +461,7 @@
 
   <!-- EMPTY STATE (sem edital) -->
   <div class="empty-state" id="empty-section" style="display:none">
-    <div class="empty-icon">📚</div>
+    <div class="empty-icon"><i data-icone="livro"></i></div>
     <div class="empty-title">Nenhum edital carregado</div>
     <div class="empty-sub">Suba seu edital no dashboard para que a IA identifique as matérias e recomende os melhores recursos para cada uma.</div>
     <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:1.25rem;background:var(--purple);color:#fff;padding:0.7rem 1.25rem;border-radius: 6px;text-decoration:none;font-weight:600;font-size:0.88rem;">
@@ -471,7 +471,7 @@
 
   <!-- LOADING -->
   <div class="loading-card" id="loading-section">
-    <div class="ai-spinner">🤖</div>
+    <div class="ai-spinner"><i data-icone="ia"></i></div>
     <div class="loading-title">Buscando recursos...</div>
     <div class="loading-sub">A IA está pesquisando os melhores professores e materiais para <strong id="loading-materia"></strong>. Isso leva alguns segundos.</div>
   </div>
@@ -489,7 +489,7 @@
 
     <!-- Dica da IA -->
     <div class="dica-card" id="dica-card">
-      <div class="dica-icon">💡</div>
+      <div class="dica-icon"><i data-icone="ideia"></i></div>
       <div>
         <div class="dica-label">Dica estratégica da IA</div>
         <div class="dica-texto" id="dica-texto"></div>
@@ -499,7 +499,7 @@
     <!-- Professores YouTube -->
     <div class="secao" id="secao-professores">
       <div class="secao-header">
-        <div class="secao-icone" style="background:rgba(224,112,90,0.12);">▶️</div>
+        <div class="secao-icone" style="background:rgba(224,112,90,0.12);"><i data-icone="tocar"></i></div>
         <div>
           <div class="secao-titulo">Professores no YouTube</div>
           <div class="secao-sub">Gratuito · Selecionados para este concurso</div>
@@ -511,7 +511,7 @@
     <!-- Materiais Gratuitos -->
     <div class="secao" id="secao-gratuitos">
       <div class="secao-header">
-        <div class="secao-icone" style="background:rgba(140,160,107,0.12);">📂</div>
+        <div class="secao-icone" style="background:rgba(140,160,107,0.12);"><i data-icone="pasta"></i></div>
         <div>
           <div class="secao-titulo">Materiais Gratuitos</div>
           <div class="secao-sub">PDFs, apostilas e sites sem custo</div>
@@ -523,7 +523,7 @@
     <!-- Cursos Pagos -->
     <div class="secao" id="secao-pagos">
       <div class="secao-header">
-        <div class="secao-icone" style="background:rgba(224,174,85,0.12);">🎓</div>
+        <div class="secao-icone" style="background:rgba(224,174,85,0.12);"><i data-icone="medalha"></i></div>
         <div>
           <div class="secao-titulo">Cursos Recomendados</div>
           <div class="secao-sub">Pagos · Para aprofundamento</div>
@@ -809,5 +809,6 @@
 </script>
 
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

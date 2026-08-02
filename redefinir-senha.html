@@ -207,7 +207,7 @@
 
   <!-- Deu certo -->
   <div class="card" id="estado-ok" style="display:none;">
-    <div class="estado-icone">✅</div>
+    <div class="estado-icone"><i data-icone="certo"></i></div>
     <h1>Senha alterada</h1>
     <p class="subtitle">Pronto. Já estamos te levando para o painel…</p>
     <div class="bottom-link"><a href="dashboard.html">Ir agora</a></div>
@@ -215,7 +215,7 @@
 
   <!-- Link inválido ou expirado -->
   <div class="card" id="estado-invalido" style="display:none;">
-    <div class="estado-icone">⏳</div>
+    <div class="estado-icone"><i data-icone="ampulheta"></i></div>
     <h1>Este link não vale mais</h1>
     <p class="subtitle">
       Links de redefinição expiram por segurança, e cada um só pode ser usado uma vez.
@@ -360,5 +360,6 @@
   });
 </script>
 
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

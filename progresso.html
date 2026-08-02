@@ -319,7 +319,7 @@
 
 
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/motion@10.16.4/dist/motion.js"></script>
+<script src="/assets/js/movimento.js"></script>
 </head>
 <body>
 
@@ -417,7 +417,7 @@
     <div class="page-sub">Seu avanço matéria por matéria</div>
   </div>
   <button class="btn-rebalancear" onclick="abrirModalBalanco()">
-    ⚖️ Rebalancear cronograma
+    <i data-icone="balanca"></i> Rebalancear cronograma
   </button>
 </div>
 
@@ -510,7 +510,7 @@
             </div>
           </div>
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:1rem;">📊</div>
+            <div style="font-size:2rem;margin-bottom:1rem;"><i data-icone="grafico"></i></div>
             <div style="font-family:var(--display);font-weight:700;font-size:1.25rem;color:var(--white);margin-bottom:0.5rem;">Suba seu edital para ver seu progresso</div>
             <div style="color:var(--muted);font-size:0.9rem;max-width:300px;line-height:1.5;">Volte ao Dashboard e faça o upload do seu edital para liberar esta página.</div>
             <button class="btn-upload" style="margin-top:1.5rem;" onclick="window.location.href='dashboard.html'">Ir para o Dashboard</button>
@@ -691,7 +691,7 @@ window.aplicarBalanco = function() {
 <div class="modal-overlay" id="modal-balanco" style="display:none" onclick="fecharModalFora(event)">
   <div class="modal-card">
     <div class="modal-header">
-      <div class="modal-title">⚖️ Sugestão de rebalanceamento</div>
+      <div class="modal-title"><i data-icone="balanca"></i> Sugestão de rebalanceamento</div>
       <button class="modal-close" onclick="fecharModalBalanco()">✕</button>
     </div>
     <p style="font-size:0.85rem;color:var(--muted);">Com base no seu progresso atual, o Astral sugere redistribuir seu tempo de estudo para equilibrar as matérias:</p>
@@ -700,5 +700,6 @@ window.aplicarBalanco = function() {
   </div>
 </div>
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

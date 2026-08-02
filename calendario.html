@@ -445,7 +445,7 @@ select option { background: var(--surface); color: var(--text); }
 
   <!-- AVISO -->
   <div class="aviso-card">
-    <span class="aviso-icon">⚠️</span>
+    <span class="aviso-icon"><i data-icone="aviso"></i></span>
     <span>Recomendamos fortemente que você leia o edital completo. As datas importadas automaticamente podem conter imprecisões — sempre confirme no documento oficial.</span>
   </div>
 
@@ -498,12 +498,12 @@ select option { background: var(--surface); color: var(--text); }
     <div class="form-group">
       <label for="evento-categoria">Categoria</label>
       <select id="evento-categoria">
-        <option value="prova">📝 Prova</option>
-        <option value="inscricao">✍️ Inscrição</option>
-        <option value="resultado">📊 Resultado</option>
-        <option value="taf">🏃 TAF</option>
-        <option value="documentacao">📋 Documentação</option>
-        <option value="personalizado">📌 Personalizado</option>
+        <option value="prova"><i data-icone="documento"></i> Prova</option>
+        <option value="inscricao">Inscrição</option>
+        <option value="resultado"><i data-icone="grafico"></i> Resultado</option>
+        <option value="taf"><i data-icone="corrida"></i> TAF</option>
+        <option value="documentacao"><i data-icone="prancheta"></i> Documentação</option>
+        <option value="personalizado"><i data-icone="marcador"></i> Personalizado</option>
       </select>
     </div>
     <div class="form-group">
@@ -532,12 +532,12 @@ select option { background: var(--surface); color: var(--text); }
   let editandoIndex = null;
 
   const CATEGORIAS = {
-    prova:         { label: 'Prova',          cor: 'var(--purple)', bg: 'rgba(192,138,46,0.12)', icone: '📝' },
-    inscricao:     { label: 'Inscrição',      cor: 'var(--green)',  bg: 'rgba(140,160,107,0.12)', icone: '✍️' },
-    resultado:     { label: 'Resultado',      cor: '#60A5FA',       bg: 'rgba(96,165,250,0.12)', icone: '📊' },
-    taf:           { label: 'TAF',            cor: 'var(--gold)',   bg: 'rgba(224,174,85,0.12)', icone: '🏃' },
-    documentacao:  { label: 'Documentação',   cor: 'var(--red)',    bg: 'rgba(224,112,90,0.12)',icone: '📋' },
-    personalizado: { label: 'Personalizado',  cor: 'var(--muted)',  bg: 'rgba(107,107,128,0.12)',icone: '📌' },
+    prova:         { label: 'Prova',          cor: 'var(--purple)', bg: 'rgba(192,138,46,0.12)', icone: 'documento' },
+    inscricao:     { label: 'Inscrição',      cor: 'var(--green)',  bg: 'rgba(140,160,107,0.12)', icone: 'documento' },
+    resultado:     { label: 'Resultado',      cor: '#60A5FA',       bg: 'rgba(96,165,250,0.12)', icone: 'grafico' },
+    taf:           { label: 'TAF',            cor: 'var(--gold)',   bg: 'rgba(224,174,85,0.12)', icone: 'corrida' },
+    documentacao:  { label: 'Documentação',   cor: 'var(--red)',    bg: 'rgba(224,112,90,0.12)',icone: 'prancheta' },
+    personalizado: { label: 'Personalizado',  cor: 'var(--muted)',  bg: 'rgba(107,107,128,0.12)',icone: 'marcador' },
   };
 
   // ── UTILS ──
@@ -621,7 +621,7 @@ select option { background: var(--surface); color: var(--text); }
         diasProvaSub.textContent = dias === 1 ? 'amanhã é o dia!' : 'dias restantes';
       } else if (dias === 0) {
         diasProvaEl.textContent = 'Hoje!';
-        diasProvaSub.textContent = 'boa sorte! 🍀';
+        diasProvaSub.textContent = 'boa sorte! <i data-icone="trevo"></i>';
       } else {
         diasProvaEl.textContent = 'Realizada';
         diasProvaSub.textContent = formatarData(prova.data);
@@ -646,7 +646,7 @@ select option { background: var(--surface); color: var(--text); }
       lista.innerHTML = `
         <div class="card">
           <div class="empty-state">
-            <div class="empty-icon">📅</div>
+            <div class="empty-icon"><i data-icone="prancheta"></i></div>
             <div class="empty-title">Nenhum evento cadastrado</div>
             <div class="empty-sub">Suba seu edital para importar as datas automaticamente, ou adicione eventos manualmente clicando em "+ Adicionar evento".</div>
           </div>
@@ -674,7 +674,7 @@ select option { background: var(--surface); color: var(--text); }
           <span class="evento-tag" style="background:${cat.bg};color:${cat.cor};">${cat.label}</span>
 
           <div class="evento-acoes">
-            <button class="btn-acao" onclick="editarEvento(${indexOriginal})" title="Editar">✏️</button>
+            <button class="btn-acao" onclick="editarEvento(${indexOriginal})" title="Editar"><i data-icone="lapis"></i></button>
             <button class="btn-acao danger" onclick="removerEvento(${indexOriginal})" title="Remover">✕</button>
           </div>
         </div>
@@ -777,5 +777,6 @@ select option { background: var(--surface); color: var(--text); }
 </script>
 
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

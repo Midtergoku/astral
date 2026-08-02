@@ -228,6 +228,7 @@
 
 
 </style>
+<script src="/assets/js/movimento.js"></script>
 </head>
 <body>
 
@@ -432,7 +433,7 @@
         </div>
 
         <div class="card ai-processing" id="ai-processing">
-          <div class="ai-icon">🤖</div>
+          <div class="ai-icon"><i data-icone="ia"></i></div>
           <h3>Lendo seu edital.</h3>
           <p>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
         </div>
@@ -459,7 +460,7 @@
     contentArea.innerHTML = `
       <!-- Upload Oculto mas presente para re-uso -->
       <div id="ai-processing" class="card ai-processing">
-        <div class="ai-icon">🤖</div>
+        <div class="ai-icon"><i data-icone="ia"></i></div>
         <h3>Lendo seu edital.</h3>
         <p>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
       </div>
@@ -661,5 +662,6 @@
 </script>
 
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>

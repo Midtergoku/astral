@@ -282,6 +282,7 @@
 
 
 </style>
+<script src="/assets/js/movimento.js"></script>
 </head>
 <body>
 
@@ -399,10 +400,10 @@
 
     <!-- Legenda -->
     <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
-      <span class="habilidade-status status-ativa">⚡ Ativa</span>
-      <span class="habilidade-status status-enferrujada">🔧 Enferrujada (7 dias sem estudar)</span>
-      <span class="habilidade-status status-suspensa">❄️ Suspensa (14 dias sem estudar)</span>
-      <span class="habilidade-status status-bloqueada">🔒 Bloqueada (domínio &lt; 70%)</span>
+      <span class="habilidade-status status-ativa"><i data-icone="raio"></i> Ativa</span>
+      <span class="habilidade-status status-enferrujada"><i data-icone="chave"></i> Enferrujada (7 dias sem estudar)</span>
+      <span class="habilidade-status status-suspensa"><i data-icone="gelo"></i> Suspensa (14 dias sem estudar)</span>
+      <span class="habilidade-status status-bloqueada"><i data-icone="cadeado"></i> Bloqueada (domínio &lt; 70%)</span>
     </div>
 
     <div class="card">
@@ -417,29 +418,30 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js';
+  import { icone } from './assets/js/icones.js';
   import { carregarProgresso } from './assets/js/estado.js';
 
   // ── CONSTANTES ──
   const HABILIDADES_MILITARES = {
     // Bombeiros
-    'língua portuguesa': { nome: 'Orador de Guerra',      icone: '🗡️', descricao: 'Suas palavras têm precisão cirúrgica. Nenhum recurso será indeferido.' },
-    'português':         { nome: 'Orador de Guerra',      icone: '🗡️', descricao: 'Suas palavras têm precisão cirúrgica. Nenhum recurso será indeferido.' },
-    'matemática':        { nome: 'Calculista',             icone: '⚙️', descricao: 'Raciocina sob pressão como um estrategista de campo.' },
-    'física':            { nome: 'Engenheiro de Campo',   icone: '🔧', descricao: 'Domina as forças da natureza a seu favor.' },
-    'química':           { nome: 'Alquimista',             icone: '⚗️', descricao: 'Conhece a composição de tudo. Nada te surpreende.' },
-    'biologia':          { nome: 'Médico de Combate',      icone: '🩺', descricao: 'Entende o corpo humano como poucos oficiais.' },
-    'história':          { nome: 'Memória da Nação',       icone: '📜', descricao: 'Carrega o passado como escudo e o futuro como missão.' },
-    'geografia':         { nome: 'Navegador',              icone: '🧭', descricao: 'Nunca se perde — em campo ou na prova.' },
-    'inglês':            { nome: 'Intérprete',             icone: '🌐', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
-    'espanhol':          { nome: 'Intérprete',             icone: '🌐', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
-    'língua estrangeira':{ nome: 'Intérprete',             icone: '🌐', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
-    'direito constitucional':   { nome: 'Guardião da Lei',      icone: '⚖️', descricao: 'Conhece a Constituição como a palma da mão.' },
-    'direito administrativo':   { nome: 'Administrador de Elite',icone: '🏛️', descricao: 'Comanda processos com maestria e autoridade.' },
-    'legislação':               { nome: 'Legislador',            icone: '📋', descricao: 'Nenhuma norma passa despercebida pelos seus olhos.' },
-    'raciocínio lógico':        { nome: 'Estrategista',          icone: '♟️', descricao: 'Enxerga padrões onde outros veem caos.' },
-    'informática':              { nome: 'Operador Cyber',        icone: '💻', descricao: 'Domina o campo digital com precisão militar.' },
-    'redação':                  { nome: 'Cronista de Guerra',    icone: '✍️', descricao: 'Documenta batalhas com clareza e impacto.' },
-    'atualidades':              { nome: 'Sentinela',             icone: '👁️', descricao: 'Sempre alerta. Nenhum evento passa sem sua análise.' },
+    'língua portuguesa': { nome: 'Orador de Guerra',      icone: 'espada', descricao: 'Suas palavras têm precisão cirúrgica. Nenhum recurso será indeferido.' },
+    'português':         { nome: 'Orador de Guerra',      icone: 'espada', descricao: 'Suas palavras têm precisão cirúrgica. Nenhum recurso será indeferido.' },
+    'matemática':        { nome: 'Calculista',             icone: 'engrenagem', descricao: 'Raciocina sob pressão como um estrategista de campo.' },
+    'física':            { nome: 'Engenheiro de Campo',   icone: 'chave', descricao: 'Domina as forças da natureza a seu favor.' },
+    'química':           { nome: 'Alquimista',             icone: 'frasco', descricao: 'Conhece a composição de tudo. Nada te surpreende.' },
+    'biologia':          { nome: 'Médico de Combate',      icone: 'saude', descricao: 'Entende o corpo humano como poucos oficiais.' },
+    'história':          { nome: 'Memória da Nação',       icone: 'pergaminho', descricao: 'Carrega o passado como escudo e o futuro como missão.' },
+    'geografia':         { nome: 'Navegador',              icone: 'bussola', descricao: 'Nunca se perde — em campo ou na prova.' },
+    'inglês':            { nome: 'Intérprete',             icone: 'globo', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
+    'espanhol':          { nome: 'Intérprete',             icone: 'globo', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
+    'língua estrangeira':{ nome: 'Intérprete',             icone: 'globo', descricao: 'Opera além das fronteiras. Nenhuma barreira te detém.' },
+    'direito constitucional':   { nome: 'Guardião da Lei',      icone: 'balanca', descricao: 'Conhece a Constituição como a palma da mão.' },
+    'direito administrativo':   { nome: 'Administrador de Elite',icone: 'instituicao', descricao: 'Comanda processos com maestria e autoridade.' },
+    'legislação':               { nome: 'Legislador',            icone: 'prancheta', descricao: 'Nenhuma norma passa despercebida pelos seus olhos.' },
+    'raciocínio lógico':        { nome: 'Estrategista',          icone: 'estrategia', descricao: 'Enxerga padrões onde outros veem caos.' },
+    'informática':              { nome: 'Operador Cyber',        icone: 'terminal', descricao: 'Domina o campo digital com precisão militar.' },
+    'redação':                  { nome: 'Cronista de Guerra',    icone: 'documento', descricao: 'Documenta batalhas com clareza e impacto.' },
+    'atualidades':              { nome: 'Sentinela',             icone: '<i data-icone="olho"></i>', descricao: 'Sempre alerta. Nenhum evento passa sem sua análise.' },
   };
 
   function detectarHabilidade(nomeMateria) {
@@ -450,7 +452,7 @@
     // Habilidade genérica para matérias não mapeadas
     return { 
       nome: 'Especialista', 
-      icone: '🎖️', 
+      icone: 'medalha', 
       descricao: 'Domínio conquistado com disciplina e foco inabaláveis.' 
     };
   }
@@ -508,14 +510,14 @@
   };
 
   const BADGES_DEF = [
-    { id: 'primeiro_dia',   icon: '🎖️',  nome: 'Primeiro Dia',    req: 'Acumule seu primeiro XP',         xp_req: 1    },
-    { id: 'primeira_hora',  icon: '⏱️',  nome: '1h Estudada',     req: 'Estude por 1 hora no total',      xp_req: 50   },
-    { id: 'sequencia_3',    icon: '🔥',  nome: 'Streak 3 dias',   req: 'Mantenha 3 dias de streak',       streak_req: 3 },
-    { id: 'sequencia_7',    icon: '💪',  nome: 'Semana Completa', req: 'Mantenha 7 dias de streak',       streak_req: 7 },
-    { id: 'nivel_3',        icon: '⭐',  nome: 'Nível 3',         req: 'Alcance o Nível 3',               nivel_req: 3  },
-    { id: 'nivel_5',        icon: '🌟',  nome: 'Nível 5',         req: 'Alcance o Nível 5',               nivel_req: 5  },
-    { id: 'primeiro_edital',icon: '📋',  nome: 'Edital Lido',     req: 'Suba seu primeiro edital',        edital_req: true },
-    { id: 'maratonista',    icon: '🏅',  nome: 'Maratonista',     req: 'Acumule 5.000 XP',                xp_req: 5000 },
+    { id: 'primeiro_dia',   icon: 'medalha',  nome: 'Primeiro Dia',    req: 'Acumule seu primeiro XP',         xp_req: 1    },
+    { id: 'primeira_hora',  icon: 'relogio',  nome: '1h Estudada',     req: 'Estude por 1 hora no total',      xp_req: 50   },
+    { id: 'sequencia_3',    icon: 'chama',  nome: 'Streak 3 dias',   req: 'Mantenha 3 dias de streak',       streak_req: 3 },
+    { id: 'sequencia_7',    icon: 'subindo',  nome: 'Semana Completa', req: 'Mantenha 7 dias de streak',       streak_req: 7 },
+    { id: 'nivel_3',        icon: 'estrela',  nome: 'Nível 3',         req: 'Alcance o Nível 3',               nivel_req: 3  },
+    { id: 'nivel_5',        icon: 'estrela',  nome: 'Nível 5',         req: 'Alcance o Nível 5',               nivel_req: 5  },
+    { id: 'primeiro_edital',icon: 'prancheta',  nome: 'Edital Lido',     req: 'Suba seu primeiro edital',        edital_req: true },
+    { id: 'maratonista',    icon: 'medalha',  nome: 'Maratonista',     req: 'Acumule 5.000 XP',                xp_req: 5000 },
   ];
 
   function detectarTipoConcurso(nomeEdital) {
@@ -635,7 +637,7 @@
         <div class="badges-grid" style="margin-bottom: 2rem;">
           ${desbloqueadas.map(b => `
             <div class="badge-card unlocked">
-              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-icon">${icone(b.icon)}</div>
               <div class="badge-name">${b.nome}</div>
               <div class="badge-req" style="color:var(--purple-lt); font-weight:500;">Concluída!</div>
             </div>
@@ -645,7 +647,7 @@
     } else {
       html += `
         <div class="empty-state" style="margin-bottom: 2rem;">
-          <div class="empty-state-icon">🚀</div>
+          <div class="empty-state-icon"><i data-icone="foguete"></i></div>
           <div style="font-family:var(--display);font-weight:700;font-size:1.15rem;color:var(--white);margin-bottom:0.5rem;">Sua jornada começa agora.</div>
           <div style="font-size:0.9rem;">Complete sessões de estudo para desbloquear suas primeiras missões.</div>
         </div>
@@ -660,7 +662,7 @@
         <div class="badges-grid">
           ${bloqueadas.map(b => `
             <div class="badge-card locked">
-              <div class="badge-icon">${b.icon}</div>
+              <div class="badge-icon">${icone(b.icon)}</div>
               <div class="badge-name">${b.nome}</div>
               <div class="badge-req">${b.req}</div>
             </div>
@@ -693,7 +695,7 @@
     if (!materias.length) {
       grid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">
-          <div style="font-size:2rem;margin-bottom:0.5rem;">⚔️</div>
+          <div style="font-size:2rem;margin-bottom:0.5rem;"><i data-icone="espada"></i></div>
           <div style="font-weight:600;color:var(--text);margin-bottom:0.25rem;">Nenhuma habilidade disponível</div>
           <div>Suba seu edital para ver as habilidades que você pode desbloquear.</div>
         </div>
@@ -707,17 +709,17 @@
       const progresso = materia.progresso || 0;
 
       const statusLabels = {
-        ativa:       { label: '⚡ Ativa',       classe: 'status-ativa'       },
-        enferrujada: { label: '🔧 Enferrujada', classe: 'status-enferrujada' },
-        suspensa:    { label: '❄️ Suspensa',    classe: 'status-suspensa'    },
-        bloqueada:   { label: `🔒 ${progresso}% / 70%`, classe: 'status-bloqueada' },
+        ativa:       { label: '<i data-icone="raio"></i> Ativa',       classe: 'status-ativa'       },
+        enferrujada: { label: '<i data-icone="chave"></i> Enferrujada', classe: 'status-enferrujada' },
+        suspensa:    { label: '<i data-icone="gelo"></i> Suspensa',    classe: 'status-suspensa'    },
+        bloqueada:   { label: `<i data-icone="cadeado"></i> ${progresso}% / 70%`, classe: 'status-bloqueada' },
       };
 
       const { label, classe } = statusLabels[status];
 
       return `
         <div class="habilidade-card ${status}" title="${status === 'bloqueada' ? 'Alcance 70% de domínio para desbloquear' : habilidade.descricao}">
-          <div class="habilidade-icone">${status === 'bloqueada' ? '❓' : habilidade.icone}</div>
+          <div class="habilidade-icone">${status === 'bloqueada' ? '<i data-icone="duvida"></i>' : icone(habilidade.icone)}</div>
           <div class="habilidade-nome">${status === 'bloqueada' ? '???' : habilidade.nome}</div>
           ${status !== 'bloqueada' ? `<div class="habilidade-descricao">${habilidade.descricao}</div>` : ''}
           <span class="habilidade-status ${classe}">${label}</span>
@@ -758,5 +760,6 @@
 </script>
 
 <script src="assets/js/transicao.js"></script>
+<script type="module" src="/assets/js/icones.js"></script>
 </body>
 </html>
