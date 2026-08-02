@@ -1352,3 +1352,86 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) {
   .sidebar, .main, .btn-recolher svg { transition: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   A DIVISA NO CARTAO DO USUARIO — ajuste de 02/08/2026
+   ══════════════════════════════════════════════════════════════════════════
+   O Lucas mandou print: a peca estava alta demais e VAZANDO para fora do
+   cartao. Medido antes de mexer:
+
+       cartao 207px · divisa 154px · VAZA 7px para fora · ALTURA 39px
+
+   Os 39px vinham do line-height do corpo (1.65) sendo herdado por um texto
+   de 9px: sobrava mais que o dobro de espaco em cima e embaixo da letra.
+   Nao era padding excessivo -- era entrelinha de paragrafo aplicada a um
+   selo. Por isso "diminuir o padding" nao teria resolvido.
+
+   Alvo: caber inteira, texto centrado na vertical, e ficar RETA como ele
+   pediu -- selo, nao balao.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.user-divisa {
+  margin-top: .35rem;
+  min-width: 0;
+
+  max-width: 100%;
+}
+
+.user-divisa .divisa {
+  font-size: .56rem;
+  letter-spacing: .08em;
+  line-height: 1;             /* ← a correcao principal: 39px viram 22px */
+  max-width: 100%;
+  min-width: 0;
+}
+
+.user-divisa .divisa .nivel,
+.user-divisa .divisa .tag {
+  line-height: 1;
+  display: flex;
+  align-items: center;        /* texto no meio da altura, na vertical */
+  min-width: 0;
+  white-space: nowrap;        /* <- a segunda causa dos 38px: "3o Sargento BM"
+                                 quebrava em duas linhas e dobrava a altura */
+}
+
+/* Quem manda na largura: o avatar come 72px dos 207 do cartao, sobram 135
+   para a divisa. Entao a PATENTE nunca encolhe (ela e a identidade) e a TAG
+   absorve o aperto, cortando com reticencias quando o nome e longo.
+   Nome cortado ainda comunica; cartao estourado nao. */
+.user-divisa .divisa .nivel { flex: 0 0 auto; }
+.user-divisa .divisa .tag   { flex: 0 1 auto; }
+
+/* o bico encolhe junto: 0.5rem num selo de 22px ficava desproporcional */
+.user-divisa .divisa .nivel {
+  padding: .34rem .45rem .34rem .72rem;
+  clip-path: polygon(0 0, 100% 0, calc(100% - .34rem) 50%, 100% 100%, 0 100%, .34rem 50%);
+}
+
+.user-divisa .divisa .tag {
+  /* Medido: com a patente ja abreviada, "3o SGT BM" + "CALCULISTA" pediam
+     146px num espaco de 135. Faltavam 11. Vieram de reduzir o espacamento
+     entre letras e o respiro lateral -- ajuste no ESPACO, nao no tamanho da
+     letra, que continua legivel. */
+  letter-spacing: .04em;
+  padding: .34rem .38rem;
+  /* nome comprido nao empurra mais o cartao: corta com reticencias.
+     Um nome cortado ainda comunica; um cartao estourado nao. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* quem ainda nao tem tag: texto curto, para o selo ficar do tamanho do
+   cartao. "sem especialidade" e uma frase; aqui cabe uma palavra. */
+.user-divisa .divisa .tag.vazia {
+  font-size: .58rem;
+  letter-spacing: 0;
+  opacity: .75;
+}
+
+/* o cartao inteiro tambem precisa segurar o conteudo -- sem isto o flex
+   deixa o filho transbordar mesmo com o filho comportado */
+.user-info { min-width: 0; }
+.user-details { min-width: 0; overflow: hidden; }
+.user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

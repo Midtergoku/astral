@@ -241,14 +241,57 @@ export function tagVestida(materias = [], escolhida = null) {
   return minhas[0];   // padrao: a de maior dominio
 }
 
+
+/* Patente abreviada, para onde o espaco e curto -- o cartao da barra lateral.
+ *
+ * Nao e apenas encurtar: INSIGNIA DE VERDADE E ABREVIADA. Ninguem borda
+ * "Terceiro Sargento" num galao; borda "3o SGT". A forma curta e a forma
+ * correta, e por acaso tambem e a que cabe.
+ *
+ * Medido antes: "3o SARGENTO BM" + "CALCULISTA" precisavam de 167px num
+ * espaco de 135. Tentei alargar a divisa por baixo do avatar e o texto passou
+ * a ser cortado do lado esquerdo -- pior, porque cortava o comeco.
+ */
+const ABREV = [
+  // ⚠️ A ORDEM IMPORTA: a primeira regra que casar vence. "Capitao-Tenente"
+  // precisa vir ANTES de "Tenente", senao vira "Capitao-Ten". Errei isso na
+  // primeira versao e o teste mostrou.
+  [/^Bombeiro (\d)[ªa] Classe$/i, "BM $1ª Cl"],
+  [/Tenente-Coronel/i, "Ten-Cel"],
+  [/Capit[aã]o-Tenente/i, "Cap-Ten"],
+  [/Primeiro-Tenente/i, "1º Ten"],
+  [/Segundo-Tenente/i, "2º Ten"],
+  [/Guarda-Marinha/i, "Gd-Mar"],
+  [/Sargento/i, "Sgt"],
+  [/Subtenente/i, "Subten"],
+  [/Aspirante/i, "Asp"],
+  [/Coronel/i, "Cel"],
+  [/Capit[aã]o/i, "Cap"],
+  [/Tenente/i, "Ten"],
+  [/Marinheiro/i, "Mar"],
+  [/Soldado/i, "Sd"],
+  [/Grumete/i, "Grum"],
+  [/Cadete/i, "Cad"],
+  [/Aluno/i, "Al"],
+];
+
+export function patenteCurta(nome = "") {
+  let s = String(nome);
+  for (const [de, para] of ABREV) {
+    if (de.test(s)) { s = s.replace(de, para); break; }
+  }
+  return s;
+}
+
 /* Devolve o HTML da divisa. `esc` vem de astral.js: o nome da materia sai do
    edital, que e dado NAO CONFIAVEL (regra 4 do CLAUDE.md). */
-export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = null }, esc = (s) => s) {
+export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = null, compacta = false }, esc = (s) => s) {
   const n = nivelDe(xp, edital);
+  const nomeNivel = compacta ? patenteCurta(n.nome) : n.nome;
   const t = tagVestida(materias, tagEscolhida);
   const p = t ? null : proximaTag(materias);
 
-  const nivel = `<span class="nivel">${esc(n.nome)}</span>`;
+  const nivel = `<span class="nivel">${esc(nomeNivel)}</span>`;
 
   if (t) {
     return `<span class="divisa" title="${esc(n.nome)} · ${esc(t.nome)}">`
@@ -260,7 +303,7 @@ export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = 
          + `<span class="tag emformacao">${esc(p.nome)} · ${p.dominio}%</span></span>`;
   }
   return `<span class="divisa">` + nivel
-       + `<span class="tag vazia">sem especialidade</span></span>`;
+       + `<span class="tag vazia">sem tag</span></span>`;
 }
 
 /* Preenche todo elemento marcado com data-divisa. */
@@ -298,6 +341,7 @@ export function aplicarDivisa(dados, esc) {
       edital: d?.edital?.nome || d?.edital || '',
       materias: d?.materias || [],
       tagEscolhida: d?.tagEscolhida || null,
+      compacta: true,   // e o cartao da barra lateral: espaco curto
     }, esc);
   } catch (e) {
     /* silencio proposital -- ver comentario acima */
