@@ -697,3 +697,28 @@ input:focus, textarea:focus, select:focus {
   border-style: dashed;
   font-weight: 500;
 }
+
+/* ═══ CABECALHO DE PAGINA ═══ V6, 02/08/2026
+   Medido antes: a barra do topo tinha SEIS aparencias diferentes entre as 10
+   paginas -- alturas de 38 a 81px, e uma sem espaco embaixo. A causa nao era
+   descuido de CSS: 3 paginas simplesmente NAO TINHAM subtitulo, entao a peca
+   mudava de tamanho conforme a pagina.
+
+   Titulo e subtitulo agora sao obrigatorios nas 10. O subtitulo nao e enfeite:
+   e a frase que diz para que serve a tela -- quem abre "Progresso" pela
+   primeira vez precisa saber o que vai encontrar ali. */
+.main .topbar {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--e3); flex-wrap: wrap;
+  margin-bottom: var(--e5);
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--linha);
+}
+.main .topbar .page-title { margin: 0; line-height: 1.15; }
+.main .topbar .page-sub {
+  margin: .35rem 0 0;
+  color: var(--texto-2);
+  font-size: var(--t-sm);
+  max-width: 62ch;
+}
+.main .topbar-right { display: flex; align-items: center; gap: var(--e2); flex-wrap: wrap; }
