@@ -326,9 +326,11 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   font-size: .88rem; font-weight: 500;
   cursor: pointer; border: none; background: none;
   width: 100%; text-align: left;
+  /* transform, nao padding: padding refaz o layout e empurra os vizinhos --
+     era o "sobe e desce" ao clicar de um menu para outro. */
   transition: color var(--d-dica) ease,
               background-color var(--d-dica) ease,
-              padding-left var(--d-dica) var(--saida);
+              transform var(--d-dica) var(--saida);
 }
 .sidebar .nav-link svg {
   width: 16px; height: 16px; flex-shrink: 0;
@@ -346,7 +348,7 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   .sidebar .nav-link:not(.active):hover {
     color: var(--texto);
     background: rgba(255,255,255,.04);
-    padding-left: 1rem;                 /* o item desliza de leve na direcao do clique */
+    transform: translateX(4px);         /* desliza sem refazer o layout */
   }
   .sidebar .nav-link:not(.active):hover svg { transform: translateX(1px); }
 }
@@ -1448,7 +1450,7 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 /* SEM overflow:hidden aqui. Foi esta linha, escrita por mim, que cortou o
    "s" de Lucas -- somada ao text-overflow do app.css. Nome de pessoa nao se
    corta: se faltar espaco, quem cede e o cartao. */
-.user-details { min-width: 0; }
+
 /* 🐛 "Luca" em vez de "Lucas": o corte com reticencias estava apertado demais
    para o nome, que e curto e importante. Nome de pessoa nao se corta -- se
    houver aperto, quem cede e o tamanho da letra, nao a ultima sílaba. */
@@ -1523,7 +1525,7 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.user-details { container-type: inline-size; min-width: 0; }
+
 
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1600,3 +1602,34 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 
 /* estava em 3 paginas, identica em todas */
 .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   O CARTAO DO USUARIO — fonte unica
+   ══════════════════════════════════════════════════════════════════════════
+   🐛 Corrigido em 03/08/2026 a partir de quatro prints do Lucas que mostravam
+   o MESMO cartao quebrado de TRES maneiras diferentes: em uma pagina so o
+   avatar aparecia, em outra o nome saia "Luca", em outra a divisa vazava.
+
+   Tres sintomas, UMA causa: eu tinha escrito min-width:0 sem flex:1.
+   Isso autoriza o elemento a encolher e NAO manda ele crescer -- entao ele
+   colapsa para ZERO. Medido: .user-details com 0px de largura em 9 paginas.
+   O que aparecia em cada tela dependia so do resto do CSS dela, e por isso
+   cada uma quebrava de um jeito.
+
+   O min-width:0 continua necessario: sem ele o texto longo empurraria o
+   cartao. O que faltava era o par -- flex:1 para ocupar o espaco que sobra
+   depois do avatar.
+
+   ⚠️ NAO redeclarar .user-details, .user-name ou .user-divisa nas paginas.
+   Eram 6 copias divergentes; agora e uma. */
+.user-info { display: flex; align-items: center; gap: .65rem; }
+.user-avatar { flex: 0 0 auto; }
+
+.user-details {
+  flex: 1 1 auto;    /* ocupa o que sobra ... */
+  min-width: 0;      /* ... e pode encolher sem empurrar o cartao */
+  container-type: inline-size;
+}
+.user-name  { display: block; max-width: 100%; }
+.user-divisa { display: flex; max-width: 100%; }

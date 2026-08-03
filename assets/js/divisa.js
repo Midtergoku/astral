@@ -358,6 +358,19 @@ export function aplicarDivisa(dados, esc) {
 
       const elAvatar = document.getElementById("user-avatar");
       if (elAvatar) elAvatar.textContent = primeiro.charAt(0).toUpperCase();
+
+      /* A SAUDACAO do dashboard entra aqui pelo mesmo motivo.
+         Ela dependia de estado.usuario, campo que carregarProgresso NAO
+         devolve -- entao a linha nunca rodava e o titulo ficava preso em
+         "Carregando...", que foi o primeiro print do Lucas.
+         Aqui o usuario ja esta em maos: uma fonte, sem depender de campo
+         que pode nao existir. */
+      const elOi = document.getElementById("greeting");
+      if (elOi) {
+        const h = new Date().getHours();
+        const saud = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+        elOi.textContent = saud + ", " + primeiro + ".";
+      }
     } catch { /* a divisa nao pode cair por causa do nome */ }
 
     aplicarDivisa({
