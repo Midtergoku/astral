@@ -1524,3 +1524,79 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
   white-space: nowrap;
 }
 .user-details { container-type: inline-size; min-width: 0; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REGRAS UNIFICADAS — 03/08/2026
+   ══════════════════════════════════════════════════════════════════════════
+   Estavam declaradas IDENTICAS em varias paginas. Cada copia era um lugar a
+   mais para divergir sozinha -- foi assim que o menu, as cores e o cartao
+   acabaram diferentes entre telas nesta semana.
+
+   ⚠️ SO SUBIU O QUE E IDENTICO. Foi conferido corpo a corpo antes de remover:
+   se uma copia divergisse, a regra inteira ficava de fora. Unificar
+   divergencia e decisao de design, nao refatoracao -- e nao e o que o Lucas
+   pediu aqui.
+
+   As que divergem de verdade continuam nas paginas, e estao listadas no
+   relatorio da varredura.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* estava em 5 paginas, identica em todas */
+.plan-beta { color: var(--gold); }
+
+/* estava em 5 paginas, identica em todas */
+.plan-pro { color: var(--green); }
+
+/* estava em 4 paginas, identica em todas */
+.topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+/* estava em 3 paginas, identica em todas */
+.card-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+/* estava em 3 paginas, identica em todas */
+.card-value {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--white);
+      line-height: 1;
+    }
+
+/* estava em 3 paginas, identica em todas */
+.card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+/* estava em 3 paginas, identica em todas */
+.btn-upload {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 6px;
+      font-family: var(--corpo);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+/* estava em 3 paginas, identica em todas */
+.empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
