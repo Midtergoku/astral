@@ -196,6 +196,40 @@ for (const p of [...paginas, ...jsFiles]) {
   }
 }
 
+/* ── 11. BARRA INVERTIDA PERDIDA EM EXPRESSAO REGULAR ──────────────────────
+   Aconteceu TRES vezes em 03/08/2026, sempre pelo mesmo caminho: escrever
+   codigo por node -e dentro de string de shell. O bash come a barra antes de
+   o Node ver, e o resultado e uma regex valida que faz outra coisa.
+
+     \s+ virou s+   -> "Lucas".split() devolvia "Luca". TRES DIAS de bug.
+     \d  virou d    -> "Bombeiro 3a Classe" nunca abreviava
+     $1$2 literal   -> trocou o elemento do nome em 11 paginas
+
+   O perigo desta familia de erro e que ela NAO quebra nada: o codigo roda,
+   o teste passa, e o defeito so aparece com certos dados. "Lucas" cortava;
+   "Rodrigo" nao. Por isso durou tanto.
+
+   REGRA: expressao regular nunca se escreve via node -e no shell. Vai para
+   arquivo e roda de la.
+
+   So olha arquivo .js e so dentro de literal de regex -- em HTML, /b e
+   fechamento de negrito, nao classe de caractere. */
+const CLASSES = [["s", "espaco"], ["d", "digito"], ["w", "letra ou numero"], ["b", "limite de palavra"]];
+for (const f of jsFiles) {
+  const corpoArq = ler(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  for (const m of corpoArq.matchAll(/\/(?![*\/])((?:\\.|\[[^\]]*\]|[^\/\n\\])+)\/[gimsuy]*/g)) {
+    const corpo = m[1];
+    const semEscapes = corpo.replace(/\\./g, "");
+    for (const [letra, oque] of CLASSES) {
+      const solta = new RegExp("(^|[^a-zA-Z0-9_\\]])" + letra + "([+*?{]|$)");
+      const temEscapada = corpo.indexOf("\\" + letra) >= 0;
+      if (solta.test(semEscapes) && !temEscapada) {
+        anota("regex", f, "/" + corpo + "/ tem \"" + letra + "\" solto -- provavelmente era \\" + letra + " (" + oque + ")");
+      }
+    }
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -208,6 +242,7 @@ const GRUPOS = {
   link:     'Link interno morto',
   fantasma: 'JS escrevendo em elemento inexistente',
   import:   'Import de algo que nao e exportado',
+  regex:    'Barra invertida perdida em expressao regular',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

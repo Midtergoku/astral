@@ -351,7 +351,20 @@ export function aplicarDivisa(dados, esc) {
       const u = data.session.user;
       const nome = d?.perfil?.nome || u?.user_metadata?.full_name
                 || u?.email?.split("@")[0] || "Concurseiro";
-      const primeiro = String(nome).trim().split(/s+/)[0];
+      /* 🔴 A BARRA INVERTIDA AQUI E O BUG QUE CUSTOU TRES DIAS.
+         Estava escrito /s+/ -- a LETRA "s" -- em vez de /\s+/ -- ESPACO.
+         Entao "Lucas".split(/s+/)[0] devolvia "Luca". Todo nome com "s"
+         perdia tudo dali para a frente: Alessandra virava "Ale",
+         Jean-Christophe virava "Jean-Chri".
+
+         A barra se perdeu quando escrevi este trecho por `node -e` dentro de
+         uma string de shell: o bash come a barra antes do Node ver. Terceira
+         vez que isso acontece hoje (o \d de patenteCurta e o $1$2 do nome
+         foram a mesma coisa).
+
+         REGRA: expressao regular NUNCA se escreve via `node -e` no shell.
+         Vai para arquivo, com o Write, e roda de la. */
+      const primeiro = String(nome).trim().split(/\s+/)[0];
 
       const elNome = document.getElementById("user-name");
       if (elNome) elNome.textContent = primeiro;
