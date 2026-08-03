@@ -1631,5 +1631,44 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
   min-width: 0;      /* ... e pode encolher sem empurrar o cartao */
   container-type: inline-size;
 }
-.user-name  { display: block; max-width: 100%; }
-.user-divisa { display: flex; max-width: 100%; }
+/* Com a divisa fora do cartao, o nome tem os 161px inteiros e nao ha mais
+   nada disputando espaco com ele. Sem corte, sem reticencias, sem fonte
+   encolhendo: ele simplesmente cabe. */
+.user-name {
+  display: block;
+  max-width: 100%;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--papel);
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   A DIVISA NA BARRA DO TOPO — 03/08/2026
+   ══════════════════════════════════════════════════════════════════════════
+   Mudanca pedida pelo Lucas, e ela conserta o corte do nome pela raiz em vez
+   de por ajuste: no cartao, nome e divisa disputavam 161px e a divisa sozinha
+   pede ate 180. Era uma disputa que o nome ia perder em alguma pagina, com
+   algum nome -- e vinha perdendo.
+
+   Aqui em cima ela tem espaco de sobra, fica visivel em toda pagina e nao
+   competa com nada. No dashboard ela vem ANTES da sequencia de dias: a
+   identidade primeiro, o numero depois.
+   ══════════════════════════════════════════════════════════════════════════ */
+.divisa-topo { display: inline-flex; }
+.divisa-topo .divisa { font-size: var(--t-xs); letter-spacing: .1em; }
+.divisa-topo .divisa .nivel { padding: .36rem .8rem .36rem 1.2rem; }
+.divisa-topo .divisa .tag   { padding: .36rem .85rem; }
+
+/* enquanto carrega, reserva o espaco -- senao a barra do topo pula quando o
+   dado chega, que foi o defeito que consertamos na barra lateral */
+.divisa-topo:empty { min-width: 11rem; min-height: 26px; }
+
+@media (max-width: 640px) {
+  /* no celular a barra do topo ja e apertada: a divisa desce para a linha de
+     baixo em vez de espremer o titulo */
+  .main .topbar-right { width: 100%; }
+}
