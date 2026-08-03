@@ -1452,8 +1452,75 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 /* 🐛 "Luca" em vez de "Lucas": o corte com reticencias estava apertado demais
    para o nome, que e curto e importante. Nome de pessoa nao se corta -- se
    houver aperto, quem cede e o tamanho da letra, nao a ultima sílaba. */
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   O CARTAO DO USUARIO NAO PODE MUDAR DE TAMANHO
+   ══════════════════════════════════════════════════════════════════════════
+   🐛 MEDIDO em 02/08/2026, a partir do relato do Lucas: "a sidebar meio que
+   sobe e desce, da um bug quando eu clico em outra".
+
+       cartao sem a divisa .... 62px  -> menu comeca em y=208
+       cartao com a divisa .... 79px  -> menu comeca em y=225
+       >>> O MENU DESCIA 17px EM TODA TROCA DE PAGINA <<<
+
+   A sequencia era: a pagina pinta a barra lateral com a divisa VAZIA, os
+   dados chegam do banco meio segundo depois, a divisa nasce, e empurra o
+   menu inteiro para baixo.
+
+   A transicao estava certa; quem pulava era o conteudo por baixo dela.
+
+   A CORRECAO E RESERVAR O ESPACO ANTES DE PRECISAR DELE.
+   O lugar da divisa ja existe desde o primeiro quadro, ocupado por um
+   esqueleto. Quando o dado chega, ele PREENCHE o espaco em vez de criar
+   espaco. Nada se move.
+
+   Vale para qualquer coisa que carrega depois: reservar a altura final e a
+   diferenca entre "a tela montou" e "a tela pulou na cara da pessoa".
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.user-divisa {
+  min-height: 22px;          /* a altura exata da divisa montada */
+  display: flex;
+  align-items: center;
+}
+
+/* o esqueleto so aparece enquanto o espaco esta vazio: :empty some sozinho
+   no instante em que o JS escreve dentro */
+.user-divisa:empty::before {
+  content: "";
+  display: block;
+  width: 7rem; height: 14px;
+  border-radius: 2px;
+  background: var(--casco-2);
+  opacity: .55;
+}
+
+/* O NOME tambem reserva a linha dele.
+   "Carregando..." e mais largo que "Lucas": o texto encolhia e a linha
+   piscava. Com altura fixa e esqueleto, a troca e so o conteudo. */
+.user-name { min-height: 1.15em; }
+.user-name:empty::before {
+  content: "";
+  display: block;
+  width: 4.5rem; height: 12px;
+  border-radius: 2px;
+  background: var(--casco-2);
+  opacity: .55;
+}
+
+/* ── NOME LONGO, para nao virar problema quando alguem assinar ──────────────
+   O Lucas levantou: "se uma pessoa comprar e entrar, o nome dele vai ficar
+   cortado?". Pergunta certa -- e a resposta tinha de ser nao.
+
+   Mostramos so o PRIMEIRO nome, entao o caso ruim e um primeiro nome muito
+   longo (Alessandra, Wellington). A solucao nao e cortar nem deixar vazar:
+   e a letra encolher ate caber, ate um piso legivel. Cortar so acontece em
+   nome absurdo, e ai com reticencias e com o nome inteiro no title. */
 .user-name {
-  overflow: visible;
-  text-overflow: clip;
+  font-size: clamp(.72rem, 5.6cqw, .85rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
+.user-details { container-type: inline-size; min-width: 0; }
