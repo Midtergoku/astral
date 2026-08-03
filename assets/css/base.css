@@ -365,9 +365,7 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 
    Agora a animacao de entrada so existe onde NAO ha transicao de pagina, como
    ultimo recurso. Onde ha, quem anima e o navegador, sozinho. */
-@supports not (view-transition-name: none) {
-  .main { animation: astral-entra 260ms var(--saida) both; }
-}
+
 @keyframes astral-entra {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -385,50 +383,35 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 
    Navegador sem suporte ignora tudo isto e cai no fade do transicao.js.
    Nada quebra. */
-@view-transition { navigation: auto; }
+/* ⚠️ A View Transitions API esta DESLIGADA de proposito.
+   Ela dispara nos meus testes (pageswap e pagereveal confirmam), mas o Lucas
+   continuou vendo corte seco em tres rodadas seguidas. Duas coisas animando a
+   mesma troca de pagina brigam -- foi o defeito das rodadas anteriores.
+   O desvanecer agora e feito por JS (assets/js/transicao.js), que eu consigo
+   fotografar quadro a quadro. Se um dia a API for reativada, o JS tem de sair
+   junto. */
 
-/* ⚠️ SO A BARRA LATERAL RECEBE NOME. Isto e a correcao de 02/08/2026.
-
-   Elemento com view-transition-name sai do retrato geral e vira uma camada
-   propria. Eu tinha nomeado a barra do topo tambem, e mandado que ela NAO
-   animasse -- "e a moldura", pensei.
-
-   Mas o conteudo da barra do topo MUDA de pagina para pagina: o titulo e o
-   subtitulo sao outros. Resultado: o topo velho e o novo ficavam empilhados,
-   parados, um por cima do outro. Foi isso que o Lucas viu e descreveu como
-   "as letras se sobrepoem" -- e nao era velocidade, era camada.
-
-   A barra LATERAL e a unica coisa de fato identica entre as paginas. Ela fica
-   parada, e e o que da a sensacao de aplicativo. Todo o resto -- topo, titulo
-   e miolo -- viaja junto no retrato geral, com uma unica passagem limpa. Uma
-   camada, um movimento, nenhuma sobreposicao. */
-.sidebar { view-transition-name: barra-lateral; }
-::view-transition-old(barra-lateral),
-::view-transition-new(barra-lateral) { animation: none; mix-blend-mode: normal; }
-
-/* A PASSAGEM, no retrato geral.
-   O antigo sai inteiro ANTES do novo entrar: o atraso do novo e igual a
-   duracao do antigo. Zero sobreposicao, por construcao. */
-::view-transition-old(root) {
-  animation: astral-sai 240ms var(--saida) both;
+/* ── A TROCA DE PAGINA ─────────────────────────────────────────────────────
+   Sai: o miolo desliza e apaga. A barra lateral NAO -- ela fica.
+   Entra: o miolo chega deslizando do outro lado.
+   O tempo e generoso de proposito: ele pediu para dar tempo de ver. */
+body.astral-saindo .main {
+  animation: astral-pg-sai 260ms var(--saida) forwards;
 }
-::view-transition-new(root) {
-  animation: astral-entra-pg 420ms var(--saida) 240ms both;
+body.astral-saindo { pointer-events: none; }
+@keyframes astral-pg-sai {
+  to { opacity: 0; transform: translateX(-26px); }
 }
-@keyframes astral-sai {
-  to   { opacity: 0; transform: translateX(-22px); }
-}
-@keyframes astral-entra-pg {
+
+.main { animation: astral-pg-entra 420ms var(--saida) both; }
+@keyframes astral-pg-entra {
   from { opacity: 0; transform: translateX(34px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
-
-/* O deslocamento e maior do que o de antes (22 e 34px contra 14 e 22): o
-   movimento anterior era tao pequeno que a troca parecia um corte. Fluidez
-   que nao se ve nao e fluidez. */
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) { animation-duration: 1ms; }
+  body.astral-saindo .main,
+  .main { animation-duration: 1ms; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1462,13 +1445,15 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 /* o cartao inteiro tambem precisa segurar o conteudo -- sem isto o flex
    deixa o filho transbordar mesmo com o filho comportado */
 .user-info { min-width: 0; }
-.user-details { min-width: 0; overflow: hidden; }
+/* SEM overflow:hidden aqui. Foi esta linha, escrita por mim, que cortou o
+   "s" de Lucas -- somada ao text-overflow do app.css. Nome de pessoa nao se
+   corta: se faltar espaco, quem cede e o cartao. */
+.user-details { min-width: 0; }
 /* 🐛 "Luca" em vez de "Lucas": o corte com reticencias estava apertado demais
    para o nome, que e curto e importante. Nome de pessoa nao se corta -- se
    houver aperto, quem cede e o tamanho da letra, nao a ultima sílaba. */
 .user-name {
-  overflow: hidden;
-  white-space: nowrap;
+  overflow: visible;
   text-overflow: clip;
-  font-size: clamp(.78rem, 1.6vw, .95rem);
+  white-space: nowrap;
 }
