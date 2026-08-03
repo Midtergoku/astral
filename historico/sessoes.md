@@ -288,3 +288,68 @@ de disciplina minha**, que já falhou aqui.
 **Estado ao fim:** site intacto e verificado (`checa-saude` verde), árvore limpa, `main` em
 sincronia. **A sessão 7 abre no V0 do design** — a direção visual fechada, decidida por mim, que
 foi o que ele delegou.
+
+---
+
+### Sessão 7 — 02 e 03/08/2026 · O roadmap por peça, a varredura, e o bug de três dias
+
+Sessão longa e com uma lição cara no fim. **Nenhuma edge function foi tocada; nenhuma
+migration nova além da `tag_escolhida`.**
+
+**O roadmap por peça.** O Lucas escolheu 12 componentes no 21st.dev e mandou os links.
+⚠️ **Nenhum deles entregou código** — o site mostra o exemplo de uso e guarda o fonte, e o que
+há lá é React + Tailwind + Framer Motion, que não roda aqui. O que veio foi a **técnica** de
+cada um, reconstruída em CSS puro. Isso está registrado em cada bloco do `base.css` para
+ninguém achar depois que foi cópia.
+
+Entregues: botão que revela a seta e tem estado de carregando · cartão com gráfico da semana ·
+efeito bento · barra lateral recolhível (240 → 68px, com a preferência lembrada) · anel de
+porcentagem · folha que sobe do rodapé · esqueleto · texto cintilante · **conquista
+desbloqueada** · caminho de volta.
+
+**A divisa saiu do cartão e foi para a barra do topo**, por ideia dele — e essa mudança
+resolveu um problema estrutural: no cartão, nome e divisa disputavam 161px, e a divisa sozinha
+pede até 180. Era uma disputa que o nome ia perder em alguma página, com algum nome.
+
+**A varredura que ele pediu.** *"Veja o que está quebrado e o que está passivo de se
+autodestruir."* Resultado medido:
+
+| | |
+|---|---|
+| Quebrado | **nada** — as checagens passaram nas 19 páginas |
+| Frágil | **9.387 linhas duplicadas** dentro das páginas contra 3.665 compartilhadas |
+| `.main` · `.topbar` · `.card` · `.sidebar` | declarados em 9 · 9 · 8 · 8 páginas |
+
+Nasceu daí o **`tools/verifica.js`**: 11 checagens, cada uma vinda de um erro real desta
+semana. Sai com código 1 e trava o commit. **Já pegou dois carimbos de versão defasados antes
+de eu publicar** — que é exatamente para o que foi feito.
+
+E 29 cópias de CSS foram unificadas, **só as idênticas**. As 81 que divergem de verdade
+continuam onde estão: unificar divergência é decisão de design, não arrumação.
+
+### 🔴 O erro mais caro do projeto: três dias
+
+O nome dele aparecia **"Luca"**. Passei três dias caçando em CSS — largura, especificidade,
+ordem dos arquivos, cadeia de ancestrais, contenção, reticências. Reescrevi a regra em três
+arquivos, movi a divisa de lugar, apertei fonte e espaçamento.
+
+**Nada disso estava errado.** A causa era `split(/s+/)` em vez de `split(/\s+/)` — a letra
+"s" no lugar de espaço. `"Lucas"` virava `"Luca"`, `"Alessandra"` virava `"Ale"`,
+`"Wellington"` passava ileso porque não tem "s".
+
+> **Sintoma visual não implica causa visual.** Texto cortado na tela não significa que o corte
+> aconteceu na tela. Um `console.log` do valor teria fechado o caso em 30 segundos, no
+> primeiro dia.
+
+E o corolário, que dói mais: **todas as minhas medições diziam "ok"** enquanto ele via
+quebrado. Eu media a caixa (cabia), a regra vencedora (correta), os ancestrais (não
+recortavam). **Medição que nunca reproduziu o defeito não é prova de conserto** — é
+confirmação do que eu já queria acreditar.
+
+A barra invertida se perdeu ao escrever código por `node -e` dentro de string de shell.
+**Aconteceu três vezes no mesmo dia** (`\s`→`s`, `\d`→`d`, `"$1$2"` literal). Virou regra
+no `CLAUDE.md`, checagem 11 no verificador, e linha no lembrete de início de sessão.
+
+**Estado ao fim:** árvore limpa, `main` em sincronia, 12 checagens de saúde verdes, 11
+checagens do verificador limpas. **A sessão 8 abre no catálogo** — as 18 missões, 22 tags e 12
+conquistas secretas que ele aprovou e que ainda não foram para o código.
