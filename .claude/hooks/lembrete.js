@@ -31,17 +31,29 @@ const linhas = [
   "",
   "   As skills astral-* carregam sozinhas pela tarefa; as rules, pela pasta.",
   "",
-  "3. As duas armadilhas que mais custaram caro aqui:",
+  "3. As TRES armadilhas que mais custaram caro aqui:",
   "     - afirmar sem medir: errei nas 9 vezes que tentei",
   "     - chamar de bug o que foi feito de proposito: escrever a frase",
   "       \"isto foi feito de proposito porque ___\" e ver se ela fecha",
+  "     - 🔴 SINTOMA VISUAL NAO IMPLICA CAUSA VISUAL. Custou 3 DIAS: o nome",
+  "       aparecia \"Luca\" e eu cacei em CSS -- largura, especificidade,",
+  "       ancestrais. A causa era split(/s+/) em vez de /\\s+/, no JS.",
+  "       Depois do PRIMEIRO conserto que nao resolve: parar de mexer na",
+  "       apresentacao e imprimir o VALOR que chega.",
+  "",
+  "4. REGRA QUE NASCEU DESSE ERRO, e vale para toda edicao:",
+  "     expressao regular e $1 de replace NUNCA por `node -e` no shell --",
+  "     o bash come a barra invertida e sobra codigo valido que faz outra",
+  "     coisa. Vai para arquivo com o Write. Aconteceu 3x no mesmo dia.",
+  "",
+  "5. ANTES DE TODO COMMIT: node tools/verifica.js  (11 checagens)",
 ];
 
 // Estado do git ajuda a saber se sobrou trabalho da sessao passada.
 try {
   const sujo = execSync("git status --porcelain", { encoding: "utf8", timeout: 5000 }).trim();
   const head = execSync("git log --oneline -1", { encoding: "utf8", timeout: 5000 }).trim();
-  linhas.push("", `4. Ultimo commit: ${head}`);
+  linhas.push("", `6. Ultimo commit: ${head}`);
   linhas.push(sujo
     ? `   ⚠️ ARVORE SUJA -- sobrou trabalho nao commitado:\n${sujo.split("\n").map((l) => "     " + l).join("\n")}`
     : "   Arvore limpa.");

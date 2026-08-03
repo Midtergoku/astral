@@ -38,6 +38,9 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
 5. **CONVENÇÕES.** Comentário em código (`.ts .js .sql .ps1`) **sem acento** — o PowerShell 5.1
    lê UTF-8 como ANSI e já destruiu dois HTMLs. Texto que o usuário lê (`.md .html`) **com acento**,
    e editado só por `Edit` ou Node. Toda afirmação passa por teste contra a **API real**.
+   🔴 **Expressão regular e `$1` de replace NUNCA se escrevem por `node -e` no shell** — o bash
+   come a barra invertida e o resultado é código válido que faz outra coisa. Custou 3 dias uma vez.
+   Vai para arquivo com o `Write`, e roda de lá.
 6. **LIMPEZA.** Só sai o que não vai servir para nada. Na dúvida, **fica**. Nunca sai: a tabela de
    erros, o *porquê* de uma decisão, número medido com seu comando, armadilha de ambiente.
 7. **ERROU? Acrescente a linha em `historico/erros.md` na hora.** Ordem direta dele. Ele trata
@@ -62,6 +65,7 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
 
 | O que eu fiz | O que aprendi |
 |---|---|
+| 🔴 **3 DIAS caçando em CSS um defeito que estava no dado.** "Lucas" aparecia "Luca"; a causa era `split(/s+/)` em vez de `/\s+/` | **Sintoma visual não implica causa visual.** Depois do primeiro conserto que não resolve, olhar o VALOR que chega, não a apresentação. E: **teste que nunca reproduziu o defeito não prova conserto nenhum** |
 | 🔴 **Derrubei o login em produção seguindo uma instrução que eu mesmo tinha escrito errada** | **Instrução minha errada é pior que instrução nenhuma — eu a sigo com confiança.** Em procedimento de duas pontas, simular as duas ordens antes de escrever |
 | 🔴 Achei conquistas trancadas e **diagnostiquei design deliberado como bug** | Antes de chamar algo de bug, escrever *"isto foi feito de propósito porque ___"* e ver se fecha. Perguntar *por que fizeram assim*, não *quem quebrou* |
 | Afirmei CSS duplicado, divergência de tabelas, causa de falha — tudo sem medir | **Errei nas 9 vezes.** O número sempre contrariou a estimativa |
