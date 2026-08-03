@@ -1519,12 +1519,7 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
    longo (Alessandra, Wellington). A solucao nao e cortar nem deixar vazar:
    e a letra encolher ate caber, ate um piso legivel. Cortar so acontece em
    nome absurdo, e ai com reticencias e com o nome inteiro no title. */
-.user-name {
-  font-size: clamp(.72rem, 5.6cqw, .85rem);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+
 
 
 
@@ -1629,21 +1624,11 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 .user-details {
   flex: 1 1 auto;    /* ocupa o que sobra ... */
   min-width: 0;      /* ... e pode encolher sem empurrar o cartao */
-  container-type: inline-size;
 }
 /* Com a divisa fora do cartao, o nome tem os 161px inteiros e nao ha mais
    nada disputando espaco com ele. Sem corte, sem reticencias, sem fonte
    encolhendo: ele simplesmente cabe. */
-.user-name {
-  display: block;
-  max-width: 100%;
-  font-size: .88rem;
-  font-weight: 600;
-  color: var(--papel);
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
+
 
 
 /* ══════════════════════════════════════════════════════════════════════════

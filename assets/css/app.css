@@ -76,13 +76,21 @@ body {
   flex-shrink: 0;
 }
 
+/* 🔴 NAO REINTRODUZIR overflow:hidden NEM text-overflow AQUI.
+   Esta regra e a ULTIMA a carregar nas 10 paginas, entao e ela que vale.
+   Foi ela que cortou "Lucas" em "Luca" por dias: eu escrevia a correcao no
+   base.css e ela perdia para esta, silenciosamente.
+   Nome de pessoa nao se corta. Se um dia faltar espaco, aumenta-se o espaco
+   ou diminui-se a fonte -- nunca se esconde o fim do nome. */
 .user-name {
+  font-family: var(--display);
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--white);
+  color: var(--papel);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.2;
 }
 
 .user-plan { font-size: 0.72rem; color: var(--muted); }
