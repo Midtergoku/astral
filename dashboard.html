@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/assets/css/base.css?v=f26d1d97"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Dashboard</title>
-  <link rel="stylesheet" href="assets/css/app.css?v=a526457a" />
+  <link rel="stylesheet" href="assets/css/app.css?v=b0bede6f" />
 <style>
 
 
@@ -521,11 +521,16 @@
   <a href="index.html" class="sidebar-logo">Ast<span>r</span>al</a>
 
   <div class="user-info">
-    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
     <div class="user-details">
       <div class="user-name" id="user-name"></div>
     </div>
   </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
 
   <p class="nav-label">Menu</p>
   <nav class="nav-links">
@@ -609,7 +614,7 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <div>
-      <div class="page-title" id="greeting">Carregando...</div>
+      <div class="page-title" id="greeting" data-esperando></div>
       <p class="page-sub">Sua sessão de hoje, seu avanço e o que falta para a próxima patente.</p>
     </div>
     <div class="topbar-right">
@@ -1438,7 +1443,7 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=deb1ec4a"></script>
+<script type="module" src="/assets/js/divisa.js?v=3b9263db"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

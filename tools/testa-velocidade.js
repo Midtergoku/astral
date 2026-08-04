@@ -70,15 +70,34 @@ const { chromium } = pw;
 const RAIZ = path.resolve(__dirname, '..');
 const TESTES = path.join(__dirname, 'testes');
 const PORTA = 8799;
-const ANTIGO = process.argv.includes('--antigo');
+/* --antigo [ref]  compara com um ponto do historico. Sem ref, usa HEAD.
+   ⚠️ HEAD so serve enquanto ele for ANTERIOR a correcao. Depois de commitar,
+   HEAD passa a conter o conserto e a comparacao deixa de distinguir -- o que
+   NAO e alarme, e so significa "nao ha o que comparar". Para provar que o
+   teste sabe reprovar, aponte para um commit anterior ao conserto. */
+const iAntigo = process.argv.indexOf('--antigo');
+const ANTIGO = iAntigo >= 0;
+const REF = ANTIGO && process.argv[iAntigo + 1] && !process.argv[iAntigo + 1].startsWith('--')
+  ? process.argv[iAntigo + 1] : 'HEAD';
 const ATRASO_BANCO = 800;   // tem de bater com o duble
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css' };
 
-/* Quando se pede --antigo, os dois arquivos vem do ultimo commit. */
+/* Quando se pede --antigo, estes arquivos vem do ultimo commit.
+   `identidade.js` entra na lista de proposito: se ele ainda nao existia
+   naquele commit, o servidor devolve 404 -- que e exatamente o estado
+   anterior. Sem isso a copia NOVA seria servida junto com o codigo velho, o
+   nome apareceria rapido de qualquer jeito, e o teste perderia a capacidade
+   de reprovar -- que e a unica coisa que o torna util. */
 const doGit = {};
+const inexistentesNoCommit = new Set();
 if (ANTIGO) {
-  for (const f of ['divisa.js', 'estado.js']) {
-    doGit[f] = execFileSync('git', ['show', 'HEAD:assets/js/' + f], { cwd: RAIZ, maxBuffer: 1 << 24 });
+  for (const f of ['divisa.js', 'estado.js', 'identidade.js']) {
+    try {
+      doGit[f] = execFileSync('git', ['show', REF + ':assets/js/' + f],
+        { cwd: RAIZ, maxBuffer: 1 << 24, stdio: ['ignore', 'pipe', 'ignore'] });
+    } catch {
+      inexistentesNoCommit.add(f);   // nao existia naquele commit
+    }
   }
 }
 
@@ -90,6 +109,9 @@ const servidor = http.createServer((q, r) => {
   else if (u === '/assets/js/astral.js') { corpo = fs.readFileSync(path.join(TESTES, 'astral-duble.js')); tipo = TIPOS['.js']; }
   else {
     const base = path.basename(u);
+    if (ANTIGO && inexistentesNoCommit.has(base) && u.startsWith('/assets/js/')) {
+      r.writeHead(404); return r.end('nao existia neste commit');
+    }
     if (ANTIGO && doGit[base] && u.startsWith('/assets/js/')) { corpo = doGit[base]; tipo = TIPOS['.js']; }
     else {
       const f = path.join(RAIZ, u);
@@ -110,10 +132,31 @@ const servidor = http.createServer((q, r) => {
   /* Semeia a copia do navegador, como teria quem ja usou o app.
      XP proposital diferente do "banco": e assim que se ve a correcao chegar. */
   await ctx.addInitScript(() => {
+    /* A sessao, na chave real do supabase-js. E daqui que o identidade.js tira
+       o nome sem precisar de rede nenhuma. */
+    localStorage.setItem('sb-jjogmcacbdefwiwcyjxp-auth-token', JSON.stringify({
+      access_token: 'falso-para-teste', token_type: 'bearer', expires_in: 3600,
+      user: { id: 'u-teste', email: 'lucas@exemplo.com',
+              user_metadata: { full_name: 'Lucas Herdy Silva' } },
+    }));
     localStorage.setItem('astral_dados_u-teste', JSON.stringify({
       xp: 900, streak: 1, horas: 2, materias: [{ nome: 'Portugues' }],
       cronogramaHoje: [], edital: 'PMERJ', badges: [], tagEscolhida: null,
     }));
+
+    /* Registra TUDO que o avatar ja mostrou, quadro a quadro. E assim que se
+       prova que o "?" nao aparece -- olhar so o valor final nao provaria nada,
+       porque o final sempre esteve certo. */
+    window.__VISTOS = [];
+    const olhar = () => {
+      const el = document.getElementById('user-avatar');
+      if (!el) return;
+      const v = el.textContent.trim();
+      const ult = window.__VISTOS[window.__VISTOS.length - 1];
+      if (!ult || ult.v !== v) window.__VISTOS.push({ v, t: Math.round(performance.now()) });
+    };
+    const laco = () => { olhar(); requestAnimationFrame(laco); };
+    requestAnimationFrame(laco);
   });
 
   const pg = await ctx.newPage();
@@ -131,7 +174,7 @@ const servidor = http.createServer((q, r) => {
     return Date.now() - t0;
   };
 
-  const tNome = await quando('#user-name', 't && t !== "Carregando…"');
+  const tNome = await quando('#user-name', 't && t.length > 0');
   const tDivisa = await quando('[data-divisa]', 't && t.length > 0');
   const cedo = ((await pg.textContent('[data-divisa]')) || '').replace(/\s+/g, ' ').trim();
 
@@ -141,8 +184,13 @@ const servidor = http.createServer((q, r) => {
   const nome = ((await pg.textContent('#user-name')) || '').trim();
   const saud = ((await pg.textContent('#greeting')) || '').trim();
 
+  const vistos = await pg.evaluate(() => window.__VISTOS || []);
+  const errados = vistos.filter((x) => x.v === '?' || /^Carregando/.test(x.v));
+
   const LIMITE = 500;   // metade do atraso do banco, com folga
   const checagens = [
+    ['o avatar NUNCA mostrou "?"', errados.length === 0,
+      errados.length ? 'mostrou "' + errados[0].v + '" em ' + errados[0].t + 'ms' : 'nunca'],
     ['nome aparece sem esperar o banco', tNome < LIMITE, tNome + 'ms (banco leva ' + ATRASO_BANCO + 'ms)'],
     ['nome completo, com o "s" final', nome === 'Lucas', '"' + nome + '"'],
     ['saudacao preenchida', /Lucas\.$/.test(saud), '"' + saud + '"'],
@@ -152,7 +200,7 @@ const servidor = http.createServer((q, r) => {
     ['nenhum erro de JavaScript', erros.length === 0, erros.join(' | ') || 'nenhum'],
   ];
 
-  console.log('TESTA-VELOCIDADE' + (ANTIGO ? '  [codigo do ultimo commit]' : '  [codigo do disco]') + '\n');
+  console.log('TESTA-VELOCIDADE' + (ANTIGO ? '  [codigo de ' + REF + ']' : '  [codigo do disco]') + '\n');
   for (const [n, ok, extra] of checagens) console.log('  ' + (ok ? 'OK    ' : 'FALHA ') + n.padEnd(40) + extra);
 
   const todas = checagens.every((c) => c[1]);

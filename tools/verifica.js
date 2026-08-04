@@ -247,6 +247,38 @@ for (const f of jsNossos) {
   }
 }
 
+/* ── 12. ESPACO RESERVADO QUE MENTE ──────────────────────────────────────────
+   O Lucas em 03/08/2026: "clico em cronograma e o simbolo da minha foto fica
+   com interrogacao". Era um "?" escrito no HTML das 11 paginas, que aparecia
+   na PRIMEIRA pintura e so virava a inicial certa depois.
+
+   A licao vale alem deste caso: informacao ERRADA por um instante e pior que
+   informacao nenhuma. O usuario nao sabe que e temporario -- ele so ve errado.
+   Quem nao sabe o valor ainda deve mostrar espera (data-esperando), nao chutar.
+
+   Cada par abaixo nasceu de algo que o Lucas viu na tela. */
+const MENTIRAS = [
+  ['id="user-avatar">?', 'o "?" no lugar da inicial'],
+  ['id="greeting">Carregando', 'o "Carregando..." na saudacao'],
+  ['id="user-name">Carregando', 'o "Carregando..." no nome'],
+];
+for (const p of paginas) {
+  const t = ler(p);
+  for (const [agulha, oque] of MENTIRAS) {
+    if (t.includes(agulha)) {
+      anota('espera', p, oque + ' voltou -- use data-esperando e deixe o identidade.js preencher');
+    }
+  }
+  /* Toda pagina com avatar precisa do identidade.js, e CLASSICO: como modulo
+     ele seria adiado e a pagina pintaria antes de ele rodar -- que e
+     exatamente o defeito. */
+  if (t.includes('id="user-avatar"')) {
+    const tag = (t.match(/<script[^>]*src="[^"]*identidade\.js[^"]*"[^>]*>/) || [])[0];
+    if (!tag) anota('espera', p, 'tem avatar mas nao carrega o identidade.js');
+    else if (/type=["']module["']/.test(tag)) anota('espera', p, 'carrega o identidade.js como module -- seria adiado');
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -260,6 +292,7 @@ const GRUPOS = {
   fantasma: 'JS escrevendo em elemento inexistente',
   import:   'Import de algo que nao e exportado',
   regex:    'Barra invertida perdida em expressao regular',
+  espera:   'Espaco reservado que mostra informacao errada',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

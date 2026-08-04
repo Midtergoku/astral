@@ -351,43 +351,22 @@ export function aplicarDivisa(dados, esc) {
        era uma espera a toa: o nome nunca veio do banco. Nas medidas, a ida a
        Sao Paulo custava de 52ms a 553ms, e o usuario olhava "Carregando..."
        esse tempo todo a cada troca de menu, para ver um dado que ja estava
-       na maquina dele. */
+       na maquina dele.
+
+       03/08/2026 (mesmo dia, mais tarde) -- a ESCRITA saiu daqui e foi para
+       assets/js/identidade.js,
+       que e script classico e roda antes da primeira pintura. Aqui ficou
+       apenas a confirmacao: quando a sessao real chega do servidor, reaplica.
+       Na esmagadora maioria das vezes o valor ja e o mesmo e nada muda na tela.
+
+       ⚠️ NAO reescrever a resolucao do nome aqui. Ela mora num lugar so, de
+       proposito -- ter cinco copias foi o que escondeu o bug do "Luca" por
+       tres dias. Se `identidade.js` nao tiver carregado, o certo e nao mostrar
+       nada, nao inventar uma segunda logica. */
     try {
       const u = data.session.user;
-      const nome = u?.user_metadata?.full_name
-                || u?.email?.split("@")[0] || "Concurseiro";
-      /* 🔴 A BARRA INVERTIDA AQUI E O BUG QUE CUSTOU TRES DIAS.
-         Estava escrito /s+/ -- a LETRA "s" -- em vez de /\s+/ -- ESPACO.
-         Entao "Lucas".split(/s+/)[0] devolvia "Luca". Todo nome com "s"
-         perdia tudo dali para a frente: Alessandra virava "Ale",
-         Jean-Christophe virava "Jean-Chri".
-
-         A barra se perdeu quando escrevi este trecho por `node -e` dentro de
-         uma string de shell: o bash come a barra antes do Node ver. Terceira
-         vez que isso acontece hoje (o \d de patenteCurta e o $1$2 do nome
-         foram a mesma coisa).
-
-         REGRA: expressao regular NUNCA se escreve via `node -e` no shell.
-         Vai para arquivo, com o Write, e roda de la. */
-      const primeiro = String(nome).trim().split(/\s+/)[0];
-
-      const elNome = document.getElementById("user-name");
-      if (elNome) elNome.textContent = primeiro;
-
-      const elAvatar = document.getElementById("user-avatar");
-      if (elAvatar) elAvatar.textContent = primeiro.charAt(0).toUpperCase();
-
-      /* A SAUDACAO do dashboard entra aqui pelo mesmo motivo.
-         Ela dependia de estado.usuario, campo que carregarProgresso NAO
-         devolve -- entao a linha nunca rodava e o titulo ficava preso em
-         "Carregando...", que foi o primeiro print do Lucas.
-         Aqui o usuario ja esta em maos: uma fonte, sem depender de campo
-         que pode nao existir. */
-      const elOi = document.getElementById("greeting");
-      if (elOi) {
-        const h = new Date().getHours();
-        const saud = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
-        elOi.textContent = saud + ", " + primeiro + ".";
+      if (window.Astral && window.Astral.aplicarIdentidade) {
+        window.Astral.aplicarIdentidade(u);
       }
     } catch { /* a divisa nao pode cair por causa do nome */ }
 

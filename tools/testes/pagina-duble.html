@@ -1,21 +1,35 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>teste da divisa</title>
+<title>replica de uma pagina do app, para teste</title>
+<!-- ⚠️ Esta pagina PRECISA espelhar a estrutura real das 11 paginas do app.
+     Em 03/08/2026 ela ficou para tras: as paginas passaram a carregar o
+     identidade.js e esta nao. Resultado: o teste reprovou o PROPRIO TESTE em
+     vez do codigo, e por um instante pareceu regressao de verdade.
+     Se mudar a casca das paginas, mudar aqui junto. -->
 <body>
   <div class="topbar">
-    <span id="user-avatar">?</span>
-    <span id="user-name">Carregando…</span>
-    <h1 id="greeting">Carregando...</h1>
+    <div class="user-info">
+      <span id="user-avatar" data-esperando></span>
+      <span id="user-name"></span>
+    </div>
+    <!-- classico e logo abaixo dos elementos, igual as paginas de verdade -->
+    <script src="/assets/js/identidade.js"></script>
+
     <div data-divisa></div>
   </div>
+
+  <!-- A saudacao mora mais abaixo, como no dashboard. E o caso que obriga o
+       identidade.js a ter um observador em vez de so o DOMContentLoaded --
+       medido: o DOMContentLoaded chegava 2ms DEPOIS da primeira pintura. -->
+  <h1 id="greeting" data-esperando></h1>
+
   <script type="module" src="/assets/js/divisa.js"></script>
 
-  <!-- A pagina tambem le o progresso, como fazem as 11 paginas de verdade.
-       Sao dois chamadores da MESMA linha no mesmo carregamento: e exatamente
-       isto que a carona precisa transformar em uma leitura so. -->
+  <!-- A pagina tambem le o progresso, como fazem as 11 de verdade. Sao dois
+       chamadores da MESMA linha no mesmo carregamento: e exatamente isto que
+       a carona precisa transformar em uma leitura so. -->
   <script type="module">
     const { carregarProgresso } = await import('/assets/js/estado.js');
-    const d = await carregarProgresso('u-teste');
-    window.__PAGINA_LEU = d;
+    window.__PAGINA_LEU = await carregarProgresso('u-teste');
   </script>
 </body>

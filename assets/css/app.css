@@ -76,6 +76,41 @@ body {
   flex-shrink: 0;
 }
 
+/* ── ESPERANDO ────────────────────────────────────────────────────────────
+   Antes havia um "?" escrito no HTML das 11 paginas como espaco reservado.
+   Ele aparecia na PRIMEIRA pintura e so virava a inicial certa depois --
+   medido em 13ms num servidor local, mais na rede real. O Lucas viu e
+   incomodou, com razao: mostrar informacao ERRADA por um instante e pior
+   que nao mostrar nada.
+
+   Agora o HTML nasce vazio e o assets/js/identidade.js preenche antes de
+   pintar. Este estado aqui e so a rede de seguranca para o caso raro de a
+   sessao ainda nao estar no navegador: em vez de um buraco, um circulo que
+   respira, dizendo "ja vem" sem afirmar nada falso.
+
+   Sem passo de opacidade zero: piscar do nada e o defeito que se esta
+   corrigindo. Ele nasce visivel e so pulsa. */
+[data-esperando] {
+  color: transparent;
+  animation: astral-esperando 1.4s ease-in-out infinite;
+}
+.user-avatar[data-esperando] {
+  background: var(--surface2, #1a1a22);
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+}
+/* A saudacao do dashboard reserva a altura da linha, senao o titulo aparece
+   e empurra o resto para baixo -- o "sobe e desce" que ja foi corrigido no
+   menu por outro motivo. */
+#greeting[data-esperando]::before { content: "\00a0"; }
+
+@keyframes astral-esperando {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: .28; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-esperando] { animation: none; opacity: .5; }
+}
+
 /* 🔴 NAO REINTRODUZIR overflow:hidden NEM text-overflow AQUI.
    Esta regra e a ULTIMA a carregar nas 10 paginas, entao e ela que vale.
    Foi ela que cortou "Lucas" em "Luca" por dias: eu escrevia a correcao no

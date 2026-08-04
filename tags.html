@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/assets/css/base.css?v=f26d1d97"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Minhas tags</title>
-  <link rel="stylesheet" href="assets/css/app.css?v=a526457a" />
+  <link rel="stylesheet" href="assets/css/app.css?v=b0bede6f" />
 <style>
   body { display: flex; min-height: 100vh; margin: 0; }
 
@@ -73,11 +73,16 @@
 <aside class="sidebar">
   <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
   <div class="user-info">
-    <div class="user-avatar" id="user-avatar">?</div>
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
     <div class="user-details">
       <div class="user-name" id="user-name"></div>
     </div>
   </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
   <div class="nav-label">MENU</div>
   <nav class="nav-links">
     <a class="nav-link" href="dashboard.html">
@@ -179,7 +184,7 @@
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
     from './assets/js/astral.js?v=bd892079';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=68c08b97';
-  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=deb1ec4a';
+  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=3b9263db';
   import { icone } from './assets/js/icones.js?v=7c816270';
 
   let estado = null;
@@ -275,7 +280,7 @@
 
   document.getElementById('btn-sair').addEventListener('click', fazerLogout);
 </script>
-<script type="module" src="/assets/js/divisa.js?v=deb1ec4a"></script>
+<script type="module" src="/assets/js/divisa.js?v=3b9263db"></script>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
