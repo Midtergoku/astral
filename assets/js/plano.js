@@ -142,6 +142,13 @@ export async function gerarGuiaCompleto(uid, concurso, materias, aoAndar) {
 
     if (jaTem.has(materia)) { resultado.puladas.push(materia); continue; }
 
+    /* Respiro entre uma matéria e outra (04/08/2026).
+       No primeiro teste com edital de verdade, três buscas seguidas passaram e
+       a quarta foi recusada na hora. Emendar chamadas pesadas de IA sem pausa
+       é a forma mais rápida de esbarrar no limite da conta. Dois segundos não
+       fazem diferença para quem está esperando o guia ficar pronto. */
+    if (resultado.feitas.length) await new Promise((r) => setTimeout(r, 2000));
+
     try {
       const dados = await chamarIA('buscar-recursos', { materia, concurso });
       const { error } = await supabase.from('recursos_salvos').upsert({

@@ -58,11 +58,24 @@ Deno.serve(servir("buscar-recursos", async (req: Request, _usuario: Usuario) => 
       ? "\n\nATENÇÃO: a resposta anterior veio fora do formato. Responda APENAS com o objeto JSON, começando com { e terminando com }. Nada antes, nada depois."
       : "";
 
-    const resposta = await anthropic.messages.create({
-    model: MODELO,
-    max_tokens: 1000,
-    tools: [{ type: "web_search_20250305", name: "web_search" }],
-    messages: [{
+    /* ⚠️ CONSERTADO em 04/08/2026, no primeiro teste com edital de verdade.
+       As 4 materias falharam com 502, cada chamada demorando 68 a 73 SEGUNDOS.
+
+       Duas causas, e as duas estao na documentacao da Anthropic:
+
+       1. `stop_reason: "pause_turn"` -- quando a busca na web demora, a API
+          PAUSA o turno e devolve a resposta pela metade, sem o JSON. Para
+          continuar e preciso reenviar a mensagem do assistente inalterada.
+          O codigo antigo nao tratava isso: pegava a resposta pausada, nao
+          achava JSON, e devolvia "resposta fora do formato".
+
+       2. `max_tokens: 1000` era apertado demais. Os resultados da busca entram
+          como contexto e o JSON pedido tem 3 professores + 3 materiais + 2
+          cursos + a dica. Ficou 2500.
+
+       `max_uses: 3` e novo e serve a duas coisas: corta a busca infinita (era
+       o que fazia levar 70s) e trava o custo -- cada busca custa US$ 0,01. */
+    const mensagens: Anthropic.MessageParam[] = [{
       role: "user",
       content: `Você é um especialista em concursos militares brasileiros.
 
@@ -93,10 +106,61 @@ Regras importantes:
 - Use apenas URLs reais e verificadas, sempre começando com https://
 - Escreva texto puro: nada de HTML, script ou markdown dentro dos campos
 - Retorne SOMENTE o JSON, nada mais${reforco}`,
-    }],
-    });
+    }];
+
+    /* O laco do pause_turn. A API pode pausar a busca varias vezes; cada volta
+       devolve a conversa inalterada para ela continuar de onde parou.
+       Teto de 4 voltas: se nem assim terminou, algo esta errado e insistir so
+       gastaria mais. */
+    /* 🔴 CADA VOLTA DESTE LACO CUSTA CARO, e isso quase passou despercebido.
+       Continuar um turno pausado significa REENVIAR a conversa inteira -- e ela
+       ja carrega os resultados da busca. Com 4 voltas, o mesmo conteudo e
+       cobrado 5 vezes na entrada. Em 04/08/2026 os creditos da conta acabaram
+       durante o primeiro teste, e este laco foi parte do motivo.
+
+       Por isso: max_uses 2 (nao 3), teto de 2 voltas (nao 4), e o consumo real
+       de cada chamada vai para o log -- ninguem deve estimar custo quando a
+       propria API informa o numero. */
+    const OPCOES = {
+      model: MODELO,
+      max_tokens: 2500,
+      tools: [{ type: "web_search_20250305" as const, name: "web_search", max_uses: 2 }],
+    };
+
+    let resposta = await anthropic.messages.create({ ...OPCOES, messages: mensagens });
+    let voltas = 0;
+    const gasto = { entrada: 0, saida: 0, buscas: 0 };
+    const somar = (r: typeof resposta) => {
+      gasto.entrada += r.usage?.input_tokens ?? 0;
+      gasto.saida += r.usage?.output_tokens ?? 0;
+      gasto.buscas += (r.usage as { server_tool_use?: { web_search_requests?: number } })
+        ?.server_tool_use?.web_search_requests ?? 0;
+    };
+    somar(resposta);
+
+    while (resposta.stop_reason === "pause_turn" && voltas < 2) {
+      voltas++;
+      mensagens.push({ role: "assistant", content: resposta.content });
+      resposta = await anthropic.messages.create({ ...OPCOES, messages: mensagens });
+      somar(resposta);
+    }
+
+    /* Custo REAL desta chamada, com os precos publicados do sonnet-4-6.
+       Serve para trocar a estimativa do roadmap por medicao. */
+    const custo = (gasto.entrada / 1e6) * 3 + (gasto.saida / 1e6) * 15 + gasto.buscas * 0.01;
+    console.log("buscar-recursos custo", JSON.stringify({
+      materia, voltas, ...gasto, custo_usd: Number(custo.toFixed(4)),
+    }));
 
     const bruto = resposta.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
+
+    /* Sem isto, um turno que acabou pausado ou truncado virava so "resposta
+       fora do formato" -- mensagem que nao diz nada a quem for depurar. */
+    if (!bruto.trim()) {
+      console.error("buscar-recursos: resposta sem texto.",
+        JSON.stringify({ stop_reason: resposta.stop_reason, voltas, blocos: resposta.content.map((b) => b.type) }));
+    }
+
     const d = extrairJson<Record<string, unknown>>(bruto);
 
     return json(req, {

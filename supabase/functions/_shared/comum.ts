@@ -355,9 +355,41 @@ export function servir(
       return resposta;
     } catch (e) {
       if (e instanceof FalhaHttp) return erro(req, e.message, e.status);
-      // Mensagem generica para o cliente: o texto de erro da Anthropic ja
-      // vazou detalhe de billing numa resposta HTTP publica antes.
-      return erro(req, "Nao foi possivel completar a operacao. Tente de novo.", 500, e);
+
+      /* ⚠️ CLASSIFICAR O ERRO DA IA (04/08/2026).
+         No primeiro teste com edital de verdade, tres materias funcionaram e a
+         quarta falhou em 0,8s -- rapido demais para ter chamado a IA. Como
+         TUDO virava "Nao foi possivel completar a operacao", nao dava para
+         saber se era limite de taxa, credito acabado ou defeito nosso.
+
+         Agora cada caso tem codigo e mensagem propria. O detalhe tecnico
+         continua so no log: o texto de erro da Anthropic ja vazou informacao
+         de cobranca numa resposta publica uma vez. */
+      const status = (e as { status?: number })?.status;
+      const texto = String((e as Error)?.message ?? "");
+
+      if (status === 429) {
+        return erro(
+          req,
+          "Muitas buscas ao mesmo tempo. Espere alguns segundos e tente de novo.",
+          429,
+          e,
+        );
+      }
+      if (status === 401 || status === 403) {
+        // Credencial da IA recusada -- e problema NOSSO, nao do usuario.
+        return erro(req, "O serviço de IA está indisponivel no momento.", 503, e);
+      }
+      if (/credit|billing|insufficient/i.test(texto)) {
+        return erro(req, "O serviço de IA está indisponivel no momento.", 503, e);
+      }
+
+      return erro(
+        req,
+        "Nao foi possivel completar a operacao. Tente de novo.",
+        500,
+        { upstream: status ?? "sem status", texto: texto.slice(0, 300), e },
+      );
     }
   };
 }
