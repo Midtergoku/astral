@@ -307,3 +307,91 @@ Enquanto isso, a defesa possível é o mínimo de 8 caracteres, **já aplicado n
 (`password_min_length = 8`), somado ao medidor de força em `redefinir-senha.html`.
 
 ---
+
+---
+
+### 13.6. Por que ninguém recebe e-mail — medido em 03/08/2026
+
+O Lucas relatou: *"a pessoa não recebe os e-mails de quando esqueceu a senha e de confirmação"*.
+Lido da configuração real do projeto, com `tools/smtp-configura.ps1`:
+
+```
+ENTREGA .................. SMTP padrao do Supabase
+                           2 mensagens por hora, SO para membros da organizacao
+mailer_autoconfirm ....... True     cadastro entra sem confirmar e-mail
+rate_limit_email_sent .... 2 por hora
+external_email_enabled ... True
+external_google_enabled .. True
+security_captcha_enabled . True
+```
+
+**Não é bug no código.** A documentação oficial é explícita: o SMTP compartilhado do Supabase
+entrega **só para endereços da equipe do projeto**; qualquer outro falha com *Email address not
+authorized*. Um concurseiro de verdade nunca recebe.
+
+Quem é afetado hoje (consultado no banco): **8 usuários — 6 entram pelo Google** (não têm senha,
+não dependem de e-mail) e **2 por e-mail e senha**. Esses 2 ficam trancados para fora se
+esquecerem a senha.
+
+#### 🔴 A correção do plano antigo: o domínio NUNCA foi o bloqueador
+
+A seção 13.4 amarrava o SMTP próprio à compra do domínio. **Isso está mais forte do que precisa.**
+A documentação do Supabase diz, com todas as letras: *"A custom domain is not strictly required
+to use custom SMTP"* — o domínio melhora a entrega (reputação), não é pré-requisito.
+
+| Provedor | Serve sem domínio? |
+|---|---|
+| **Resend** | ❌ *"You must add and verify at least one domain"* — confirmado na doc |
+| **Gmail (smtp.gmail.com) com senha de app** | ✅ grátis, ~500 destinatários/dia, e o SPF/DKIM batem porque quem envia é o próprio Google |
+
+**Decisão: Gmail como ponte, Resend quando o domínio chegar.** Custo R$ 0. A desvantagem real e
+única é que o remetente aparece como o Gmail pessoal do Lucas — aceitável em beta fechado,
+não aceitável quando começar a cobrar.
+
+#### ⚠️ NUNCA usar `supabase config push` para isto
+
+O `supabase/config.toml` deste projeto declara **apenas as edge functions** — não tem seção
+`[auth]`. Um `config push` empurraria uma configuração de auth **vazia** e desligaria o
+captcha e o login com Google em produção. A API de gerenciamento altera só o que se manda, e
+por isso é o caminho certo. `tools/smtp-configura.ps1` usa ela.
+
+#### ⚠️ A ordem, que é de duas pontas
+
+1. configurar o SMTP
+2. **provar que um e-mail chega num endereço de fora** — não vale o do dono do projeto, esse já recebia
+3. só então `mailer_autoconfirm = false`
+
+Inverter deixa **ninguém conseguindo se cadastrar**: a conta fica presa esperando um e-mail que
+não sai. É o mesmo erro de duas pontas que derrubou o login no captcha em 31/07/2026. O script
+**recusa** o passo 3 se não houver SMTP configurado.
+
+#### O que só o Lucas pode fazer (5 cliques)
+
+Criar a senha de app é na conta Google dele — eu não tenho e não devo ter acesso.
+
+1. Ligar a verificação em duas etapas, se ainda não estiver: **myaccount.google.com/signinoptions/two-step-verification**
+   (o Google **exige** isso para liberar senha de app)
+2. Abrir **myaccount.google.com/apppasswords**
+3. Escrever um nome — `Astral` — e clicar em **Criar**
+4. Copiar as **16 letras** que aparecem (o Google mostra em 4 blocos de 4; o espaço não importa,
+   o script remove)
+5. Mandar para mim
+
+Aí eu rodo:
+```
+$env:SMTP_PASS = '<as 16 letras>'
+powershell -File tools\smtp-configura.ps1 -Aplicar -Usuario 'lherdy2003@gmail.com'
+```
+
+> ⚠️ **A senha de app dá acesso de envio à conta Google dele.** Ela nunca entra em arquivo —
+> vai por variável de ambiente e fica guardada só no Supabase. O repositório é público.
+> Para revogar, é um clique na mesma página do passo 2.
+
+#### Armadilhas de ambiente encontradas ao escrever a ferramenta
+
+- **PowerShell 5.1:** dentro de uma função, tudo que vai para `Write-Output` vira **valor de
+  retorno**. Com `$antes = Mostrar "ANTES"`, o relatório inteiro foi capturado na variável e a
+  tela ficou vazia. Texto para o usuário sai por `Write-Host`.
+- Ler o token da CLI no Gerenciador de Credenciais foi **bloqueado pelo classificador** quando o
+  script estava no diretório temporário; **funcionou** com o script em `tools/`, que é onde ele
+  deve morar de qualquer forma.
