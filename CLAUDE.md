@@ -119,6 +119,17 @@ problema medido não é feiura, é genérico, e genérico vem da fundação.
 ~R$ 5–8 por pessoa**, não mensal) · `processar-edital` em janela mensal · backup nunca restaurado ·
 **validação de assinatura do webhook do Mercado Pago, que é bloqueador de lançamento**.
 
+> 🔴 **O número que reordena tudo, medido em 04/08/2026:** 8 usuários cadastrados e
+> **ZERO chamadas de IA em toda a história** — ninguém nunca subiu um edital. A promessa central
+> do produto **nunca aconteceu uma vez**. Por isso a Fase 1 do roadmap não é design nem
+> pagamento: é fazer isso acontecer **uma vez**, e custa **US$ 5** de créditos.
+> Detalhe em `historico/roadmap-ate-a-primeira-assinatura.md`.
+
+> 🔴 **Domínio: decisão dele em 03/08/2026** — é **um dos últimos blocos**, e ele quer fazer
+> **junto comigo**. O **Resend exige domínio verificado** (confirmado na doc deles), então o
+> e-mail definitivo depende disso. Mas o domínio **não bloqueia o e-mail agora**: a ponte é
+> Gmail com senha de app, grátis. Ver skill `astral-operacao` 13.6.
+
 > 💰 **Dinheiro é restrição real.** *"Nem sempre eu tenho dinheiro."* **Nunca propor algo que
 > custe sem dizer o preço na mesma frase.**
 
@@ -153,5 +164,6 @@ problema medido não é feiura, é genérico, e genérico vem da fundação.
 | `blocos-executados.md` | os 20 blocos 8.5–8.19, com o que foi medido | **antes de "consertar" algo estranho: pode ser decisão** |
 | `sessoes.md` | as 5 sessões narradas | para reconstruir *por que* algo foi decidido |
 | `decisoes.md` | Mercado Pago, custo da Anthropic, contas, skills instaladas | antes de reabrir decisão fechada |
-| `ordem-de-trabalho.md` | as 3 etapas em detalhe e a estratégia de lançamento | ao planejar o próximo bloco |
+| **`roadmap-ate-a-primeira-assinatura.md`** | **as 7 fases daqui até a 1ª assinatura paga, medidas em 04/08** | **ao planejar qualquer coisa — é o mapa atual** |
+| `ordem-de-trabalho.md` | as 3 etapas em detalhe e a estratégia de lançamento | histórico de como se chegou ao roadmap |
 | `regras-originais.md` | as 7 regras acima em texto integral, com o porquê | se a versão curta gerar dúvida |
