@@ -93,6 +93,33 @@ body {
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
+
+/* ── A BARRA DE ROLAGEM QUE PISCAVA ────────────────────────────────────────
+   O Lucas em 04/08/2026: "quando clico em outro menu, rapidamente aparece
+   aquela barra dos cantos, na horizontal e na vertical".
+
+   MEDIDO, e a causa e a propria animacao de troca de pagina: o miolo entra
+   deslizando 34px para o lado (astral-pg-entra) e sai deslizando 26px
+   (astral-pg-sai). Enquanto ele esta deslocado, sobra conteudo fora da janela
+   -- e o navegador mostra a barra, mesmo por 220ms. Aferido em 13 de cada 100
+   quadros, nas quatro paginas testadas, sempre 34px.
+
+   A ANIMACAO NAO FOI TOCADA. Ela e decisao dele ("quero que o site seja
+   fluido"), e o defeito nunca esteve nela: esta em o navegador tratar como
+   "conteudo para rolar" algo que e so um efeito passando.
+
+   `clip` e nao `hidden`, de proposito: `hidden` transforma o elemento em area
+   de rolagem, o que quebra `position: sticky` de qualquer filho e muda o
+   comportamento do scroll da pagina. `clip` so corta o que passa da borda, sem
+   criar area de rolagem nenhuma. A linha com `hidden` vem antes como reserva
+   para navegador antigo que nao conhece `clip` -- quem conhece usa a segunda.
+
+   ⚠️ Isto corta APENAS o eixo horizontal. A rolagem vertical da pagina
+   continua intacta -- e por isso que nao se usa `overflow: clip` sozinho. */
+html, body {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
 h1, h2, h3, h4, h5, h6, button, .btn, .page-title, .nav-label, .sidebar-logo {
   font-family: var(--display);
 }

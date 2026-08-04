@@ -60,6 +60,15 @@ function noRef(rel) {
   } catch { return ''; }
 }
 
+/* ⚠️ PONTO CEGO DESTA FERRAMENTA, e ele ja me enganou (04/08/2026).
+   Ela compara o app.css + o CSS embutido de cada pagina. NAO OLHA O base.css.
+   Naquele dia acrescentei uma regra no base.css, rodei isto, li "CSS RESOLVIDO
+   IDENTICO EM TODAS AS 8 PAGINAS" e quase usei como prova de que nada tinha
+   mudado -- quando o arquivo que eu tinha alterado nem entrava na conta.
+
+   Se a mudanca foi no base.css, esta ferramenta NAO serve como prova. Use um
+   teste que meça o comportamento (tools/testa-rolagem.js e um exemplo). */
+
 // O app.css tambem precisa vir do ref, senao o lado "antes" fica sem as regras
 // compartilhadas e o verificador acusa divergencia onde nao existe. Foi o que
 // aconteceu logo apos o commit do Bloco A.
