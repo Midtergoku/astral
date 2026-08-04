@@ -279,6 +279,61 @@ for (const p of paginas) {
   }
 }
 
+/* ── 13. BOTAO QUE CHAMA FUNCAO QUE SO EXISTE DEPOIS ─────────────────────────
+   Achado em 04/08/2026 lendo a tabela erros_cliente: o botao "Entrar com
+   Google" do login.html usava onclick="loginGoogle()", e a funcao nascia dentro
+   de um <script type="module"> -- que o navegador SEMPRE adia.
+
+   Entre a pagina aparecer e o modulo rodar existe uma janela em que o botao ja
+   esta clicavel e a funcao ainda nao existe. Quem clicava ali recebia
+   "loginGoogle is not defined" e o botao NAO FAZIA NADA -- sem aviso, sem erro
+   visivel. Aconteceu 4 vezes com usuarios reais, no botao por onde entram 6 dos
+   8 usuarios do Astral.
+
+   O silencio e o que torna isto perigoso: nao quebra a tela, so nao funciona.
+
+   REGRA: se a funcao mora num modulo, o ouvinte se prende por addEventListener
+   dentro do proprio modulo. onclick no HTML so vale para funcao definida em
+   script classico. */
+for (const p of paginas) {
+  const t = ler(p);
+
+  // separa o que e modulo (adiado) do que e script classico (roda na hora)
+  const modulos = [...t.matchAll(/<script[^>]*type=["']module["'][^>]*>([\s\S]*?)<\/script>/g)]
+    .map((m) => m[1]).join('\n');
+  const classicos = [...t.matchAll(/<script(?![^>]*type=["']module["'])[^>]*>([\s\S]*?)<\/script>/g)]
+    .map((m) => m[1]).join('\n');
+
+  // tira comentarios do HTML para nao acusar exemplo escrito em comentario
+  const semComentario = t.replace(/<!--[\s\S]*?-->/g, '');
+
+  const chamadas = new Set();
+  for (const m of semComentario.matchAll(/\bon(?:click|change|submit|input)=["']\s*([A-Za-z_$][\w$]*)\s*\(/g)) {
+    chamadas.add(m[1]);
+  }
+
+  const arriscadas = [...chamadas].filter((fn) => {
+    const definePor = (corpo) =>
+      new RegExp('(?:function\\s+' + fn + '\\b|window\\.' + fn + '\\s*=|(?:const|let|var)\\s+' + fn + '\\b)').test(corpo);
+    if (definePor(classicos)) return false;          // script classico roda antes: seguro
+    return definePor(modulos);                       // so no modulo: janela perigosa
+  });
+
+  if (!arriscadas.length) continue;
+
+  /* Consertar 39 botoes a mao seria muita superficie para errar, e nao
+     impediria o 40o de nascer torto. A rede (assets/js/cedo.js) segura o
+     clique que chega cedo e o refaz quando a funcao existe. O que se exige
+     aqui e que a rede ESTEJA na pagina -- e que nao seja module, senao ela
+     mesma seria adiada e nao serviria para nada. */
+  const rede = (t.match(/<script[^>]*src="[^"]*cedo\.js[^"]*"[^>]*>/) || [])[0];
+  if (!rede) {
+    anota('adiado', p, arriscadas.length + ' handler(s) inline chamam funcao que so existe dentro de <script type="module">, e a pagina NAO carrega assets/js/cedo.js: ' + arriscadas.slice(0, 4).join(', '));
+  } else if (/type=["']module["']/.test(rede)) {
+    anota('adiado', p, 'carrega o cedo.js como module -- ele mesmo seria adiado e nao protegeria nada');
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -293,6 +348,7 @@ const GRUPOS = {
   import:   'Import de algo que nao e exportado',
   regex:    'Barra invertida perdida em expressao regular',
   espera:   'Espaco reservado que mostra informacao errada',
+  adiado:   'Botao chama funcao que so existe depois (modulo adiado)',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

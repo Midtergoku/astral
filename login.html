@@ -271,6 +271,10 @@
     }
   </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
+<!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
+     Ver o cabecalho de assets/js/cedo.js: 4 usuarios reais perderam o clique
+     no botao do Google por causa disso. -->
+<script src="/assets/js/cedo.js?v=572942f9"></script>
 </head>
 <body>
 
@@ -285,7 +289,15 @@
     <p class="subtitle">Entre na sua conta para acessar seu plano de estudos.</p>
 
     <!-- Google -->
-    <button class="btn-google" onclick="loginGoogle()">
+    <!-- 🔴 SEM onclick, de proposito (04/08/2026).
+         Estava `onclick="loginGoogle()"`, e a funcao nasce dentro de um
+         <script type="module"> -- que o navegador SEMPRE adia. Quem clicava
+         antes de o modulo rodar recebia "loginGoogle is not defined" e o botao
+         simplesmente nao fazia nada. Aconteceu 4 vezes com gente de verdade,
+         e este e o botao por onde entram 6 dos 8 usuarios.
+         Agora o proprio modulo prende o ouvinte, entao so existe clique
+         possivel depois de a funcao existir. -->
+    <button class="btn-google" id="btn-google">
       <svg class="google-icon" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -312,12 +324,12 @@
       <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password" />
     </div>
 
-    <a href="#" class="forgot-link" onclick="esqueceuSenha(event)">Esqueci minha senha</a>
+    <a href="#" class="forgot-link" id="link-esqueci">Esqueci minha senha</a>
 
     <!-- Fica vazio enquanto HCAPTCHA_SITEKEY estiver em branco (ver astral.js). -->
     <div id="caixa-captcha" style="margin-bottom:1rem;"></div>
 
-    <button class="btn-primary" id="btn-login" onclick="loginEmail()">
+    <button class="btn-primary" id="btn-login">
       Entrar</button>
 
     <div class="bottom-link">
@@ -373,7 +385,7 @@
     document.getElementById('ok-msg').style.display = 'none';
   }
 
-  window.loginGoogle = async function() {
+  async function loginGoogle() {
     esconderErro();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -491,6 +503,26 @@
       'Entrar com o Google nunca depende de e-mail.'
     );
   }
+
+  /* ── OS BOTOES SAO LIGADOS AQUI, e nao por onclick no HTML ────────────────
+     🔴 04/08/2026. Os tres botoes desta pagina usavam onclick="funcao()", e as
+     funcoes nascem dentro deste <script type="module"> -- que o navegador
+     SEMPRE adia. Entre a pagina aparecer e o modulo rodar existe uma janela em
+     que o botao ja esta na tela e a funcao ainda nao existe. Quem clicasse ali
+     recebia "loginGoogle is not defined" e o botao nao fazia NADA.
+
+     Aconteceu 4 vezes com gente de verdade (tabela erros_cliente), no botao do
+     Google -- por onde entram 6 dos 8 usuarios. Os outros dois tinham o mesmo
+     defeito esperando a vez.
+
+     Ligando aqui, o ouvinte so passa a existir depois da funcao. Nao ha janela. */
+  const ligar = (id, fn) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', fn);
+  };
+  ligar('btn-google', loginGoogle);
+  ligar('btn-login', () => window.loginEmail());
+  ligar('link-esqueci', (e) => window.esqueceuSenha(e));
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') window.loginEmail();

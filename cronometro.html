@@ -139,6 +139,10 @@ select.materia-select:focus { border-color:var(--purple); }
 
 
 </style>
+<!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
+     Ver o cabecalho de assets/js/cedo.js: 4 usuarios reais perderam o clique
+     no botao do Google por causa disso. -->
+<script src="/assets/js/cedo.js?v=572942f9"></script>
 </head>
 <body>
 <aside class="sidebar">

@@ -513,6 +513,10 @@
 
 </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
+<!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
+     Ver o cabecalho de assets/js/cedo.js: 4 usuarios reais perderam o clique
+     no botao do Google por causa disso. -->
+<script src="/assets/js/cedo.js?v=572942f9"></script>
 </head>
 <body>
 
@@ -973,9 +977,19 @@ function mostrarLevelUp(nomeNivel) {
     estado.edital         = dados.edital;
     estado.badges         = dados.badges;
 
-    // o grafico busca sozinho e nao bloqueia a tela: se falhar, fica o esqueleto
+    /* O grafico busca sozinho e nao bloqueia a tela: se falhar, fica o esqueleto.
 
-    sessoesDaSemana(uid).then(s => aplicarGrafico(s, "Sua semana de estudo")).catch(() => {});
+       🔴 CONSERTADO em 04/08/2026. Estava escrito `sessoesDaSemana(uid)` e `uid`
+       NUNCA existiu neste escopo -- aqui a variavel e `session`. O erro estourava
+       DUAS LINHAS antes do renderUI(), entao o dashboard nunca terminava de
+       desenhar. 86 ocorrencias reais desde 02/08, gravadas em erros_cliente.
+
+       O `.catch()` no fim so pega falha da PROMESSA. Um ReferenceError na hora
+       de montar a chamada acontece antes de existir promessa, e escapa dele --
+       foi por isso que a rede de seguranca nao segurou. */
+    sessoesDaSemana(session.user.id)
+      .then(s => aplicarGrafico(s, "Sua semana de estudo"))
+      .catch(() => {});
 
     renderUI();
   }
