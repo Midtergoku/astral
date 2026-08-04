@@ -26,6 +26,16 @@ for (const arq of fs.readdirSync(".").filter((f) => f.endsWith(".html"))) {
   linhas.forEach((linha, i) => {
     if (!NAO_CONFIAVEL.some((re) => re.test(linha))) return;
 
+    // textContent, innerText e .value NAO interpretam HTML -- sao a forma
+    // SEGURA de por texto na tela, e o motivo de o codigo usa-los. Marcar
+    // esses como risco e alarme falso, e alarme falso ensina a ignorar alarme.
+    //
+    // Isto apareceu em 04/08/2026: acrescentei um `innerHTML` de texto
+    // CONSTANTE (a ressalva sobre professores) 16 linhas acima de um
+    // `textContent`, e a janela de contexto abaixo passou a acusar o
+    // textContent. A linha nunca foi perigosa; o vizinho e que mudou.
+    if (/\.(textContent|innerText|value)\s*=/.test(linha)) return;
+
     // Esta dentro de um bloco que vira HTML?
     const ctx = linhas.slice(Math.max(0, i - 20), i + 5).join("\n");
     const viraHtml = /innerHTML|insertAdjacentHTML|outerHTML/.test(ctx);

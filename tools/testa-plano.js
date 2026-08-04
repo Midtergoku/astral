@@ -141,7 +141,57 @@ function conferir(titulo, condicao, detalhe) {
     conferir('Marinha começa em Grumete, não Recruta', marinha.nome === 'Grumete', marinha.nome);
 
     const pm = nivelDe(0, 'Concurso qualquer', 'pm');
-    conferir('PM começa em Soldado PM', pm.nome === 'Soldado PM', pm.nome);
+    conferir('PM começa no degrau de quem ainda vai entrar', pm.nome === 'Aluno-Soldado', pm.nome);
+
+    /* 🔴 A RECLAMAÇÃO DO LUCAS, virada em teste:
+       "não adianta começar de Grumete e logo em seguida ir pra uma coisa
+       nada a ver". A carreira tem de subir, sempre, dentro da força dela. */
+    const carreiraMarinha = [];
+    for (const x of [0, 500, 1200, 2500, 4500, 7000, 10000, 14000, 19000, 25000, 32000]) {
+      carreiraMarinha.push(nivelDe(x, 'x', 'marinha').nome);
+    }
+    conferir('a carreira da Marinha é naval do começo ao fim',
+      carreiraMarinha[0] === 'Grumete' && carreiraMarinha[1] === 'Marinheiro'
+      && carreiraMarinha.includes('Suboficial') && carreiraMarinha.includes('Capitão-Tenente'),
+      carreiraMarinha.slice(0, 4).join(' > ') + ' … ' + carreiraMarinha[10]);
+
+    conferir('nenhuma patente da Marinha é do Exército',
+      !carreiraMarinha.some((p) => /Subtenente|Aspirante a Oficial|Recruta/.test(p)),
+      carreiraMarinha.join(' > '));
+
+    conferir('a carreira nunca repete o mesmo posto',
+      new Set(carreiraMarinha).size === carreiraMarinha.length, carreiraMarinha.length + ' degraus');
+
+    /* Entrando por um concurso de sargento: sobe DALI, não volta para soldado. */
+    const sarg = [];
+    for (const x of [0, 500, 1200, 2500, 4500, 7000]) {
+      sarg.push(nivelDe(x, 'x', 'exercito', 'Aluno-Sargento').nome);
+    }
+    conferir('quem entra por concurso de sargento NÃO vira soldado depois',
+      !sarg.some((p) => /Soldado|Recruta|Cabo/.test(p)), sarg.join(' > '));
+    conferir('e a sequência dele é de sargento para cima',
+      sarg[0] === 'Aluno-Sargento' && sarg[1] === '3º Sargento' && sarg[2] === '2º Sargento',
+      sarg.slice(0, 4).join(' > '));
+
+    /* Entrando por concurso de oficial. */
+    const of = nivelDe(0, 'x', 'exercito', 'Cadete');
+    conferir('quem entra por concurso de oficial começa como oficial',
+      /Cadete|Aspirante/.test(of.nome), of.nome);
+    const of2 = nivelDe(2500, 'x', 'exercito', 'Cadete');
+    conferir('e sobe pela carreira de oficial',
+      /Tenente|Capitão/.test(of2.nome), of2.nome);
+
+    /* A armadilha que quase me pegou: "Subtenente" não pode virar "2º Tenente". */
+    const sub = nivelDe(0, 'x', 'exercito', 'Subtenente');
+    conferir('"Subtenente" casa com Subtenente, não com Tenente', sub.nome === 'Subtenente', sub.nome);
+
+    /* Bombeiro do Rio usa nome próprio; a IA manda o do edital. */
+    const bm = nivelDe(0, 'x', 'bombeiros', 'Bombeiro Militar de 3ª Classe');
+    conferir('patente estadual de bombeiro é aceita como está',
+      bm.nome === 'Bombeiro Militar de 3ª Classe', bm.nome);
+    const bm2 = nivelDe(1200, 'x', 'bombeiros', 'Bombeiro Militar de 3ª Classe');
+    conferir('e a carreira dele segue pela dos bombeiros',
+      /BM/.test(bm2.nome), bm2.nome);
 
     /* O caso que motivou a mudança: nome sem palavra-chave nenhuma. */
     const semPista = nivelDe(0, 'Concurso de Admissão ao Curso de Formação de Sargentos');
@@ -154,7 +204,7 @@ function conferir(titulo, condicao, detalhe) {
       comIA.nome + ' — tabela ' + comIA.tipo);
 
     const subiu = nivelDe(5000, 'x', 'exercito', 'Aluno-Sargento');
-    conferir('a patente do edital renomeia SÓ o 1º degrau, não a carreira toda',
+    conferir('quem junta XP realmente sobe de patente',
       subiu.nome !== 'Aluno-Sargento', 'com 5000 XP virou ' + subiu.nome);
 
     const desconhecida = nivelDe(0, 'x', 'forca-que-nao-existe');

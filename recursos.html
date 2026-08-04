@@ -698,12 +698,25 @@
     }
   }
 
-  /** Refaz a busca de uma matéria a pedido explícito da pessoa. */
-  window.rebuscarMateria = async function(nomeMateria) {
-    if (!confirm(`Buscar professores de ${nomeMateria} de novo?\n\nA lista atual será substituída.`)) return;
-    delete cacheRecursos[nomeMateria];
-    await buscarRecursos(nomeMateria);
-  };
+  /* ── REFAZER A BUSCA: REMOVIDO EM 04/08/2026 ─────────────────────────────
+     Ordem do Lucas: "ja colocava professor tal de tal materia e deixava FIXO,
+     nao daria pra mexer".
+
+     Dois motivos, e os dois importam:
+
+     1. PRODUTO -- a lista estavel organiza o estudo. Uma lista que muda toda
+        semana faz a pessoa recomecar em vez de estudar. Foi o argumento dele
+        em 31/07 para tornar a busca permanente, e vale mais ainda agora que
+        ela sai pronta junto com o edital.
+
+     2. CUSTO -- enquanto der para refazer, o gasto de UMA pessoa nao tem
+        teto: cada clique e uma chamada paga a IA. Sem o botao, cada materia
+        custa uma vez na vida daquela conta. E o unico controle de gasto que
+        nao depende de limite diario nem de boa vontade.
+
+     A lista so e refeita sozinha se a pessoa TROCAR DE EDITAL -- ai o campo
+     "concurso" deixa de bater e a busca acontece de novo, o que e correto:
+     professor de PMERJ nao serve para quem passou a estudar para a Marinha. */
 
   // ── MOSTRAR RESULTADO ──
   function mostrarResultado(nomeMateria, dados, doCache, timestamp) {
@@ -725,19 +738,13 @@
     if (timestamp) {
       const data = new Date(timestamp).toLocaleDateString('pt-BR');
       const texto = document.createElement('span');
+      // Sem "Buscar de novo" (04/08/2026) -- ver o comentario em rebuscarMateria.
+      // A frase diz que a lista e fixa E por que ela e fixa: sem o porque, a
+      // ausencia do botao pareceria falta, e nao decisao.
       texto.textContent = doCache
-        ? `Sua lista fixa desta matéria, montada em ${data}. `
-        : `Lista montada agora e salva na sua conta. `;
-      const link = document.createElement('a');
-      link.href = '#';
-      link.textContent = 'Buscar de novo';
-      link.style.color = 'var(--purple-lt)';
-      link.style.fontWeight = '600';
-      // addEventListener e nao onclick inline: o nome da materia vem do edital
-      // (dado nao confiavel) e nao pode ser interpolado dentro de atributo.
-      link.addEventListener('click', (e) => { e.preventDefault(); window.rebuscarMateria(nomeMateria); });
+        ? `Sua lista fixa desta matéria, montada em ${data}. Ela não muda: uma lista estável organiza o estudo melhor que uma que muda toda semana.`
+        : `Lista montada agora e salva na sua conta, para sempre.`;
       cacheEl.appendChild(texto);
-      cacheEl.appendChild(link);
     }
 
     // Dica
@@ -835,7 +842,7 @@
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=f06378bc"></script>
+<script type="module" src="/assets/js/divisa.js?v=c75452b6"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

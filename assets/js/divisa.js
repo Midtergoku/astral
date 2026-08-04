@@ -33,86 +33,81 @@
    nada -- e o vazio ao lado do nivel e, ele proprio, um convite.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const TABELAS_NIVEIS = {
-    bombeiros: [
-      { nome: 'Bombeiro 3ª Classe', xp: 0     },
-      { nome: 'Bombeiro 2ª Classe', xp: 500   },
-      { nome: 'Bombeiro 1ª Classe', xp: 1200  },
-      { nome: 'Cabo BM',            xp: 2500  },
-      { nome: '3º Sargento BM',     xp: 4500  },
-      { nome: '2º Sargento BM',     xp: 7000  },
-      { nome: '1º Sargento BM',     xp: 10000 },
-      { nome: 'Subtenente BM',      xp: 14000 },
-      { nome: 'Aspirante BM',       xp: 19000 },
-      { nome: 'Tenente BM',         xp: 25000 },
-      { nome: 'Capitão BM',         xp: 35000 },
-    ],
-    marinha: [
-      { nome: 'Grumete',            xp: 0     },
-      { nome: 'Marinheiro',         xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: '3º Sargento',        xp: 2500  },
-      { nome: '2º Sargento',        xp: 4500  },
-      { nome: '1º Sargento',        xp: 7000  },
-      { nome: 'Suboficial',         xp: 10000 },
-      { nome: 'Guarda-Marinha',     xp: 14000 },
-      { nome: 'Aspirante',          xp: 19000 },
-      { nome: 'Tenente',            xp: 25000 },
-      { nome: 'Capitão-Tenente',    xp: 35000 },
-    ],
-    aeronautica: [
-      { nome: 'Recruta',            xp: 0     },
-      { nome: 'Soldado',            xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: '3º Sargento',        xp: 2500  },
-      { nome: '2º Sargento',        xp: 4500  },
-      { nome: '1º Sargento',        xp: 7000  },
-      { nome: 'Suboficial',         xp: 10000 },
-      { nome: 'Aspirante-a-Oficial',xp: 14000 },
-      { nome: '2º Tenente',         xp: 19000 },
-      { nome: '1º Tenente',         xp: 25000 },
-      { nome: 'Capitão',            xp: 35000 },
-    ],
-    exercito: [
-      { nome: 'Recruta',            xp: 0     },
-      { nome: 'Soldado',            xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: '3º Sargento',        xp: 2500  },
-      { nome: '2º Sargento',        xp: 4500  },
-      { nome: '1º Sargento',        xp: 7000  },
-      { nome: 'Subtenente',         xp: 10000 },
-      { nome: 'Aspirante-a-Oficial',xp: 14000 },
-      { nome: '2º Tenente',         xp: 19000 },
-      { nome: '1º Tenente',         xp: 25000 },
-      { nome: 'Capitão',            xp: 35000 },
-    ],
-    pm: [
-      { nome: 'Soldado PM',         xp: 0     },
-      { nome: 'Cabo PM',            xp: 500   },
-      { nome: '3º Sargento PM',     xp: 1200  },
-      { nome: '2º Sargento PM',     xp: 2500  },
-      { nome: '1º Sargento PM',     xp: 4500  },
-      { nome: 'Subtenente PM',      xp: 7000  },
-      { nome: 'Aspirante PM',       xp: 10000 },
-      { nome: '2º Tenente PM',      xp: 14000 },
-      { nome: '1º Tenente PM',      xp: 19000 },
-      { nome: 'Capitão PM',         xp: 25000 },
-      { nome: 'Major PM',           xp: 35000 },
-    ],
-    default: [
-      { nome: 'Recruta',            xp: 0     },
-      { nome: 'Soldado',            xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: 'Sargento',           xp: 2500  },
-      { nome: 'Subtenente',         xp: 4500  },
-      { nome: 'Tenente',            xp: 7000  },
-      { nome: 'Capitão',            xp: 10000 },
-      { nome: 'Major',              xp: 14000 },
-      { nome: 'Tenente-Coronel',    xp: 19000 },
-      { nome: 'Coronel',            xp: 25000 },
-      { nome: 'General',            xp: 35000 },
-    ],
-  }
+/* ═══ AS CARREIRAS ═════════════════════════════════════════════════════════
+
+   PEDIDO DO LUCAS em 04/08/2026, e a razao de ser disto:
+   *"conforme ela fosse subindo de nivel, a patente fosse crescendo de acordo
+   com o concurso que ele quer prestar (...) isso traz satisfacao, porque e o
+   que ele pretende fazer na vida real. Nao adianta ele comecar de Grumete com
+   o concurso da Marinha e logo em seguida ir pra uma coisa nada a ver."*
+
+   Por isso cada lista abaixo e a CARREIRA INTEIRA daquela forca, na ordem
+   real, e nao uma escadinha generica com o nome trocado.
+
+   FONTES (pesquisadas em 04/08/2026, duas que batem entre si):
+     - Hierarquia militar do Brasil, Wikipedia
+     - portal.estrategia.com/concursos/seguranca/como-funciona-a-hierarquia-militar-brasileira
+   Ordem confirmada nas duas: praca sobe Soldado/Marinheiro -> Cabo -> 3o, 2o e
+   1o Sargento -> Subtenente/Suboficial; oficial sobe 2o Tenente -> 1o Tenente
+   -> Capitao -> Major -> Tenente-Coronel -> Coronel.
+
+   ⚠️ HONESTIDADE SOBRE O QUE ISTO E: na vida real praca e oficial sao carreiras
+   SEPARADAS -- um Sargento nao vira Tenente por promocao, ele presta outro
+   concurso. Aqui as duas viram uma escada so, de proposito, porque o produto e
+   um jogo de progressao e a pessoa quer ver para onde da para ir. Os NOMES e a
+   ORDEM sao reais; a passagem de praca para oficial e licenca de jogo.
+
+   ⚠️ PM e BOMBEIROS variam de estado para estado (o CBMERJ usa "Bombeiro 3a
+   Classe" onde a maioria usa "Soldado BM"). Por isso a patente de ENTRADA vem
+   da IA, que leu o edital daquele estado, e a escada comeca no degrau dela. */
+
+const CARREIRAS = {
+  marinha: [
+    'Grumete', 'Marinheiro', 'Cabo',
+    '3º Sargento', '2º Sargento', '1º Sargento', 'Suboficial',
+    'Guarda-Marinha', '2º Tenente', '1º Tenente', 'Capitão-Tenente',
+    'Capitão de Corveta', 'Capitão de Fragata', 'Capitão de Mar e Guerra',
+  ],
+  exercito: [
+    'Recruta', 'Soldado', 'Cabo',
+    '3º Sargento', '2º Sargento', '1º Sargento', 'Subtenente',
+    'Aspirante a Oficial', '2º Tenente', '1º Tenente', 'Capitão',
+    'Major', 'Tenente-Coronel', 'Coronel',
+  ],
+  aeronautica: [
+    'Recruta', 'Soldado', 'Cabo',
+    '3º Sargento', '2º Sargento', '1º Sargento', 'Suboficial',
+    'Aspirante a Oficial', '2º Tenente', '1º Tenente', 'Capitão',
+    'Major', 'Tenente-Coronel', 'Coronel',
+  ],
+  pm: [
+    'Aluno-Soldado', 'Soldado PM', 'Cabo PM',
+    '3º Sargento PM', '2º Sargento PM', '1º Sargento PM', 'Subtenente PM',
+    'Aspirante a Oficial PM', '2º Tenente PM', '1º Tenente PM', 'Capitão PM',
+    'Major PM', 'Tenente-Coronel PM', 'Coronel PM',
+  ],
+  bombeiros: [
+    'Aluno-Soldado BM', 'Soldado BM', 'Cabo BM',
+    '3º Sargento BM', '2º Sargento BM', '1º Sargento BM', 'Subtenente BM',
+    'Aspirante a Oficial BM', '2º Tenente BM', '1º Tenente BM', 'Capitão BM',
+    'Major BM', 'Tenente-Coronel BM', 'Coronel BM',
+  ],
+  default: [
+    'Recruta', 'Soldado', 'Cabo',
+    '3º Sargento', '2º Sargento', '1º Sargento', 'Subtenente',
+    'Aspirante a Oficial', '2º Tenente', '1º Tenente', 'Capitão',
+    'Major', 'Tenente-Coronel', 'Coronel',
+  ],
+};
+
+/* Quanto XP cada degrau custa, pela POSICAO na escada -- nao pela patente.
+   Assim quem entra como Aluno-Sargento comeca do zero igual a quem entra como
+   Soldado: os dois estao no comeco da carreira DELES. Antes o XP era colado na
+   patente, e comecar mais alto significava comecar ja devendo XP. */
+const XP_POR_DEGRAU = [
+  0, 500, 1200, 2500, 4500, 7000, 10000, 14000,
+  19000, 25000, 32000, 42000, 55000, 70000, 90000,
+];
 /* Traduz o que a IA respondeu para a chave da tabela daqui.
    A IA usa "exercito"/"outro"; aqui a tabela generica se chama "default". */
 const FORCA_PARA_TABELA = {
@@ -183,15 +178,76 @@ function normalizar(txt) {
  * faria a pessoa comecar como "Recruta" ou pior, num posto que nao existe
  * naquela forca.
  */
+/* Onde, na carreira, fica a patente que o edital oferece.
+ *
+ * Devolve -1 quando nao reconhece -- e ai a escada comeca do inicio, que e
+ * melhor que inventar uma posicao errada.
+ *
+ * Duas passadas, de proposito:
+ *   1. igual exato ("Soldado PM" achando "Soldado PM")
+ *   2. por palavra-chave ("Aluno-Sargento" achando "3º Sargento")
+ * A segunda existe porque a patente vem do edital em texto livre: "Aluno-Sargento",
+ * "Cadete", "Soldado PM 2ª Classe", "Bombeiro Militar de 3ª Classe". */
+function degrauDaPatente(carreira, patente) {
+  if (!patente) return -1;
+  const alvo = normalizar(patente);
+
+  const exato = carreira.findIndex((p) => normalizar(p) === alvo);
+  if (exato >= 0) return exato;
+
+  /* Da mais especifica para a mais generica: "subtenente" antes de "tenente",
+     senao "Subtenente" cairia em "2º Tenente". A ordem AQUI e a regra. */
+  const CHAVES = [
+    ['coronel', 'coronel'], ['major', 'major'], ['capitao', 'capitao'],
+    ['subtenente', 'subtenente'], ['suboficial', 'suboficial'],
+    ['aspirante', 'aspirante'], ['cadete', 'aspirante'],
+    ['guarda-marinha', 'guarda-marinha'], ['guarda marinha', 'guarda-marinha'],
+    ['tenente', 'tenente'],
+    ['sargento', 'sargento'], ['cabo', 'cabo'],
+    ['grumete', 'grumete'], ['marinheiro', 'marinheiro'],
+    ['soldado', 'soldado'], ['bombeiro', 'soldado'], ['recruta', 'recruta'],
+  ];
+
+  for (const [naPatente, naCarreira] of CHAVES) {
+    if (!alvo.includes(naPatente)) continue;
+    const i = carreira.findIndex((p) => normalizar(p).includes(naCarreira));
+    if (i >= 0) return i;
+  }
+  return -1;
+}
+
 export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = null) {
   const tipo = (forca && FORCA_PARA_TABELA[forca]) || detectarTipoConcurso(nomeEdital);
-  const base = TABELAS_NIVEIS[tipo] || TABELAS_NIVEIS.default;
+  const carreira = CARREIRAS[tipo] || CARREIRAS.default;
 
-  /* Copia rasa so quando ha o que renomear -- nao mexer na tabela original,
-     que e compartilhada por todas as chamadas. */
-  const tabela = patenteInicial
-    ? base.map((n, i) => (i === 0 ? { ...n, nome: patenteInicial } : n))
-    : base;
+  /* 🔴 O CONSERTO QUE O LUCAS PEDIU (04/08/2026).
+     A versao de ontem so trocava o NOME do primeiro degrau e mantinha o resto
+     da lista. Resultado: um edital de sargento fazia a pessoa comecar como
+     "Aluno-Sargento" e no nivel seguinte virar "Soldado" -- descendo. Era
+     exatamente o "ir pra uma coisa nada a ver" que ele apontou.
+
+     Agora a escada COMECA no degrau do edital e sobe dali para o topo da
+     carreira daquela forca. Quem entra como Aluno-Sargento vai para 3º
+     Sargento, 2º, 1º, Subtenente, e por ai. Ninguem desce nunca. */
+  const degrau = degrauDaPatente(carreira, patenteInicial);
+
+  let nomes;
+  if (degrau < 0) {
+    nomes = carreira.slice();                       // nao reconheceu: carreira inteira
+  } else if (normalizar(carreira[degrau]) === normalizar(patenteInicial)) {
+    nomes = carreira.slice(degrau);                 // e um degrau existente: comeca nele
+  } else {
+    /* Casou por palavra-chave, mas o edital chama de outro jeito ("Aluno-Sargento"
+       para "3º Sargento"). O nome do edital vira o degrau zero, e a carreira
+       segue a partir do que casou -- e o que a pessoa vive de verdade: ela e
+       aluna primeiro, sargento depois. */
+    nomes = [patenteInicial, ...carreira.slice(degrau)];
+  }
+
+  const tabela = nomes.map((nome, i) => ({
+    nome,
+    xp: XP_POR_DEGRAU[i] ?? (XP_POR_DEGRAU[XP_POR_DEGRAU.length - 1] + i * 20000),
+  }));
 
   let atual = tabela[0], indice = 0;
   for (let i = 0; i < tabela.length; i++) {
