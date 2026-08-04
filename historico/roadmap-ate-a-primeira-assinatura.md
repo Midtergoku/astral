@@ -201,3 +201,167 @@ nenhuma outra tarefa responde: **o Astral faz o que promete?** Enquanto isso for
 
 Se você preferir seguir no visual, também está certo — é seu produto e sua ordem. Mas eu diria
 isso antes: o visual deixa o produto bonito; a Fase 1 diz se existe produto.
+
+---
+
+# Anexo A — O que o código faz HOJE, conferido linha a linha (04/08/2026)
+
+O Lucas descreveu como imagina o funcionamento e pediu: *"me confirme se isso está certo"*.
+Fui ler o código. **Duas das três coisas não são como ele imagina.**
+
+## A.1. Patentes por força — ✅ existe, ❌ mas não é a IA que decide
+
+Ele perguntou: *"a IA tem que ler quais são as patentes do edital requerido... às vezes nem
+todas as áreas militares vão ser recruta"*.
+
+**Existe diversificação.** `divisa.js` tem 6 tabelas, e elas começam diferente:
+
+| Força | 1º nível |
+|---|---|
+| Marinha | **Grumete** |
+| Bombeiros | **Bombeiro 3ª Classe** |
+| PM | **Soldado PM** |
+| Exército · Aeronáutica · padrão | Recruta |
+
+**Mas quem escolhe a tabela não é a IA — é uma busca de palavra no NOME do edital**
+(`detectarTipoConcurso()`): procura "bombeiro", "marinha", "exercito", "pm", "aeronautica".
+
+**A falha:** um edital chamado *"Concurso de Admissão ao Curso de Formação de Sargentos"* não
+casa com palavra nenhuma e cai no padrão — **Recruta**, mesmo sendo Exército. O pedido dele
+está certo e **não está implementado**: a IA precisa devolver a força e a patente inicial reais,
+lidas do PDF.
+
+## A.2. Peso das matérias — ✅ correto, é exatamente isso
+
+`processar-edital` pede à IA: extrair todas as matérias, `questoes` de cada uma, e
+`peso` = questões ÷ total × 100, **ordenado do maior para o menor**. Validado no servidor
+antes de devolver. **Aqui não há nada a corrigir.**
+
+## A.3. Balanceamento — ⚠️ existe, mas NÃO é IA
+
+Duas coisas diferentes levam esse nome:
+
+1. **O cronograma inicial** (`dashboard.html` e `edital.html`): pega as **3 matérias de maior
+   peso** e monta `tempo = peso × 2` minutos, `xp = peso × 5`. **Conta local, não IA.**
+2. **"Rebalancear cronograma"** (`progresso.html`): botão que o usuário aperta, redistribui
+   com base em qual matéria está atrasada. **Também conta local, e é manual.**
+
+Não é defeito — é barato, instantâneo e não gasta crédito. Mas **não é a IA balanceando**, e
+vale ele saber disso antes de prometer na landing.
+
+## A.4. Professores junto com o edital — ❌ não existe
+
+`buscar-recursos` é função **separada**, chamada **uma matéria por vez**, **a pedido do
+usuário**, na tela de Recursos. Nada dispara ela depois do edital.
+
+O que ele pediu — gerar todos os professores junto com o edital, uma vez, fixos — **é mudança
+de código**, não configuração. O armazenamento permanente (`recursos_salvos`) já existe.
+
+---
+
+# Anexo B — Quanto custa um beta tester, calculado (04/08/2026)
+
+**Preços da documentação oficial**, não de memória:
+`claude-sonnet-4-6` = **US$ 3,00 por 1M de entrada** e **US$ 15,00 por 1M de saída**;
+busca na web = **US$ 10 por 1.000 buscas** (US$ 0,01 cada).
+
+⚠️ **Câmbio assumido: US$ 1 ≈ R$ 5,50.** Não medi a cotação do dia.
+⚠️ **É aritmética, não medição.** Sem créditos na conta, nenhuma chamada real aconteceu ainda —
+esta conta precisa ser confirmada com o primeiro edital de verdade.
+
+## B.1. Ler o edital — uma vez por pessoa
+
+PDF na API da Anthropic custa por página (texto + imagem), ~1.500 a 3.000 tokens por página.
+
+| Edital | Entrada | Custo |
+|---|---|---|
+| 40 páginas | ~80.000 tokens | US$ 0,24 + saída US$ 0,015 = **US$ 0,26 ≈ R$ 1,45** |
+| 100 páginas | ~200.000 tokens | US$ 0,60 + saída US$ 0,015 = **US$ 0,62 ≈ R$ 3,40** |
+
+## B.2. Professores — uma vez por matéria, e permanente
+
+Por matéria: 1–3 buscas (US$ 0,01–0,03) + resultados entram como entrada (~15.000 tokens,
+US$ 0,045) + saída (US$ 0,015) ≈ **US$ 0,07–0,09 ≈ R$ 0,40–0,50**.
+
+Edital militar tem tipicamente **6 a 9 matérias**. Gerando todas de uma vez: **≈ R$ 3,00**.
+
+## B.3. Total
+
+| | Uma vez | Por mês |
+|---|---|---|
+| Edital + professores de todas as matérias | **≈ R$ 4,50 a R$ 8,90** | **R$ 0,00** |
+| 10 beta testers | **≈ R$ 45 a R$ 90** | **R$ 0,00** |
+
+**Não é mensalidade.** Cada pessoa tem um edital e uma lista de professores, ambos permanentes.
+Depois disso ela pode usar o Astral todo dia sem custar mais nada — porque as **questões estão
+desligadas**, e elas eram a única ação com custo recorrente.
+
+> ⚠️ **O que muda ao gerar os professores automaticamente com o edital:** hoje só custa quando a
+> pessoa PEDE. Automático, custa para todo mundo que sobe um edital, mesmo quem nunca abriria a
+> tela de Recursos. Com 100 cadastros e 10 interessados, paga-se por 100.
+>
+> **Meio-termo, se quiser:** gerar na hora as **3 matérias de maior peso** (valor imediato, ~R$ 1,20)
+> e as demais só quando a pessoa abrir a tela. Decisão dele.
+
+---
+
+# Anexo C — Marketing: o plano que eu recomendo
+
+Ele pediu: *"eu preciso de mais marketing... o que você sugere, criar um Instagram, um TikTok?
+Nós precisamos vender isso."*
+
+## C.1. A verdade desconfortável primeiro
+
+**Zero editais processados.** Levar tráfego para um produto que nunca funcionou uma vez é
+queimar a única chance com cada pessoa que chegar — no nicho de concurseiro, a recomendação
+passa por grupo de WhatsApp, e a má impressão viaja igual.
+
+**Ordem certa: Fase 1 do roadmap → 5 pessoas usando → aí marketing.** Não é adiar; é não
+desperdiçar.
+
+## C.2. O ativo que ele tem e não está usando: o calendário de editais
+
+Este é o melhor canal para este nicho específico, e é **grátis**.
+
+Quando sai o edital da PMERJ, do CBMERJ, da EsPCEx, milhares de pessoas procuram
+*"como estudar para o edital X"* **na mesma semana**. É um pico previsível, com data marcada,
+e com intenção de compra altíssima.
+
+**A jogada:** no dia em que o edital sai, publicar *"o plano de estudos do edital da PMERJ 2026,
+montado em 2 minutos"* — com o cronograma real, gerado pelo Astral, na tela.
+
+**O produto vira o conteúdo.** Não é anúncio: é a demonstração.
+
+## C.3. Onde postar — dois lugares, não quatro
+
+| Canal | Por quê |
+|---|---|
+| **Instagram Reels + TikTok** | mesmo vídeo vertical nos dois. Concurseiro consome muito Reels. Custo: R$ 0 |
+| **Grupos de WhatsApp e Telegram de concurseiros** | é onde o nicho **já está**. Telegram de concurso militar tem grupos de milhares. Custo: R$ 0 |
+
+**Não criar canal no YouTube agora.** Vídeo longo consome tempo que ele não tem e demora meses
+para render. Reels e TikTok dão retorno em dias.
+
+## C.4. O que postar — 4 formatos que se repetem
+
+1. **"Saiu o edital da X"** — o cronograma gerado na hora. O carro-chefe.
+2. **"Quanto tempo você precisa estudar de cada matéria"** — o peso das matérias é dado público
+   e interessante; a maioria não sabe calcular
+3. **A patente subindo** — a gamificação militar é visualmente forte e ninguém mais tem
+4. **Erro comum** — *"estudar tudo igual é o erro nº 1"*, que é exatamente o problema que o
+   Astral resolve
+
+## C.5. O que NÃO fazer
+
+- ❌ **Não pagar anúncio agora.** Sem saber quanto vale um usuário, é dinheiro no lixo
+- ❌ **Não criar 4 perfis.** Dois bem cuidados batem quatro abandonados
+- ❌ **Não postar "cadastre-se no Astral".** Postar o resultado; o link vai na bio
+- ❌ **Não entrar em grupo só para divulgar.** Vira banimento. Participar, ajudar, e o link
+  aparece quando alguém pergunta
+
+## C.6. Uma coisa que muda tudo e custa R$ 0
+
+**A lista de espera tem 0 leads.** O formulário existe, funciona (testado), e ninguém preencheu
+— porque ninguém chegou. **O problema nunca foi conversão, é tráfego.** Antes de mexer na
+landing, arrumar de onde vem a primeira visita.
+
