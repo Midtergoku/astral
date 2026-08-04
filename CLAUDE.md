@@ -41,6 +41,9 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
    🔴 **Expressão regular e `$1` de replace NUNCA se escrevem por `node -e` no shell** — o bash
    come a barra invertida e o resultado é código válido que faz outra coisa. Custou 3 dias uma vez.
    Vai para arquivo com o `Write`, e roda de lá.
+   🔴 **Mensagem de commit vai por `git commit -F arquivo`, nunca por `-m "..."`.** Crase dentro
+   de aspas duplas o bash **executa**. Em 03/08/2026 uma crase em volta de um comando o rodou de
+   verdade e reescreveu a configuração de autenticação da PRODUÇÃO com valores de `localhost`.
 6. **LIMPEZA.** Só sai o que não vai servir para nada. Na dúvida, **fica**. Nunca sai: a tabela de
    erros, o *porquê* de uma decisão, número medido com seu comando, armadilha de ambiente.
 7. **ERROU? Acrescente a linha em `historico/erros.md` na hora.** Ordem direta dele. Ele trata
@@ -96,6 +99,11 @@ node tools/verifica.js          🔴 OBRIGATORIO ANTES DE TODO COMMIT. 10 checag
                                 acento corrompido, link morto, elemento fantasma, import quebrado
 node tools/versiona-css.js      OBRIGATORIO ao mexer em assets/, ANTES do commit. Sem isto o conserto
                                 so chega ao usuario 1 HORA depois -- ja aconteceu (historico/erros.md)
+powershell -File tools\confere-auth.ps1
+                                a config de AUTENTICACAO da producao esta certa? -Corrigir conserta.
+                                🔴 checa-saude NAO pega isto: ele testa a IDA ao Google, nao a VOLTA
+powershell -File tools\smtp-configura.ps1
+                                entrega de e-mail (por que ninguem recebe). So leitura por padrao
 git push origin main            publica o site (Vercel republica em ~1 min). NUNCA dois em paralelo
 supabase functions deploy       edge functions NAO passam pelo git, entram no ar na hora
 ```
