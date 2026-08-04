@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>teste da divisa</title>
+<body>
+  <div class="topbar">
+    <span id="user-avatar">?</span>
+    <span id="user-name">Carregando…</span>
+    <h1 id="greeting">Carregando...</h1>
+    <div data-divisa></div>
+  </div>
+  <script type="module" src="/assets/js/divisa.js"></script>
+
+  <!-- A pagina tambem le o progresso, como fazem as 11 paginas de verdade.
+       Sao dois chamadores da MESMA linha no mesmo carregamento: e exatamente
+       isto que a carona precisa transformar em uma leitura so. -->
+  <script type="module">
+    const { carregarProgresso } = await import('/assets/js/estado.js');
+    const d = await carregarProgresso('u-teste');
+    window.__PAGINA_LEU = d;
+  </script>
+</body>

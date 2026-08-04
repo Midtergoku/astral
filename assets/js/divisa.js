@@ -335,8 +335,6 @@ export function aplicarDivisa(dados, esc) {
     const uid = data?.session?.user?.id;
     if (!uid) return;
 
-    const d = await carregarProgresso(uid);
-
     /* IDENTIDADE -- nome e inicial, num lugar so.
        Medido em 02/08/2026 a pedido do Lucas: as 10 paginas resolviam o nome
        de CINCO jeitos diferentes. Umas mostravam o nome inteiro, outras so o
@@ -345,11 +343,18 @@ export function aplicarDivisa(dados, esc) {
        falhava. Quinta vez que o mesmo defeito aparece neste projeto: peca
        compartilhada copiada em cada pagina.
 
-       Aqui e uma vez so, e reaproveita a busca que ja esta acontecendo -- nao
-       custa nem uma requisicao a mais. */
+       Aqui e uma vez so, e nao custa NENHUMA requisicao: o nome vem da sessao,
+       que ja esta no navegador.
+
+       03/08/2026 -- este bloco subiu para ANTES da leitura do banco. Antes ele
+       esperava `carregarProgresso` responder para so entao escrever o nome, e
+       era uma espera a toa: o nome nunca veio do banco. Nas medidas, a ida a
+       Sao Paulo custava de 52ms a 553ms, e o usuario olhava "Carregando..."
+       esse tempo todo a cada troca de menu, para ver um dado que ja estava
+       na maquina dele. */
     try {
       const u = data.session.user;
-      const nome = d?.perfil?.nome || u?.user_metadata?.full_name
+      const nome = u?.user_metadata?.full_name
                 || u?.email?.split("@")[0] || "Concurseiro";
       /* 🔴 A BARRA INVERTIDA AQUI E O BUG QUE CUSTOU TRES DIAS.
          Estava escrito /s+/ -- a LETRA "s" -- em vez de /\s+/ -- ESPACO.
@@ -386,13 +391,22 @@ export function aplicarDivisa(dados, esc) {
       }
     } catch { /* a divisa nao pode cair por causa do nome */ }
 
-    aplicarDivisa({
-      xp: d?.xp || 0,
-      edital: d?.edital?.nome || d?.edital || '',
-      materias: d?.materias || [],
-      tagEscolhida: d?.tagEscolhida || null,
+    /* A DIVISA (patente + tag) depende do progresso, esta sim vem do banco.
+       Mas a copia do navegador serve para desenhar AGORA: pinta com o que se
+       sabe e corrige sozinha quando o banco responder.
+
+       Isto e seguro AQUI porque esta tela so LE. Nenhuma gravacao sai daqui,
+       entao nao ha risco de escrever por cima de algo mais novo -- que e a
+       razao de o resto do app continuar esperando o banco (ver estado.js). */
+    const pintar = (p) => aplicarDivisa({
+      xp: p?.xp || 0,
+      edital: p?.edital?.nome || p?.edital || '',
+      materias: p?.materias || [],
+      tagEscolhida: p?.tagEscolhida || null,
       compacta: true,   // e o cartao da barra lateral: espaco curto
     }, esc);
+
+    pintar(await carregarProgresso(uid, pintar));
   } catch (e) {
     /* silencio proposital -- ver comentario acima */
   }

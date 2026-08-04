@@ -74,37 +74,90 @@ const paraBanco = (uid, e) => ({
 });
 
 // ── Carregar ────────────────────────────────────────────────────────────────
+
+/* UMA leitura por carregamento de pagina (03/08/2026).
+ *
+ * MEDIDO depois de o Lucas reclamar de lentidao ao trocar de menu: cada pagina
+ * do app lia a MESMA linha do banco DUAS vezes -- a divisa.js, para a patente
+ * do topo, e a propria pagina, para o conteudo. Duas idas a Sao Paulo, medidas
+ * entre 52ms e 553ms cada, para buscar exatamente a mesma linha.
+ *
+ * Aqui a segunda chamada pega carona na primeira. A janela e curta de proposito:
+ * ela cobre o carregamento de uma pagina e nada alem disso. Guardar por mais
+ * tempo economizaria mais e comecaria a mentir -- uma pagina que le de novo
+ * depois de salvar precisa ver o valor novo. */
+const emVoo = new Map();
+const JANELA_CARONA = 2000;
+
+function lerDoBanco(uid) {
+  if (emVoo.has(uid)) return emVoo.get(uid);
+
+  const tarefa = (async () => {
+    const local = lerLocal(uid);
+    const { data, error } = await supabase
+      .from('progresso').select('*').eq('usuario_id', uid).maybeSingle();
+
+    if (error) {
+      console.error('Falha ao ler o progresso; usando a cópia do navegador.', error);
+      return local ? normalizar(local) : VAZIO();
+    }
+
+    if (data) {
+      const doBanco = normalizar(data);
+      gravarLocal(uid, doBanco);
+      return doBanco;
+    }
+
+    // Primeira vez neste usuário: migra o que houver no navegador.
+    const inicial = local ? normalizar(local) : VAZIO();
+    const { error: erroCriar } = await supabase.from('progresso').insert(paraBanco(uid, inicial));
+    if (erroCriar) console.error('Falha ao criar o progresso inicial.', erroCriar);
+    else if (local) console.info('Progresso do navegador migrado para a conta.');
+
+    gravarLocal(uid, inicial);
+    return inicial;
+  })();
+
+  emVoo.set(uid, tarefa);
+  const soltar = () => setTimeout(() => { if (emVoo.get(uid) === tarefa) emVoo.delete(uid); }, JANELA_CARONA);
+  tarefa.then(soltar, soltar);
+  return tarefa;
+}
+
 /**
  * Ordem importa. Se o banco ainda nao tem linha para este usuario mas o
  * navegador tem dados, esses dados SOBEM antes de qualquer coisa. Sem isso,
  * quem ja usava o Astral abriria o app depois da mudanca e veria tudo zerado --
  * que e exatamente o problema que este modulo existe para resolver.
+ *
+ * ── O SEGUNDO PARAMETRO, e por que ele NAO e o padrao ──────────────────────
+ *
+ * Sem `aoAtualizar`, esta funcao espera o banco. E o comportamento de sempre,
+ * e continua sendo o certo para toda tela que DEPOIS GRAVA: quem le uma copia
+ * velha do navegador, soma XP em cima dela e salva, apaga o que a pessoa fez
+ * no celular meia hora antes. Perder dado e muito pior que esperar 300ms.
+ *
+ * Com `aoAtualizar`, devolve na hora o que ja esta no navegador e chama de
+ * volta quando o banco responder. So para tela de LEITURA -- hoje, a divisa
+ * do topo. Se algum dia uma tela que grava usar isto, tem de rebasear o que
+ * escreve em cima do valor fresco, nao do que ela desenhou.
  */
-export async function carregarProgresso(uid) {
+export async function carregarProgresso(uid, aoAtualizar) {
   const local = lerLocal(uid);
+  const doBanco = lerDoBanco(uid);
 
-  const { data, error } = await supabase
-    .from('progresso').select('*').eq('usuario_id', uid).maybeSingle();
-
-  if (error) {
-    console.error('Falha ao ler o progresso; usando a cópia do navegador.', error);
-    return local ? normalizar(local) : VAZIO();
+  if (typeof aoAtualizar === 'function' && local) {
+    const agora = normalizar(local);
+    doBanco.then((fresco) => {
+      // so incomoda a tela se o valor realmente mudou
+      if (JSON.stringify(fresco) !== JSON.stringify(agora)) {
+        try { aoAtualizar(fresco); } catch (e) { console.error('Falha ao atualizar a tela.', e); }
+      }
+    }, () => { /* ja reportado la dentro */ });
+    return agora;
   }
 
-  if (data) {
-    const doBanco = normalizar(data);
-    gravarLocal(uid, doBanco);
-    return doBanco;
-  }
-
-  // Primeira vez neste usuário: migra o que houver no navegador.
-  const inicial = local ? normalizar(local) : VAZIO();
-  const { error: erroCriar } = await supabase.from('progresso').insert(paraBanco(uid, inicial));
-  if (erroCriar) console.error('Falha ao criar o progresso inicial.', erroCriar);
-  else if (local) console.info('Progresso do navegador migrado para a conta.');
-
-  gravarLocal(uid, inicial);
-  return inicial;
+  return doBanco;
 }
 
 // ── Salvar ──────────────────────────────────────────────────────────────────
