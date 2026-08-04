@@ -42,7 +42,48 @@ function interno(href) {
       && !href.startsWith('javascript');
 }
 
+/* ── BUSCAR ANTES DO CLIQUE (03/08/2026) ────────────────────────────────────
+   O Lucas reclamou que trocar de menu demora. A animacao de saida de 260ms
+   e deliberada -- ele PEDIU tempo de ver -- entao ela nao foi cortada. O que
+   mudou foi o que acontece DURANTE esses 260ms: antes, tempo morto; agora, o
+   navegador ja esta baixando a proxima pagina.
+
+   O gatilho e o mouse encostar no link. Entre encostar e clicar passam uns
+   200-300ms de gente comum, e nesse intervalo a pagina (24 KB) ja chegou.
+   Somado a animacao, a troca vira instantanea sem tirar o movimento.
+
+   Cada endereco e buscado UMA vez -- passar o mouse dez vezes no mesmo menu
+   nao gera dez pedidos. E `prefetch` tem prioridade baixa no navegador: nao
+   rouba banda de nada que a pagina atual ainda precise. */
+const jaBuscados = new Set();
+
+function buscarAntes(href) {
+  if (!interno(href) || jaBuscados.has(href)) return;
+  jaBuscados.add(href);
+  const l = document.createElement('link');
+  l.rel = 'prefetch';
+  l.href = href;
+  l.as = 'document';
+  document.head.appendChild(l);
+}
+
+function ligarBuscaAntecipada() {
+  // Conexao limitada ou modo de economia: nao gastar dados da pessoa.
+  const c = navigator.connection;
+  if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
+
+  const aoChegarPerto = (e) => {
+    const link = e.target.closest && e.target.closest('a[href]');
+    if (link) buscarAntes(link.getAttribute('href'));
+  };
+  document.addEventListener('mouseover', aoChegarPerto, { passive: true });
+  document.addEventListener('focusin', aoChegarPerto, { passive: true });
+  // no celular nao ha mouse: o toque comeca antes de o dedo sair
+  document.addEventListener('touchstart', aoChegarPerto, { passive: true });
+}
+
 function ligarTransicao() {
+  ligarBuscaAntecipada();   // vale mesmo para quem desligou animacao
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   document.addEventListener('click', (e) => {

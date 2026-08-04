@@ -230,3 +230,77 @@ do edital, que é dado não confiável (ver 8.2, CRÍTICO 1) e não pode ser int
 atributo HTML.
 
 ---
+
+---
+
+## 9. Velocidade da troca de página — o que foi medido em 03/08/2026
+
+O Lucas relatou: *"clico em outro menu e ele carrega demoradamente"*. Medido com navegador
+real contra a produção, **não estimado**.
+
+### A causa principal não estava no nosso código
+
+`astral.js` importava o supabase-js de `cdn.jsdelivr.net/.../+esm`. O sufixo `+esm` **não
+entrega um arquivo** — entrega um que importa outro, que importa outros sete:
+
+```
+supabase-js → auth-js · postgrest-js · realtime-js · storage-js
+              functions-js · phoenix · iceberg-js · tslib
+```
+
+São **9 pedidos encadeados a um servidor de terceiro**, em toda página do app. Medição lado
+a lado, mesma máquina, mesma rede:
+
+| | jsdelivr | cópia local |
+|---|---|---|
+| tempo até o módulo ficar pronto | **2.773ms** | **13ms** |
+| pedidos a servidor de fora | 9 | **0** |
+| os 6 passos do teste (sessão, consulta ao banco, login recusado, edge function) | passou | passou **igual** |
+
+A cópia local é um arquivo só, gerado com esbuild a partir do pacote oficial: 262 KB no disco,
+**71 KB na rede**. Mora em `assets/js/supabase-2.111.0.js`.
+
+**Ganhos que vieram junto, e não eram o objetivo:**
+- `cdn.jsdelivr.net` saiu do `script-src` da CSP — uma origem a menos autorizada a executar
+  script no nosso domínio.
+- Se o jsdelivr sair do ar, o Astral **não morre mais junto**. Antes, morria.
+
+> ⚠️ **Para atualizar a versão do supabase-js:** não editar o arquivo. Gerar outro, com a
+> versão nova no nome, e trocar a linha de import do `astral.js`. A versão no nome é o que
+> permite o cache eterno.
+
+### A regra de cache — e por que ela é diferente para um arquivo só
+
+`vercel.json` tem duas regras, e a ordem importa (a última vence):
+
+| Alvo | Cache | Por quê |
+|---|---|---|
+| `/assets/(.*)` | `max-age=0, must-revalidate` | **Não dá para afrouxar.** Um módulo que importa outro (`astral.js` → `estado.js`) pede o vizinho **sem carimbo de versão na URL**. Com cache longo ali, uma correção nunca chegaria — que é exatamente o erro de 01/08 (`historico/erros.md`) |
+| `/assets/js/supabase-(.*)` | `max-age=1 ano, immutable` | Exceção legítima: a versão está no **nome**. Versão nova = nome novo = URL nova. Não há como ficar preso no antigo |
+
+O custo da primeira regra foi medido: **~20ms por arquivo, em paralelo, resposta 304**. Não era
+o gargalo, e trocá-la por cache longo reintroduziria um erro conhecido em troca de quase nada.
+
+### A busca antecipada (`transicao.js`)
+
+A animação de saída de 260ms é **deliberada** — ele pediu tempo de ver a transição, e está
+anotado no CSS. Então ela não foi cortada. O que mudou foi o que acontece durante ela:
+
+**Ao encostar o mouse num link, o navegador já começa a baixar a página.** Entre encostar e
+clicar passam uns 200–300ms; nesse intervalo os 24 KB da página já chegaram. A animação deixa
+de ser tempo morto e passa a correr junto com o carregamento.
+
+Cada endereço é buscado **uma vez só**. Em conexão 2G ou com economia de dados ligada, não
+busca nada — não se gasta o dado da pessoa para adivinhar um clique.
+
+### Armadilha registrada: o verificador acusou código de terceiro
+
+`tools/verifica.js` deu **13 falhas** no supabase-js — todas falso positivo. Em código
+minificado, `/=2),a+c>=u?` tem cara de expressão regular, e a checagem de barra invertida
+mordeu a isca.
+
+**Consertou-se a regra, não o código** (`ehDeTerceiro()`): as checagens de *estilo* — acento e
+barra invertida — pulam código de terceiro. As de *integridade* — sintaxe, carimbo de versão,
+import quebrado — **continuam valendo para ele**, porque provam que o arquivo não veio truncado.
+
+> Um verificador que dá alarme falso é pior que nenhum: ensina a ignorar o alarme.

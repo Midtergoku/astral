@@ -6,11 +6,24 @@
 // chamada autenticada as edge functions.
 // ============================================================================
 
-// Versao TRAVADA de proposito. Antes era "@supabase/supabase-js/+esm" sem pin:
-// o jsdelivr entregava sempre a ultima versao, entao um major novo derrubaria
-// o app inteiro de madrugada, sem ninguem ter tocado em nada. Tambem e
-// superficie de supply chain. Para atualizar, mude AQUI, num lugar so.
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/+esm';
+// Copia LOCAL, versao travada no proprio nome do arquivo.
+//
+// Historico, porque as duas mudancas tem motivos diferentes:
+//  1. Antes era "/+esm" SEM versao: o jsdelivr entregava sempre a mais nova,
+//     entao um major novo derrubaria o app de madrugada sem ninguem tocar em
+//     nada. Por isso a versao foi travada.
+//  2. 03/08/2026 -- o Lucas reclamou de lentidao ao trocar de menu. MEDIDO:
+//     o "/+esm" do jsdelivr estourava em 9 pedidos encadeados a um servidor
+//     de terceiro, 2773ms so para importar, em TODA pagina do app. A copia
+//     local importa em 13ms, num pedido so. Comprovado lado a lado nos 6
+//     passos (sessao, consulta ao banco, login recusado, edge function).
+//
+// Ganho de seguranca junto: o jsdelivr saiu do script-src da CSP, e o app
+// nao morre mais se aquele servidor cair.
+//
+// PARA ATUALIZAR: nao editar o arquivo -- gerar outro com a versao nova no
+// nome e trocar esta linha. A versao no nome e o que permite cache eterno.
+import { createClient } from './supabase-2.111.0.js';
 
 export const SUPABASE_URL = 'https://jjogmcacbdefwiwcyjxp.supabase.co';
 // Exportada de proposito: e a chave PUBLICAVEL, ja visivel no codigo-fonte de

@@ -43,9 +43,26 @@ const RAIZ = path.resolve(__dirname, '..');
 const VERBOSO = process.argv.includes('-v');
 
 const paginas = fs.readdirSync(RAIZ).filter((f) => f.endsWith('.html'));
+
+/* Codigo de TERCEIRO nao passa pelas checagens de estilo (03/08/2026).
+   Ao trazer o supabase-js para dentro do projeto, este verificador acusou 13
+   falhas nele -- todas falso positivo: em codigo minificado, trechos como
+   "/=2),a+c>=u?" tem a cara de uma expressao regular e a checagem de barra
+   invertida mordia a isca. O mesmo valia para acento e nome de variavel.
+
+   A licao ja tinha aparecido no ID duplicado do edital.html: quando o
+   verificador acusa algo que esta certo, quem se conserta e a REGRA. Um
+   verificador que da alarme falso e pior que nenhum, porque ensina a ignorar.
+
+   A checagem de SINTAXE continua valendo para eles -- essa nao e questao de
+   estilo: prova que o arquivo baixado nao veio truncado. */
+const ehDeTerceiro = (rel) => /(^|\/)(supabase-\d|vendor\/)/.test(rel);
+
 const jsFiles = fs.existsSync(path.join(RAIZ, 'assets/js'))
   ? fs.readdirSync(path.join(RAIZ, 'assets/js')).filter((f) => f.endsWith('.js')).map((f) => 'assets/js/' + f)
   : [];
+/* Lista para as checagens de estilo: so o que e NOSSO. */
+const jsNossos = jsFiles.filter((f) => !ehDeTerceiro(f));
 const cssFiles = fs.existsSync(path.join(RAIZ, 'assets/css'))
   ? fs.readdirSync(path.join(RAIZ, 'assets/css')).filter((f) => f.endsWith('.css')).map((f) => 'assets/css/' + f)
   : [];
@@ -143,7 +160,7 @@ for (const p of paginas) {
    O PowerShell 5.1 le UTF-8 como ANSI e ja destruiu dois HTMLs. Estes pares
    sao a assinatura de acento quebrado. */
 const QUEBRA = ['Ã§', 'Ã£', 'Ã¡', 'Ã©', 'Ãª', 'Ã­', 'Ã³', 'Ãµ', 'Ãº', 'Ã¢', 'Ã´', 'Â '];
-for (const p of [...paginas, ...jsFiles, ...cssFiles]) {
+for (const p of [...paginas, ...jsNossos, ...cssFiles]) {
   const t = ler(p);
   const achou = QUEBRA.filter((q) => t.includes(q));
   if (achou.length) anota('acento', p, `acento corrompido: ${achou.join(' ')}`);
@@ -215,7 +232,7 @@ for (const p of [...paginas, ...jsFiles]) {
    So olha arquivo .js e so dentro de literal de regex -- em HTML, /b e
    fechamento de negrito, nao classe de caractere. */
 const CLASSES = [["s", "espaco"], ["d", "digito"], ["w", "letra ou numero"], ["b", "limite de palavra"]];
-for (const f of jsFiles) {
+for (const f of jsNossos) {
   const corpoArq = ler(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
   for (const m of corpoArq.matchAll(/\/(?![*\/])((?:\\.|\[[^\]]*\]|[^\/\n\\])+)\/[gimsuy]*/g)) {
     const corpo = m[1];
