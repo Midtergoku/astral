@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/assets/css/base.css?v=f26d1d97"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Recursos de Estudo</title>
-  <link rel="stylesheet" href="assets/css/app.css?v=b0bede6f" />
+  <link rel="stylesheet" href="assets/css/app.css?v=f07ca6c3" />
 <style>
 
 
@@ -519,6 +519,12 @@
         </div>
       </div>
       <div class="recursos-grid" id="professores-grid"></div>
+
+      <!-- Ressalva pedida pelo Lucas em 04/08/2026: "assim como temos os termos
+           de responsabilidade, quero que deixe um lembrete". O texto mora em
+           assets/js/plano.js, num lugar so -- aviso duplicado diverge, e aviso
+           que diverge e pior que aviso nenhum. -->
+      <div id="ressalva-professores"></div>
     </div>
 
     <!-- Materiais Gratuitos -->
@@ -550,6 +556,7 @@
 </main>
 
 <script type="module">
+  import { ressalvaHTML } from './assets/js/plano.js?v=3d9bed7f';
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js?v=bd892079';
   import { carregarProgresso } from './assets/js/estado.js?v=68c08b97';
@@ -703,6 +710,11 @@
     document.getElementById('loading-section').classList.remove('show');
     document.getElementById('seletor-section').style.display = 'block';
 
+    // A ressalva. innerHTML aqui e seguro: o texto e CONSTANTE, escrito por
+    // nos em plano.js -- nao ha nada do usuario nem da IA dentro dele.
+    const elRessalva = document.getElementById('ressalva-professores');
+    if (elRessalva) elRessalva.innerHTML = ressalvaHTML();
+
     // Título
     document.getElementById('resultado-titulo').textContent = `Recursos para ${nomeMateria}`;
 
@@ -823,7 +835,7 @@
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=3b9263db"></script>
+<script type="module" src="/assets/js/divisa.js?v=f06378bc"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

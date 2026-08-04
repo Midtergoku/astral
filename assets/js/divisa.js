@@ -113,6 +113,21 @@ const TABELAS_NIVEIS = {
       { nome: 'General',            xp: 35000 },
     ],
   }
+/* Traduz o que a IA respondeu para a chave da tabela daqui.
+   A IA usa "exercito"/"outro"; aqui a tabela generica se chama "default". */
+const FORCA_PARA_TABELA = {
+  exercito: 'exercito', marinha: 'marinha', aeronautica: 'aeronautica',
+  pm: 'pm', bombeiros: 'bombeiros', outro: 'default',
+};
+
+/* ⚠️ ISTO E O PLANO B, e so isso (04/08/2026).
+   Ate hoje ele era o plano A: a forca era adivinhada por palavra no NOME do
+   edital. Um edital chamado "Concurso de Admissao ao Curso de Formacao de
+   Sargentos" nao casava com nada e caia em Recruta, mesmo sendo Exercito.
+
+   Agora quem responde e a IA, que LEU o PDF (processar-edital devolve `forca`).
+   Esta funcao so entra em acao para edital antigo, lido antes desta mudanca, e
+   que por isso nao tem o campo gravado. */
 function detectarTipoConcurso(nomeEdital) {
     if (!nomeEdital) return 'default';
     const nome = nomeEdital.toLowerCase();
@@ -156,11 +171,27 @@ function normalizar(txt) {
     .replace(/\s+/g, ' ').trim();
 }
 
-/* O nivel a partir do XP e do nome do edital.
-   Devolve tambem o proximo e o quanto falta, para a barra de progresso. */
-export function nivelDe(xp = 0, nomeEdital = '') {
-  const tipo = detectarTipoConcurso(nomeEdital);
-  const tabela = TABELAS_NIVEIS[tipo] || TABELAS_NIVEIS.default;
+/* O nivel a partir do XP e do edital.
+ *
+ * ORDEM DE CONFIANCA (04/08/2026), da mais para a menos:
+ *   1. `forca` -- veio da IA, que LEU o edital. E a verdade.
+ *   2. adivinhacao pelo nome -- so para edital lido antes desta mudanca.
+ *
+ * `patenteInicial` tambem vem da IA e renomeia SO o primeiro degrau. O resto
+ * da carreira continua vindo da tabela: o edital diz em que posto a pessoa
+ * ENTRA, nao a progressao inteira da forca. Sem isso, um edital de sargento
+ * faria a pessoa comecar como "Recruta" ou pior, num posto que nao existe
+ * naquela forca.
+ */
+export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = null) {
+  const tipo = (forca && FORCA_PARA_TABELA[forca]) || detectarTipoConcurso(nomeEdital);
+  const base = TABELAS_NIVEIS[tipo] || TABELAS_NIVEIS.default;
+
+  /* Copia rasa so quando ha o que renomear -- nao mexer na tabela original,
+     que e compartilhada por todas as chamadas. */
+  const tabela = patenteInicial
+    ? base.map((n, i) => (i === 0 ? { ...n, nome: patenteInicial } : n))
+    : base;
 
   let atual = tabela[0], indice = 0;
   for (let i = 0; i < tabela.length; i++) {
@@ -285,8 +316,9 @@ export function patenteCurta(nome = "") {
 
 /* Devolve o HTML da divisa. `esc` vem de astral.js: o nome da materia sai do
    edital, que e dado NAO CONFIAVEL (regra 4 do CLAUDE.md). */
-export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = null, compacta = false }, esc = (s) => s) {
-  const n = nivelDe(xp, edital);
+export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = null, compacta = false,
+                             forca = null, patenteInicial = null }, esc = (s) => s) {
+  const n = nivelDe(xp, edital, forca, patenteInicial);
   const nomeNivel = compacta ? patenteCurta(n.nome) : n.nome;
   const t = tagVestida(materias, tagEscolhida);
   const p = t ? null : proximaTag(materias);
@@ -383,6 +415,10 @@ export function aplicarDivisa(dados, esc) {
       materias: p?.materias || [],
       tagEscolhida: p?.tagEscolhida || null,
       compacta: true,   // e o cartao da barra lateral: espaco curto
+      // Vem da IA que leu o edital (04/08/2026). Em edital antigo sao nulos e
+      // a patente volta a ser adivinhada pelo nome -- o plano B de sempre.
+      forca: p?.edital?.forca || null,
+      patenteInicial: p?.edital?.patenteInicial || null,
     }, esc);
 
     pintar(await carregarProgresso(uid, pintar));

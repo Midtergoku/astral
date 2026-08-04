@@ -145,10 +145,24 @@ export const FUNCOES: Funcao[] = [
  */
 const FUNCOES_DESLIGADAS = new Set<Funcao>(["gerar-questoes"]);
 
+/* ⚠️ buscar-recursos MUDOU DE NATUREZA em 04/08/2026.
+   Antes era acao avulsa: a pessoa entrava na tela de Recursos e pedia uma
+   materia por vez -- e o resultado foi ZERO buscas em toda a historia do
+   produto, ninguem ia la. Por ordem do Lucas, os professores agora saem JUNTO
+   com o edital, de todas as materias de uma vez.
+
+   Entao 5/dia no free deixou de fazer sentido: um edital militar tem de 5 a 9
+   materias, e a pessoa ficaria com o guia pela metade no primeiro minuto dela
+   no produto. Subiu para 12, que cobre os editais reais com folga.
+
+   O teto de gasto continua de pe pelo OUTRO lado: processar-edital segue em
+   2/dia no free, e `recursos_salvos` e permanente -- materia ja buscada nao e
+   buscada de novo (ver assets/js/plano.js). Para gastar as 12 seria preciso
+   trocar de edital de proposito, duas vezes por dia. */
 export const LIMITE_DIARIO: Record<Usuario["plano"], Record<Funcao, number>> = {
   // free: 10 questoes/dia empata com o plano gratuito do Qconcursos, que e a
   // referencia que o concurseiro ja conhece.
-  free: { "processar-edital": 2, "gerar-questoes": 10, "buscar-recursos": 5 },
+  free: { "processar-edital": 2, "gerar-questoes": 10, "buscar-recursos": 12 },
   // beta e promessa vitalicia de acesso pro -- os dois andam juntos, sempre.
   // Nenhuma migracao futura pode rebaixar essas contas.
   beta: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 30 },

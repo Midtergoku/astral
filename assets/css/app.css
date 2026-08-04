@@ -249,3 +249,31 @@ body.saindo .main { animation: pageExit 150ms var(--saida) forwards; }
 @keyframes divisaEntra {
   to { transform: translateY(-50%) scaleY(1); }
 }
+
+/* ── RESSALVA SOBRE AS INDICACOES ─────────────────────────────────────────
+   Pedida pelo Lucas em 04/08/2026. Discreta de proposito: e honestidade, nao
+   alarme. Se gritasse, pareceria aviso de risco -- e nao e disso que se trata.
+   O texto mora em assets/js/plano.js. */
+.ressalva-professores {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--surface2, rgba(255,255,255,.03));
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  border-left: 3px solid var(--latao, #c08a2e);
+  border-radius: 6px;
+}
+.ressalva-professores strong {
+  display: block;
+  font-family: var(--display, inherit);
+  font-size: .78rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--latao-c, #e0ae55);
+  margin-bottom: .4rem;
+}
+.ressalva-professores p {
+  margin: 0;
+  font-size: .84rem;
+  line-height: 1.6;
+  color: var(--muted, #8a8a99);
+}

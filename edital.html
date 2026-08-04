@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/assets/css/base.css?v=f26d1d97"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Meu Edital</title>
-  <link rel="stylesheet" href="assets/css/app.css?v=b0bede6f" />
+  <link rel="stylesheet" href="assets/css/app.css?v=f07ca6c3" />
 <style>
 
 
@@ -336,6 +336,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js?v=bd892079';
+  import { montarCronograma, gerarGuiaCompleto } from './assets/js/plano.js?v=3d9bed7f';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=68c08b97';
 
   let estado = {
@@ -430,8 +431,8 @@
 
         <div class="card ai-processing" id="ai-processing">
           <div class="ai-icon"><i data-icone="ia"></i></div>
-          <h3>Lendo seu edital.</h3>
-          <p>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
+          <h3 data-ai-titulo>Lendo seu edital.</h3>
+          <p data-ai-detalhe>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
         </div>
       `;
       return;
@@ -457,8 +458,8 @@
       <!-- Upload Oculto mas presente para re-uso -->
       <div id="ai-processing" class="card ai-processing">
         <div class="ai-icon"><i data-icone="ia"></i></div>
-        <h3>Lendo seu edital.</h3>
-        <p>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
+        <h3 data-ai-titulo>Lendo seu edital.</h3>
+        <p data-ai-detalhe>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
       </div>
 
       <div id="edital-details">
@@ -573,6 +574,11 @@
         nome: resultado.concurso || file.name,
         materias: resultado.materias?.length || 0,
         dataProva: resultado.dataProva || null,
+        // 04/08/2026: a IA passou a LER a forca e a patente do edital, em vez
+        // de o navegador adivinhar pelo nome. Guardado aqui porque e daqui que
+        // o divisa.js le. Ver o cabecalho de assets/js/divisa.js.
+        forca: resultado.forca || null,
+        patenteInicial: resultado.patenteInicial || null,
       };
 
       estado.materias = (resultado.materias || []).map(m => ({
@@ -582,12 +588,10 @@
         progresso: 0,
       }));
 
-      estado.cronogramaHoje = estado.materias.slice(0, 3).map(m => ({
-        materia: m.nome,
-        tempo: Math.max(30, Math.round(m.peso * 2)),
-        xp: Math.round(m.peso * 5),
-        feito: false,
-      }));
+      // Peso E progresso, numa conta so -- ver assets/js/plano.js.
+      // Antes era slice(0,3): as tres mais pesadas para sempre, e uma materia
+      // de peso baixo NUNCA aparecia, nem com a pessoa zerada nela.
+      estado.cronogramaHoje = montarCronograma(estado.materias);
 
       if (!estado.badges.includes('primeiro_edital')) {
         estado.badges.push('primeiro_edital');
@@ -597,6 +601,43 @@
       // await + imediato: a navegacao abaixo cancelaria um salvamento adiado,
       // e o edital recem-processado seria perdido.
       await salvarDados({ imediato: true });
+
+      /* ── OS PROFESSORES, JUNTO COM O EDITAL (04/08/2026) ──────────────────
+         Ordem do Lucas: o guia de professores sai junto, de todas as matérias
+         de uma vez, e fica salvo para sempre.
+
+         Antes a pessoa tinha de ir na tela de Recursos e pedir uma por uma --
+         e o resultado medido foi ZERO buscas em toda a história do produto.
+
+         Não trava a tela se falhar: o edital já está salvo neste ponto, e um
+         guia incompleto é melhor que um edital perdido. Ver assets/js/plano.js. */
+      try {
+        const passo = (t, d) => {
+          document.querySelectorAll('[data-ai-titulo]').forEach((el) => { el.textContent = t; });
+          document.querySelectorAll('[data-ai-detalhe]').forEach((el) => { el.textContent = d; });
+        };
+        passo('Montando seu guia de estudo.',
+              'Procurando os melhores professores de cada matéria do seu edital.');
+
+        const guia = await gerarGuiaCompleto(
+          estado.usuario.id,
+          estado.edital.nome,
+          estado.materias,
+          ({ i, total, materia }) => passo(
+            'Montando seu guia de estudo.',
+            `Procurando professores de ${materia} (${i} de ${total}).`),
+        );
+
+        if (guia.falharam.length && !guia.feitas.length) {
+          toast('Seu cronograma está pronto. O guia de professores não pôde ser montado agora — abra Recursos mais tarde.', 'error');
+        } else if (guia.falharam.length) {
+          toast(`Guia montado para ${guia.feitas.length} de ${estado.materias.length} matérias. O resto você busca em Recursos.`);
+        }
+      } catch (e) {
+        // Nunca derrubar o fluxo do edital por causa do guia.
+        console.error('Falha ao montar o guia de professores:', e);
+      }
+
       window.location.href = 'dashboard.html';
 
     } catch(err) {
@@ -659,7 +700,7 @@
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=3b9263db"></script>
+<script type="module" src="/assets/js/divisa.js?v=f06378bc"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

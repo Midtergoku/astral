@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/assets/css/base.css?v=f26d1d97"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Progresso</title>
-  <link rel="stylesheet" href="assets/css/app.css?v=b0bede6f" />
+  <link rel="stylesheet" href="assets/css/app.css?v=f07ca6c3" />
 <style>
 
 
@@ -408,6 +408,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js?v=bd892079';
+  import { montarCronograma, necessidadeDe } from './assets/js/plano.js?v=3d9bed7f';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=68c08b97';
 
   let estado = {
@@ -578,23 +579,42 @@ window.abrirModalBalanco = function() {
     return;
   }
 
-  const total = materias.length;
-  const mediaIdeal = Math.round(100 / total);
+  /* 🔴 CONSERTADO em 04/08/2026, a pedido do Lucas.
+     A conta antiga comparava o progresso com `100 / numero de materias`.
+     Isso nao quer dizer NADA: com 8 materias, qualquer uma acima de 12,5%
+     era declarada "adiantada" e mandada desacelerar -- mesmo estando 87%
+     por estudar.
+
+     A conta certa e a mesma do cronograma (assets/js/plano.js):
+        necessidade = peso x (100 - progresso)
+     Ela junta as duas coisas que o Lucas descreveu: materia que vale mais
+     ponto pede mais tempo, MAS materia que ele ja domina para de pedir --
+     "se ela vai muito bem numa materia de peso alto, nao tem por que ajudar
+     tanto ela; e sim a outra em que e muito ruim". */
   const lista = document.getElementById('sugestoes-lista');
 
-  const ordenadas = [...materias].sort((a, b) => (a.progresso || 0) - (b.progresso || 0));
+  const comN = materias.map(m => ({ m, n: necessidadeDe(m) }));
+  const somaN = comN.reduce((s, x) => s + x.n, 0);
+  const mediaN = somaN / (comN.length || 1);
+
+  const ordenadas = [...comN].sort((a, b) => b.n - a.n).map(x => x.m);
 
   lista.innerHTML = ordenadas.map(m => {
     const progresso = m.progresso || 0;
-    const diferenca = mediaIdeal - progresso;
+    const n = necessidadeDe(m);
+    // Quanto esta materia pede a mais (ou a menos) que a media das outras.
+    const relativo = mediaN > 0 ? Math.round(((n - mediaN) / mediaN) * 100) : 0;
     let recomendacao = '';
     let cor = 'var(--purple)';
 
-    if (diferenca > 20) {
-      recomendacao = `Aumentar foco — está ${diferenca}% abaixo da média`;
+    if (n === 0) {
+      recomendacao = 'Dominada — pode deixar de lado por enquanto';
+      cor = 'var(--green)';
+    } else if (relativo > 25) {
+      recomendacao = `Prioridade alta — vale ${Math.round(m.peso || 0)}% da prova e você está em ${progresso}%`;
       cor = 'var(--red)';
-    } else if (diferenca < -20) {
-      recomendacao = `Reduzir foco — está ${Math.abs(diferenca)}% acima da média`;
+    } else if (relativo < -25) {
+      recomendacao = `Pode aliviar — você já está em ${progresso}% nesta`;
       cor = 'var(--green)';
     } else {
       recomendacao = 'Manter ritmo atual — está equilibrada';
@@ -628,20 +648,11 @@ window.fecharModalFora = function(e) {
 window.aplicarBalanco = function() {
   const dados = estado.progresso;
   const materias = dados.materias || [];
-  const total = materias.length;
-  const mediaIdeal = Math.round(100 / total);
 
-  const novosCronograma = materias
-    .sort((a, b) => (a.progresso || 0) - (b.progresso || 0))
-    .slice(0, 3)
-    .map(m => ({
-      materia: m.nome,
-      tempo: Math.max(30, Math.round(((mediaIdeal - (m.progresso || 0)) / 100) * 120 + 30)),
-      xp: Math.round(m.peso * 5) || 25,
-      feito: false,
-    }));
-
-  dados.cronogramaHoje = novosCronograma;
+  /* Uma conta so, no mesmo lugar do cronograma inicial. Antes aqui havia uma
+     SEGUNDA formula, diferente da do dashboard -- duas contas para a mesma
+     pergunta, que e como elas divergem sem ninguem ver. */
+  dados.cronogramaHoje = montarCronograma(materias);
   salvarProgresso(estado.usuario.id, dados, { imediato: true });
   fecharModalBalanco();
   toast('Cronograma rebalanceado! Veja as novas sessões no dashboard.');
@@ -679,7 +690,7 @@ window.aplicarBalanco = function() {
 </div>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=3b9263db"></script>
+<script type="module" src="/assets/js/divisa.js?v=f06378bc"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>
