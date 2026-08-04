@@ -58,7 +58,14 @@ async function json(url, opts) {
   const login = await json(`${API}/auth/v1/token?grant_type=password`, {
     method: "POST",
     headers: { apikey: CHAVE_PUB, "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "checagem@astral-saude.local", password: "SenhaInvalida123" }),
+    // Senha SORTEADA. Ela tem de FALHAR -- e esse o teste: o que importa nao e
+    // entrar, e qual erro volta ("invalid_credentials" = login saudavel).
+    // Sorteada em vez de fixa porque este repositorio e PUBLICO: senha escrita
+    // em arquivo aqui fica visivel para o mundo, mesmo sendo de mentira.
+    body: JSON.stringify({
+      email: "checagem@astral-saude.local",
+      password: "nao-existe-" + crypto.randomUUID(),
+    }),
   });
   const cod = login.corpo?.error_code ?? "";
 

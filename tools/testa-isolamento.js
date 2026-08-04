@@ -42,7 +42,8 @@ async function criarUsuario(tag) {
 
   const c = await req("/auth/v1/admin/users", {
     method: "POST", headers: admin,
-    body: JSON.stringify({ email, password: "SenhaDeTeste!2026", email_confirm: true }),
+    // Senha sorteada -- ver o mesmo comentario em testa-auditoria.js.
+    body: JSON.stringify({ email, password: "T!" + crypto.randomUUID(), email_confirm: true }),
   });
   const id = c.corpo?.id;
   if (!id) throw new Error("nao criou usuario: " + JSON.stringify(c.corpo));

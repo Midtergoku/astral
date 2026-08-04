@@ -334,6 +334,67 @@ for (const p of paginas) {
   }
 }
 
+/* ── 14. SEGREDO PRESTES A SER PUBLICADO ─────────────────────────────────────
+   ESTE REPOSITORIO E PUBLICO. Qualquer coisa commitada aqui fica visivel para
+   o mundo inteiro, para sempre -- apagar depois nao resolve, porque o historico
+   do git guarda.
+
+   Em 04/08/2026 o Lucas pediu um arquivo com os logins do projeto. Ele foi
+   para a AREA DE TRABALHO, fora daqui. O .gitignore cobre os nomes obvios;
+   esta checagem cobre o resto: ela procura o FORMATO das chaves, entao pega
+   mesmo que o arquivo se chame "anotacoes.txt".
+
+   So olha o que o git realmente vai publicar (arquivos rastreados). */
+{
+  const ASSINATURAS = [
+    [/\bsk-ant-[A-Za-z0-9_-]{20,}/, 'chave da Anthropic (sk-ant-...)'],
+    [/\bsbp_[a-f0-9]{40,}/, 'token de gerenciamento do Supabase (sbp_...)'],
+    [/\bsb_secret_[A-Za-z0-9_-]{20,}/, 'chave SECRETA do Supabase'],
+    [/\bre_[A-Za-z0-9]{20,}/, 'chave do Resend (re_...)'],
+    [/\bES_[a-f0-9]{32}/, 'secret do hCaptcha (ES_...)'],
+    [/\bAPP_USR-[A-Za-z0-9-]{20,}/, 'token do Mercado Pago'],
+    [/\bghp_[A-Za-z0-9]{30,}/, 'token do GitHub (ghp_...)'],
+    [/\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/, 'JWT (pode ser a service_role)'],
+    /* ⚠️ Esta linha ja foi mais frouxa e acusou 4 falsos positivos em 04/08/2026.
+       O melhor deles: o texto do botao 'Mostrar senha' : 'Esconder senha' -- um
+       ternario que, lido por regex, tem a cara de "senha = valor".
+       Por isso agora sao duas formas EXPLICITAS e nada mais:
+         chave nua .... senha: "..."   |  password = "..."
+         chave citada . "senha": "..." |  'password': "..."
+       Palavra solta dentro de texto que o usuario le nao casa mais. */
+    /* O `(?!\s*\+)` no fim NAO e detalhe: sem ele, a regra acusava a propria
+       correcao dela. `password: "nao-existe-" + crypto.randomUUID()` tem uma
+       cadeia de texto no comeco, mas o valor final e SORTEADO -- nao ha segredo
+       nenhum ali. Valor montado por concatenacao nao e senha fixa. */
+    [/(?:^|[\s{,(])(?:senha|password|passwd)\s*[:=]\s*["'][^"']{6,}["'](?!\s*\+)/i, 'senha escrita em texto'],
+    [/["'](?:senha|password|passwd)["']\s*:\s*["'][^"']{6,}["'](?!\s*\+)/i, 'senha escrita em texto'],
+  ];
+
+  let rastreados = [];
+  try {
+    rastreados = require('child_process')
+      .execSync('git ls-files', { cwd: RAIZ, encoding: 'utf8', maxBuffer: 1 << 24 })
+      .split('\n').map((s) => s.trim()).filter(Boolean);
+  } catch { /* sem git: pula a checagem em vez de quebrar */ }
+
+  for (const rel of rastreados) {
+    // binario e historico ficam de fora: historico/ narra os erros e cita formatos
+    if (/^historico\//.test(rel)) continue;
+    if (/\.(png|jpg|jpeg|gif|webp|ico|pdf|zip|woff2?)$/i.test(rel)) continue;
+
+    let t;
+    try { t = fs.readFileSync(path.join(RAIZ, rel), 'utf8'); } catch { continue; }
+
+    for (const [re, oque] of ASSINATURAS) {
+      const m = t.match(re);
+      if (!m) continue;
+      // a publishable key e publica DE PROPOSITO -- esta no codigo de todas as paginas
+      if (/sb_publishable_/.test(m[0])) continue;
+      anota('segredo', rel, oque + ' — este repositorio e PUBLICO. Tire daqui antes de commitar.');
+    }
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -349,6 +410,7 @@ const GRUPOS = {
   regex:    'Barra invertida perdida em expressao regular',
   espera:   'Espaco reservado que mostra informacao errada',
   adiado:   'Botao chama funcao que so existe depois (modulo adiado)',
+  segredo:  'SEGREDO prestes a ser publicado num repositorio PUBLICO',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

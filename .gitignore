@@ -3,6 +3,24 @@
 .env.local
 .env.*.local
 
+# 🔴 ARQUIVOS DE SENHA — este repositório é PÚBLICO.
+# Em 04/08/2026 o Lucas pediu um arquivo com os logins do projeto. Ele foi
+# gravado na ÁREA DE TRABALHO, fora daqui, de propósito. Estas linhas existem
+# para o caso de alguém arrastar um arquivo desses para cá sem perceber: o git
+# passa a ignorá-lo em vez de publicá-lo para o mundo.
+# A checagem 14 do tools/verifica.js é a segunda barreira, para o caso de o
+# arquivo ter outro nome.
+*CONTAS*.txt
+*contas*.txt
+*senha*
+*senhas*
+*credenciais*
+*credentials*
+*.pem
+*.key
+*.p12
+segredos*
+
 # Dependências
 node_modules/
 

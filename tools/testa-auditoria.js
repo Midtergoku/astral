@@ -29,7 +29,9 @@ async function req(caminho, opts = {}) {
   try {
     const c = await req("/auth/v1/admin/users", {
       method: "POST",
-      body: JSON.stringify({ email, password: "SenhaDeTeste!2026", email_confirm: true }),
+      // Senha sorteada: o usuario e descartavel e apagado no fim. Repositorio
+      // PUBLICO -- senha fixa aqui seria senha publicada.
+      body: JSON.stringify({ email, password: "T!" + crypto.randomUUID(), email_confirm: true }),
     });
     uid = c.corpo?.id;
     if (!uid) throw new Error("nao criou usuario");
