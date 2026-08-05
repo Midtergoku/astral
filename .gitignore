@@ -32,3 +32,9 @@ Thumbs.db
 .temp/
 dist/
 build/
+# Backups: dados de gente de verdade. NUNCA no repositorio, que e publico.
+# A ferramenta grava fora daqui (../ASTRAL-BACKUPS); estas linhas sao rede
+# de seguranca para o caso de alguem arrastar uma pasta dessas para ca.
+ASTRAL-BACKUPS/
+*backup*/
+*.dump
