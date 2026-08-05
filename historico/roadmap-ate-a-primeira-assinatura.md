@@ -74,11 +74,11 @@ número acima for 0, tudo o mais é decoração.
 |---|---|---|---|
 | 2.1 | ✅ **Dashboard quebrado** | 🤖 | **FEITO em 04/08.** `uid` não existia; o erro matava a tela antes de desenhar. 86 ocorrências reais |
 | 2.2 | ✅ **Botão do Google morto** | 🤖 | **FEITO em 04/08.** Clique antes do módulo carregar não fazia nada. 4 ocorrências, no botão de 6 dos 8 usuários |
-| 2.3 | **Rotina de olhar os erros dos usuários** | 🤖 | Os dois acima estavam gravados no banco havia **3 dias** e ninguém olhou. Criar `tools/ve-erros.js` e rodar no início de toda sessão, junto do `checa-saude` |
+| 2.3 | ✅ **Rotina de olhar os erros** | 🤖 | **FEITO em 04/08.** O lembrete de início de sessão obriga a consultar `erros_cliente`. E em 05/08 entrou o `vigia.yml`: de hora em hora contra a produção, com e-mail automático se cair |
 | 2.4 | **E-mail funcionando (ponte pelo Gmail)** | 👤 5 cliques + 🤖 | Hoje quem esquece a senha **fica trancado para fora**. Ferramenta pronta: `tools/smtp-configura.ps1`. Grátis, ~500/dia. Detalhe na skill `astral-operacao` 13.6 |
 | 2.5 | **Provar que o e-mail chega num endereço de fora** | 🤖 | Não vale testar no seu — o seu já recebia |
 | 2.6 | **Voltar a exigir confirmação de e-mail** | 🤖 | ⚠️ **só depois do 2.5.** Na ordem errada, ninguém consegue mais se cadastrar |
-| 2.7 | **Restaurar um backup, uma vez** | 🤖 | O backup nunca foi restaurado. Backup não testado é fé, não é backup |
+| 2.7 | ✅ **Backup — e ele NÃO EXISTIA** | 🤖 | **FEITO em 05/08.** Descoberto que o plano free do Supabase **não faz backup nenhum** — não era "nunca restaurado", era inexistente. `tools/backup.js` cria, `tools/testa-restauracao.js` prova que volta (114 linhas conferidas linha a linha) |
 | 2.8 | **`processar-edital` em janela mensal** | 🤖 | Hoje a quota é diária. Um edital por mês é o uso real; diária deixa margem para abuso |
 | 2.9 | **Alerta de gasto na Anthropic** | 👤 | Painel deles, conta sua. Sem teto, um erro meu ou um abuso vira fatura |
 

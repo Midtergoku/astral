@@ -99,6 +99,14 @@ node tools/verifica.js          🔴 OBRIGATORIO ANTES DE TODO COMMIT. 10 checag
                                 acento corrompido, link morto, elemento fantasma, import quebrado
 node tools/versiona-css.js      OBRIGATORIO ao mexer em assets/, ANTES do commit. Sem isto o conserto
                                 so chega ao usuario 1 HORA depois -- ja aconteceu (historico/erros.md)
+node tools/backup.js            🔴 O PLANO FREE DO SUPABASE NAO FAZ BACKUP NENHUM.
+                                Este faz: um JSON por tabela + as contas, FORA do repositorio
+node tools/testa-restauracao.js O backup volta mesmo? Restaura num esquema descartavel do
+                                proprio banco e compara linha a linha. Achou o
+                                "overriding system value" na 1a execucao
+node tools/testa-concorrencia.js Duas telas abertas apagam o trabalho uma da outra?
+                                --upsert mostra o defeito antigo acontecendo
+node tools/testa-rolagem.js     A barra de rolagem pisca ao trocar de pagina?
 powershell -File tools\confere-auth.ps1
                                 a config de AUTENTICACAO da producao esta certa? -Corrigir conserta.
                                 🔴 checa-saude NAO pega isto: ele testa a IDA ao Google, nao a VOLTA
@@ -137,6 +145,21 @@ problema medido não é feiura, é genérico, e genérico vem da fundação.
 > zerou os créditos e deixou a conta da Anthropic em **−US$ 0,96** — eu só tinha estimativa
 > de planilha, nenhuma medição. As funções de IA agora gravam o consumo real no log.
 > **Antes de escrever qualquer repetição de chamada paga, calcular o custo da repetição.**
+
+> 🏗️ **Infraestrutura, levantada camada a camada em 05/08/2026** (a pedido dele, contra um
+> post sobre "a pilha real de um produto"). Das ~20 camadas, **temos 19**. As que faltam são
+> decisões de custo, não esquecimento:
+>
+> | Falta | Por quê |
+> |---|---|
+> | Réplica do banco | recurso de plano pago; só importa quando ficar fora do ar custar dinheiro |
+> | Senha vazada (HIBP) | **HTTP 402 — só no Pro, US$ 25/mês** |
+> | Verificação em duas etapas | vale quando houver conta paga a proteger |
+>
+> **Fechadas em 05/08:** testes automáticos a cada push (`.github/workflows/verifica.yml`),
+> alerta de hora em hora (`vigia.yml`), **backup — que NÃO EXISTIA** (o plano free do Supabase
+> não faz nenhum) e agora está provado restaurável, e **controle de concorrência** (duas telas
+> abertas apagavam o trabalho uma da outra).
 
 ## 🗺️ Mapa das camadas — onde está o resto
 
