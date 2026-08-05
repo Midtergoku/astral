@@ -602,42 +602,11 @@
       // e o edital recem-processado seria perdido.
       await salvarDados({ imediato: true });
 
-      /* ── OS PROFESSORES, JUNTO COM O EDITAL (04/08/2026) ──────────────────
-         Ordem do Lucas: o guia de professores sai junto, de todas as matérias
-         de uma vez, e fica salvo para sempre.
-
-         Antes a pessoa tinha de ir na tela de Recursos e pedir uma por uma --
-         e o resultado medido foi ZERO buscas em toda a história do produto.
-
-         Não trava a tela se falhar: o edital já está salvo neste ponto, e um
-         guia incompleto é melhor que um edital perdido. Ver assets/js/plano.js. */
-      try {
-        const passo = (t, d) => {
-          document.querySelectorAll('[data-ai-titulo]').forEach((el) => { el.textContent = t; });
-          document.querySelectorAll('[data-ai-detalhe]').forEach((el) => { el.textContent = d; });
-        };
-        passo('Montando seu guia de estudo.',
-              'Procurando os melhores professores de cada matéria do seu edital.');
-
-        const guia = await gerarGuiaCompleto(
-          estado.usuario.id,
-          estado.edital.nome,
-          estado.materias,
-          ({ i, total, materia }) => passo(
-            'Montando seu guia de estudo.',
-            `Procurando professores de ${materia} (${i} de ${total}).`),
-        );
-
-        if (guia.falharam.length && !guia.feitas.length) {
-          toast('Seu cronograma está pronto. O guia de professores não pôde ser montado agora — abra Recursos mais tarde.', 'error');
-        } else if (guia.falharam.length) {
-          toast(`Guia montado para ${guia.feitas.length} de ${estado.materias.length} matérias. O resto você busca em Recursos.`);
-        }
-      } catch (e) {
-        // Nunca derrubar o fluxo do edital por causa do guia.
-        console.error('Falha ao montar o guia de professores:', e);
-      }
-
+      /* O GUIA DE PROFESSORES NAO SEGURA O PLANO (04/08/2026).
+         Ele continua no dashboard, por tras. Medido: o cronograma fica pronto
+         em 20-29s, mas cada materia de professores leva 30-41s -- com 8
+         materias, prender o usuario aqui passaria dos 5 minutos que a landing
+         promete. O plano e o que ele veio buscar; o guia e o extra. */
       window.location.href = 'dashboard.html';
 
     } catch(err) {

@@ -993,6 +993,28 @@ function mostrarLevelUp(nomeNivel) {
       .catch(() => {});
 
     renderUI();
+
+    /* ── O GUIA DE PROFESSORES, POR TRAS (04/08/2026) ────────────────────────
+       Comeca DEPOIS de a tela estar desenhada e nao segura nada. Se falhar,
+       falha em silencio -- o plano de estudo, que e o que a pessoa veio
+       buscar, ja esta na tela.
+
+       Nao repete o que ja existe: gerarGuiaCompleto pula materia ja salva
+       (ver assets/js/plano.js), entao entrar no dashboard dez vezes nao gera
+       dez buscas. */
+    if (estado.edital && estado.materias?.length) {
+      setTimeout(() => {
+        gerarGuiaCompleto(
+          session.user.id,
+          estado.edital?.nome || estado.edital,
+          estado.materias,
+        ).then((g) => {
+          if (g.feitas.length) {
+            toast(`Seu guia de professores ficou pronto para ${g.feitas.length} matéria(s).`);
+          }
+        }).catch(() => { /* o guia e extra: nunca atrapalha o plano */ });
+      }, 2000);
+    }
   }
 
   // ── RENDER ──
@@ -1367,42 +1389,6 @@ function verificarBalanco() {
       // Imediato: processar o edital muda tudo de uma vez, e o usuario
       // costuma sair da tela logo em seguida.
       salvarDados({ imediato: true });
-
-      /* ── OS PROFESSORES, JUNTO COM O EDITAL (04/08/2026) ──────────────────
-         Ordem do Lucas: o guia de professores sai junto, de todas as matérias
-         de uma vez, e fica salvo para sempre.
-
-         Antes a pessoa tinha de ir na tela de Recursos e pedir uma por uma --
-         e o resultado medido foi ZERO buscas em toda a história do produto.
-
-         Não trava a tela se falhar: o edital já está salvo neste ponto, e um
-         guia incompleto é melhor que um edital perdido. Ver assets/js/plano.js. */
-      try {
-        const passo = (t, d) => {
-          document.querySelectorAll('[data-ai-titulo]').forEach((el) => { el.textContent = t; });
-          document.querySelectorAll('[data-ai-detalhe]').forEach((el) => { el.textContent = d; });
-        };
-        passo('Montando seu guia de estudo.',
-              'Procurando os melhores professores de cada matéria do seu edital.');
-
-        const guia = await gerarGuiaCompleto(
-          estado.usuario.id,
-          estado.edital.nome,
-          estado.materias,
-          ({ i, total, materia }) => passo(
-            'Montando seu guia de estudo.',
-            `Procurando professores de ${materia} (${i} de ${total}).`),
-        );
-
-        if (guia.falharam.length && !guia.feitas.length) {
-          toast('Seu cronograma está pronto. O guia de professores não pôde ser montado agora — abra Recursos mais tarde.', 'error');
-        } else if (guia.falharam.length) {
-          toast(`Guia montado para ${guia.feitas.length} de ${estado.materias.length} matérias. O resto você busca em Recursos.`);
-        }
-      } catch (e) {
-        // Nunca derrubar o fluxo do edital por causa do guia.
-        console.error('Falha ao montar o guia de professores:', e);
-      }
 
       renderUI();
       toast(`${resultado.materias?.length || 0} matérias extraídas com sucesso!`);

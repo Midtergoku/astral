@@ -132,6 +132,11 @@ problema medido não é feiura, é genérico, e genérico vem da fundação.
 
 > 💰 **Dinheiro é restrição real.** *"Nem sempre eu tenho dinheiro."* **Nunca propor algo que
 > custe sem dizer o preço na mesma frase.**
+>
+> 🔴 **E MEDIR o custo, não estimar.** Em 04/08/2026 um laço meu que repetia chamada paga
+> zerou os créditos e deixou a conta da Anthropic em **−US$ 0,96** — eu só tinha estimativa
+> de planilha, nenhuma medição. As funções de IA agora gravam o consumo real no log.
+> **Antes de escrever qualquer repetição de chamada paga, calcular o custo da repetição.**
 
 ## 🗺️ Mapa das camadas — onde está o resto
 
