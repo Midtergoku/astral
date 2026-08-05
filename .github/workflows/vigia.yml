@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# VIGIA — o alerta automático que faltava.
+#
+# POR QUE EXISTE (05/08/2026)
+# Levantando as camadas de infraestrutura, esta foi uma das quatro que
+# faltavam: "ninguém me avisa, eu tenho que ir olhar". O Lucas não executa
+# nada, e eu só descubro que o site caiu quando abro uma sessão.
+#
+# Isto roda sozinho de hora em hora contra o site NO AR. Se qualquer checagem
+# falhar, o próprio GitHub manda e-mail para o dono do repositório —
+# automaticamente, sem serviço de terceiro, sem configurar nada, sem custo.
+#
+# ⚠️ Sobre a frequência: de hora em hora é de propósito. O plano gratuito do
+# GitHub Actions dá 2.000 minutos/mês; isto gasta ~1 minuto por execução,
+# ~720/mês. Cabe com folga e ainda sobra para o verifica.yml.
+#
+# ⚠️ Estas duas ferramentas NÃO usam chave secreta nenhuma — só a chave
+# publicável, que já está no código de todas as páginas. Por isso podem rodar
+# aqui sem expor nada.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: Vigia do site no ar
+
+on:
+  schedule:
+    - cron: '17 * * * *'   # todo dia, toda hora, aos 17 minutos
+  workflow_dispatch:
+
+jobs:
+  saude:
+    name: O Astral está utilizável agora?
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # A primeira pergunta de toda sessão, agora feita sozinha:
+      # o site responde, o login por senha exige captcha, o login com Google
+      # redireciona, as 8 funções do servidor recusam quem não está logado, e
+      # o formulário público valida o que recebe.
+      - name: Saúde — o usuário consegue usar o Astral?
+        run: node tools/checa-saude.js
+
+      # 39 checagens amplas contra a produção: cabeçalhos de segurança, CSP,
+      # RLS recusando anônimo, provedores de login ligados.
+      - name: 39 checagens contra a produção
+        run: node tools/testa-site.js

@@ -128,13 +128,30 @@ O QUE **NAO** TEM AQUI
 COMO RESTAURAR, se um dia precisar
   1. criar um projeto Supabase novo
   2. rodar as migrations do git:  supabase db push --linked
-  3. reenviar cada .json para a tabela correspondente, com a chave de servico
+  3. carregar cada .json na tabela correspondente, UMA INSTRUCAO POR TABELA:
+
+       insert into public.<tabela> overriding system value
+       select * from json_populate_recordset(null::public.<tabela>, '<conteudo do json>');
+
   4. recriar as contas pela API de admin, usando _contas.json
      (as pessoas vao precisar entrar de novo -- senha nao e guardada aqui)
 
-⚠️ ESTE BACKUP NUNCA FOI RESTAURADO DE VERDADE.
-   Backup que nunca foi testado e fe, nao e backup. Ate alguem restaurar
-   uma vez num projeto descartavel, isto e uma esperanca organizada.
+🔴 O "overriding system value" DO PASSO 3 NAO E OPCIONAL.
+   As colunas id sao "generated always as identity": sem essa clausula o
+   Postgres RECUSA a insercao com "cannot insert a non-DEFAULT value into
+   column id". Pior ainda seria remover o id do JSON para contornar: o banco
+   geraria ids NOVOS e toda ligacao entre tabelas apontaria para o lugar
+   errado -- pareceria ter dado certo, com os dados embaralhados.
+
+   Isto foi descoberto pelo tools/testa-restauracao.js na PRIMEIRA vez que
+   ele rodou, em 05/08/2026. Sem esse teste, so se descobriria no dia de
+   precisar do backup.
+
+✅ ESTE FORMATO DE BACKUP JA FOI RESTAURADO E CONFERIDO.
+   O tools/testa-restauracao.js recria o esquema num espaco descartavel do
+   proprio banco, carrega estes arquivos, compara LINHA A LINHA com os dados
+   vivos e apaga tudo no fim. Rode-o de vez em quando: backup que ninguem
+   testa volta a ser fe.
 `, 'utf8');
 
   /* ── conferencia ───────────────────────────────────────────────────────── */

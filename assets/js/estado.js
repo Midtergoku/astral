@@ -177,9 +177,27 @@ export function salvarProgresso(uid, estado, { imediato = false } = {}) {
 
   const enviar = async () => {
     tarefaSalvar = null;
-    const { error } = await supabase
-      .from('progresso')
-      .upsert(paraBanco(uid, ultimoEstado), { onConflict: 'usuario_id' });
+
+    /* 🔴 MESCLA, nao substitui (05/08/2026).
+       Antes isto era um upsert que trocava a linha inteira -- e duas telas
+       abertas (celular e computador) apagavam o trabalho uma da outra. Medido
+       em tools/testa-concorrencia.js: o XP caía de 1500 para 1200, o progresso
+       de uma matéria voltava de 70% para 40% e uma conquista sumia.
+
+       A função no banco fica com o MAIOR xp, as MAIORES horas, a união das
+       conquistas e o maior progresso de cada matéria. Ver a migration
+       20260805200000. */
+    const b = paraBanco(uid, ultimoEstado);
+    const { error } = await supabase.rpc('salvar_progresso', {
+      p_xp: b.xp,
+      p_streak: b.streak,
+      p_horas: b.horas,
+      p_edital: b.edital,
+      p_materias: b.materias,
+      p_cronograma_hoje: b.cronograma_hoje,
+      p_badges: b.badges,
+      p_tag_escolhida: b.tag_escolhida,
+    });
     if (error) console.error('Falha ao salvar o progresso no banco.', error);
   };
 
@@ -213,15 +231,24 @@ if (typeof window !== 'undefined') {
       const token = chaveSessao && JSON.parse(localStorage.getItem(chaveSessao))?.access_token;
       if (!token) return; // sem sessao nao ha o que gravar; o local ja tem
 
-      fetch(`${SUPABASE_URL}/rest/v1/progresso?on_conflict=usuario_id`, {
+      /* A mesma funcao de mesclagem do caminho normal -- ver `enviar()` acima.
+         Se a gravacao ao fechar a aba usasse o upsert antigo, ela seria
+         justamente a que apagaria o trabalho da OUTRA aba, que continua
+         aberta. Fechar uma aba nao pode desfazer o estudo feito na outra. */
+      const b = paraBanco(ultimoUid, ultimoEstado);
+      fetch(`${SUPABASE_URL}/rest/v1/rpc/salvar_progresso`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates,return=minimal',
         },
-        body: JSON.stringify(paraBanco(ultimoUid, ultimoEstado)),
+        body: JSON.stringify({
+          p_xp: b.xp, p_streak: b.streak, p_horas: b.horas,
+          p_edital: b.edital, p_materias: b.materias,
+          p_cronograma_hoje: b.cronograma_hoje, p_badges: b.badges,
+          p_tag_escolhida: b.tag_escolhida,
+        }),
         keepalive: true,
       }).catch(() => { /* aba fechando: nao ha a quem reportar */ });
     } catch { /* jamais atrapalhar o fechamento da aba */ }

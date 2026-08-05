@@ -1,0 +1,82 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# VERIFICA — roda a cada push, antes de o site chegar ao usuário.
+#
+# POR QUE EXISTE (05/08/2026)
+# Até aqui os testes rodavam porque EU os rodava. Se eu esquecesse, nada
+# impedia código quebrado de subir — e a Vercel republica sozinha a cada push.
+# Era a maior lacuna da infraestrutura, e custa R$ 0.
+#
+# Agora o GitHub roda tudo sozinho. Se algo falhar, ele manda e-mail para o
+# dono do repositório automaticamente — sem configuração nenhuma.
+#
+# ⚠️ O QUE **NÃO** ESTÁ AQUI, e por quê:
+#   testa-isolamento, testa-auditoria, backup e testa-edital-real precisam da
+#   chave de serviço do Supabase. Pôr essa chave no GitHub seria dar a chave do
+#   banco inteiro a mais um lugar — e o repositório é público. Esses continuam
+#   rodando na máquina do Lucas, onde a chave já vive.
+#
+#   checa-saude e testa-site batem no site NO AR. Aqui eles testariam o deploy
+#   ANTERIOR (a Vercel publica depois do push), o que confunde mais do que
+#   ajuda. Eles ficam no vigia.yml, que roda de hora em hora.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: Verifica
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:      # permite disparar à mão, pelo site do GitHub
+
+jobs:
+  rapido:
+    name: Checagens rápidas (sem navegador)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # valida-css compara o CSS resolvido contra um ponto do histórico,
+          # e verifica.js lê a lista de arquivos versionados. Os dois precisam
+          # do histórico inteiro, não só do último commit.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: 14 checagens — a rede de segurança do projeto
+        run: node tools/verifica.js
+
+      - name: Dado não confiável sem escape (XSS)
+        run: node tools/varre-xss.js
+
+      - name: As 33 regras de produto (patente, peso, cronograma)
+        run: node tools/testa-plano.js
+
+      - name: CSS resolvido idêntico ao do histórico
+        run: node tools/valida-css.js
+
+  navegador:
+    name: Checagens no navegador
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # O projeto não tem package.json de propósito. Aqui o playwright é
+      # instalado só dentro da máquina descartável do GitHub; nada disso volta
+      # para o repositório (node_modules está no .gitignore).
+      - name: Instalar o navegador de teste
+        run: npm install --no-save playwright && npx playwright install --with-deps chromium
+
+      - name: A barra de rolagem não pode piscar ao trocar de página
+        run: node tools/testa-rolagem.js
+
+      - name: A tela não pode esperar o banco para dizer quem é o usuário
+        run: node tools/testa-velocidade.js
