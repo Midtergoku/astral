@@ -64,6 +64,38 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
     rápido."* Achou buraco de segurança grave, perda de dado ou custo disparando **no meio de
     outra tarefa**: escrever **🚨 URGENTE** na hora, não guardar para o relatório final.
 
+### 8.1. Onde a regra 8 termina — conflito resolvido por ele em 08/09/2026
+
+Em 08/09 ele escreveu um "prompt supremo" que mandava **perguntar antes de tudo**
+(*"você NÃO pode assumir decisões"*), o que contradiz a regra 8 (*"pode aplicar"*).
+Eu segui os dois no mesmo dia e pedi autorização várias vezes onde a regra 8 diz para não pedir.
+**Ordem dele: resolver.** O critério não é o tamanho da tarefa — é **se dá para desfazer**.
+
+| ✅ **APLICO DIRETO** — reversível, e o `verifica.js` cobre | 🛑 **PERGUNTO ANTES** — irreversível, custa, ou é decisão de dono |
+|---|---|
+| Corrigir bug, ajustar texto, refatorar | **Qualquer coisa que gaste dinheiro** (regra do 💰: preço na mesma frase) |
+| Publicar correção aprovada pelo `verifica.js` | Preço, plano, modelo de cobrança |
+| **Reverter o que quebrou** (regra 9) | Migration destrutiva, mexer em grant/RLS/policy |
+| Registrar em `historico/`, changelog, erros | **Apagar ou mover** arquivo, pasta ou linha do banco |
+| Rodar teste, medição, backup, varredura | Mudar **o que a landing promete** |
+| Criar/ajustar ferramenta em `tools/` | Remover funcionalidade que alguém já usa |
+| Escrever documentação | Funcionalidade nova grande (mais de uma sessão) |
+| | Dado de usuário: exportar, excluir, mandar para fora |
+
+**A dúvida se resolve por uma pergunta:** *"se isto der errado, eu desfaço sozinho em 5 minutos?"*
+Sim → aplico. Não → pergunto. **Na dúvida, pergunto** — mas dúvida não é desculpa para
+transformar tarefa reversível em pedido de autorização; isso é o que ele reclamou.
+
+**O que NÃO muda:** 🚨 urgente continua interrompendo (regra 11), e o relatório em linguagem
+de leigo (regra 2) continua obrigatório ao fim de todo bloco, inclusive do que apliquei direto.
+
+> ⚠️ **Do "prompt supremo" de 08/09, quatro sistemas que este projeto NÃO tem — medido:
+> `hipotese`, `experimento`, `funil`, `churn`, `LTV`, `MRR`, `ARPU`, `retencao` = 0 ocorrências
+> em `historico/` e neste arquivo.** Decisão dele: **guardar para depois da Fase 1**. Modelar
+> funil e LTV de um produto com 0 chamadas de IA é o palpite que o roadmap já alerta.
+> O resto do prompt supremo já existe aqui, e em versão medida — ver a tabela do relatório
+> de 08/09 em `historico/sessoes.md`.
+
 ## Os 5 erros que mais custaram (a tabela inteira: `historico/erros.md`)
 
 | O que eu fiz | O que aprendi |
