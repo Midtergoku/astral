@@ -353,3 +353,97 @@ no `CLAUDE.md`, checagem 11 no verificador, e linha no lembrete de início de se
 **Estado ao fim:** árvore limpa, `main` em sincronia, 12 checagens de saúde verdes, 11
 checagens do verificador limpas. **A sessão 8 abre no catálogo** — as 18 missões, 22 tags e 12
 conquistas secretas que ele aprovou e que ainda não foram para o código.
+
+---
+
+## Sessão 8 — 08/09/2026 · O dia em que eu auditei o projeto errado
+
+**Como começou:** o Lucas colou um "prompt supremo" de 106 partes — um sistema operacional de
+produto, negócio e finanças — e mandou fazer uma auditoria completa antes de tocar em nada.
+
+**O que deu errado, e é o maior desperdício até hoje:** a sessão abriu em `Documents\ASTRAL`,
+que era uma **cópia parada em julho**. O projeto real estava em `Desktop\ASTRAL`. Auditei a
+cópia por horas e produzi uma auditoria completa, 14 documentos e um roadmap de 70 etapas —
+tudo descrevendo código que não está em produção. Afirmei que não existia cronograma, nem
+termos de uso, nem git, nem rate limit, e que o banco tinha 7 tabelas órfãs. **Existem
+`cronograma.html`, `termos.html`, 145 commits, a função `minha-quota`, e o código real usa as
+tabelas.**
+
+Os três sinais estavam visíveis desde o primeiro minuto e passei por todos: **sem `.git`, sem
+remote, sem `CLAUDE.md`**. O que fechou a questão em 30 segundos, quando finalmente fiz, foi
+`curl` na produção + `cmp` com o arquivo local: `index.html` local **byte a byte igual** ao que
+está no ar — no Desktop, não em Documents. Detalhe completo em `erros.md`.
+
+**A correção:** as duas pastas foram unificadas. O projeto real está em `Documents\ASTRAL`; a
+cópia de julho ficou preservada em `Documents\ASTRAL-copia-antiga-2026-07`. Nada foi apagado, o
+Desktop ficou sem pasta ASTRAL. No caminho, um `mv` falhou e meu script imprimiu "ok" mesmo
+assim — o `mv` seguinte aninhou o projeto real dentro da cópia velha. Recuperado sem perda.
+
+### O conflito de autonomia, resolvido por ele
+
+O prompt supremo mandava **perguntar antes de tudo**; a regra 8 do `CLAUDE.md` manda **aplicar
+direto**. Segui os dois no mesmo dia. Ordem dele: resolver. O critério que ficou não é o tamanho
+da tarefa, é **se dá para desfazer** — *"se isto der errado, eu desfaço sozinho em 5 minutos?"*
+Está na seção 8.1 do `CLAUDE.md`, com as duas listas explícitas.
+
+### O que do prompt supremo este projeto NÃO tem — medido por grep
+
+`hipotese`, `experimento`, `funil`, `churn`, `LTV`, `MRR`, `ARPU`, `retencao`: **0 ocorrências**
+em `historico/` e no `CLAUDE.md`. **Decisão dele: guardar para depois da Fase 1.** Modelar funil
+e LTV de um produto com 0 chamadas de IA é exatamente o palpite que o roadmap já alerta. O
+resto do prompt supremo já existe aqui, e em versão medida.
+
+### Medições do dia
+
+| | 04/08 | **08/09** |
+|---|---|---|
+| Usuários | 8 | **8** |
+| Chamadas de IA em toda a história | 0 | **🔴 0** |
+| Leads na lista de espera | 0 | **0** |
+| Erros de usuário | — | 96, **todos de 1 a 4 de agosto** |
+
+**Cinco semanas e nada se moveu.** Os 96 erros são os dois bugs já corrigidos em 04/08
+(`uid is not defined` 88x, `loginGoogle` 4x). Zero erros novos — coerente com ninguém ter usado.
+Backup rodado: 122 linhas, fora do repositório.
+
+### 🎨 Estado real do design — o `CLAUDE.md` estava desatualizado
+
+Ele dizia "bloco V0". **V0, V1 e V3 estão essencialmente feitos**, medido no código:
+
+| Bloco | Estado |
+|---|---|
+| **V0** direção | ✅ direção militar/insígnia implementada |
+| **V1** fundação | ✅ paleta e tipografia trocadas · tokens de movimento em uso (41x só o `--saida`) |
+| **V3** ícones | ✅ **0 emojis** nas páginas (eram 118 em 31/07) |
+
+Paleta atual em `assets/css/base.css`: `--breu #0E1620` · `--casco #17222E` · `--oliva #5C6B47`
+· `--latao #C08A2E` · `--brasa #B4432E` · `--papel #E7E4DB`. Os nomes antigos (`--purple`,
+`--bg`, `--text`) continuam como **apelidos deliberados** para os novos, com comentário —
+`--purple: var(--latao)`. Não é sobra, é ponte.
+Tipografia real: **Archivo + Source Serif 4 + JetBrains Mono**, via Google Fonts.
+
+**O que falta para fechar o V1 — três correções pequenas, ainda NÃO aplicadas:**
+
+1. **3 declarações de fonte mortas em `assets/css/app.css`** (linhas 18, 41, 72): pedem
+   `'Inter'` e `'Space Grotesk'`, **nenhuma das duas é carregada**. `body`, `.sidebar-logo` e o
+   avatar caem em fonte genérica do sistema em vez de Archivo, nas 11 páginas que carregam o
+   arquivo. Trocar por `var(--display)` / `var(--corpo)`.
+2. **`estilo.html` já diverge do CSS real** — faltam `--latao-e` e `--oliva-c`.
+3. **6 raios de borda distintos** (`2 3 6 10 12 999px`); a skill pede 2 ou 3.
+
+Depois disso o próximo bloco de verdade é o **V2 — casca compartilhada**.
+
+⚠️ **Falso alarme meu no caminho, registrado para não repetir:** contei "9 referências a Inter"
+com `grep`. Sete eram `setInterval`/`clearInterval`. **Contagem por substring não é medição** —
+conferir a linha inteira antes de reportar número.
+
+### Contexto que orienta a próxima sessão
+
+**Ele está sem dinheiro**, então a Fase 1 (US$ 5 de crédito na Anthropic) está travada e o
+trabalho migrou para o design — que custa R$ 0 e é onde a Etapa 3 já estava. As **questões
+continuam desligadas de propósito** (`FUNCOES_DESLIGADAS` em `_shared/comum.ts:146`, desde
+31/07): não tocar.
+
+**Estado ao fim:** árvore limpa, `main` em sincronia, `checa-saude` verde, `verifica.js` limpo.
+**A sessão 9 abre nas três correções do V1 acima**, que ele já viu e sobre as quais eu esperava
+o "pode".

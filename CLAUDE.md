@@ -151,9 +151,26 @@ supabase functions deploy       edge functions NAO passam pelo git, entram no ar
 ## Onde estamos
 
 **Etapa 1 (blindagem) fechada.** Etapa 2 (pagamento) parada no Mercado Pago. **Estamos na Etapa 3
-— design e gamificação**, no bloco V0. Ordem dele: *"quero repaginar tudo (...) menos cara de
-feita de IA possível"*, e a escolha da direção visual é minha. **Não começar mexendo em CSS**: o
-problema medido não é feiura, é genérico, e genérico vem da fundação.
+— design e gamificação.** Ordem dele: *"quero repaginar tudo (...) menos cara de feita de IA
+possível"*, e a escolha da direção visual é minha. **Não começar mexendo em CSS**: o problema
+medido não é feiura, é genérico, e genérico vem da fundação.
+
+> 🎨 **Onde o design realmente está — medido em 08/09/2026.** Esta linha dizia "bloco V0" e
+> estava defasada: **V0, V1 e V3 estão essencialmente feitos.** A direção militar/insígnia foi
+> implementada (`--breu` `--casco` `--oliva` `--latao` `--brasa` `--papel` em `base.css`), a
+> tipografia é **Archivo + Source Serif 4 + JetBrains Mono**, os tokens de movimento estão em
+> uso, e há **0 emojis** nas páginas (eram 118). Os nomes antigos (`--purple`, `--bg`) são
+> **apelidos deliberados** para a paleta nova — não são sobra.
+>
+> **Faltam 3 correções para fechar o V1**, ainda não aplicadas: 3 declarações de fonte mortas em
+> `assets/css/app.css` (linhas 18, 41, 72 — pedem Inter/Space Grotesk, que não são mais
+> carregadas), `estilo.html` sem `--latao-e` e `--oliva-c`, e 6 raios de borda onde a skill pede
+> 2 ou 3. Depois disso, **V2 — casca compartilhada**. Detalhe em `historico/sessoes.md` § 8.
+
+> 🔴 **Ele está sem dinheiro no momento (08/09/2026)** — a Fase 1 (US$ 5 de crédito na
+> Anthropic) está travada, e por isso o trabalho migrou para o design, que custa R$ 0.
+> **As questões seguem desligadas de propósito** (`FUNCOES_DESLIGADAS` em
+> `_shared/comum.ts:146`, desde 31/07): não tocar.
 
 **Em aberto:** créditos na Anthropic (ele adia até receber do serviço; hoje é **gasto único de
 ~R$ 5–8 por pessoa**, não mensal) · `processar-edital` em janela mensal · backup nunca restaurado ·
