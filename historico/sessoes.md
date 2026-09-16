@@ -447,3 +447,95 @@ continuam desligadas de propósito** (`FUNCOES_DESLIGADAS` em `_shared/comum.ts:
 **Estado ao fim:** árvore limpa, `main` em sincronia, `checa-saude` verde, `verifica.js` limpo.
 **A sessão 9 abre nas três correções do V1 acima**, que ele já viu e sobre as quais eu esperava
 o "pode".
+
+---
+
+### Sessão 9 — 15/09/2026 · Auditoria técnica e os 5 primeiros consertos
+
+**Como começou:** ele perguntou, antes de qualquer coisa, se o `CLAUDE.md` estava atualizado —
+*"pois da última vez trabalhamos no sistema por muito tempo só pra mais tarde descobrir que era
+o arquivo desatualizado"*. A pergunta se pagou: 5 números defasados e uma contradição interna.
+Corrigidos, e o número de linhas no lembrete de início de sessão passou a ser **contado na
+hora** em vez de escrito à mão — era o único dos oito que ia envelhecer de novo.
+
+Depois veio o pedido principal: auditoria técnica de consistência visual, bugs e performance,
+sem editar nada.
+
+#### O que a auditoria achou
+
+**Consistência visual.** Os tokens existem e as páginas não os usam: 46 tokens no `:root` do
+`base.css` contra **144 valores de cor literais e zero via `var()`** nos 19 HTMLs. O caso mais
+claro é `--latao` escrito como `rgba(192,138,46,…)` com **seis alfas diferentes**, ~60 vezes.
+63 tamanhos de fonte, 62 transições (14 delas `transition: all`, que a skill proíbe), 19 raios.
+
+**Bugs.** O `verifica.js` já cobre link morto, ID fantasma e import quebrado — todos passando.
+O que sobrou: 6 consultas ao Supabase ignoravam o `error`. E `alert()` não existe mais no
+projeto: as 2 ocorrências são comentários explicando a substituição por `toast()`.
+
+**Performance.** **0 imagens** no projeto inteiro — a seção de lazy loading era inaplicável.
+Fontes com `preconnect` e `display=swap`. Os 4 scripts que bloqueiam render são deliberados e
+cada um conserta um bug medido; `identidade.js` existe justamente para *evitar* layout shift.
+26 classes de CSS sem uso, mas os nomes (`conquista-medalha`, `veu-conquista`, `nivel-numero`)
+são do catálogo de gamificação aprovado e ainda não codificado — **não apagar**.
+
+#### 🔴 A auditoria estava parcialmente errada em 3 dos 5 itens
+
+Isto é o que mais importa desta sessão:
+
+| Item | O que a auditoria dizia | O que a medição mostrou |
+|---|---|---|
+| 2 | `criar-conta.html` "quebra no mobile" | **Não quebrava** — zero rolagem horizontal. O problema era desperdício: 240px úteis contra 280px do `login.html` |
+| 3 | 6 consultas ignoram o erro | **4.** `divisa.js` tem `catch { /* silencio proposital */ }` e `plano.js` tem comentário explicando por que a falha é aceitável |
+| 5 | Alinhar as 11 páginas ao `767px` | **O oposto.** 768px é a largura do iPad em retrato; alinhar ao 767 jogaria o iPad para o layout de desktop com a barra comendo um terço da tela |
+
+**Medir antes de mexer mudou o trabalho em três dos cinco casos.**
+
+#### Os 5 consertos
+
+1. **`rules/paginas.md` § 7** descrevia a paleta roxo-sobre-preto e Inter/Space Grotesk — o
+   visual *anterior* ao V1. Esse arquivo **carrega sozinho** ao mexer em `*.html`, então eu lia
+   informação errada em todo trabalho de frontend. Reescrito com os 46 tokens medidos; o antigo
+   preservado em 7.1. *(Descoberto de passagem: `--t-sm`, `--r-p` e `--r-g` **já existiam** — a
+   auditoria propunha criar tokens que estavam lá. O problema é adoção, não ausência.)*
+2. **`criar-conta.html`** ganhou o mesmo bloco de celular do `login.html`. Em 360px: cartão de
+   312→328px, **240→280px úteis (+17%)**, e o iframe do hCaptcha parou de estourar a tela em 3px.
+3. **4 consultas a `perfis`** passam a destruturar o `error`, chamar `relatar()` e mostrar toast.
+   Sem isso, um usuário beta via **"FREE"** sem explicação e ninguém ficava sabendo.
+4. **🔴 O mais grave, e eu tinha classificado como faxina.** `app.css` carrega **depois** do
+   `base.css` e ainda pedia `'Inter'` e `'Space Grotesk'` — fontes que o site parou de carregar
+   no V1. Resultado medido: **as 11 páginas da área logada renderizavam na sans-serif genérica
+   do sistema**, não na Source Serif 4. `index.html`, que não carrega `app.css`, foi o controle
+   que provou a causa.
+5. **`base.css`** alinhado à convenção das páginas: 768 é celular, 769+ é desktop. Um arquivo,
+   quatro pontos, em vez de 11 arquivos.
+
+#### O padrão dos meus erros hoje: o instrumento mentiu, não o código
+
+Quatro vezes um teste meu disse "está tudo bem" enquanto **não estava medindo nada**. Todos
+estão em `erros.md`; o padrão merece destaque aqui porque é o mesmo de agosto (*"todas as minhas
+medições diziam ok enquanto o Lucas via quebrado"*):
+
+- servidor de teste devolvia **404 em tudo** (`path.join` usa `\` no Windows, meu `startsWith`
+  comparava com `/`) → medi página em branco e concluí "sem rolagem horizontal, está ok"
+- no Playwright a rota registrada **por último** vence; meu curinga engolia a específica → o
+  teste nunca exercitou a falha que eu dizia ter consertado
+- `grep Inter` casou com `setInterval` 7 vezes → quase reportei 9 fontes mortas em vez de 3
+- Python gravou `app.css` em **CRLF** num repo LF → diff de 566 linhas para 7 mudanças
+
+**A defesa que funcionou nas quatro:** conferir que o teste reproduziu o defeito antes de
+acreditar no conserto. O título vazio da página, a URL final, o `perfil pedido: sim` — cada um
+foi o que denunciou o instrumento.
+
+#### Achado de arrasto
+
+`tools/valida-css.js` estava **quebrado desde a mudança de pasta**: tinha
+`c:/Users/Lucas/Desktop/ASTRAL` escrito à mão e morria com ENOENT. Passou a derivar a raiz de
+`__dirname`. Vale varrer os outros `tools/` se aparecer comportamento estranho.
+
+#### Estado ao fim
+
+Árvore limpa, `main` em sincronia, `checa-saude` verde, `verifica.js` limpo. Sete commits.
+**Restam os itens 6 a 9 da auditoria** — transições com token, escala tipográfica, migrar as
+cores para `var()`, hospedar as fontes — todos de esforço maior e nenhum urgente. E os números
+do produto **não mudaram**: 8 usuários, **0 chamadas de IA em toda a história**, 0 leads. A
+Fase 1 segue travada por falta dos US$ 5 de crédito.
