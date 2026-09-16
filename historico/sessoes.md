@@ -539,3 +539,93 @@ foi o que denunciou o instrumento.
 cores para `var()`, hospedar as fontes — todos de esforço maior e nenhum urgente. E os números
 do produto **não mudaram**: 8 usuários, **0 chamadas de IA em toda a história**, 0 leads. A
 Fase 1 segue travada por falta dos US$ 5 de crédito.
+
+---
+
+### Sessão 10 — 16/09/2026 · Os itens 6 a 9, e o dia em que o teste valeu mais que o conserto
+
+**Abertura:** `checa-saude` verde, **96 erros de usuário — os mesmos de agosto, nenhum novo**.
+As mudanças de ontem, incluindo a troca de fonte em 11 páginas, não geraram um erro sequer.
+Números do produto inalterados: 8 usuários, **0 chamadas de IA**, 0 leads.
+
+#### O que foi feito
+
+| Item | O quê | Resultado |
+|---|---|---|
+| **6** | as 14 `transition: all` | propriedade a propriedade, com os tokens de movimento |
+| **7** | escala tipográfica | **só os 49 exatos** — o resto é V2, e o porquê está registrado |
+| **8** | cor via token | **232 usos**, com `color-mix` para as transparências |
+| **9** | fontes hospedadas por nós | 6 arquivos, 326 KB; **0 pedidos ao Google** |
+
+Adoção de token em dois dias: cor **0 → 232** · `font-size` **15 → 101** ·
+`transition` **0 → 33** · `transition: all` **14 → 0**.
+
+#### 🔴 A lição da sessão: o teste pegou o que a revisão não pegaria
+
+Três coisas quebraram hoje, e **as três foram pegas por medição, não por leitura**:
+
+**1. O site inteiro ficou sem fonte.** No CSS do Google o comentário `/* latin */` vem *antes*
+do `@font-face`. Dividi o arquivo por `"@font-face"` e cada pedaço ficou com o comentário do
+bloco **seguinte** — off-by-one. Os `unicode-range` foram para os arquivos errados, **nenhuma
+face cobriu latim** e todo o texto do Astral caiu no fallback. O teste acusou na hora:
+**954 blocos de texto com largura diferente, 0 fontes carregadas**. Refeito cortando *nos*
+comentários, agora com asserção: toda face `latin` tem de conter `U+0000-00FF`.
+
+**2. Apaguei o cabeçalho do `base.css`** ao remover o bloco errado — justamente o que avisa
+*"este é o ÚNICO lugar onde cor, tipo, espaço e movimento são definidos"*. Restaurado do `HEAD`.
+
+**3. O item 8 estragou o guia de estilo, e só apareceu no item 9.** O `estilo.html` mostra os
+hex das cores dentro de `<code>`. Meu script de cor trocou **também esse texto**: o guia passou
+a exibir `var(--breu)` onde devia exibir `#0E1620` — deixou de mostrar a informação que existe
+para mostrar. 8 casos. Varri as 19 páginas depois: nenhum token restou em texto visível.
+
+#### 🔬 Achado de método: teste por print NÃO funciona neste site
+
+Tentando provar o item 8, comparei screenshot de cada página antes × depois: **12 páginas
+diferentes, delta até 210**. Parecia estrago grande.
+
+**Antes de concluir, rodei o controle — a mesma versão dos dois lados.** Deu **10 páginas
+diferentes, delta até 76**.
+
+O site **renderiza de forma não determinística**. O ruído era do tamanho do sinal, então aquele
+teste não provava nada — nem a favor nem contra. Suspeito principal, **não confirmado**: o
+`${Math.random() > 0.5 ? '50%' : '2px'}` no `border-radius` do dashboard — mas o controle
+acusou páginas que não têm isso.
+
+**O que funciona no lugar, e foi medido:**
+
+| Métrica | Ruído no controle | Serve? |
+|---|---|---|
+| Screenshot pixel a pixel | **10 páginas, delta 76** | ❌ |
+| Cor calculada, normalizada em canvas | 0 | ✅ |
+| Largura de cada bloco de texto | **0 de 1192** | ✅ |
+
+**Toda prova visual daqui em diante roda o controle primeiro.** Sem saber o piso de ruído, o
+resultado não tem significado.
+
+#### Decisões tomadas por medição, não por gosto
+
+**Item 7 — por que a escala NÃO foi migrada inteira.** Dos 354 usos, 278 ficam a ≤1px de um
+token e pareciam fáceis. Não são: `0.8rem` (12,8px) e `0.82rem` (13,12px) estão hoje a **0,3px**
+um do outro e caem em tokens **diferentes** — encaixar os dois os afastaria para **2px**. Eu
+criaria diferença visível onde não havia. Migrei só os 49 exatos, com mudança zero **provada**:
+3.262 elementos comparados, nenhum diferente.
+
+**Item 8 — por que `color-mix` é seguro.** Três medições antes de adotar: (a) 32 combinações
+comparadas pixel a pixel, 32 idênticas; (b) o projeto **já usa** `text-wrap: balance` e `:has()`,
+os dois mais recentes que `color-mix` — nenhuma exigência nova de navegador; (c) o `estilo.html`
+já usava `color-mix` desde 02/08.
+
+**Item 9 — o que não deu para medir.** Quanto duram os `.woff2` do gstatic: eles não mandam
+`Timing-Allow-Origin`, então o Resource Timing devolve zero. Registrei a cadeia que **deu** para
+medir (o CSS: começa em 99ms, dura 205ms) e não estimei o resto.
+
+#### Estado ao fim
+
+Árvore limpa, `main` em sincronia, `checa-saude` verde, `verifica.js` limpo. Cinco commits.
+**A auditoria de 15/09 está fechada, 9 de 9.**
+
+O que sobra do design é o **V2 — casca compartilhada**, onde vivem os 35 seletores que divergem
+entre páginas e a unificação da escala tipográfica. E o que não mudou em cinco semanas:
+**0 chamadas de IA**. A Fase 1 segue travada nos US$ 5 de crédito, e continua sendo a única
+coisa que responde se o Astral faz o que promete.

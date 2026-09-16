@@ -241,10 +241,10 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 | Arquivo | O que tem | Consultar quando |
 |---|---|---|
 | `CLAUDE-original-2989.md` | o caderno inteiro antes desta reorganização | algo parecer que sumiu |
-| `erros.md` | os 28 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
+| `erros.md` | os 32 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
 | `auditorias.md` | as auditorias de 29/07 — código, segurança e banco | antes de auditar de novo |
 | `blocos-executados.md` | os 20 blocos 8.5–8.19, com o que foi medido | **antes de "consertar" algo estranho: pode ser decisão** |
-| `sessoes.md` | as 9 sessões narradas | para reconstruir *por que* algo foi decidido |
+| `sessoes.md` | as 10 sessões narradas | para reconstruir *por que* algo foi decidido |
 | `decisoes.md` | Mercado Pago, custo da Anthropic, contas, skills instaladas | antes de reabrir decisão fechada |
 | **`roadmap-ate-a-primeira-assinatura.md`** | **as 7 fases daqui até a 1ª assinatura paga, medidas em 04/08** | **ao planejar qualquer coisa — é o mapa atual** |
 | `ordem-de-trabalho.md` | as 3 etapas em detalhe e a estratégia de lançamento | histórico de como se chegou ao roadmap |
