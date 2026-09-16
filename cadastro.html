@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/base.css?v=ca6d8106"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=e7367588"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Entre na lista de espera</title>
   <style>
@@ -72,7 +72,7 @@
       transform: translateX(-50%);
       width: 700px;
       height: 500px;
-      background: radial-gradient(circle, rgba(192,138,46,0.13) 0%, transparent 70%);
+      background: radial-gradient(circle, color-mix(in srgb, var(--latao) 13%, transparent) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -92,8 +92,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      background: rgba(192,138,46,0.12);
-      border: 1px solid rgba(192,138,46,0.3);
+      background: color-mix(in srgb, var(--latao) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--latao) 30%, transparent);
       color: var(--purple-lt);
       padding: 0.35rem 1rem;
       border-radius: 999px;
@@ -153,7 +153,7 @@
 
     input:focus, select:focus {
       border-color: var(--purple);
-      box-shadow: 0 0 0 3px rgba(192,138,46,0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 15%, transparent);
     }
 
     select {
@@ -186,7 +186,7 @@
 
     .btn-submit:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(192,138,46,0.35);
+      box-shadow: 0 8px 25px color-mix(in srgb, var(--latao) 35%, transparent);
     }
 
     .btn-submit:disabled {
@@ -220,10 +220,10 @@
       font-weight: 700;
     }
     .avatar:first-child { margin-left: 0; }
-    .av1 { background: #C08A2E; color: #fff; }
-    .av2 { background: #E0AE55; color: #000; }
-    .av3 { background: #8CA06B; color: #000; }
-    .av4 { background: #E0705A; color: #fff; }
+    .av1 { background: var(--latao); color: #fff; }
+    .av2 { background: var(--latao-c); color: #000; }
+    .av3 { background: var(--oliva-c); color: #000; }
+    .av4 { background: var(--brasa-c); color: #fff; }
 
     /* ── SUCCESS STATE ── */
     .success-state {
@@ -238,8 +238,8 @@
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: rgba(140,160,107,0.12);
-      border: 1px solid rgba(140,160,107,0.3);
+      background: color-mix(in srgb, var(--oliva-c) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--oliva-c) 30%, transparent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -293,7 +293,7 @@
       font-size: 0.82rem;
       padding: 0.6rem 0.8rem;
       color: var(--purple-lt);
-      border-color: rgba(192,138,46,0.2);
+      border-color: color-mix(in srgb, var(--latao) 20%, transparent);
       cursor: text;
     }
 
@@ -590,7 +590,7 @@
     navigator.clipboard.writeText(url).then(() => {
       const btn = document.querySelector('.copy-btn');
       btn.textContent = 'Copiado! ✓';
-      btn.style.background = '#8CA06B';
+      btn.style.background = 'var(--oliva-c)';
       setTimeout(() => {
         btn.textContent = 'Copiar';
         btn.style.background = '';

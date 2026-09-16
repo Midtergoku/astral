@@ -267,7 +267,7 @@ body.saindo .main { animation: pageExit 150ms var(--saida) forwards; }
   padding: 0.9rem 1.1rem;
   background: var(--surface2, rgba(255,255,255,.03));
   border: 1px solid var(--border, rgba(255,255,255,.08));
-  border-left: 3px solid var(--latao, #c08a2e);
+  border-left: 3px solid var(--latao, var(--latao));
   border-radius: var(--r-g);
 }
 .ressalva-professores strong {
@@ -276,7 +276,7 @@ body.saindo .main { animation: pageExit 150ms var(--saida) forwards; }
   font-size: .78rem;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--latao-c, #e0ae55);
+  color: var(--latao-c, var(--latao-c));
   margin-bottom: .4rem;
 }
 .ressalva-professores p {

@@ -100,12 +100,46 @@ Medido nos 19 HTMLs. A coluna "16/09" mostra o que os itens 6 e 7 da auditoria f
 
 | | Declarado | 15/09 | **16/09** |
 |---|---|---|---|
-| Cor | 15 tokens | 144 valores literais, 0 via `var()` | igual — **é o que falta** |
+| Cor | 15 tokens | 144 valores literais, 0 via `var()` | **232 usos derivam do token** |
 | `font-size` | 6 tokens | 63 valores, 15 usos de token | **57 valores, 101 usos de token** |
-| `border-radius` | 2 tokens | 19 valores, 38 usos | igual |
+| `border-radius` | 2 tokens | 19 valores, 38 usos | igual — **é o que falta** |
 | `transition` | 8 tokens | 62 valores, **0** com token, 14 `all` | **33 com token, 0 `all`** |
 
 **Ao escrever CSS novo, usar token.** O resto da migração é trabalho do bloco V2.
+
+#### Cor com transparência: `color-mix`, e por que é seguro
+
+Onde havia `rgba(192,138,46,0.12)` agora há
+`color-mix(in srgb, var(--latao) 12%, transparent)`. Assim mudar `--latao` muda de verdade as
+232 ocorrências, inclusive as translúcidas — antes elas ficavam para trás.
+
+Três coisas foram **medidas** antes de adotar, não supostas:
+
+1. **Pinta igual?** 32 combinações de cor × transparência comparadas **pixel a pixel**:
+   32 idênticas, 0 diferentes. A comparação por *texto* daria falso alarme — `color-mix`
+   serializa como `color(srgb …)` e, dentro de `box-shadow`, como `oklab(…)`. **A serialização
+   muda; a tinta não.**
+2. **Exige navegador mais novo?** Não. O projeto já usa `text-wrap: balance` (Chrome 114) e
+   `:has()` — os dois **mais recentes** que `color-mix` (Chrome 111). Nenhuma exigência nova.
+3. **O padrão já era do projeto:** o `estilo.html` do V1 já usava `color-mix` desde 02/08.
+
+Os blocos `:root` foram **pulados de propósito**: lá o hex é a *definição* do token, não uso.
+
+#### ⚠️ Não dá para testar regressão visual por print neste site
+
+Descoberto em 16/09 tentando provar o item 8: rodei a comparação de screenshot com a
+**mesma versão dos dois lados** — o controle — e deu **10 páginas com diferença, delta até 76**.
+O site **renderiza de forma não determinística**: duas cargas do mesmo código produzem pixels
+diferentes. O ruído é do tamanho do sinal, então print-contra-print não prova nada aqui.
+
+Suspeito principal, **não confirmado**: `dashboard.html` tem
+`${Math.random() > 0.5 ? '50%' : '2px'}` num `border-radius` — mas o controle acusou diferença
+em páginas que não têm isso, então há mais coisa.
+
+**O que funciona no lugar:** comparar a **cor calculada de cada elemento**, normalizada para
+bytes RGBA por um canvas. Determinístico. Foi assim que o item 8 se provou: 3.262 elementos,
+3.256 idênticos, e os 6 restantes — todos o mesmo `box-shadow` — provados idênticos por
+comparação direta de pixel daquela declaração isolada.
 
 #### ⚠️ Por que a escala tipográfica NÃO foi migrada inteira — leia antes de tentar
 

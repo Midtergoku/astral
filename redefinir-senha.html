@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/base.css?v=ca6d8106"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=e7367588"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Redefinir senha</title>
   <style>
@@ -57,7 +57,7 @@
       transform: translateX(-50%);
       width: 600px;
       height: 400px;
-      background: radial-gradient(circle, rgba(192,138,46,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, color-mix(in srgb, var(--latao) 12%, transparent) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -99,7 +99,7 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     input::placeholder { color: var(--muted); }
-    input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(192,138,46,0.15); }
+    input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 15%, transparent); }
 
     /* Medidor de forca da senha */
     .forca { margin: -0.35rem 0 1rem; }
@@ -120,7 +120,7 @@
       cursor: pointer;
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
     }
-    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(192,138,46,0.35); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px color-mix(in srgb, var(--latao) 35%, transparent); }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .spinner {
@@ -141,8 +141,8 @@
       margin-bottom: 1rem;
       display: none;
     }
-    .msg.erro    { background: rgba(224,112,90,0.08); border: 1px solid rgba(224,112,90,0.25); color: var(--red); }
-    .msg.ok      { background: rgba(140,160,107,0.08);  border: 1px solid rgba(140,160,107,0.25);  color: var(--green); }
+    .msg.erro    { background: color-mix(in srgb, var(--brasa-c) 8%, transparent); border: 1px solid color-mix(in srgb, var(--brasa-c) 25%, transparent); color: var(--red); }
+    .msg.ok      { background: color-mix(in srgb, var(--oliva-c) 8%, transparent);  border: 1px solid color-mix(in srgb, var(--oliva-c) 25%, transparent);  color: var(--green); }
 
     .estado-icone { font-size: 2.2rem; margin-bottom: 0.75rem; }
 
@@ -259,12 +259,12 @@
     if (/[^A-Za-z0-9]/.test(senha)) pontos++;
 
     const niveis = [
-      { pct: 15,  cor: '#E0705A', txt: 'Muito fraca' },
-      { pct: 30,  cor: '#E0705A', txt: 'Fraca' },
-      { pct: 55,  cor: '#E0AE55', txt: 'Razoável' },
-      { pct: 75,  cor: '#E0AE55', txt: 'Boa' },
-      { pct: 100, cor: '#8CA06B', txt: 'Forte' },
-      { pct: 100, cor: '#8CA06B', txt: 'Muito forte' },
+      { pct: 15,  cor: 'var(--brasa-c)', txt: 'Muito fraca' },
+      { pct: 30,  cor: 'var(--brasa-c)', txt: 'Fraca' },
+      { pct: 55,  cor: 'var(--latao-c)', txt: 'Razoável' },
+      { pct: 75,  cor: 'var(--latao-c)', txt: 'Boa' },
+      { pct: 100, cor: 'var(--oliva-c)', txt: 'Forte' },
+      { pct: 100, cor: 'var(--oliva-c)', txt: 'Muito forte' },
     ];
     return niveis[Math.min(pontos, niveis.length - 1)];
   }

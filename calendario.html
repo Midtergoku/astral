@@ -5,10 +5,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/base.css?v=ca6d8106"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=e7367588"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Calendário</title>
-  <link rel="stylesheet" href="assets/css/app.css?v=8973e5e0" />
+  <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
 <style>
 
 
@@ -71,8 +71,8 @@
 
 /* ── AVISO ── */
     .aviso-card {
-      background: rgba(224,174,85,0.06);
-      border: 1px solid rgba(224,174,85,0.2);
+      background: color-mix(in srgb, var(--latao-c) 6%, transparent);
+      border: 1px solid color-mix(in srgb, var(--latao-c) 20%, transparent);
       border-radius: 6px;
       padding: 0.85rem 1.25rem;
       display: flex;
@@ -141,7 +141,7 @@
       transition: border-color 0.15s;
     }
 
-.evento-item:hover { border-color: rgba(192,138,46,0.3); }
+.evento-item:hover { border-color: color-mix(in srgb, var(--latao) 30%, transparent); }
 
 .evento-icone {
       width: 42px;
@@ -271,7 +271,7 @@ input::placeholder { color: var(--muted); }
 
 input:focus, select:focus {
       border-color: var(--purple);
-      box-shadow: 0 0 0 3px rgba(192,138,46,0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 15%, transparent);
     }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -532,11 +532,11 @@ select option { background: var(--surface); color: var(--text); }
   let editandoIndex = null;
 
   const CATEGORIAS = {
-    prova:         { label: 'Prova',          cor: 'var(--purple)', bg: 'rgba(192,138,46,0.12)', icone: 'documento' },
-    inscricao:     { label: 'Inscrição',      cor: 'var(--green)',  bg: 'rgba(140,160,107,0.12)', icone: 'documento' },
+    prova:         { label: 'Prova',          cor: 'var(--purple)', bg: 'color-mix(in srgb, var(--latao) 12%, transparent)', icone: 'documento' },
+    inscricao:     { label: 'Inscrição',      cor: 'var(--green)',  bg: 'color-mix(in srgb, var(--oliva-c) 12%, transparent)', icone: 'documento' },
     resultado:     { label: 'Resultado',      cor: '#60A5FA',       bg: 'rgba(96,165,250,0.12)', icone: 'grafico' },
-    taf:           { label: 'TAF',            cor: 'var(--gold)',   bg: 'rgba(224,174,85,0.12)', icone: 'corrida' },
-    documentacao:  { label: 'Documentação',   cor: 'var(--red)',    bg: 'rgba(224,112,90,0.12)',icone: 'prancheta' },
+    taf:           { label: 'TAF',            cor: 'var(--gold)',   bg: 'color-mix(in srgb, var(--latao-c) 12%, transparent)', icone: 'corrida' },
+    documentacao:  { label: 'Documentação',   cor: 'var(--red)',    bg: 'color-mix(in srgb, var(--brasa-c) 12%, transparent)',icone: 'prancheta' },
     personalizado: { label: 'Personalizado',  cor: 'var(--muted)',  bg: 'rgba(107,107,128,0.12)',icone: 'marcador' },
   };
 

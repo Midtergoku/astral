@@ -289,15 +289,15 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 /* ZONA DE PERIGO: fundo levemente quente e faixa de brasa. Ela tem que
    PARECER diferente do resto, nao so estar escrita no fim da pagina. */
 .card.zona-perigo {
-  border-color: rgba(180,67,46,.45);
+  border-color: color-mix(in srgb, var(--brasa) 45%, transparent);
   border-left: 3px solid var(--brasa);
-  background: linear-gradient(180deg, rgba(180,67,46,.07), transparent 60%), var(--casco);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brasa) 7%, transparent), transparent 60%), var(--casco);
 }
 .zona-perigo .section-title { color: var(--brasa-c); }
 .zona-perigo .section-title::before { background: var(--brasa); }
 .card.zona-perigo .aviso {
-  background: rgba(180,67,46,.09);
-  border: 1px solid rgba(180,67,46,.25);
+  background: color-mix(in srgb, var(--brasa) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brasa) 25%, transparent);
   border-radius: var(--r-p);
   padding: var(--e3);
   margin: var(--e3) 0;
@@ -318,7 +318,7 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 }
 .btn-roxo    { background: var(--latao); color: #121A24; border-color: var(--latao); }
 .btn-fantasma{ background: transparent; color: var(--texto); border-color: var(--linha); }
-.zona-perigo .btn-fantasma { color: var(--brasa-c); border-color: rgba(180,67,46,.5); }
+.zona-perigo .btn-fantasma { color: var(--brasa-c); border-color: color-mix(in srgb, var(--brasa) 50%, transparent); }
 @media (hover: hover) and (pointer: fine) {
   .btn-roxo:hover     { background: var(--latao-c); border-color: var(--latao-c); }
   .btn-fantasma:hover { border-color: var(--latao); color: var(--latao-c); }
@@ -365,7 +365,7 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 }
 .sidebar .nav-link.active {
   color: var(--latao-c);
-  background: rgba(192,138,46,.10);
+  background: color-mix(in srgb, var(--latao) 10%, transparent);
 }
 
 /* ═══ HOVER SO PARA QUEM TEM MOUSE ═══
@@ -458,9 +458,9 @@ body.astral-saindo { pointer-events: none; }
   .card:hover, .stat-card:hover, .materia-card:hover,
   .habilidade-card:hover, .recurso-card:hover {
     transform: translateY(-3px);
-    border-color: rgba(192,138,46,.35);
+    border-color: color-mix(in srgb, var(--latao) 35%, transparent);
     box-shadow: 0 10px 30px -12px rgba(0,0,0,.6),
-                0 0 0 1px rgba(192,138,46,.12);
+                0 0 0 1px color-mix(in srgb, var(--latao) 12%, transparent);
   }
 }
 
@@ -558,7 +558,7 @@ body.astral-saindo { pointer-events: none; }
     transform: translateY(-2px);
   }
   .btn-roxo:hover, .btn-primary:hover, .btn-1:hover {
-    box-shadow: 0 8px 20px -6px rgba(192,138,46,.55),
+    box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--latao) 55%, transparent),
                 0 2px 6px -2px rgba(0,0,0,.5);
   }
   .btn-fantasma:hover {
@@ -596,8 +596,8 @@ body.astral-saindo { pointer-events: none; }
   position: absolute; inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(140deg, rgba(224,174,85,.55), rgba(224,174,85,0) 45%,
-                                      rgba(224,174,85,0) 60%, rgba(224,174,85,.30));
+  background: linear-gradient(140deg, color-mix(in srgb, var(--latao-c) 55%, transparent), color-mix(in srgb, var(--latao-c) 0%, transparent) 45%,
+                                      color-mix(in srgb, var(--latao-c) 0%, transparent) 60%, color-mix(in srgb, var(--latao-c) 30%, transparent));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   opacity: 0;
@@ -622,7 +622,7 @@ body.astral-saindo { pointer-events: none; }
   position: absolute; inset: 0;
   border-radius: inherit;
   background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%),
-              rgba(224,174,85,.10), transparent 62%);
+              color-mix(in srgb, var(--latao-c) 10%, transparent), transparent 62%);
   opacity: 0; transition: opacity 320ms ease;
   pointer-events: none;
 }
@@ -644,8 +644,8 @@ body.astral-saindo { pointer-events: none; }
   position: absolute; inset: 0;
   border-radius: inherit; padding: 1.5px;
   background: conic-gradient(from var(--giro),
-              rgba(224,174,85,0) 0deg, var(--latao-c) 70deg,
-              rgba(224,174,85,0) 150deg, rgba(224,174,85,0) 360deg);
+              color-mix(in srgb, var(--latao-c) 0%, transparent) 0deg, var(--latao-c) 70deg,
+              color-mix(in srgb, var(--latao-c) 0%, transparent) 150deg, color-mix(in srgb, var(--latao-c) 0%, transparent) 360deg);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   animation: gira 4s linear infinite;
@@ -661,7 +661,7 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--latao) !important;
-  box-shadow: 0 0 0 3px rgba(192,138,46,.16);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 16%, transparent);
 }
 
 /* ── LINHA QUE ACENDE ─────────────────────────────────────────────────────
@@ -811,7 +811,7 @@ input:focus, textarea:focus, select:focus {
   width: 3rem; height: 3rem; margin-bottom: var(--e3);
   border: 1px solid var(--latao); border-radius: 50%;
   color: var(--latao-c);
-  background: rgba(192,138,46,.08);
+  background: color-mix(in srgb, var(--latao) 8%, transparent);
 }
 .vazio-titulo {
   font-family: var(--display); font-weight: 800; font-size: var(--t-lg);
@@ -1040,7 +1040,7 @@ input:focus, textarea:focus, select:focus {
 .bento-visual {
   border-radius: var(--r-p);
   background:
-    radial-gradient(120% 90% at 20% 0%, rgba(192,138,46,.16), transparent 60%),
+    radial-gradient(120% 90% at 20% 0%, color-mix(in srgb, var(--latao) 16%, transparent), transparent 60%),
     var(--casco-2);
   border: 1px solid var(--linha);
   min-height: 5.5rem;
@@ -1248,9 +1248,9 @@ input:focus, textarea:focus, select:focus {
 .conquista::before {
   content: ""; position: absolute; inset: -40%;
   background: conic-gradient(from 0deg,
-    rgba(224,174,85,.16) 0deg 6deg,  transparent 6deg 26deg,
-    rgba(224,174,85,.16) 26deg 32deg, transparent 32deg 52deg,
-    rgba(224,174,85,.16) 52deg 58deg, transparent 58deg 78deg);
+    color-mix(in srgb, var(--latao-c) 16%, transparent) 0deg 6deg,  transparent 6deg 26deg,
+    color-mix(in srgb, var(--latao-c) 16%, transparent) 26deg 32deg, transparent 32deg 52deg,
+    color-mix(in srgb, var(--latao-c) 16%, transparent) 52deg 58deg, transparent 58deg 78deg);
   border-radius: 50%; opacity: 0; z-index: -1;
   transition: opacity 500ms ease;
 }
@@ -1264,7 +1264,7 @@ input:focus, textarea:focus, select:focus {
   display: grid; place-items: center; border-radius: 50%;
   background: linear-gradient(160deg, var(--latao-c), var(--latao));
   color: #121A24;
-  box-shadow: 0 0 0 6px rgba(192,138,46,.14), 0 14px 34px -14px rgba(192,138,46,.6);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--latao) 14%, transparent), 0 14px 34px -14px color-mix(in srgb, var(--latao) 60%, transparent);
 }
 .conquista-rot {
   display: block; margin-bottom: var(--e2);

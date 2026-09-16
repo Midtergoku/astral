@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/base.css?v=ca6d8106"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=e7367588"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Criar conta</title>
   <style>
@@ -61,7 +61,7 @@
       transform: translateX(-50%);
       width: 600px;
       height: 400px;
-      background: radial-gradient(circle, rgba(192,138,46,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, color-mix(in srgb, var(--latao) 12%, transparent) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -80,8 +80,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      background: rgba(192,138,46,0.12);
-      border: 1px solid rgba(192,138,46,0.3);
+      background: color-mix(in srgb, var(--latao) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--latao) 30%, transparent);
       color: var(--purple-lt);
       padding: 0.3rem 0.85rem;
       border-radius: 999px;
@@ -169,7 +169,7 @@
     input::placeholder { color: var(--muted); }
     input:focus {
       border-color: var(--purple);
-      box-shadow: 0 0 0 3px rgba(192,138,46,0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 15%, transparent);
     }
 
     .consent-row {
@@ -220,8 +220,8 @@
     .consent-label a:hover { text-decoration: underline; }
 
     .error-msg {
-      background: rgba(224,112,90,0.08);
-      border: 1px solid rgba(224,112,90,0.25);
+      background: color-mix(in srgb, var(--brasa-c) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--brasa-c) 25%, transparent);
       color: var(--red);
       border-radius: 3px;
       padding: 0.7rem 1rem;
@@ -242,8 +242,8 @@
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: rgba(140,160,107,0.12);
-      border: 1px solid rgba(140,160,107,0.3);
+      background: color-mix(in srgb, var(--oliva-c) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--oliva-c) 30%, transparent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -276,7 +276,7 @@
     }
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(192,138,46,0.35);
+      box-shadow: 0 8px 25px color-mix(in srgb, var(--latao) 35%, transparent);
     }
     .btn-primary:disabled {
       opacity: 0.6;

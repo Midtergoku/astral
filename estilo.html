@@ -134,7 +134,7 @@ section { border-top: 1px solid var(--linha); margin-top: var(--e6); padding-top
   transition: border-color var(--d-dica) ease, box-shadow var(--d-dica) ease;
 }
 .campo input:focus { outline: none; border-color: var(--latao);
-                     box-shadow: 0 0 0 3px rgba(192,138,46,.16); }
+                     box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 16%, transparent); }
 .campo input::placeholder { color: var(--texto-3); }
 
 /* ═══ CARTAO ═══ */
@@ -286,12 +286,12 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
     <span class="rotulo">01 · Cor</span>
     <h2>Tinta, latão e papel</h2>
     <div class="paleta">
-      <div class="tom"><div class="amostra" style="background:#0E1620"></div><b>Breu</b><code>#0E1620</code></div>
-      <div class="tom"><div class="amostra" style="background:#17222E"></div><b>Casco</b><code>#17222E</code></div>
-      <div class="tom"><div class="amostra" style="background:#E7E4DB"></div><b>Papel</b><code>#E7E4DB</code></div>
-      <div class="tom"><div class="amostra" style="background:#C08A2E"></div><b>Latão</b><code>#C08A2E</code></div>
-      <div class="tom"><div class="amostra" style="background:#5C6B47"></div><b>Oliva</b><code>#5C6B47</code></div>
-      <div class="tom"><div class="amostra" style="background:#B4432E"></div><b>Brasa</b><code>#B4432E</code></div>
+      <div class="tom"><div class="amostra" style="background:var(--breu)"></div><b>Breu</b><code>var(--breu)</code></div>
+      <div class="tom"><div class="amostra" style="background:var(--casco)"></div><b>Casco</b><code>var(--casco)</code></div>
+      <div class="tom"><div class="amostra" style="background:var(--papel)"></div><b>Papel</b><code>var(--papel)</code></div>
+      <div class="tom"><div class="amostra" style="background:var(--latao)"></div><b>Latão</b><code>var(--latao)</code></div>
+      <div class="tom"><div class="amostra" style="background:var(--oliva)"></div><b>Oliva</b><code>var(--oliva)</code></div>
+      <div class="tom"><div class="amostra" style="background:var(--brasa)"></div><b>Brasa</b><code>var(--brasa)</code></div>
     </div>
     <p style="margin-top:var(--e3)"><strong>A regra que segura tudo:</strong> latão só aparece no que foi <em>conquistado</em>. Se virar cor de botão comum, a divisa deixa de valer.</p>
   </section>
@@ -404,7 +404,7 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
     <div class="rolagem">
       <table>
         <tr><th></th><th>Hoje</th><th>V1</th></tr>
-        <tr><td>Cor base</td><td><code>#7C5CFC</code> roxo sobre <code>#0A0A0F</code></td><td><code>#C08A2E</code> latão sobre <code>#0E1620</code></td></tr>
+        <tr><td>Cor base</td><td><code>#7C5CFC</code> roxo sobre <code>#0A0A0F</code></td><td><code>var(--latao)</code> latão sobre <code>var(--breu)</code></td></tr>
         <tr><td>Fonte do corpo</td><td>Inter</td><td>Source Serif 4</td></tr>
         <tr><td>Raios de borda</td><td class="num">8 diferentes</td><td class="num">2 — 3px e 6px</td></tr>
         <tr><td>Animação</td><td>biblioteca JS de CDN externo</td><td>CSS puro — não trava e some uma dependência</td></tr>
