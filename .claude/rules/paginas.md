@@ -34,12 +34,102 @@ Consequência: trocar de navegador, limpar cache ou abrir no celular = usuário 
 
 ## 7. Design system
 
+> ⚠️ **Reescrito em 15/09/2026, medido no código.** Esta seção descrevia a paleta roxo-sobre-preto
+> e as fontes Inter/Space Grotesk — o visual **anterior** ao bloco V1 do design. O registro antigo
+> ficou preservado em 7.1, logo abaixo, porque este arquivo carrega sozinho ao mexer em `*.html`
+> e eu estava lendo informação errada toda vez que trabalhava no frontend.
+
+**A fonte de verdade é o `:root` de `assets/css/base.css`** — 46 tokens. Nunca redeclarar `:root`
+numa página. O que está abaixo é o resumo; o arquivo manda.
+
+### Cor — direção militar/insígnia
+
+| Token | Valor | Papel |
+|---|---|---|
+| `--breu` | `#0E1620` | fundo — azul-grafite frio, não preto |
+| `--casco` | `#17222E` | superfície elevada: cartão, topbar, sidebar |
+| `--casco-2` | `#1E2B39` | superfície sobre superfície |
+| `--linha` | `#2A3947` | divisória |
+| `--papel` | `#E7E4DB` | o edital — branco-osso **frio**, nunca creme |
+| `--latao` / `--latao-c` / `--latao-e` | `#C08A2E` `#E0AE55` `#3A2B12` | o metal da insígnia — é a cor de marca |
+| `--oliva` / `--oliva-c` | `#5C6B47` `#8CA06B` | a farda — apoio, sucesso, estado neutro |
+| `--brasa` / `--brasa-c` | `#B4432E` `#E0705A` | alerta e prazo |
+| `--texto` / `--texto-2` / `--texto-3` | `#DDE4EA` `#8FA0AE` `#5F7183` | texto em três níveis |
+
+**Apelidos de compatibilidade, deliberados:** `--bg` `--surface` `--surface2` `--border`
+`--purple` `--purple-lt` `--purple-dim` `--gold` `--green` `--red` `--text` `--muted` `--white`
+apontam para os tokens acima — `--purple: var(--latao)`. **Não são sobra.** Existem para o CSS
+antigo continuar válido. Em código novo, usar o nome militar.
+
+### Tipo
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--display` | Archivo | título, patente, botão |
+| `--corpo` | Source Serif 4 | texto corrido |
+| `--dado` | JetBrains Mono | número, prazo, % |
+
+Escala: `--t-xs` .75 · `--t-sm` .875 · `--t-md` 1 · `--t-lg` 1.25 · `--t-xl` 1.75 · `--t-2xl` 2.5rem
+
+### Espaço e forma
+
+Espaçamento: `--e1` .25 · `--e2` .5 · `--e3` 1 · `--e4` 1.5 · `--e5` 2.5 · `--e6` 4rem
+Raio: **só dois** — `--r-p` 3px (botão, campo, chip) · `--r-g` 6px (cartão, painel, modal)
+
+### Movimento — token de fundação, não acabamento
+
+Curvas: `--saida` · `--percurso` · `--gaveta`
+Durações: `--d-toque` 140 · `--d-dica` 160 · `--d-menu` 200 · `--d-painel` 320 · `--d-fecha` 180ms
+
+Regras da skill `astral-design`: nunca `ease-in` · nada acima de 300ms · sair mais rápido que
+entrar · nada nasce de `scale(0)` · só `transform` e `opacity` · **nunca `transition: all`** ·
+hover atrás de `@media (hover:hover)` · `prefers-reduced-motion` respeitado.
+
+### Casca
+
+- **Sidebar:** fixa, `--sidebar-w` 240px (recolhida: 68px). Indicador lateral no link ativo.
+- **Transição de página:** classe **`astral-saindo`** no `body` — sai em **260ms**, entra em
+  **420ms** (`astral-pg-sai` / `astral-pg-entra` em `base.css`). Durante a saída,
+  `pointer-events: none`. Ver `assets/js/transicao.js`, que explica por que não é View Transitions.
+- **Hover nos cartões:** `.card`, `.stat-card`, `.materia-card`, `.habilidade-card`,
+  `.recurso-card` — atrás de `@media (hover:hover)`.
+
+### 🔴 O buraco conhecido: os tokens existem, as páginas não os usam
+
+Medido em 15/09/2026 nos 19 HTMLs:
+
+| | Declarado | Literais espalhados |
+|---|---|---|
+| Cor | 15 tokens | **144 valores distintos, 0 via `var()`** |
+| `font-size` | 6 tokens (15 usos de `--t-sm`) | 63 valores — só `0.85rem` aparece 47× |
+| `border-radius` | 2 tokens (38 usos) | 19 valores |
+| `transition` | 8 tokens de movimento | **62 valores, nenhum usa os tokens**; 14 são `transition: all` |
+
+O caso mais claro: `--latao` escrito à mão como `rgba(192,138,46,…)` com **seis alfas
+diferentes**, ~60 ocorrências. **Ao escrever CSS novo, usar token.** A migração do que já existe
+é trabalho do bloco V2.
+
+---
+
+## 7.1. Registro histórico — o design system ANTES do V1 (até 01/08/2026)
+
+Preservado porque a regra 3 manda acrescentar, não sobrescrever, e porque HTML antigo ainda
+pode citar estes valores:
+
 - **Paleta:** bg `#0A0A0F` · surface `#13131A` · purple `#7C5CFC` · purple-lt `#A78BFA`
   · gold `#F5C542` · green `#34D399`
 - **Fontes:** Space Grotesk (títulos) + Inter (corpo)
 - **Estilo:** dark mode, minimalista, SaaS premium. Glow nos cards ao hover.
-- **Sidebar:** fixa 240px, borda roxa no topo, indicador lateral no link ativo
+- **Sidebar:** fixa 240px, borda **roxa** no topo, indicador lateral no link ativo
 - **Transição de página:** classe `.saindo` no body, 230ms, em cada `<a>` interno
+
+**Por que saiu:** medido em 31/07, o roxo `#7C5CFC` sobre quase-preto `#0A0A0F` é *a* paleta
+canônica de SaaS gerado por IA, e Inter é a fonte mais associada a isso. O site não era feio —
+era **genérico**, e genérico é o que "cara de IA" significa. Ver skill `astral-design` 9.1.
+
+⚠️ **Resíduo ainda no código:** `assets/css/app.css` linhas 18, 41 e 72 ainda pedem `'Inter'` e
+`'Space Grotesk'` — **nenhuma das duas é carregada hoje**, então esses três seletores caem em
+fonte genérica do sistema. Correção pendente do V1.
 
 ---
 
