@@ -195,7 +195,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s;
+      transition: background-color var(--d-dica) var(--saida), border-color var(--d-dica) var(--saida);
     }
 
 .today-check.checked {
@@ -348,7 +348,7 @@
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       transform: translateY(100px);
       opacity: 0;
-      transition: all 0.3s ease;
+      transition: transform var(--d-painel) var(--saida), opacity var(--d-painel) var(--saida), border-color var(--d-painel) var(--saida), color var(--d-painel) var(--saida);
       z-index: 100;
     }
 
@@ -497,7 +497,7 @@
 
 .balanco-banner-sub { font-size: 0.78rem; color: var(--muted); }
 
-.balanco-banner-btn { background: rgba(224,174,85,0.15); border: 1px solid rgba(224,174,85,0.3); color: var(--gold); padding: 0.5rem 1rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--corpo); transition: all 0.15s; }
+.balanco-banner-btn { background: rgba(224,174,85,0.15); border: 1px solid rgba(224,174,85,0.3); color: var(--gold); padding: 0.5rem 1rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--corpo); transition: background-color var(--d-dica) var(--saida); }
 
 .balanco-banner-btn:hover { background: rgba(224,174,85,0.25); }
 
