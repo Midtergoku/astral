@@ -318,6 +318,22 @@
       color: var(--muted);
       font-size: 0.82rem;
     }
+
+    /* Celular. Esta pagina era a unica tela de entrada SEM nenhuma media query
+       -- medido em 15/09/2026 com navegador de verdade em 360, 375 e 390px.
+       Nao havia rolagem horizontal, entao nao estava "quebrada"; o problema era
+       espaco desperdicado: em 360px sobravam 240px uteis dentro do cartao,
+       contra 280px no login.html, que ja tinha este bloco. 40px a menos, 17%.
+       E em 360px o iframe do hCaptcha ia ate 363px, estourando a tela por 3px.
+       Os valores sao os MESMOS do login.html de proposito: as duas telas de
+       entrada aparecem uma do lado da outra no fluxo de cadastro, e divergir
+       nelas e o tipo de coisa que faz o site parecer montado por partes. */
+    @media (max-width: 560px) {
+      nav { padding: 1rem 1.25rem; }
+      main { padding: 2rem 1rem; }
+      .card { padding: 1.5rem; border-radius: 6px; }
+      .card h1 { font-size: 1.35rem; }
+    }
   </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
