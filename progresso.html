@@ -406,7 +406,7 @@
 </main>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
     from './assets/js/astral.js?v=bd892079';
   import { montarCronograma, necessidadeDe } from './assets/js/plano.js?v=22c00529';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=04f39c1f';
@@ -424,12 +424,22 @@
 
     estado.usuario = session.user;
 
-    // Busca perfil
-    const { data: perfil } = await supabase
+    // Busca perfil.
+    // O erro NAO pode ser ignorado: sem perfil, ehCompleto() devolve false e a
+    // tela mostra FREE para quem e beta ou pro. O servidor continua sendo o
+    // portao de verdade, entao nao ha furo de acesso -- mas o usuario ve o
+    // plano errado e nao entende por que. Antes de 15/09/2026 isso falhava em
+    // silencio: nem toast, nem linha em erros_cliente.
+    const { data: perfil, error: erroPerfil } = await supabase
       .from('perfis')
       .select('*')
       .eq('id', session.user.id)
       .single();
+
+    if (erroPerfil) {
+      relatar(erroPerfil, 'carregar perfil');
+      toast('Nao consegui carregar os dados da sua conta. O plano pode aparecer errado nesta tela.', 'error');
+    }
 
     estado.perfil = perfil;
 

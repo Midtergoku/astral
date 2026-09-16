@@ -315,7 +315,7 @@
 <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
 <script type="module">
-  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL, buscarQuota }
+  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL, buscarQuota, relatar }
     from './assets/js/astral.js?v=bd892079';
 
   window.fazerLogout = fazerLogout;
@@ -336,7 +336,14 @@
     if (!session) return;
     usuario = session.user;
 
-    const { data } = await supabase.from('perfis').select('*').eq('id', usuario.id).maybeSingle();
+    // Ver o comentario igual em dashboard.html: perfil ausente vira FREE na
+    // tela. Nesta pagina o efeito e pior, porque ela EXISTE para mostrar os
+    // dados da conta.
+    const { data, error: erroPerfil } = await supabase.from('perfis').select('*').eq('id', usuario.id).maybeSingle();
+    if (erroPerfil) {
+      relatar(erroPerfil, 'carregar perfil (minha conta)');
+      toast('Nao consegui carregar os dados da sua conta. Recarregue a pagina.', 'error');
+    }
     perfil = data;
 
     const nome = nomeDoUsuario(usuario, perfil);
