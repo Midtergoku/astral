@@ -2,7 +2,12 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const RAIZ = 'c:/Users/Lucas/Desktop/ASTRAL';
+/* A raiz sai da localizacao deste arquivo, nao de um caminho escrito a mao.
+   Ate 15/09/2026 estava fixo em c:/Users/Lucas/Desktop/ASTRAL -- e quando o
+   projeto mudou de pasta a ferramenta quebrou com ENOENT, em silencio, ate
+   alguem tentar usa-la. Ferramenta que so funciona num computador especifico
+   nao e ferramenta. */
+const RAIZ = path.resolve(__dirname, '..');
 const GIT = process.env.LOCALAPPDATA + '\\Programs\\PortableGit\\cmd\\git.exe';
 const APP = ['dashboard','progresso','conquistas','edital','calendario','recursos','questoes','cronometro'];
 

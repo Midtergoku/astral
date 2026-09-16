@@ -127,9 +127,22 @@ pode citar estes valores:
 canônica de SaaS gerado por IA, e Inter é a fonte mais associada a isso. O site não era feio —
 era **genérico**, e genérico é o que "cara de IA" significa. Ver skill `astral-design` 9.1.
 
-⚠️ **Resíduo ainda no código:** `assets/css/app.css` linhas 18, 41 e 72 ainda pedem `'Inter'` e
-`'Space Grotesk'` — **nenhuma das duas é carregada hoje**, então esses três seletores caem em
-fonte genérica do sistema. Correção pendente do V1.
+✅ **Resíduo corrigido em 15/09/2026.** `assets/css/app.css` ainda pedia `'Inter'` no `body` e
+`'Space Grotesk'` em `.sidebar-logo` e `.user-avatar`. Como **app.css carrega depois de
+base.css**, essas linhas venciam a cascata — e como nenhuma das duas fontes é carregada desde o
+V1, **as 11 páginas da área logada renderizavam na sans-serif genérica do sistema**.
+
+Medido com navegador antes e depois:
+
+| | Antes | Depois |
+|---|---|---|
+| `body` em `dashboard`/`conta` | `Inter, sans-serif` | `"Source Serif 4", Georgia, serif` |
+| `.sidebar-logo` | `"Space Grotesk", sans-serif` | `Archivo, "Arial Narrow", Arial` |
+| `index.html` (não carrega app.css) | já estava certo | inalterado |
+
+**Lição, e é a mesma do `.user-name` mais abaixo:** `app.css` é o último a carregar nas páginas
+do app, então qualquer propriedade declarada ali **vence o `base.css` em silêncio**. Não
+redeclarar cor, fonte ou raio neste arquivo — quem manda é o `base.css`.
 
 ---
 
