@@ -356,7 +356,7 @@ conquistas secretas que ele aprovou e que ainda não foram para o código.
 
 ---
 
-## Sessão 8 — 08/09/2026 · O dia em que eu auditei o projeto errado
+### Sessão 8 — 08/09/2026 · O dia em que eu auditei o projeto errado
 
 **Como começou:** o Lucas colou um "prompt supremo" de 106 partes — um sistema operacional de
 produto, negócio e finanças — e mandou fazer uma auditoria completa antes de tocar em nada.
@@ -379,21 +379,21 @@ cópia de julho ficou preservada em `Documents\ASTRAL-copia-antiga-2026-07`. Nad
 Desktop ficou sem pasta ASTRAL. No caminho, um `mv` falhou e meu script imprimiu "ok" mesmo
 assim — o `mv` seguinte aninhou o projeto real dentro da cópia velha. Recuperado sem perda.
 
-### O conflito de autonomia, resolvido por ele
+#### O conflito de autonomia, resolvido por ele
 
 O prompt supremo mandava **perguntar antes de tudo**; a regra 8 do `CLAUDE.md` manda **aplicar
 direto**. Segui os dois no mesmo dia. Ordem dele: resolver. O critério que ficou não é o tamanho
 da tarefa, é **se dá para desfazer** — *"se isto der errado, eu desfaço sozinho em 5 minutos?"*
 Está na seção 8.1 do `CLAUDE.md`, com as duas listas explícitas.
 
-### O que do prompt supremo este projeto NÃO tem — medido por grep
+#### O que do prompt supremo este projeto NÃO tem — medido por grep
 
 `hipotese`, `experimento`, `funil`, `churn`, `LTV`, `MRR`, `ARPU`, `retencao`: **0 ocorrências**
 em `historico/` e no `CLAUDE.md`. **Decisão dele: guardar para depois da Fase 1.** Modelar funil
 e LTV de um produto com 0 chamadas de IA é exatamente o palpite que o roadmap já alerta. O
 resto do prompt supremo já existe aqui, e em versão medida.
 
-### Medições do dia
+#### Medições do dia
 
 | | 04/08 | **08/09** |
 |---|---|---|
@@ -406,7 +406,7 @@ resto do prompt supremo já existe aqui, e em versão medida.
 (`uid is not defined` 88x, `loginGoogle` 4x). Zero erros novos — coerente com ninguém ter usado.
 Backup rodado: 122 linhas, fora do repositório.
 
-### 🎨 Estado real do design — o `CLAUDE.md` estava desatualizado
+#### 🎨 Estado real do design — o `CLAUDE.md` estava desatualizado
 
 Ele dizia "bloco V0". **V0, V1 e V3 estão essencialmente feitos**, medido no código:
 
@@ -437,7 +437,7 @@ Depois disso o próximo bloco de verdade é o **V2 — casca compartilhada**.
 com `grep`. Sete eram `setInterval`/`clearInterval`. **Contagem por substring não é medição** —
 conferir a linha inteira antes de reportar número.
 
-### Contexto que orienta a próxima sessão
+#### Contexto que orienta a próxima sessão
 
 **Ele está sem dinheiro**, então a Fase 1 (US$ 5 de crédito na Anthropic) está travada e o
 trabalho migrou para o design — que custa R$ 0 e é onde a Etapa 3 já estava. As **questões

@@ -13,7 +13,7 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
 
 ## Stack — o que não dá para descobrir olhando a pasta
 
-- **Não há build. Não há npm, `package.json`, React, Next.js ou bundler.** 16 HTMLs com CSS e JS
+- **Não há build. Não há npm, `package.json`, React, Next.js ou bundler.** 19 HTMLs com CSS e JS
   inline. É por isso que a CSP precisa de `'unsafe-inline'`, e por isso exemplo em React não cola
   aqui sem tradução.
 - Compartilhado: `assets/css/app.css` · `assets/js/astral.js` (escape, sessão, captcha, toast) ·
@@ -125,7 +125,7 @@ node tools/varre-xss.js         dado nao confiavel sem escape
 node tools/testa-isolamento.js  um usuario alcanca o dado de outro?
 node tools/testa-auditoria.js   o log de eventos criticos funciona?
 node tools/valida-css.js        CSS resolvido igual ao ref (muda de papel no V1 -- ver skill design)
-node tools/verifica.js          🔴 OBRIGATORIO ANTES DE TODO COMMIT. 10 checagens, cada uma nascida
+node tools/verifica.js          🔴 OBRIGATORIO ANTES DE TODO COMMIT. 14 checagens, cada uma nascida
                                 de um erro real: residuo de replace, tags desbalanceadas, id
                                 duplicado, chave de CSS aberta, sintaxe de JS, carimbo defasado,
                                 acento corrompido, link morto, elemento fantasma, import quebrado
@@ -173,8 +173,13 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 > `_shared/comum.ts:146`, desde 31/07): não tocar.
 
 **Em aberto:** créditos na Anthropic (ele adia até receber do serviço; hoje é **gasto único de
-~R$ 5–8 por pessoa**, não mensal) · `processar-edital` em janela mensal · backup nunca restaurado ·
+~R$ 5–8 por pessoa**, não mensal) · `processar-edital` em janela mensal ·
 **validação de assinatura do webhook do Mercado Pago, que é bloqueador de lançamento**.
+
+> ✏️ **Corrigido em 15/09/2026:** esta lista trazia *"backup nunca restaurado"*, o que
+> contradizia o bloco de infraestrutura logo abaixo. O certo é o de baixo: em 05/08 o
+> `testa-restauracao.js` restaurou num esquema descartável e conferiu **114 linhas uma a uma**.
+> O item era resíduo de antes de 05/08 e devia ter saído naquele dia.
 
 > 🔴 **O número que reordena tudo, medido em 04/08/2026:** 8 usuários cadastrados e
 > **ZERO chamadas de IA em toda a história** — ninguém nunca subiu um edital. A promessa central
@@ -216,7 +221,7 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 
 | Arquivo | O que tem | Carrega em |
 |---|---|---|
-| `banco.md` | schema, RLS, grants, as 15 migrations e o porquê de cada trava | `supabase/migrations/**` |
+| `banco.md` | schema, RLS, grants, as 17 migrations e o porquê de cada trava | `supabase/migrations/**` |
 | `backend.md` | edge functions, quota por unidade, gate free/pro, interruptor de função desligada | `supabase/functions/**` |
 | `paginas.md` | escape obrigatório, design system atual, persistência, casca compartilhada | `*.html`, `assets/**` |
 
@@ -236,10 +241,10 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 | Arquivo | O que tem | Consultar quando |
 |---|---|---|
 | `CLAUDE-original-2989.md` | o caderno inteiro antes desta reorganização | algo parecer que sumiu |
-| `erros.md` | os 14 erros meus, completos | antes de afirmar qualquer coisa |
+| `erros.md` | os 24 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
 | `auditorias.md` | as auditorias de 29/07 — código, segurança e banco | antes de auditar de novo |
 | `blocos-executados.md` | os 20 blocos 8.5–8.19, com o que foi medido | **antes de "consertar" algo estranho: pode ser decisão** |
-| `sessoes.md` | as 5 sessões narradas | para reconstruir *por que* algo foi decidido |
+| `sessoes.md` | as 8 sessões narradas | para reconstruir *por que* algo foi decidido |
 | `decisoes.md` | Mercado Pago, custo da Anthropic, contas, skills instaladas | antes de reabrir decisão fechada |
 | **`roadmap-ate-a-primeira-assinatura.md`** | **as 7 fases daqui até a 1ª assinatura paga, medidas em 04/08** | **ao planejar qualquer coisa — é o mapa atual** |
 | `ordem-de-trabalho.md` | as 3 etapas em detalhe e a estratégia de lançamento | histórico de como se chegou ao roadmap |

@@ -10,6 +10,19 @@
 // Manter CURTO: cada linha aqui e paga em token em TODA sessao.
 
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+
+// Contado na hora, nao escrito a mao: este numero ja ficou 107 linhas defasado
+// (dizia 139 quando o arquivo tinha 246), e numero defasado no lembrete e a
+// primeira coisa que eu leio em toda sessao. Ver historico/erros.md 15/09/2026.
+let linhasClaude = "";
+try {
+  const p = path.join(__dirname, "..", "..", "CLAUDE.md");
+  linhasClaude = ` tem ${fs.readFileSync(p, "utf8").split("\n").length} linhas e`;
+} catch {
+  // se nao der para contar, a frase ainda funciona sem o numero
+}
 
 const linhas = [
   "== ASTRAL: lembrete automatico de inicio de sessao ==",
@@ -27,7 +40,7 @@ const linhas = [
   "   verde nos dois casos. Log de erro de usuario nao substitui teste --",
   "   ele mostra o que o teste nao pensou em perguntar.",
   "",
-  "2. O CLAUDE.md tem 139 linhas. O RESTO NAO SUMIU -- mudou de arquivo.",
+  `2. O CLAUDE.md${linhasClaude} NAO tem tudo -- o RESTO mudou de arquivo.`,
   "   Consultar ANTES de trabalhar, nao depois:",
   "",
   "     historico/erros.md ............. antes de AFIRMAR qualquer coisa",
