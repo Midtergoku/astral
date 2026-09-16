@@ -1180,7 +1180,15 @@ input:focus, textarea:focus, select:focus {
   transition: transform var(--d-fecha) var(--gaveta);
 }
 .folha:not([data-aberta]) { pointer-events: none; }
-@media (max-width: 767px) {
+/* 768px e a largura do iPad em retrato. As 11 paginas do app e o CSS do menu
+   em astral.js tratam 768 como CELULAR (max-width: 768px). Ate 15/09/2026 este
+   par usava 767/768 e discordava deles: em 768px exatos a .folha abria no modo
+   desktop enquanto a barra lateral estava escondida no modo celular, e o
+   .btn-recolher ganhava display:flex dentro de uma barra fora da tela.
+   Nao dava defeito visivel -- o botao estava escondido junto -- mas era uma
+   armadilha esperando a primeira regra que saisse de dentro da barra.
+   Alinhado a convencao das paginas: 768 e celular, 769 em diante e desktop. */
+@media (max-width: 768px) {
   .folha {
     left: 0; right: 0; bottom: 0;
     border-radius: var(--r-g) var(--r-g) 0 0;
@@ -1195,7 +1203,7 @@ input:focus, textarea:focus, select:focus {
     background: var(--linha); transform: translateX(-50%);
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   .folha {
     top: 0; bottom: 0; right: 0; width: min(28rem, 92vw);
     border-radius: var(--r-g) 0 0 var(--r-g); padding: var(--e4);
@@ -1387,8 +1395,8 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
 /* No celular a barra ja e uma gaveta que abre e fecha inteira (bloco 8.11).
    Recolher para icones ali nao resolve nada e ainda brigaria com a gaveta.
    Por isso o botao so existe a partir de 768px. */
-@media (min-width: 768px) { .btn-recolher { display: flex; } }
-@media (max-width: 767px) { body[data-menu="recolhido"] { --sidebar-w: 240px; } }
+@media (min-width: 769px) { .btn-recolher { display: flex; } }
+@media (max-width: 768px) { body[data-menu="recolhido"] { --sidebar-w: 240px; } }
 
 @media (prefers-reduced-motion: reduce) {
   .sidebar, .main, .btn-recolher svg { transition: none; }
