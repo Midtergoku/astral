@@ -96,18 +96,36 @@ hover atrás de `@media (hover:hover)` · `prefers-reduced-motion` respeitado.
 
 ### 🔴 O buraco conhecido: os tokens existem, as páginas não os usam
 
-Medido em 15/09/2026 nos 19 HTMLs:
+Medido nos 19 HTMLs. A coluna "16/09" mostra o que os itens 6 e 7 da auditoria fecharam:
 
-| | Declarado | Literais espalhados |
-|---|---|---|
-| Cor | 15 tokens | **144 valores distintos, 0 via `var()`** |
-| `font-size` | 6 tokens (15 usos de `--t-sm`) | 63 valores — só `0.85rem` aparece 47× |
-| `border-radius` | 2 tokens (38 usos) | 19 valores |
-| `transition` | 8 tokens de movimento | **62 valores, nenhum usa os tokens**; 14 são `transition: all` |
+| | Declarado | 15/09 | **16/09** |
+|---|---|---|---|
+| Cor | 15 tokens | 144 valores literais, 0 via `var()` | igual — **é o que falta** |
+| `font-size` | 6 tokens | 63 valores, 15 usos de token | **57 valores, 101 usos de token** |
+| `border-radius` | 2 tokens | 19 valores, 38 usos | igual |
+| `transition` | 8 tokens | 62 valores, **0** com token, 14 `all` | **33 com token, 0 `all`** |
 
-O caso mais claro: `--latao` escrito à mão como `rgba(192,138,46,…)` com **seis alfas
-diferentes**, ~60 ocorrências. **Ao escrever CSS novo, usar token.** A migração do que já existe
-é trabalho do bloco V2.
+**Ao escrever CSS novo, usar token.** O resto da migração é trabalho do bloco V2.
+
+#### ⚠️ Por que a escala tipográfica NÃO foi migrada inteira — leia antes de tentar
+
+Em 16/09 migrei só os **49 `font-size` exatamente iguais** ao valor de um token. Mudança de
+pixel: **zero, provada** — 3.262 elementos comparados nas 19 páginas entre a versão anterior e
+a nova, todos idênticos.
+
+O resto **não pode ser migrado mecanicamente**, e a armadilha é contraintuitiva:
+
+> `0.8rem` (12,8px) e `0.82rem` (13,12px) estão hoje a **0,3px** um do outro — indistinguíveis.
+> Cada um cai perto de um token **diferente** (`--t-xs` 12px e `--t-sm` 14px). Encaixar os dois
+> "no token mais próximo" os afastaria para **2px** — eu criaria uma diferença visível onde não
+> existia nenhuma.
+
+Contagem que sustenta a decisão: dos 354 usos numéricos, **278 ficam a ≤1px de algum token** e
+**76 ficam a mais de 1px**. Os 76 são escolha de design de verdade (1,4rem · 1,5rem · 2rem ·
+3,2rem do cronômetro) — encaixá-los na escala muda a cara do produto.
+
+**Conclusão:** unificar a escala é decisão de design, tela por tela, não busca e substitui.
+É trabalho do V2, com o `estilo.html` aberto do lado.
 
 ---
 

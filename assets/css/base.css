@@ -1337,7 +1337,7 @@ body[data-menu="recolhido"] .sidebar .nav-link {
   font-size: 0;                      /* zera o texto solto */
   gap: 0;
 }
-body[data-menu="recolhido"] .sidebar .nav-link svg { font-size: 1rem; }
+body[data-menu="recolhido"] .sidebar .nav-link svg { font-size: var(--t-md); }
 body[data-menu="recolhido"] .sidebar { padding-left: .5rem; padding-right: .5rem; }
 
 /* o logo recolhido vira a inicial, centralizada. Esconder o texto e manter a
@@ -1631,7 +1631,7 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
     }
 
 /* estava em 3 paginas, identica em todas */
-.empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-icon { font-size: var(--t-2xl); margin-bottom: 0.75rem; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════

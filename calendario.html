@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/base.css?v=bfdc6bed"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=ca6d8106"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Calendário</title>
   <link rel="stylesheet" href="assets/css/app.css?v=8973e5e0" />
@@ -83,7 +83,7 @@
       color: var(--muted);
     }
 
-.aviso-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+.aviso-icon { font-size: var(--t-md); flex-shrink: 0; margin-top: 0.1rem; }
 
 /* ── GRID STATS ── */
     .grid-3 {
@@ -125,7 +125,7 @@
 .section-title {
       font-family: var(--display);
       font-weight: 700;
-      font-size: 1rem;
+      font-size: var(--t-md);
       color: var(--white);
     }
 
@@ -150,7 +150,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      font-size: var(--t-lg);
       flex-shrink: 0;
     }
 
@@ -160,7 +160,7 @@
 
 .evento-data { font-size: 0.78rem; color: var(--muted); }
 
-.evento-obs  { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; opacity: 0.7; }
+.evento-obs  { font-size: var(--t-xs); color: var(--muted); margin-top: 0.2rem; opacity: 0.7; }
 
 .evento-tag {
       font-size: 0.72rem;
@@ -458,7 +458,7 @@ select option { background: var(--surface); color: var(--text); }
     </div>
     <div class="card stat-blue">
       <div class="card-label">Próximo evento</div>
-      <div class="card-value" style="font-size:1rem;line-height:1.3;" id="proximo-evento">—</div>
+      <div class="card-value" style="font-size:var(--t-md);line-height:1.3;" id="proximo-evento">—</div>
       <div class="card-sub" id="proximo-evento-sub">sem eventos futuros</div>
     </div>
     <div class="card stat-green">
