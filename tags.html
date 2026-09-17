@@ -62,7 +62,14 @@
     text-transform: uppercase; color: var(--texto-3);
   }
 
-  @media (max-width: 768px) { .vitrine { grid-template-columns: 1fr; } }
+  @media (max-width: 768px) {
+    .vitrine { grid-template-columns: 1fr; }
+    /* Sem isto a sidebar (fixed, 240px) fica POR CIMA do conteudo no celular:
+       240 de 360px cobertos. As outras 9 paginas do app ja faziam isto; estas
+       duas ficaram de fora. O botao de menu do astral.js traz ela de volta. */
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 1.25rem; }
+  }
 </style>
 </head>
 <body>
@@ -179,7 +186,7 @@
 
 <script type="module">
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
-    from './assets/js/astral.js?v=bd892079';
+    from './assets/js/astral.js?v=bfdb6e4b';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=04f39c1f';
   import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=c75452b6';
   import { icone } from './assets/js/icones.js?v=7c816270';

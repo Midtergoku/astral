@@ -320,6 +320,27 @@ páginas** — no CSS de cada uma teriam sido 9 cópias para divergir depois.
 > o `.sidebar` (0,1,0) que a página esconde, **independente da ordem** em que os estilos entram.
 > Injetar CSS de fora e depender de ordem seria frágil.
 
+> 🔴 **17/09/2026 — a correção compartilhada tem um pré-requisito que cada página precisa cumprir,
+> e duas não cumpriam.** O botão vive no `astral.js` e serve a todas, mas ele só resolve alguma
+> coisa se a página **esconder a barra** com `.sidebar { transform: translateX(-100%) }` na sua
+> consulta de 768px. `tags.html` e `cronograma.html` nasceram depois deste bloco, copiadas de
+> outra página, e ficaram sem essa linha: a barra é `fixed` e 240px, então num Android de 360px
+> ela cobria **240 de 360 — dois terços da tela** — por cima do conteúdo. O botão até aparecia,
+> mas "não abria" porque a barra já estava aberta.
+>
+> **Ao criar página nova com `.sidebar`, as duas linhas abaixo não são opcionais:**
+>
+> ```css
+> @media (max-width: 768px) {
+>   .sidebar { transform: translateX(-100%); }
+>   .main { margin-left: 0; padding: 1.25rem; }
+> }
+> ```
+>
+> Agora há teste: `node tools/testa-celular.js` **mede** se a barra se esconde nas 11 páginas do
+> app, em 360/375/390px. O texto acima dizia "as 9 páginas" — o número estava certo no dia em que
+> foi escrito e envelheceu calado. **Contagem em documentação não substitui verificação.**
+
 ### Toast em todo lugar, sem mexer em 13 arquivos
 
 Sobravam 10 `alert()` porque `login`, `cadastro` e `criar-conta` não tinham CSS de toast —

@@ -315,12 +315,17 @@ export function olhinhoDeSenha(...idsDosCampos) {
     css.id = estilo;
     css.textContent = `
       .campo-com-olhinho { position: relative; }
-      .campo-com-olhinho > input { padding-right: 2.85rem !important; }
+      .campo-com-olhinho > input { padding-right: 3.3rem !important; }
       .olhinho-senha {
-        position: absolute; top: 50%; right: 0.55rem;
+        position: absolute; top: 50%; right: 0.25rem;
         transform: translateY(-50%);
         display: flex; align-items: center; justify-content: center;
-        width: 2rem; height: 2rem;
+        /* 2.75rem = 44px, o minimo que um dedo acerta (Apple HIG). Era 2rem/32px.
+           O botao nao tem fundo nem borda, entao isto NAO muda nada na tela:
+           cresce so a area que responde ao toque, e o icone segue do mesmo
+           tamanho, centralizado pelo flex. O padding-right do input subiu junto
+           para o texto digitado nao passar por baixo do botao. */
+        width: 2.75rem; height: 2.75rem;
         background: none; border: none; padding: 0; cursor: pointer;
         color: #6B6B80; border-radius: 6px; transition: color .15s;
       }
