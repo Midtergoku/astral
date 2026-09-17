@@ -99,10 +99,64 @@ de o produto funcionar, senão é maquiagem em cima de nada.
 | 3.3 | **Ranking pessoal** | 🤖 | ⚠️ **pessoal, não entre usuários** — você foi explícito. Ranking público desmotiva quem está atrás |
 | 3.4 | **Página "Minha conta"** | 🤖 | A única feita do zero, funcional e sem acabamento. Você mesmo apontou |
 | 3.5 | ⚠️ **Validar XP no servidor** | 🤖 | 🔴 **só se o ranking ou as conquistas derem vantagem real.** Hoje qualquer um escreve o XP que quiser no navegador — inofensivo enquanto não vale nada, **fraude no dia em que valer** |
-| 3.6 | **Fontes hospedadas por nós** | 🤖 | Medido: a primeira visita gasta ~3s esperando o Google. Custa R$ 0 |
+| 3.6 | ✅ **Fontes hospedadas por nós** | 🤖 | **Feito em 16/09/2026.** 6 arquivos, 326 KB, em `assets/fontes/`. O Google saiu do caminho crítico e da CSP |
 | 3.7 | **As 81 cópias de CSS que divergem** | 🤖 | Unificar é decisão de design, não faxina. Fazer junto com o V-restante, não antes |
 
 **Pronto quando:** você abre o site e não pensa *"isso parece feito por IA"*.
+
+---
+
+### 🎖️ MASTERIZAÇÃO DA GAMIFICAÇÃO — pedido dele, 17/09/2026
+
+> *"Coloque na lista a masterização da gamificação, quero mexer mais nisso também."*
+
+Não é item novo solto: é o **V7 retomado**, que já tinha 7 passos com 2 feitos. O que muda é
+que agora está medido — antes eu trabalharia por cima do que o caderno dizia, e o caderno
+estava errado num número que importa (ver a última linha da tabela).
+
+#### O que existe HOJE, conferido no código em 17/09/2026
+
+| Sistema | Estado | Medido |
+|---|---|---|
+| **Nível / patente** | ✅ funciona | 6 tabelas por força × 11 níveis, 0 → 35.000 XP. `detectarTipoConcurso()` lê o nome do edital ([conquistas.html:522](conquistas.html#L522)) |
+| **Badges** | ✅ funciona | 8, e eles **derivam de limiar** — `xp_req`, `streak_req`, `nivel_req`, `edital_req` ([conquistas.html:611-614](conquistas.html#L611)). Não é preciso "conceder": passou do número, acendeu |
+| **Habilidades secretas** | ✅ existem, ⚠️ **poucas** | **18 entradas, 15 nomes distintos.** O caderno dizia 51 — corrigido hoje na skill. Trancadas em 70% de domínio, **de propósito** (é o mecanismo, não o defeito) |
+| **TAG** | ⚠️ pela metade | Coluna `tag_escolhida` no banco ✅ · tela `tags.html` ✅ · topbar mostrando `NÍVEL · TAG` ✅ · **catálogo de tags: não existe** |
+| **QUEST** | ❌ não existe | 0 linhas de código. É o buraco maior |
+| **Ranking pessoal** | ❌ não existe | V7.7, e depende das quests |
+
+#### A ordem que eu recomendo, e por quê
+
+| Passo | O quê | Por que nesta ordem | Esforço |
+|---|---|---|---|
+| **M1** | **Catálogo de tags** (V7.3) | Tudo o mais entrega tag. Sem catálogo, quest e secreto não têm o que dar. É escrita, não engenharia: nome + ícone + como se ganha | 1 sessão |
+| **M2** | **Motor de quests** (V7.4) | *"Se estudar tanto, libera isso"* — permanente, **nunca expira** (ordem dele, 01/08). Uma tabela de regras e um avaliador que roda no mesmo lugar onde o badge já é avaliado | 1–2 sessões |
+| **M3** | **Mais secretas** (V7.6) | Sai de 15 para o que você quiser. Depende do M1 porque secreto entrega tag | 1 sessão |
+| **M4** | **A tag como divisa** (V7.5) | Forma de galão, não retângulo arredondado. É visual, e o V1 já deu a paleta | 1 sessão |
+| **M5** | **Ranking pessoal** (V7.7) | ⚠️ **você contra você.** Ranking entre usuários desmotiva quem está atrás | 1 sessão |
+| **M6** | ⚠️ **Validar XP no servidor** | 🔴 **Só se algum dos acima der vantagem real.** Hoje qualquer um abre o console e escreve o XP que quiser — inofensivo enquanto não vale nada, **fraude no dia em que valer** | 1 sessão |
+
+**Custo em dinheiro: R$ 0.** Nada disso chama IA. É a razão de caber agora, com a Fase 1 travada.
+
+#### 💡 Três ideias que eu acrescento, porque você pediu para eu propor
+
+1. **A quest que aproveita o que já está ligado.** O cronômetro grava tempo por matéria e as
+   questões estão desligadas por custo. Então as primeiras quests deviam se alimentar de
+   **tempo e constância**, não de acerto — *"3 dias seguidos na matéria de menor domínio"* é
+   uma quest que funciona hoje, de graça, e empurra exatamente o comportamento que aprova.
+2. **Tag que decai, e por isso vale.** As habilidades já enferrujam em 7 dias e suspendem em
+   14. Se a tag **vestida** puder enferrujar junto, ela deixa de ser troféu de prateleira e
+   vira estado atual. O código do decaimento já existe — é reaproveitar, não construir.
+3. **O momento da descoberta não tem tela.** Hoje a habilidade secreta aparece destrancada na
+   página de conquistas quando a pessoa entra lá. O pico de dopamina que você descreveu mora
+   no **instante**, não na lista. O confete e o banner de level up já existem no dashboard:
+   passar a secreta pelo mesmo canal é um dia de trabalho e é o que transforma a mecânica em
+   sensação. **Este é o de maior retorno pelo menor esforço dos três.**
+
+> 🔴 **Antes de mexer em qualquer coisa daqui: ler a skill `astral-gamificacao`.** Em 01/08 eu
+> olhei as conquistas trancadas em 70%, chamei de bug em três camadas, e era o oposto — foram
+> feitas para serem descobertas por acaso. A regra que nasceu dali: escrever *"isto foi feito
+> de propósito porque ___"* e ver se a frase fecha, **antes** de chamar de defeito.
 
 ---
 
@@ -202,9 +256,45 @@ banca de verdade, não de um modelo.
 | Onde mora | tabela nova no Supabase, com RLS — o plano free aguenta? medir |
 | Como se liga ao edital | a graça é filtrar por matéria do edital DELE, não listar tudo |
 
-**Esforço honesto:** o código é pequeno; a digitalização é que é grande. Uma prova tem 40–60
-questões com enunciado, alternativas e gabarito. **Vale medir uma prova inteira antes de
-prometer um banco gigante.**
+### ✅ ESFORÇO MEDIDO — 17/09/2026, contra uma prova de verdade
+
+Ele pediu: *"Quero que meça o esforço"*. Medido **numa prova real**, não numa estimativa: o PDF
+oficial da FAB, **EEAR CFS 2/2025, 96 questões**. A ferramenta é `tools/prova-para-questoes.js`.
+
+Medir contra texto inventado por mim não provaria nada — provaria só que meu leitor lê o que eu
+mesmo escrevi. É o erro que o `CLAUDE.md` chama de *"teste que nunca reproduziu o defeito"*.
+
+| O que se mediu | Resultado |
+|---|---|
+| **Tempo de máquina, prova inteira** | **0,36 segundo** |
+| **Questões utilizáveis, sem ninguém tocar** | **78 de 96 — 81%** |
+| Precisam de revisão | 18, e **11 delas são o mesmo motivo: dependem de figura** |
+| Anuladas pela banca | 1 (a 72), descartada sozinha |
+| **Gabarito** | Vem **no mesmo PDF**. Não precisa de segunda fonte |
+| Confiabilidade do gabarito | 95 respostas lidas por **dois caminhos independentes, 0 divergências** |
+| **Peso no banco** | **419 bytes por questão** → 10.000 questões = **4 MB** dos 500 MB do plano free |
+| Custo em dinheiro | **R$ 0.** Zero chamadas de IA — é `pdftotext`, que já está na máquina |
+
+**Por matéria, de 24 cada:** português 23 · matemática 20 · física 14 · inglês 22. Física rende
+menos, e o motivo é o mesmo das 11: gráfico e diagrama não existem em texto.
+
+**Tradução do esforço:** ~13 provas ≈ 1.000 questões. A EEAR sozinha faz 2 provas por ano; dez
+anos dela dão ~1.560 questões. Somando ESA, EsPCEx, AFA, Escola Naval e EAM, **"banco gigante"
+deixa de ser figura de linguagem.** O gargalo **não é digitar** — é (a) juntar os PDFs, um a um,
+e (b) revisar os ~19%.
+
+> ⚠️ **O que eu NÃO medi, e não vou fingir que medi:**
+> - **Só testei a EEAR.** Cada banca diagrama diferente. ESA, EsPCEx e Escola Naval podem cair
+>   bem abaixo de 81% até o leitor aprender o formato delas. **Medir uma de cada antes de somar.**
+> - **Não cronometrei a revisão das 18.** Sei o que são, não quanto tempo levam.
+> - **Não confirmei o direito autoral por banca.** Prova de concurso público é ato administrativo,
+>   mas isso precisa de confirmação antes de publicar, não de suposição minha.
+> - **Questão com figura eu deixo de fora, marcada.** Questão truncada é **pior** que questão
+>   ausente: quem estuda por alternativa quebrada aprende errado.
+
+> 💡 **A ideia que saiu da medição:** as 11 de figura não estão perdidas. O PDF tem as imagens, e
+> dá para recortá-las e guardá-las junto da questão. Só que isso é trabalho de verdade, e há 78
+> questões prontas por prova esperando — **primeiro as fáceis, e em volume.**
 
 **Onde entra no roadmap:** é candidato a **Fase 1 alternativa** — a única coisa que pode dar
 valor real ao usuário enquanto os créditos não chegam. Mas continua valendo a regra: primeiro

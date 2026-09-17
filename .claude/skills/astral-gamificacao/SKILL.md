@@ -62,7 +62,18 @@ O Lucas descreveu a tag assim:
 > Não necessariamente isso, mas você consegue se basear mais ou menos nisso."*
 
 **Isso está construído no código desde antes de eu chegar.** `HABILIDADES_MILITARES` em
-[conquistas.html:465](conquistas.html#L465) — medido: **51 entradas**.
+[conquistas.html:465](conquistas.html#L465) — medido: **18 entradas, 15 nomes distintos**.
+
+> ✏️ **Corrigido em 17/09/2026: esta linha dizia "51 entradas". São 18.** Contadas uma a uma no
+> bloco `HABILIDADES_MILITARES`, e 3 delas são sinônimo de matéria apontando para o mesmo nome
+> (`'língua portuguesa'` e `'português'` → ambas *Orador de Guerra*). **Os 15 nomes reais:**
+> Administrador de Elite · Alquimista · Calculista · Cronista de Guerra · Engenheiro de Campo ·
+> Estrategista · Guardião da Lei · Intérprete · Legislador · Memória da Nação · Médico de
+> Combate · Navegador · Operador Cyber · Orador de Guerra · Sentinela.
+>
+> O número importa porque o V7.6 ("mais conquistas secretas") parecia acabamento sobre 51 e é
+> **construção sobre 15** — três vezes menos do que o caderno dizia. Comando para reconferir:
+> `awk '/const HABILIDADES_MILITARES/,/^  };/' conquistas.html | grep -c "nome:"`
 
 ```
 português          -> Orador de Guerra        matemática      -> Calculista
