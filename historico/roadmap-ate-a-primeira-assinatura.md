@@ -153,6 +153,57 @@ estava errado num número que importa (ver a última linha da tabela).
    passar a secreta pelo mesmo canal é um dia de trabalho e é o que transforma a mecânica em
    sensação. **Este é o de maior retorno pelo menor esforço dos três.**
 
+#### 🎲 VIRAR RPG DE VERDADE — ordem dele, 17/09/2026
+
+> *"Vamos partir para a gameficação, quero ideias, quero que se torne um rpg entende?"*
+
+**O diagnóstico, e ele é a chave:** o Astral **já tem os números de um RPG** — XP, níveis,
+patentes, conquistas, decaimento, domínio por matéria. O que falta não é mecânica. É que tudo
+isso hoje é apresentado como **relatório**, e RPG é apresentado como **personagem**. A distância
+entre as duas coisas é menor do que parece, e quase toda ela é de tela, não de banco.
+
+**A descoberta que barateia tudo — medida em 17/09:** `sessoes_estudo`
+(`supabase/migrations/20260730150000_cria_persistencia_de_progresso.sql:52`) já grava
+**matéria, segundos, xp, modo e data de cada sessão**, desde 30/07. Ou seja: os atributos de
+uma ficha de RPG **podem ser derivados do que já está no banco**, sem tabela nova, sem migration
+e sem custo. Não é preciso começar a coletar nada.
+
+| # | Ideia | O que a torna RPG | Custo | Esforço |
+|---|---|---|---|---|
+| **R1** | **A FICHA** — 5 atributos no lugar de um XP só: DISCIPLINA (streak + regularidade) · RESISTÊNCIA (maior sessão + horas) · AMPLITUDE (matérias distintas) · DOUTRINA (domínio médio) · PRECISÃO (acerto — depende do banco de questões) | Personagem tem ficha; relatório tem número. **Todos derivam de `sessoes_estudo`, que já existe** | R$ 0 | 1 sessão |
+| **R2** | **ÁRVORE DE ESPECIALIZAÇÃO** — ponto a cada patente, gasto em 3 ramos: Infantaria (constância), Artilharia (volume), Inteligência (precisão) | Escolha com custo é o que separa RPG de barra de progresso. ⚠️ Os ramos mudam **como** se joga (bônus de XP por hábito), **nunca o que se aprende** — build ruim não pode prejudicar estudo | R$ 0 | 2 sessões |
+| **R3** | **O CHEFE tem data** — a prova vira o chefe da campanha, com contagem regressiva; cada simulado é um sub-chefe | RPG precisa de antagonista. O Astral tem o melhor possível: uma data real que assusta de verdade. Usa a tabela `eventos`, que já existe | R$ 0 | 1 sessão |
+| **R4** | 💰 **MASMORRA = SIMULADO** — incursão de N questões do banco, com tela de resultado em forma de relatório de missão | **É onde o corte do Pro mora** (ver `decisoes.md`, 17/09): free entra 1x por semana, Pro entra à vontade. Amarra banco de questões + RPG + monetização no mesmo objeto | R$ 0 | 2 sessões, depois do banco |
+| **R5** | **LOOT COM RARIDADE** — tag comum · incomum · rara · lendária, com a raridade visível | Raridade é o sinal mais viciante do RPG e o mais barato de implementar: é um campo e uma cor | R$ 0 | meia sessão (com R6) |
+| **R6** | **CATÁLOGO DE TAGS** (já era o M1) | Sem catálogo, quest e conquista não têm o que entregar | R$ 0 | 1 sessão |
+| **R7** | **DIÁRIO DE CAMPANHA** — o histórico vira log narrado: *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* | RPG tem log de campanha. Os dados já estão em `sessoes_estudo`; muda só como se conta | R$ 0 | 1 sessão |
+| **R8** | **O INSTANTE DA DESCOBERTA** — conquista secreta passa pelo confete/banner do dashboard, na hora | Hoje ela só aparece se a pessoa for até a página de conquistas. **O pico mora no instante, não na lista** | R$ 0 | 1 dia |
+| **R9** | **REENGAJAMENTO NARRADO** — "enferrujada/suspensa" (que já existe) vira *fora de serviço*, com missão de retorno | Transforma o castigo por sumir em gancho para voltar, em vez de vergonha | R$ 0 | meia sessão |
+| **R10** | **PRESTÍGIO** — trocar de edital ou ser aprovado não zera: vira **veterano**, com marca permanente | Prestígio é o que faz RPG ter segunda volta. E resolve um caso real: quem troca de concurso hoje perde a identidade toda | R$ 0 | 1 sessão |
+
+**Custo somado: R$ 0.** Nada disso chama IA — é a razão de caber agora, com a Fase 1 travada.
+
+> 🔴 **O limite que precisa ser dito antes de qualquer um destes ganhar valor real:** o XP é
+> gravado pelo navegador. Hoje qualquer pessoa abre o console e escreve o número que quiser.
+> Enquanto é "você contra você", é autoengano e não faz mal a ninguém. **No instante em que
+> raridade, árvore ou acesso a masmorra dependerem do XP, isso vira fraude** — e o M6
+> (validar XP no servidor) deixa de ser opcional e passa a ser pré-requisito.
+
+> ⚠️ **A armadilha de produto, e ela é séria:** RPG recompensa *jogar*; um app de estudo precisa
+> recompensar *estudar*. Toda recompensa aqui tem de estar amarrada a tempo real de estudo ou a
+> acerto real — **nunca a abrir o aplicativo, nunca a sequência de login**. No dia em que o
+> Astral premiar presença em vez de trabalho, ele vira caça-níquel e ensina o oposto do que vende.
+
+> 🎖️ **Sobre o tema:** a skill fechou em **militar, não fantasia** — "Necromante Cabo BM" quebra
+> os dois, e o mundo militar já tem classes reais (Sapador, Sniper, Inteligência, Mergulhador de
+> Combate). "Virar RPG" aqui significa **mecânica de RPG com pele militar**, que é o que ele já
+> vinha construindo. Se ele quiser fantasia de verdade, é trocar uma tabela de nomes — mas é
+> decisão dele, não minha.
+
+**Ordem recomendada:** R6 → R1 → R8 → R5 → R3 → R2 → R7 → R9 → R4 (quando o banco existir) → R10.
+O R1 é o que mais muda a sensação por sessão gasta: transforma número em personagem usando dado
+que já está gravado desde julho.
+
 > 🔴 **Antes de mexer em qualquer coisa daqui: ler a skill `astral-gamificacao`.** Em 01/08 eu
 > olhei as conquistas trancadas em 70%, chamei de bug em três camadas, e era o oposto — foram
 > feitas para serem descobertas por acaso. A regra que nasceu dali: escrever *"isto foi feito

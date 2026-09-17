@@ -280,6 +280,35 @@ tabela nova · validação no front E no back · nunca armazenar dado de cartão
 31/07 para validar o captcha. São ele, amigos e testes; ainda não há usuário externo de
 verdade. Listar com a API de admin quando precisar reconferir.
 
+### 💰 Banco de questões: acesso TOTAL é do Pro — decisão dele, 17/09/2026
+
+> *"só será liberado totalmente as questões para os pros"*
+
+**O que fica decidido:** o banco de questões de provas antigas **não é aberto por inteiro no
+plano gratuito**. O free vê uma parte; o Pro vê tudo.
+
+**Por que isto é a decisão certa, e não só preferência:** era o furo do meu próprio argumento.
+Eu tinha escrito no roadmap que o banco *"dá ao usuário uma razão real para abrir o Astral sem
+gastar um centavo de IA"* — mas se fosse tudo de graça, ele daria essa razão e **nenhum motivo
+para pagar**. Com o corte, o mesmo conteúdo faz as duas coisas: a amostra prende, o volume
+converte.
+
+**E o encanamento já existe.** `LIMITE_DIARIO` em `supabase/functions/_shared/comum.ts:162` já
+faz exatamente esse corte por plano, e o free já está em **10 questões/dia — empatando de
+propósito com o plano gratuito do Qconcursos**, que é a referência que o concurseiro conhece.
+O banco de questões pode reusar o mesmo desenho sem inventar nada.
+
+> ⚠️ **Uma diferença que importa na hora de implementar:** questão de prova antiga **não é
+> chamada de IA**. Ela não gasta crédito da Anthropic e **não pode ser contada na tabela
+> `uso_ia`**, que existe para conter custo. O limite do banco é decisão de **produto**
+> (o que faz alguém assinar), não de **custo** (o que impede a conta de estourar). Misturar as
+> duas na mesma tabela faria o relatório de gasto mentir.
+
+> ❓ **O que ele ainda não disse, e eu não vou inventar:** quanto é "uma parte" para o free —
+> por dia, por prova, ou por matéria. Fica em aberto até ele decidir.
+
+---
+
 ### De onde o projeto veio — contexto que explica escolhas
 
 O Lucas construiu o Astral até 29/07/2026 com **outras IAs**: Gemini e Opus dentro do
