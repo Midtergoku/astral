@@ -44,6 +44,10 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
    🔴 **Mensagem de commit vai por `git commit -F arquivo`, nunca por `-m "..."`.** Crase dentro
    de aspas duplas o bash **executa**. Em 03/08/2026 uma crase em volta de um comando o rodou de
    verdade e reescreveu a configuração de autenticação da PRODUÇÃO com valores de `localhost`.
+   ⚠️ **17/09/2026 — a regra NAO e so sobre commit.** Repeti o erro escrevendo texto em
+   portugues dentro de `node -e "..."`, com nomes de codigo entre crases: o bash executou os
+   dois e gravou o arquivo com buracos. **Crase dentro de aspas duplas vale para QUALQUER
+   comando.** Texto com marcacao vai para arquivo com o `Write`, e roda de la.
 6. **LIMPEZA.** Só sai o que não vai servir para nada. Na dúvida, **fica**. Nunca sai: a tabela de
    erros, o *porquê* de uma decisão, número medido com seu comando, armadilha de ambiente.
 7. **ERROU? Acrescente a linha em `historico/erros.md` na hora.** Ordem direta dele. Ele trata
@@ -241,7 +245,7 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 | Arquivo | O que tem | Consultar quando |
 |---|---|---|
 | `CLAUDE-original-2989.md` | o caderno inteiro antes desta reorganização | algo parecer que sumiu |
-| `erros.md` | os 32 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
+| `erros.md` | os 33 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
 | `auditorias.md` | as auditorias de 29/07 — código, segurança e banco | antes de auditar de novo |
 | `blocos-executados.md` | os 20 blocos 8.5–8.19, com o que foi medido | **antes de "consertar" algo estranho: pode ser decisão** |
 | `sessoes.md` | as 10 sessões narradas | para reconstruir *por que* algo foi decidido |

@@ -174,6 +174,44 @@ O `tipo_plano` distingue os planos, mas quem promove alguém para `pro` é você
 
 ---
 
+## 🎯 BANCO DE QUESTÕES DE PROVAS ANTIGAS — ideia dele, 17/09/2026
+
+> *"quero montar um banco de questões com provas militares antigas, existem várias de
+> domínio público então poderemos criar um banco gigante para os concurseiros e não iremos
+> gastar nada"*
+
+**Por que isto é maior do que parece, e não é só mais uma funcionalidade:**
+
+O número que trava o projeto é **0 chamadas de IA em toda a história** — ninguém nunca subiu
+um edital, e a Fase 1 depende de US$ 5 que ele não tem. O banco de questões **contorna isso
+pela lateral**: dá ao usuário uma razão real para abrir o Astral **sem gastar um centavo de
+IA**. Hoje, quem entra e não sobe edital não tem o que fazer. Com o banco, tem.
+
+E resolve de graça um problema que já existia: as **questões geradas por IA estão desligadas
+desde 31/07** (`FUNCOES_DESLIGADAS` em `_shared/comum.ts`), porque eram a única ação de
+custo recorrente. Questão de prova antiga é conteúdo **fixo, gratuito e melhor** — vem da
+banca de verdade, não de um modelo.
+
+**O que precisa ser decidido antes de construir (nada disso foi decidido):**
+
+| Pergunta | Por quê importa |
+|---|---|
+| De onde vêm os PDFs? | ESA, EEAR, EsPCEx, AFA, Escola Naval, PM/CBM publicam provas; cada banca tem um formato |
+| Quem digitaliza? | é o custo real — não é dinheiro, é **tempo**, e ele tem ~2h/semana |
+| Direito autoral | prova de concurso público é ato administrativo, mas **confirmar por banca** antes de publicar |
+| Onde mora | tabela nova no Supabase, com RLS — o plano free aguenta? medir |
+| Como se liga ao edital | a graça é filtrar por matéria do edital DELE, não listar tudo |
+
+**Esforço honesto:** o código é pequeno; a digitalização é que é grande. Uma prova tem 40–60
+questões com enunciado, alternativas e gabarito. **Vale medir uma prova inteira antes de
+prometer um banco gigante.**
+
+**Onde entra no roadmap:** é candidato a **Fase 1 alternativa** — a única coisa que pode dar
+valor real ao usuário enquanto os créditos não chegam. Mas continua valendo a regra: primeiro
+fazer a promessa da landing acontecer uma vez.
+
+---
+
 ## Coisas que eu acho válidas e que você não pediu
 
 Ele pediu explicitamente que eu incluísse o que **eu** acho que vale. Estas são minhas, e cada
