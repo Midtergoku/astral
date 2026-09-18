@@ -304,6 +304,39 @@ O banco de questões pode reusar o mesmo desenho sem inventar nada.
 > (o que faz alguém assinar), não de **custo** (o que impede a conta de estourar). Misturar as
 > duas na mesma tabela faria o relatório de gasto mentir.
 
+> ✏️ **18/09/2026 — ele confirmou o desenho:** *"vamos fazer alguma maneira da pessoa ter uma
+> amostra grátis das questões, mas a liberação total será no plano pro"*. Amostra grátis
+> **existe**; o acesso total é do Pro.
+
+#### A proposta de corte — minha recomendação, decisão dele
+
+O erro comum aqui é cortar **só por quantidade**. Para um app de estudo, mais questões não é o
+que faz alguém assinar — **saber no que você errou e treinar exatamente aquilo** é. Então o
+corte tem duas camadas, e a segunda é a que converte.
+
+| | **Grátis** | **Pro** |
+|---|---|---|
+| **Quantas** | **10 por dia** — o número já está no código (`LIMITE_DIARIO`) e empata de propósito com o Qconcursos grátis | ilimitado |
+| **Quais** | sorteadas do acervo | **filtradas pelas matérias do SEU edital**, com o peso de cada uma |
+| **Idade da prova** | provas de 4 anos ou mais | **inclui as mais recentes** — a banca muda de estilo, e recência é valor real para o concurseiro |
+| **Caderno de erros** | ❌ | ✅ **o que faz voltar todo dia**: o que você errou volta até acertar |
+| **Modo simulado** (a masmorra, R4) | **1 completo, uma vez** — a degustação | à vontade |
+| Gabarito e correção | ✅ sempre | ✅ |
+
+**Por que a degustação é 1 simulado COMPLETO, e não 3 questões soltas:** três questões mostram
+que o acervo existe; um simulado inteiro faz a pessoa **sentir o produto funcionando** — o
+relatório de missão no fim, o desempenho por matéria, a comparação com o edital dela. Ninguém
+assina pelo que viu de relance; assina pelo que já experimentou uma vez inteiro.
+
+**Por que recência é a melhor alavanca secundária:** custa R$ 0 (o ano já é campo da questão),
+não esconde conteúdo essencial de ninguém — quem é grátis ainda estuda com prova de verdade —
+e é exatamente o que um concurseiro pagaria para ter.
+
+> 🔴 **Ordem obrigatória:** nada disto pode entrar antes de `node tools/testa-xp-forjado.js`
+> passar limpo. No dia em que o acesso depender de progresso, um número digitado no console
+> vira furar a fila — e hoje ele é aceito (medido em 17/09: 5 furos). Ver o bloco do XP no
+> roadmap.
+
 > ❓ **O que ele ainda não disse, e eu não vou inventar:** quanto é "uma parte" para o free —
 > por dia, por prova, ou por matéria. Fica em aberto até ele decidir.
 

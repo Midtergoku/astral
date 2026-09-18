@@ -189,6 +189,76 @@ e sem custo. Não é preciso começar a coletar nada.
 > raridade, árvore ou acesso a masmorra dependerem do XP, isso vira fraude** — e o M6
 > (validar XP no servidor) deixa de ser opcional e passa a ser pré-requisito.
 
+#### 🔒 O XP HOJE É O QUE O NAVEGADOR DIZ QUE É — medido em 17/09/2026
+
+> Pergunta dele: *"não tem alguma maneira de tornar isso invisível para as pessoas não
+> conseguirem alterar? Se não perde a graça."*
+
+**Medido, não suposto.** `tools/testa-xp-forjado.js` cria um usuário real, pega uma sessão
+**válida** e chama a mesma função que o site chama. Resultado:
+
+| O que tentei | Resultado |
+|---|---|
+| Gravar **999.999.999 de XP** sem ter estudado | 🔴 **aceito** |
+| Streak de **4.000 dias** (~11 anos) | 🔴 **aceito** |
+| **99.999 horas** de estudo | 🔴 **aceito** |
+| **Desfazer** depois, voltando ao valor honesto | 🔴 **impossível** — ver abaixo |
+| Inventar conquista que **não existe no código** | 🔴 aceita (`conquista_que_nao_existe`) |
+| **Promover a própria conta para `pro`** | ✅ **BLOQUEADO** (400) |
+
+**A última linha é a que importa mais: o que mexe com dinheiro está protegido.** O plano vive
+em `perfis`, com RLS que impede o próprio usuário de se promover. Quem forja XP ganha um número
+bonito, não ganha acesso pago.
+
+**Por que é permanente, e isto é um efeito colateral de uma decisão certa:** a função
+`salvar_progresso` faz `xp = greatest(p.xp, excluded.xp)` — fica sempre o **maior**. Isso existe
+para **não perder progresso** quando duas telas gravam ao mesmo tempo (bloco de 05/08), e nesse
+papel está correta. O efeito colateral é que um número forjado **nunca mais desce, nem para o
+dono da conta**. Não é bug; é o preço de uma trava que resolve outro problema real.
+
+#### A resposta: esconder NÃO funciona — mas dá para resolver
+
+**Esconder não é uma opção, e é importante entender por quê:** tudo o que o navegador consegue
+calcular, a pessoa consegue calcular. Ofuscar o código atrasa alguém em minutos. Criptografar
+exige que a **chave esteja na página** — e o que está na página se lê. Assinar o pedido tem o
+mesmo problema. E nada disso importa, porque o pedido pode ser **editado direto na rede**, sem
+passar pelo JavaScript: o navegador tem essa aba embutida.
+
+> **Segurança por obscuridade não é segurança.** A única pergunta que vale é: *quem decide o
+> valor?* Hoje quem decide é o navegador. O conserto é mudar isso, não esconder melhor.
+
+**O conserto, e ele é mais barato do que parece:** o navegador para de mandar *"meu XP é N"* e
+passa a mandar *"estudei 25 minutos de Matemática"*. **O servidor calcula o XP.**
+
+**E a matéria-prima já existe** — medido: `sessoes_estudo` grava **matéria, segundos, modo e
+data de cada sessão**, desde 30/07/2026. O XP pode ser **derivado** desses registros por uma
+função no banco, em vez de ser um número que o cliente informa. Não é preciso coletar nada novo.
+
+Regras de plausibilidade que o servidor passa a poder aplicar, e o navegador nunca pôde:
+
+- sessão não pode durar mais que o tempo real decorrido entre um pedido e outro
+- teto de XP por dia
+- streak **contado** a partir das datas distintas em `sessoes_estudo`, não informado
+- conquista concedida por limiar calculado no servidor, não por string que chegou na lista
+
+> 🎯 **A convergência que barateia tudo:** isto é **o mesmo trabalho da ideia R1** (a ficha com
+> 5 atributos). Derivar DISCIPLINA, RESISTÊNCIA, AMPLITUDE e DOUTRINA de `sessoes_estudo` no
+> servidor **já resolve a fraude de quebra**, porque um atributo calculado a partir de registros
+> não pode ser informado. **A funcionalidade de RPG e o anti-fraude são a mesma sessão de
+> trabalho.** Fazer R1 no servidor em vez de no navegador custa praticamente o mesmo e entrega
+> as duas coisas.
+
+> ⚠️ **O limite honesto, que nenhum sistema resolve:** dá para deixar o cronômetro rodando sem
+> estudar. Isso é infalsificável por natureza — e tudo bem. O objetivo não é impedir que alguém
+> se engane; é fazer **trapacear custar o mesmo que estudar**. Quem gasta 2 horas fingindo já
+> gastou 2 horas. O que não pode existir é o atalho de **um número digitado em 10 segundos**.
+
+> 📌 **Quando fazer:** hoje o XP não vale nada e a fraude é autoengano — quem se engana escolheu
+> se enganar, e o `pro` está protegido. **Vira pré-requisito no instante em que qualquer coisa
+> da lista R1–R10 amarrar recompensa ao XP** (raridade, árvore, entrada em masmorra). Ou seja:
+> antes do R5, do R2 e do R4. Regressão: `node tools/testa-xp-forjado.js`, que hoje acusa 5
+> furos e deve passar a acusar 0.
+
 > ⚠️ **A armadilha de produto, e ela é séria:** RPG recompensa *jogar*; um app de estudo precisa
 > recompensar *estudar*. Toda recompensa aqui tem de estar amarrada a tempo real de estudo ou a
 > acerto real — **nunca a abrir o aplicativo, nunca a sequência de login**. No dia em que o
