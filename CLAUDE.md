@@ -251,5 +251,7 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 | `sessoes.md` | as 10 sessões narradas | para reconstruir *por que* algo foi decidido |
 | `decisoes.md` | Mercado Pago, custo da Anthropic, contas, skills instaladas | antes de reabrir decisão fechada |
 | **`roadmap-ate-a-primeira-assinatura.md`** | **as 7 fases daqui até a 1ª assinatura paga, medidas em 04/08** | **ao planejar qualquer coisa — é o mapa atual** |
+| **`roadmap-rpg.md`** | **o painel do RPG: R0–R12 e Q1–Q4, com 🔴 / ✅** | **ao entregar item de gamificação — marcar o ✅ AQUI** |
+| **`apresentacao-do-produto.md`** | o que o Astral é, **separado por área**, com o que está no ar e o que vem | ao fechar um ✅: o item muda de parte **dentro da área dele**, nunca no fim |
 | `ordem-de-trabalho.md` | as 3 etapas em detalhe e a estratégia de lançamento | histórico de como se chegou ao roadmap |
 | `regras-originais.md` | as 7 regras acima em texto integral, com o porquê | se a versão curta gerar dúvida |

@@ -270,6 +270,69 @@ Regras de plausibilidade que o servidor passa a poder aplicar, e o navegador nun
 > vinha construindo. Se ele quiser fantasia de verdade, é trocar uma tabela de nomes — mas é
 > decisão dele, não minha.
 
+#### ✅ APROVADO POR ELE EM 18/09/2026 — e o que ele acrescentou
+
+**Aprovou os dez**, um por um, com estes comentários que mudam coisa:
+
+| Item | O que ele disse | O que muda |
+|---|---|---|
+| **R1** a ficha | *"achei genial. Não tem um bom RPG sem uma boa ficha"* | confirmado como **primeiro item a executar** |
+| **R2** | *"a árvore de especialização que a gente chama de **árvore de habilidades**"* | **passa a se chamar árvore de habilidades** — é o nome que ele usa, e é o nome que o jogador reconhece |
+| **R3 · R4** | *"achei maneiríssimo"* | — |
+| **R5** tags | *"achei interessante, depois a gente vai ter que pensar nas tags. **Quero várias tags. Exato, um campo em cor**"* | o catálogo precisa ser **grande**, e **cor é campo da tag**, não só da raridade |
+| **R7** diário | *"excelente também. Inclusive **vamos pensar em missões, tanto missões gerais como missões diárias**, todo bom RPG tem missões diárias"* | **item novo: R12** |
+| **R8 · R9 · R10** | *"concordo plenamente"* / *"aprovados"* | — |
+
+#### 🆕 R12 — MISSÕES GERAIS E DIÁRIAS
+
+**Isto NÃO contradiz a ordem dele de 01/08** (*"a missão não some"*), e vale registrar por quê,
+porque parece contradição e não é: são **duas coisas diferentes** que podem conviver.
+
+| | **Missão geral (quest)** | **Missão diária** |
+|---|---|---|
+| O que é | *"se você estudar tanto, libera isso"* | uma tarefa do dia |
+| Expira? | **nunca** | o dia acaba |
+| O que entrega | desbloqueio **permanente** — tag, habilidade, acesso | XP e ritmo |
+| Por que existe | dá objetivo de médio prazo | dá motivo para abrir **hoje** |
+
+> 🔴 **A missão diária é exatamente onde o cassino entra, e ele já proibiu isso.** A regra, sem
+> exceção: **a missão diária se cumpre estudando, nunca aparecendo.**
+>
+> | ❌ Proibido | ✅ Certo |
+> |---|---|
+> | *"Entre hoje e ganhe 50 XP"* | *"Estude 25 minutos hoje"* |
+> | *"3 dias seguidos de login"* | *"3 dias seguidos com pelo menos uma sessão"* |
+> | *"Abra o app pela manhã"* | *"Uma sessão antes das 9h"* |
+>
+> A diferença é simples de testar: **se dá para cumprir sem estudar, está errada.**
+
+#### 🆕 Q3 — FILTROS DE QUESTÕES, com o nível que ele pediu
+
+> *"ela vai selecionar tipo um filtro: a banca, questões de qual matéria (...) e sobre qual é o
+> ramo, o nicho da matéria. Por exemplo, às vezes ela quer estudar matemática, mas ela quer
+> estudar sobre **funções** ou **porcentagem**"*
+
+São **três níveis**, e o terceiro é o que realmente importa:
+
+| Nível | Exemplo | Dificuldade |
+|---|---|---|
+| **Banca** | EEAR · ESA · EsPCEx · AFA · Escola Naval | fácil — já vem do nome do arquivo da prova |
+| **Matéria** | Matemática · Português · Física · Inglês | fácil — a prova já separa por blocos numerados |
+| **🔴 Assunto dentro da matéria** | funções · porcentagem · crase · concordância | **é o trabalho de verdade** — a prova **não diz** o assunto de cada questão |
+
+> ⚠️ **O aviso honesto sobre o terceiro nível:** o PDF não traz essa informação em lugar nenhum.
+> Classificar 78 questões por assunto é decisão de conteúdo, questão por questão. Três caminhos,
+> e nenhum deles eu vou escolher sozinho:
+>
+> 1. **Por palavra-chave** — "função", "f(x)", "gráfico de" → Funções. Custa R$ 0 e acerta a
+>    maioria, mas erra e precisa de revisão.
+> 2. **Por IA** — classifica bem, **mas custa dinheiro** e ele está sem. Ficaria para depois.
+> 3. **À mão** — acerta sempre e é o mais lento.
+>
+> **Minha recomendação:** começar pelo 1, medindo quanto ele acerta numa prova real — do mesmo
+> jeito que medi a extração. Se o acerto for alto, o custo do assunto cai para quase nada.
+> **Sem medir, é palpite.**
+
 **Ordem recomendada:** R6 → R1 → R8 → R5 → R3 → R2 → R7 → R9 → R4 (quando o banco existir) → R10.
 O R1 é o que mais muda a sensação por sessão gasta: transforma número em personagem usando dado
 que já está gravado desde julho.
