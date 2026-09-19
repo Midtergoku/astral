@@ -15,6 +15,7 @@
 | 🟡 | em andamento |
 | ✅ | **feito** |
 | 🔮 | **adiado de propósito**, com gatilho escrito |
+| 🛑 | **medido e parado** — espera decisão do Lucas |
 | 💰 | é onde entra dinheiro |
 | 🔒 | depende do XP estar protegido |
 
@@ -39,7 +40,7 @@
 |---|---|---|---|
 | ✅ | **R1** | **A FICHA** — 5 atributos no lugar de um XP só | **FEITA em 19/09/2026.** Os 4 primeiros calculados **pelo servidor** a partir das sessões reais; **PRECISÃO volta `null`** de propósito, porque depende do banco de questões e inventar número aqui derrubaria o crédito da ficha inteira. Cada atributo **diz de onde veio**. Prova: `node tools/testa-ficha.js` (18 de 18, incluindo a tela e o vazamento entre contas) |
 | 🔴 | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | 🔒 aprovado por ele em 18/09. **Trava:** os ramos mudam *como* se joga, nunca *o que* se aprende |
-| 🔴 | **R10** | **PRESTÍGIO** — trocar de edital ou passar não zera nada: vira **veterano**, com marca permanente | aprovado |
+| 🛑 | **R10** | **PRESTÍGIO** — trocar de edital não zera nada | **MEDIDO em 19/09, e PARADO esperando ele.** A maior parte **já sobrevive** à troca; o que se perde são **4 condecorações** e **3 divisas** ligadas ao domínio das matérias. Consertar exige **guardar as conquistadas** — decisão de modelagem de dado permanente, que é a fronteira que ele mandou não cruzar sozinho. Vigia: `node tools/testa-troca-de-edital.js` |
 
 ---
 
@@ -174,6 +175,52 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | ✅ | **R7** | **DIÁRIO DE CAMPANHA** | **FEITO em 19/09/2026**, em `progresso.html`: linha do tempo dos últimos 30 dias, com tempo, matérias, sequência e **marcos calculados por reprodução da história**. ⚠️ **Sem a parte do domínio** — ver abaixo. Provas: `testa-diario` (20) · `testa-diario-tela` (10) |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🛑 R10 — medido, e PARADO esperando você
+
+Antes de construir o prestígio, fui medir o que realmente se perde ao trocar de concurso — porque
+a ideia é *"trocar de edital não zera nada"*, e para saber o que preservar é preciso saber o que
+some. `tools/testa-troca-de-edital.js` simula alguém que estudou 20 dias para a EEAR e passa a
+prestar ESA.
+
+#### O que já sobrevive sozinho — e é a maior parte
+
+| | |
+|---|---|
+| horas, dias estudados, sessões, XP, recorde de sessão | ✅ intactos |
+| **o diário de campanha inteiro** | ✅ 20 dias, com as matérias do concurso antigo |
+| 25 das 29 condecorações | ✅ |
+
+**A razão é boa:** quase tudo deriva de `sessoes_estudo`, que a troca de edital **não toca**. O
+passado não é reescrito.
+
+#### 🔴 O que se perde, e não deveria
+
+| | |
+|---|---|
+| **4 condecorações** | Dois Terrenos · Meio do Caminho · Terreno Consolidado · Ninguém Fica Para Trás |
+| **3 divisas** de matéria | Calculista, Engenheiro de Campo, Orador de Guerra |
+
+Todas dependem do **domínio das matérias** — e a troca substitui as matérias, então o domínio das
+novas começa em zero.
+
+**Isso contraria a regra dele de 02/08** (*"conquista não se desconquista"*), que o próprio
+`salvar_progresso` já respeita para os badges antigos: lá ele faz **união**, nunca substituição.
+
+#### Por que eu parei aqui
+
+Consertar exige **guardar as condecorações conquistadas** — e essa é a mesma decisão de modelagem
+que o R0 vai ter de tomar para o XP. **Dado permanente de usuário modelado errado não se conserta
+sem migrar o dado de quem já usou**, e ele pediu para eu parar antes de "mudança muito violenta".
+Esta é exatamente a fronteira.
+
+**As duas decisões andam juntas e são dele:** onde guardar o XP validado e onde guardar as
+conquistas. Fazer uma sem a outra criaria dois lugares para a mesma pergunta.
+
+> Enquanto isso, o teste **vigia**: ele não falha pelo buraco conhecido (teste que falha sempre
+> ensina a ignorar teste), mas falha **se a perda aumentar**.
 
 ---
 
