@@ -36,6 +36,9 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **A tag na barra superior** | `NÍVEL · TAG` — o lugar mais nobre da tela mostra **quem você é**, não qual plano você paga |
 | **A ficha** | Cinco atributos no lugar de um número só: **Disciplina** (aparecer, e aparecer de novo) · **Resistência** (aguentar sentado) · **Amplitude** (não abandonar matéria) · **Doutrina** (o quanto já domina) · **Precisão** (ainda esperando o banco de questões). Cada um **diz de onde veio** — *"12 dias de estudo nos últimos 30, sequência de 5"* |
 | **E ela não dá para forjar** | Os atributos são **calculados pelo servidor** a partir das suas sessões. Não existe campo para preencher: o número sai da conta |
+| **74 condecorações** | Bronze, Prata, Ouro — e a **Condecoração Máxima**, que só cai quando as outras 73 caem. **22 são secretas** e nem aparecem até você descobri-las |
+| **33 divisas** | A tag que você veste, uma de cada vez. Cada uma com raridade: comum, incomum, rara, lendária |
+| **"Falta pouco"** | A tela mostra o que está a um passo. Ver um 8 de 10 puxa mais que uma lista de coisas trancadas |
 
 ### O que vem
 

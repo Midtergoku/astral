@@ -38,7 +38,12 @@ const { pathToFileURL } = require("url");
     "streak", "diasEstudados", "semanaPerfeita", "meses", "retorno",
     // conteudo
     "materias", "materiaDominada", "materiaSeguida", "materiasNoDia",
-    "dominioMinimo", "viradaMateria", "edital",
+    // `materiaMenosEstudada` substituiu `viradaMateria` em 19/09: a versao
+    // antiga pedia o dominio de "quem ESTAVA mais atrasada", e nao guardamos
+    // historico de dominio -- a condecoracao nunca dispararia. Esta pergunta
+    // qual materia recebeu menos TEMPO (isso esta em sessoes_estudo) e se ela
+    // passou do limiar. Exige estudo por dois lados ao mesmo tempo.
+    "dominioMinimo", "materiaMenosEstudada", "edital",
     // derivados
     "atributo", "atributosTodos", "horario", "diaSemana", "modo",
     "condecoracao", "todas",

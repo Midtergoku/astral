@@ -154,6 +154,135 @@
       .badges-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     }
 
+/* ── SALA DE CONDECORAÇÕES ─────────────────────────────────────────────
+   Vitrine de medalhas, não painel de jogo. O metal aparece como uma barra
+   fina na borda de cima — é a fita da condecoração, e é o que deixa ler
+   bronze/prata/ouro de relance sem legenda nenhuma. */
+    .sala-contagem {
+      font-family: var(--dado);
+      font-size: var(--t-lg);
+      font-weight: 700;
+      color: var(--texto);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+.sala-contagem span { color: var(--texto-3); font-size: var(--t-sm); }
+
+.medalhas-grade {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+      gap: 0.75rem;
+    }
+
+.medalha {
+      position: relative;
+      background: var(--casco);
+      border: 1px solid var(--linha);
+      border-radius: var(--r-g);
+      padding: 0.9rem 0.95rem 0.85rem;
+      overflow: hidden;
+    }
+
+/* A fita: 3px do metal, no topo. */
+    .medalha::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--metal, var(--linha));
+    }
+
+/* Não conquistada fica apagada, mas NÃO invisível: ver o que falta é o
+   motivo de a pessoa voltar. Quem some é só o nome das secretas. */
+    .medalha.trancada { opacity: 0.45; }
+
+.medalha.trancada::before { opacity: 0.35; }
+
+.medalha-topo {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+.medalha-nome {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--texto);
+      line-height: 1.2;
+    }
+
+.medalha-metal {
+      font-family: var(--dado);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--metal, var(--texto-3));
+      white-space: nowrap;
+    }
+
+.medalha-desc {
+      font-size: var(--t-xs);
+      color: var(--texto-3);
+      line-height: 1.35;
+    }
+
+/* A barra de progresso só existe em quem está a caminho. Em quem já
+   conquistou ela seria ruído; em quem está no zero, desânimo. */
+    .medalha-regua {
+      margin-top: 0.6rem;
+      height: 3px;
+      background: var(--linha);
+      border-radius: var(--r-p);
+      overflow: hidden;
+    }
+
+.medalha-preenche {
+      height: 100%;
+      background: var(--metal, var(--latao));
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--d-painel) var(--percurso);
+    }
+
+.medalha.secreta .medalha-nome { color: var(--texto-3); font-style: italic; }
+
+.quase-titulo {
+      font-family: var(--dado);
+      font-size: var(--t-xs);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--texto-3);
+      margin-bottom: 0.7rem;
+    }
+
+.quase-lista { display: grid; gap: 0.7rem; }
+
+.quase-item { display: grid; gap: 0.3rem; }
+
+.quase-linha {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: var(--t-sm);
+      color: var(--texto-2);
+    }
+
+.quase-pct {
+      font-family: var(--dado);
+      font-weight: 700;
+      color: var(--latao-c);
+      font-variant-numeric: tabular-nums;
+    }
+
+@media (prefers-reduced-motion: reduce) {
+      .medalha-preenche { transition: none; }
+    }
+
 .habilidade-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -391,6 +520,29 @@
     <!-- Renderizado pelo JS -->
   </div>
 
+  <!-- ── SALA DE CONDECORAÇÕES (R13) ────────────────────────────────────
+       As 74 medalhas, conferidas contra os fatos que vieram do servidor.
+       Fica ACIMA das habilidades porque é a coleção principal; as habilidades
+       continuam abaixo, intactas, como o sistema separado que sempre foram. -->
+  <div id="sala" style="margin-top:2rem;" hidden>
+    <div class="section-header" style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+      <div>
+        <div style="font-family:var(--display);font-weight:800;font-size:1.1rem;color:var(--white);">Condecorações</div>
+        <div style="font-size:0.82rem;color:var(--muted);" id="sala-sub"></div>
+      </div>
+      <div class="sala-contagem" id="sala-contagem"></div>
+    </div>
+
+    <!-- "Falta pouco": o que mais puxa num sistema de troféus não é o que você
+         tem, é o que está a um passo. Só aparece se houver algo em andamento. -->
+    <div class="card" id="quase-la" hidden style="margin-bottom:1rem;">
+      <div class="quase-titulo">Falta pouco</div>
+      <div class="quase-lista" id="quase-lista"></div>
+    </div>
+
+    <div class="medalhas-grade" id="medalhas-grade"></div>
+  </div>
+
   <!-- SEÇÃO HABILIDADES -->
   <div style="margin-top:2rem;">
     <div style="margin-bottom:1rem;">
@@ -420,6 +572,90 @@
     from './assets/js/astral.js?v=bfdb6e4b';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { carregarProgresso } from './assets/js/estado.js?v=5dab0815';
+  import { conferir, quaseLa } from './assets/js/condecoracoes.js?v=8aa132cc';
+
+  /* ── A SALA DE CONDECORAÇÕES (R13) ──────────────────────────────────────
+     Os FATOS vêm do servidor (`fatos_do_usuario`), a conferência acontece
+     aqui. A divisão é deliberada e está explicada na migration
+     20260919200000: o navegador não consegue inventar fato nenhum, e
+     comparar fato com limiar é aritmética sobre números que ele não escolheu.
+
+     Nada é gravado: a lista é função pura dos fatos, então recalcular dá
+     sempre a mesma resposta — e o que não se guarda não se falsifica. */
+  async function desenharSala() {
+    const sala = document.getElementById('sala');
+    if (!sala) return;
+
+    const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+    if (error || !fatos) {
+      // Falhou: a seção não aparece, em vez de ficar vazia mentindo que a
+      // pessoa não conquistou nada. Zero falso é pior que ausência.
+      if (error) relatar(error, 'conquistas/sala');
+      return;
+    }
+
+    const { condecoracoes, divisas, resumo } = conferir(fatos);
+
+    document.getElementById('sala-contagem').innerHTML =
+      `${resumo.conquistadas}<span> / ${resumo.total}</span>`;
+
+    const porMetal = ['bronze', 'prata', 'ouro']
+      .map((m) => `${resumo.porMetal[m].conquistadas}/${resumo.porMetal[m].total} ${m}`)
+      .join(' · ');
+    document.getElementById('sala-sub').textContent = resumo.platinou
+      ? `${porMetal} — e a Condecoração Máxima`
+      : `${porMetal} · ${divisas.filter((d) => d.conquistada).length} divisa(s)`;
+
+    /* SECRETA NÃO CONQUISTADA vira "???" — é o mecanismo inteiro. Mostrar o
+       nome transformaria a surpresa em tarefa, que foi a correção que ele me
+       deu em 01/08. A pessoa vê que EXISTE algo ali, e é só isso. */
+    document.getElementById('medalhas-grade').innerHTML = condecoracoes.map((c) => {
+      const oculta = c.secreta && !c.conquistada;
+      const nome = oculta ? '???' : c.nome;
+      const desc = oculta ? 'Condecoração secreta.' : c.descricao;
+      const pct = Math.round(c.progresso * 100);
+      const mostrarRegua = !c.conquistada && !oculta && c.progresso > 0;
+      return `
+        <div class="medalha${c.conquistada ? '' : ' trancada'}${oculta ? ' secreta' : ''}"
+             style="--metal:${att(c.metalInfo?.cor || 'var(--linha)')}">
+          <div class="medalha-topo">
+            <span class="medalha-nome">${esc(nome)}</span>
+            <span class="medalha-metal">${esc(c.metalInfo?.nome || '')}</span>
+          </div>
+          <div class="medalha-desc">${esc(desc)}</div>
+          ${mostrarRegua ? `
+          <div class="medalha-regua">
+            <div class="medalha-preenche" data-ate="${c.progresso}"></div>
+          </div>` : ''}
+        </div>`;
+    }).join('');
+
+    const perto = quaseLa(condecoracoes, 3);
+    const caixa = document.getElementById('quase-la');
+    if (perto.length) {
+      document.getElementById('quase-lista').innerHTML = perto.map((c) => `
+        <div class="quase-item">
+          <div class="quase-linha">
+            <span>${esc(c.nome)}</span>
+            <span class="quase-pct">${Math.round(c.progresso * 100)}%</span>
+          </div>
+          <div class="medalha-regua">
+            <div class="medalha-preenche" data-ate="${c.progresso}"
+                 style="--metal:${att(c.metalInfo?.cor || 'var(--latao)')}"></div>
+          </div>
+        </div>`).join('');
+      caixa.hidden = false;
+    }
+
+    sala.hidden = false;
+
+    // As réguas crescem depois de estarem na tela, senão não há animação.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.querySelectorAll('.medalha-preenche').forEach((el) => {
+        el.style.transform = `scaleX(${el.dataset.ate})`;
+      });
+    }));
+  }
 
   // ── CONSTANTES ──
   const HABILIDADES_MILITARES = {
@@ -574,6 +810,11 @@
     estado.materias = dados.materias;
 
     renderUI();
+
+    /* A sala busca sozinha e não segura a tela: se a chamada falhar, as
+       conquistas e habilidades que já existiam continuam desenhadas. Mesma
+       regra do gráfico no dashboard. */
+    desenharSala().catch((e) => relatar(e, 'conquistas/sala'));
   }
 
   function renderUI() {

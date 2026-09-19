@@ -48,7 +48,7 @@
 | | Item | O quê | Estado |
 |---|---|---|---|
 | ✅ | **R6** | **CATÁLOGO** — condecorações e divisas | **ESCRITO em 19/09/2026 e AMPLIADO no mesmo dia** a pedido dele (*"eu quero bem mais, e mais secretas também"*): `assets/js/catalogo.js` com **74 condecorações** (22 secretas) e **33 divisas** (10 secretas), cada divisa com raridade e **cor por token**. Prova: `node tools/testa-catalogo.js` |
-| 🔴 | **R13** | **MOTOR DE CONDECORAÇÕES** — quem confere e concede | **ideia dele, 19/09:** *"sabe quando a pessoa joga um jogo no PlayStation? Lá tem várias conquistas até você platinar"*. O catálogo já existe; falta a peça que roda as condições e entrega a medalha (e a tag que vem junto) |
+| ✅ | **R13** | **MOTOR DE CONDECORAÇÕES** | **FEITO em 19/09/2026.** Os **fatos** saem do servidor (`fatos_do_usuario`, 11 consultas sobre `sessoes_estudo` e `progresso`); a **conferência** acontece no navegador; e **nada é gravado** — a lista é função pura dos fatos. A sala está em `conquistas.html`, com placar, "falta pouco" e as secretas como `???`. Provas: `testa-motor` (21) · `testa-fatos` (17) · `testa-sala` (9) |
 | 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09**, não descartado. Gatilho: **mais de 100 usuários ativos** — abaixo disso uma pessoa move o número em mais de 1 ponto e vira ruído |
 | 🔴 | **R5** | **LOOT COM RARIDADE** — comum · incomum · rara · lendária, com a raridade visível na cor | 🔒 aprovado |
 | 🔴 | **R12** | **MISSÕES** — as **gerais** (permanentes, nunca expiram) e as **DIÁRIAS** | pedido dele em 18/09: *"todo bom RPG tem missões diárias"*. ⚠️ ver o aviso do cassino abaixo |
@@ -132,6 +132,39 @@ pede. Comum · Incomum · Rara · Lendária.
 > em lugar nenhum** — nem em `historico/`, nem na skill, nem no caderno de 2.989 linhas. O que
 > foi aprovado em 02/08 foram as **contagens e o formato**. Escrever os nomes e as condições era
 > o trabalho inteiro, e estava descrito como se fosse o resto dele.
+
+---
+
+### ⚙️ Como o motor ficou, e por que dividido assim
+
+O catálogo tem 74 condições e vai crescer — dobrou no dia em que nasceu. Traduzir as 74 para SQL
+criaria **duas cópias** do mesmo catálogo, e duas cópias divergem: é questão de tempo até uma
+medalha existir na tela e não existir no banco.
+
+Então a divisão separa **o que não pode ser forjado** do que não precisa de proteção:
+
+| Onde | O quê | Por quê |
+|---|---|---|
+| **Servidor** | os **fatos** — *"estudou 47 dias, maior sessão 92 min, domínio mínimo 38%"* | vêm de `sessoes_estudo` e `progresso`, com RLS. O navegador não inventa nenhum |
+| **Navegador** | comparar fato com limiar — *"47 ≥ 30, logo ganhou"* | é aritmética sobre números que ele não escolheu |
+
+**E nada é gravado.** A lista é **função pura dos fatos**: recalcular dá sempre a mesma resposta,
+então não há estado para guardar — e o que não se guarda não se falsifica. Isso resolve de graça
+o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o banco aceitou.
+
+> 🔴 **O limite honesto:** quem editar o próprio navegador consegue **se mostrar** uma medalha que
+> não ganhou. Não há estado, não há efeito sobre ninguém, nada é gravado — é autoengano, do mesmo
+> tipo do XP de hoje. **Deixa de ser aceitável no dia em que condecoração destrancar conteúdo do
+> Pro:** aí a conferência sobe para o servidor também, e aí vale pagar o preço de manter o
+> catálogo em dois lugares. Hoje não vale.
+
+#### Três defeitos meus que os testes pegaram
+
+| O que eu fiz | O que ensinou |
+|---|---|
+| Importei o catálogo **com carimbo de versão** de dentro de outro módulo | **URL diferente é módulo diferente.** O navegador carregaria o catálogo **duas vezes**, e cada metade do sistema falaria com uma cópia. A convenção está em `paginas.md` §9: HTML → módulo leva carimbo, módulo → módulo não |
+| Escrevi "Virada de Jogo" como *"a matéria que **estava** mais atrasada"* | **Inconferível:** não guardamos histórico de domínio. A condecoração nunca dispararia, e ninguém descobriria por quê — violava a regra 1 do próprio catálogo. Reescrita para *"a matéria a que você dedicou menos tempo"*, que o banco sabe responder |
+| Testei a platina com um usuário de 6 matérias | Alarme falso — mas mostrou algo real: como **nenhum edital tem as 13 matérias**, ninguém vai colecionar todas as divisas, e está certo assim. Por isso a platina depende só das **condecorações**, que são iguais para todos |
 
 ---
 

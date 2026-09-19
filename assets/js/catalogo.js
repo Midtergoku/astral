@@ -392,9 +392,18 @@ export const CONDECORACOES = [
     descricao: 'Cem dias seguidos sem quebrar a sequência.',
     condicao: { tipo: 'streak', min: 100 } },
 
+  /* ✏️ REESCRITA em 19/09/2026, ainda antes de existir motor. Eu tinha posto
+     "a matéria que ESTAVA mais atrasada passou de 50%" -- e isso é
+     inconferível: nao guardamos historico de dominio, so o valor de agora. A
+     condecoracao nunca dispararia, e ninguem descobriria por que.
+
+     Violava a regra 1 do proprio arquivo. Reescrita para o que o banco sabe
+     responder: a materia a que a pessoa dedicou MENOS tempo (isso esta em
+     sessoes_estudo) esta acima de 50%. Captura a mesma ideia -- a preterida
+     nao ficou para tras -- e e mensuravel hoje. */
   { id: 'virada',           metal: 'prata', secreta: true, nome: 'Virada de Jogo',
-    descricao: 'A matéria que estava mais atrasada passou de 50%.',
-    condicao: { tipo: 'viradaMateria', dominioMin: 50 } },
+    descricao: 'A matéria a que você dedicou menos tempo passou de 50% de domínio.',
+    condicao: { tipo: 'materiaMenosEstudada', dominioMin: 50 } },
 
   { id: 'obstinado',        metal: 'prata', secreta: true, nome: 'Obstinado',
     descricao: 'A mesma matéria, sete dias seguidos.',
