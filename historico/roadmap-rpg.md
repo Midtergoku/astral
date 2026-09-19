@@ -52,7 +52,7 @@
 | 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09**, não descartado. Gatilho: **mais de 100 usuários ativos** — abaixo disso uma pessoa move o número em mais de 1 ponto e vira ruído |
 | ✅ | **R5** | **LOOT COM RARIDADE** | **FEITO em 19/09/2026.** A vitrine de `tags.html` deixou de mostrar só as tags de matéria e passa a mostrar **o catálogo inteiro** — conquistadas em cima, trancadas embaixo, secretas fora. Raridade na **cor do nome** e num rótulo. Prova: `node tools/testa-tags.js` (9 de 9) |
 | ✅ | **R12** | **MISSÕES** — diárias e campanhas | **FEITO em 19/09/2026.** **3 diárias por dia**, sorteadas de 11 com semente `uid + data` — recarregar não troca; **4 campanhas** de 4 etapas, que nunca expiram. Ambas no dashboard. Provas: `testa-missoes` (16, função pura) · `testa-missoes-tela` (11, ponta a ponta) |
-| 🔴 | **R3** | **O CHEFE TEM DATA** — a prova vira o chefe da campanha, com contagem regressiva; cada simulado é um sub-chefe | aprovado |
+| ✅ | **R3** | **O CHEFE TEM DATA** | **FEITO em 19/09/2026.** A prova marcada no calendário vira o chefe, no alto do dashboard: fase da campanha, dias restantes, **preparo de 0 a 100** e **o que fazer** — a matéria que custa mais caro, nomeada. Some sozinho quando não há prova. Prova: `node tools/testa-chefe.js` (18 de 18). ⚠️ Os **sub-chefes** (simulados) dependem do banco de questões — ver Q4/R4 |
 | 🔴 | **R9** | **REENGAJAMENTO NARRADO** — "enferrujada/suspensa" (que já existe) vira *fora de serviço*, com missão de retorno | aprovado |
 
 ---
@@ -174,6 +174,48 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | 🔴 | **R7** | **DIÁRIO DE CAMPANHA** — o histórico vira log narrado: *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* | aprovado |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### ⏳ O chefe — e por que contagem regressiva sozinha é perigosa aqui
+
+A contagem já existia: em `calendario.html`, num cartão chamado *"Dias até a prova"*. O problema
+não era falta de número — era o número estar **numa página que quase ninguém abre** e não dizer
+nada além do número.
+
+> 🔴 **E contagem regressiva sozinha faz mal neste produto.** Quem presta concurso militar já
+> vive com essa data na cabeça. Um número grande dizendo *"faltam 43 dias"* não informa nada que
+> a pessoa não saiba, e mexe com a única coisa que atrapalha estudo mais que preguiça:
+> **ansiedade**. Concurseiro assustado estuda **menos**, não mais.
+
+Então o chefe tem três partes, e **a terceira é a que justifica a primeira**:
+
+| | O quê | De onde vem |
+|---|---|---|
+| **Quanto falta** | os dias | o evento de categoria `prova` — já existia |
+| **Como você está** | **Preparo de 0 a 100** | 70% DOUTRINA + 30% AMPLITUDE, da ficha |
+| **O que fazer** | a matéria que custa mais caro, **nomeada** | `peso × (100 − domínio)` |
+
+Sem a terceira, isto seria um relógio de ansiedade com tema militar.
+
+#### Duas decisões que o teste cobra
+
+**O preparo mede conhecimento, não hábito.** DISCIPLINA e RESISTÊNCIA ficam **de fora** de
+propósito: elas dizem *como* você estuda, não *o quanto* você sabe. Quem estuda todo dia há uma
+semana tem disciplina 100 e preparo baixo — e misturar as duas faria o número mentir justamente
+para quem mais precisa da verdade. O teste passa disciplina 100 e exige que o preparo **não se
+mexa**.
+
+**O ponto fraco é o que custa mais, não o menor número.** Física em 20% com peso 2 custa 160;
+Português em 60% com peso 3 custa 120. Ganha Física. Se o peso virar, a resposta vira junto — e
+o teste confere os dois casos.
+
+**O tom muda com o tempo, mas nunca vira pânico.** Cinco fases, de *Campanha longa* a *O dia
+chegou*, e na reta final o conselho muda de *"amplie"* para *"reforce o que já domina"* — que é
+o que de fato rende. O teste varre os textos atrás de palavras de desespero e falha se achar.
+
+> **E a cor quente é uma faixa fina na lateral, nunca o fundo inteiro.** Fundo vermelho num app
+> de estudo é ansiedade com CSS.
 
 ---
 

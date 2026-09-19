@@ -215,6 +215,129 @@
       border-radius: 999px;
     }
 
+/* ── O CHEFE (R3) ──────────────────────────────────────────────────────
+   Placa de operação, não alarme. O tom muda com a proximidade — mas a cor
+   quente é uma FAIXA fina na lateral, nunca o fundo inteiro: fundo vermelho
+   num app de estudo é ansiedade, e concurseiro assustado estuda menos. */
+    .chefe-cartao {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      background: var(--casco-2);
+      border: 1px solid var(--linha);
+      border-left: 3px solid var(--tom, var(--oliva));
+      border-radius: var(--r-g) var(--r-g) 0 0;
+      padding: 1.15rem 1.35rem;
+    }
+
+.chefe-esq { min-width: 0; }
+
+.chefe-fase {
+      font-family: var(--dado);
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--tom, var(--oliva-c));
+      margin-bottom: 0.3rem;
+    }
+
+.chefe-nome {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--texto);
+      line-height: 1.2;
+      margin-bottom: 0.3rem;
+    }
+
+.chefe-frase { font-size: 0.83rem; color: var(--texto-2); line-height: 1.4; }
+
+.chefe-dir { text-align: right; flex-shrink: 0; }
+
+.chefe-dias {
+      font-family: var(--dado);
+      font-weight: 700;
+      font-size: 2.1rem;
+      color: var(--tom, var(--texto));
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+.chefe-dias-rot {
+      font-family: var(--dado);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--texto-3);
+      margin-top: 0.25rem;
+    }
+
+/* O preparo fica colado embaixo, como parte da mesma peça: é a resposta à
+   pergunta que a contagem levanta. Separar os dois faria o número de dias
+   ficar sozinho, que é exatamente o que não se quer. */
+    .chefe-preparo {
+      background: var(--casco);
+      border: 1px solid var(--linha);
+      border-top: none;
+      border-radius: 0 0 var(--r-g) var(--r-g);
+      padding: 0.95rem 1.35rem 1.05rem;
+    }
+
+.chefe-preparo-topo {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 0.45rem;
+    }
+
+.chefe-preparo-rot {
+      font-family: var(--dado);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--texto-3);
+    }
+
+.chefe-preparo-valor {
+      font-family: var(--dado);
+      font-weight: 700;
+      font-size: var(--t-md);
+      color: var(--texto);
+      font-variant-numeric: tabular-nums;
+    }
+
+.chefe-regua {
+      height: 5px;
+      background: var(--linha);
+      border-radius: var(--r-p);
+      overflow: hidden;
+    }
+
+.chefe-preenche {
+      height: 100%;
+      background: var(--latao);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--d-painel) var(--percurso);
+    }
+
+.chefe-conselho {
+      margin-top: 0.6rem;
+      font-size: 0.83rem;
+      color: var(--texto-2);
+      line-height: 1.4;
+    }
+
+@media (max-width: 768px) {
+      .chefe-cartao { flex-direction: column; align-items: flex-start; gap: 0.85rem; }
+      .chefe-dir { text-align: left; }
+    }
+
+@media (prefers-reduced-motion: reduce) {
+      .chefe-preenche { transition: none; }
+    }
+
 /* ── AS MISSÕES (R12) ──────────────────────────────────────────────────
    Lista de ordens do dia, não cards coloridos. Cada linha tem o texto, o
    quanto já foi feito e uma régua fina — o "18 / 25 min" é o que puxa. */
@@ -897,6 +1020,33 @@
       </div>
     </div>
 
+    <!-- ── O CHEFE (R3) ──────────────────────────────────────────────────
+         A prova como chefe da campanha. Fica no ALTO porque é o contexto de
+         tudo o que vem abaixo: as missões e a ficha só fazem sentido contra
+         uma data. Some inteiro quando não há prova marcada — melhor ausência
+         que um "—" ocupando o lugar mais nobre da tela. -->
+    <div id="chefe" style="margin-bottom:1.5rem" hidden>
+      <div class="chefe-cartao" id="chefe-cartao">
+        <div class="chefe-esq">
+          <div class="chefe-fase" id="chefe-fase"></div>
+          <div class="chefe-nome" id="chefe-nome"></div>
+          <div class="chefe-frase" id="chefe-frase"></div>
+        </div>
+        <div class="chefe-dir">
+          <div class="chefe-dias" id="chefe-dias"></div>
+          <div class="chefe-dias-rot" id="chefe-dias-rot"></div>
+        </div>
+      </div>
+      <div class="chefe-preparo" id="chefe-preparo">
+        <div class="chefe-preparo-topo">
+          <span class="chefe-preparo-rot">Preparo</span>
+          <span class="chefe-preparo-valor" id="chefe-preparo-valor"></span>
+        </div>
+        <div class="chefe-regua"><div class="chefe-preenche" id="chefe-preenche"></div></div>
+        <div class="chefe-conselho" id="chefe-conselho"></div>
+      </div>
+    </div>
+
     <!-- ── AS MISSÕES (R12) ──────────────────────────────────────────────
          Vem depois do cronograma e ANTES da ficha, de propósito: o cronograma
          é o plano, a missão é o desafio de hoje, e a ficha é quem você é.
@@ -1225,18 +1375,16 @@ function mostrarLevelUp(nomeNivel) {
     /* A FICHA busca sozinha e NAO segura a tela, pela mesma razao do grafico
        acima: se ela falhar, o cronograma do dia -- que e o que a pessoa veio
        buscar -- ja esta desenhado. */
-    desenharFicha();
+    /* 🔴 UMA carga só para todo o RPG.
+       Antes desta consolidação, abrir o dashboard chamava `fatos_do_usuario`
+       TRÊS vezes na mesma tela -- uma para a ficha, uma para as missões e uma
+       para as condecorações. E como `fatos_do_usuario` chama `ficha_do_usuario`
+       por dentro, eram três varreduras completas de `sessoes_estudo` para
+       desenhar uma página. Cada peça foi escrita num dia diferente e nenhuma
+       sabia das outras -- é assim que isso acontece.
 
-    /* ── O INSTANTE DA DESCOBERTA (R8) ─────────────────────────────────────
-       O dashboard e onde a pessoa CAI depois de marcar a sessao como feita --
-       e por isso e aqui que a medalha tem de aparecer, nao numa pagina que ela
-       talvez nunca abra. Roda depois da ficha, em silencio se nao houver nada.
-
-       Importa `condecoracoes.js` sob demanda: quem nao tem medalha nova nao
-       paga o download do catalogo de 74 itens so para descobrir isso. */
-    desenharMissoes(session.user.id).catch((e) => relatar(e, 'dashboard/missoes'));
-
-    conferirCondecoracoes(session.user.id).catch(() => { /* ja relatado dentro */ });
+       Agora: duas chamadas (a vida e o dia), e todo mundo come do mesmo prato. */
+    carregarRPG(session.user.id).catch((e) => relatar(e, 'dashboard/rpg'));
 
     renderUI();
 
@@ -1280,18 +1428,23 @@ function mostrarLevelUp(nomeNivel) {
     ['precisao',    'Precisão'],
   ];
 
-  async function desenharFicha() {
+  /* Recebe os fatos prontos -- `fatos_do_usuario` já traz `atributos` dentro,
+     porque chama a ficha por dentro. Buscar de novo aqui era a terceira
+     varredura da mesma tabela na mesma tela. */
+  function desenharFicha(fatos) {
     const grade = document.getElementById('ficha-grade');
     const resumo = document.getElementById('ficha-resumo');
     if (!grade) return;
 
-    const { data, error } = await supabase.rpc('ficha_do_usuario');
-    if (error || !data || !data.atributos) {
-      // Falhou: sai de cena em vez de deixar "Carregando..." para sempre.
+    const data = fatos?.atributos
+      ? { atributos: fatos.atributos, sessoes: {
+          total: fatos.sessoes, horas: fatos.horas, dias_no_mes: fatos.diasEstudados } }
+      : null;
+    if (!data) {
+      // Sem fatos: sai de cena em vez de deixar "Carregando..." para sempre.
       // Cartao vazio e melhor que cartao mentindo que esta carregando.
       const caixa = document.getElementById('ficha');
       if (caixa) caixa.style.display = 'none';
-      if (error) relatar(error, 'dashboard/ficha');
       return;
     }
 
@@ -1331,25 +1484,98 @@ function mostrarLevelUp(nomeNivel) {
     }));
   }
 
+  /* ── A CARGA ÚNICA DO RPG ───────────────────────────────────────────────
+     Duas consultas, quatro peças. A ordem de desenho não é a de importância
+     na tela, é a de UTILIDADE para quem está olhando: o chefe dá o contexto,
+     as missões dizem o que fazer, a ficha diz quem você é, e a medalha
+     comemora — ela vem por último porque interrompe, e interromper antes de
+     a tela estar pronta é o que faz um anúncio parecer travamento.
+
+     Nenhuma peça derruba as outras: cada uma tem o seu próprio try. Se a
+     ficha falhar, as missões continuam lá. */
+  async function carregarRPG(uid) {
+    const [vida, hoje] = await Promise.all([
+      supabase.rpc('fatos_do_usuario'),
+      supabase.rpc('fatos_de_hoje'),
+    ]);
+
+    if (vida.error) relatar(vida.error, 'dashboard/fatos');
+    const fatos = vida.data || null;
+
+    if (fatos) {
+      try { await desenharChefe(uid, fatos); } catch (e) { relatar(e, 'dashboard/chefe'); }
+      try { desenharFicha(fatos); } catch (e) { relatar(e, 'dashboard/ficha'); }
+    }
+
+    if (!hoje.error && hoje.data) {
+      try { await desenharMissoes(uid, hoje.data, fatos); } catch (e) { relatar(e, 'dashboard/missoes'); }
+    }
+
+    if (fatos) {
+      try { await conferirCondecoracoes(uid, fatos); } catch (e) { relatar(e, 'dashboard/condecoracoes'); }
+    }
+  }
+
+  /* ── O CHEFE ────────────────────────────────────────────────────────────
+     A prova marcada no calendário vira o chefe da campanha. Lê `eventos`
+     direto — é tabela com RLS, então a consulta já vem filtrada por quem
+     está logado, e não vale uma função nova para um SELECT de uma linha. */
+  const TONS = {
+    calmo:   'var(--oliva-c)',
+    medio:   'var(--latao-c)',
+    urgente: 'var(--brasa-c)',
+    agora:   'var(--brasa-c)',
+  };
+
+  async function desenharChefe(uid, fatos) {
+    const caixa = document.getElementById('chefe');
+    if (!caixa || !fatos) return;
+
+    const { data: provas, error } = await supabase
+      .from('eventos')
+      .select('nome, data, categoria')
+      .eq('usuario_id', uid)
+      .eq('categoria', 'prova')
+      .order('data', { ascending: true })
+      .limit(1);
+    if (error || !provas?.length) return;      // sem prova marcada, sem chefe
+
+    const { chefeDe } = await import('./assets/js/chefe.js?v=76f7fa60');
+    const c = chefeDe(provas[0], fatos);
+    if (!c) return;                            // prova já passou
+
+    const cor = TONS[c.tom] || TONS.calmo;
+    document.getElementById('chefe-cartao').style.setProperty('--tom', cor);
+    document.getElementById('chefe-dias').style.setProperty('--tom', cor);
+    document.getElementById('chefe-fase').textContent = c.fase;
+    document.getElementById('chefe-nome').textContent = c.nome;
+    document.getElementById('chefe-frase').textContent = c.frase;
+
+    document.getElementById('chefe-dias').textContent = c.dias === 0 ? 'Hoje' : c.dias;
+    document.getElementById('chefe-dias-rot').textContent =
+      c.dias === 0 ? 'é o dia' : (c.dias === 1 ? 'dia restante' : 'dias restantes');
+
+    document.getElementById('chefe-preparo-valor').textContent = `${c.preparo} / 100`;
+    document.getElementById('chefe-conselho').textContent = c.conselho;
+
+    caixa.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const barra = document.getElementById('chefe-preenche');
+      barra.style.background = cor;
+      barra.style.transform = `scaleX(${c.preparo / 100})`;
+    }));
+  }
+
   /* ── AS MISSÕES ─────────────────────────────────────────────────────────
      Duas chamadas: `fatos_de_hoje` para as diárias e `fatos_do_usuario` para
      a campanha. São consultas diferentes porque respondem perguntas
      diferentes — hoje versus a vida inteira. */
-  async function desenharMissoes(uid) {
+  async function desenharMissoes(uid, hoje, vida) {
     const caixa = document.getElementById('missoes');
-    if (!caixa) return;
-
-    const [hoje, vida] = await Promise.all([
-      supabase.rpc('fatos_de_hoje'),
-      supabase.rpc('fatos_do_usuario'),
-    ]);
-    if (hoje.error || !hoje.data) {
-      if (hoje.error) relatar(hoje.error, 'dashboard/missoes');
-      return;                                  // some, em vez de ficar vazia
-    }
+    if (!caixa || !hoje) return;               // some, em vez de ficar vazia
 
     const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=bdc5216c');
-    const lista = missoesDeHoje(uid, hoje.data);
+    const lista = missoesDeHoje(uid, hoje);
 
     document.getElementById('missoes-placar').textContent =
       `${lista.filter((m) => m.cumprida).length} / ${lista.length}`;
@@ -1368,8 +1594,8 @@ function mostrarLevelUp(nomeNivel) {
     /* A campanha mostrada é a que está MAIS PERTO de avançar entre as
        incompletas. Assim quem já terminou a "Apresentação ao Quartel" vê a
        próxima, e não uma campanha fechada ocupando espaço. */
-    if (!vida.error && vida.data) {
-      const emAndamento = campanhas(vida.data)
+    if (vida) {
+      const emAndamento = campanhas(vida)
         .filter((c) => !c.completa)
         .sort((a, b) => (b.cumpridas / b.etapas.length) - (a.cumpridas / a.etapas.length))[0];
 
@@ -1393,10 +1619,9 @@ function mostrarLevelUp(nomeNivel) {
     }));
   }
 
-  async function conferirCondecoracoes(uid) {
+  async function conferirCondecoracoes(uid, fatos) {
     try {
-      const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
-      if (error || !fatos) return;                    // sem fatos, sem anúncio
+      if (!fatos) return;                             // sem fatos, sem anúncio
       const [{ conferir }, { anunciarNovidades }] = await Promise.all([
         import('./assets/js/condecoracoes.js?v=8aa132cc'),
         import('./assets/js/anuncio.js?v=dd704853'),
