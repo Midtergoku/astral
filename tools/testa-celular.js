@@ -162,7 +162,7 @@ async function abrir(nav, ap, pagina) {
   console.log("\n== 3. NAO FICAR PRESO: o menu abre e fecha? ==");
   {
     const ap = APARELHOS[0];
-    const comSidebar = ["dashboard.html", "progresso.html", "questoes.html", "recursos.html", "calendario.html", "conquistas.html", "cronometro.html", "edital.html", "conta.html", "tags.html", "cronograma.html"];
+    const comSidebar = ["arvore.html", "dashboard.html", "progresso.html", "questoes.html", "recursos.html", "calendario.html", "conquistas.html", "cronometro.html", "edital.html", "conta.html", "tags.html", "cronograma.html"];
     let ruins = 0;
     for (const pagina of comSidebar) {
       const { ctx, pg } = await abrir(nav, ap, pagina);

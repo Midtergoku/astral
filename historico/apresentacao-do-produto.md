@@ -42,6 +42,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **A medalha se anuncia na hora** | No instante em que cai, com confete e a cor do metal. Uma conquista secreta descoberta três semanas depois, numa tabela, é uma linha de tabela — o valor está no instante |
 | **Missões de hoje** | Três por dia, e elas **não mudam se você recarregar**. *"Estude 25 minutos"*, *"duas matérias diferentes"*, *"uma sessão antes das 9h"* — e o quanto já falta aparece em cada uma |
 | **Campanhas** | Quatro trilhas de quatro etapas que **nunca expiram**: Apresentação ao Quartel · Operação Constância · Frente Ampla · Marcha de Resistência. A próxima etapa só abre quando a anterior fecha |
+| **Quadro de operações** | As 74 condecorações num mapa, organizadas em **8 frentes** — Tempo de Serviço, Marcha, Presença, Fôlego, Volume de Fogo, Terreno, Vigília e Comando. Cada frente é uma escada de degraus ligados, e o caminho que você já percorreu aparece aceso |
 | **A prova é o chefe** | Sua data vira o chefe da campanha, no alto do painel: quanto falta, **o quanto você está preparado** (0 a 100) e **qual matéria atacar agora** — a que mais custa ponto, com nome. Contagem regressiva sem direção é só pressão; com direção, é plano |
 
 ### O que vem

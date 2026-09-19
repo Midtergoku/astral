@@ -39,7 +39,8 @@
 | | Item | O quê | Estado |
 |---|---|---|---|
 | ✅ | **R1** | **A FICHA** — 5 atributos no lugar de um XP só | **FEITA em 19/09/2026.** Os 4 primeiros calculados **pelo servidor** a partir das sessões reais; **PRECISÃO volta `null`** de propósito, porque depende do banco de questões e inventar número aqui derrubaria o crédito da ficha inteira. Cada atributo **diz de onde veio**. Prova: `node tools/testa-ficha.js` (18 de 18, incluindo a tela e o vazamento entre contas) |
-| 🔴 | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | 🔒 aprovado por ele em 18/09. **Trava:** os ramos mudam *como* se joga, nunca *o que* se aprende |
+| ✅ | **R15** | **QUADRO DE OPERAÇÕES** — a árvore de condecorações | **FEITO em 20/09/2026**, em `arvore.html`: as 74 condecorações em **8 frentes**, cada uma um degrau ligado ao anterior. Pedido dele com uma imagem de árvore de talentos e a ordem de **não** copiar aquela forma. Prova: `node tools/testa-arvore.js` (23 de 23) |
+| 🔴 | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | 🔒 aprovado por ele em 18/09. **Trava:** os ramos mudam *como* se joga, nunca *o que* se aprende. ⚠️ **Não confundir com o R15:** o Quadro **mostra** o que você conquistou; a Árvore fará você **escolher** — e escolha gravada é o que ainda espera decisão |
 | 🛑 | **R10** | **PRESTÍGIO** — trocar de edital não zera nada | **MEDIDO em 19/09, e PARADO esperando ele.** A maior parte **já sobrevive** à troca; o que se perde são **4 condecorações** e **3 divisas** ligadas ao domínio das matérias. Consertar exige **guardar as conquistadas** — decisão de modelagem de dado permanente, que é a fronteira que ele mandou não cruzar sozinho. Vigia: `node tools/testa-troca-de-edital.js` |
 
 ---
@@ -175,6 +176,52 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | ✅ | **R7** | **DIÁRIO DE CAMPANHA** | **FEITO em 19/09/2026**, em `progresso.html`: linha do tempo dos últimos 30 dias, com tempo, matérias, sequência e **marcos calculados por reprodução da história**. ⚠️ **Sem a parte do domínio** — ver abaixo. Provas: `testa-diario` (20) · `testa-diario-tela` (10) |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🗺️ O Quadro de Operações — e por que não é a árvore da imagem
+
+Ele mandou a imagem de uma **árvore de talentos de jogo de fantasia** e foi explícito:
+
+> *"Isso é só um exemplo do que é, mas ela não vai ser dessa maneira. Quero que seja transformada
+> da nossa maneira, que tenha nossas cores e alguma relação com a parte do militar."*
+
+**O que se mantém:** a estrutura — ramos paralelos, degraus em ordem, convergência.
+**O que muda:** tudo o mais. Árvore de talentos é forma de fantasia. O equivalente militar é o
+**quadro onde se planeja uma campanha**: frentes que avançam em paralelo, objetivos ligados por
+linha, sobre um fundo de mapa.
+
+| Decisão | Por quê |
+|---|---|
+| **Hexágono**, não círculo | hexágono é a forma de **grade de mapa tático**; círculo é a forma de qualquer jogo |
+| **Frentes**, não ramos | *Tempo de Serviço · Marcha · Presença · Fôlego · Volume de Fogo · Terreno · Vigília · Comando* |
+| Fundo de **grade fina** | a mesa onde se planeja, não o céu estrelado da imagem |
+| Cor **só por token** | o teste falha se aparecer um único hex solto na página |
+
+#### 🔴 A árvore não foi inventada — foi revelada
+
+As 74 condecorações **já tinham correntes dentro delas**: 9 degraus de horas
+(1 → 3 → 5 → 10 → 25 → 50 → 100 → 200 → 500), 7 de sequência, 6 de sessões. Isso já era uma
+árvore; estava escondida numa lista.
+
+Então o código **não cria hierarquia**: agrupa por **tipo de esforço** e ordena por **exigência**.
+A consequência que importa: **o quadro nunca desatualiza** — condecoração nova entra na frente
+certa sozinha, pelo tipo da condição dela. E o teste cobra que **nenhuma fique órfã**, porque
+órfã seria conquistada sem lugar para aparecer.
+
+#### O pré-requisito que não precisou ser inventado
+
+Numa árvore de talentos o nó de cima **exige** o de baixo. Aqui não é preciso impor: **quem tem
+100 horas necessariamente passou por 50**. A ordem já é consequência. Por isso o teste procura o
+que seria impossível — um degrau aceso com o anterior apagado — e falha se achar, porque isso
+significaria que a ordem da frente está errada e a pessoa veria um caminho que não existe.
+
+#### Dois defeitos meus, pegos no caminho
+
+| | |
+|---|---|
+| **Escalas misturadas na mesma frente** | Comparei o número cru de cada condição, e "1 semana perfeita" ficou **antes** de "2 dias seguidos", porque 1 < 2. Cada frente passou a converter tudo para a sua unidade natural (dias, minutos, sessões) |
+| 🔴 **A legenda do nó só aparecia no hover** | **No celular não existe hover.** A tela seria hexágonos com números e nenhuma forma de descobrir o que são. Agora responde ao toque (`:focus`), e no telefone vira uma barra no rodapé em vez de um balão de 13rem que não cabe em 360px |
 
 ---
 

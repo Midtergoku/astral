@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="stylesheet" href="/assets/css/base.css?v=ba2130d6"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Quadro de operações</title>
+  <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  /* ── O QUADRO DE OPERAÇÕES ────────────────────────────────────────────────
+     A imagem que ele mandou como exemplo era uma árvore de talentos de jogo de
+     fantasia, e ele pediu explicitamente para NÃO ser daquele jeito. O que se
+     mantém é a ESTRUTURA (ramos paralelos, degraus, convergência); o que muda
+     é tudo o mais.
+
+     A referência aqui é a mesa onde se planeja uma campanha: fundo de mapa,
+     frentes que avançam em paralelo, objetivos ligados por linha. Hexágono em
+     vez de círculo porque hexágono é a forma de grade de mapa tático — círculo
+     é a forma de qualquer jogo. */
+
+  .quadro {
+    display: flex;
+    gap: var(--e3);
+    align-items: flex-end;        /* todas as frentes partem do chão */
+    overflow-x: auto;
+    padding: var(--e4) var(--e2) var(--e5);
+    /* A grade do mapa, fraca o bastante para não competir com os nós. */
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--linha) 40%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--linha) 40%, transparent) 1px, transparent 1px);
+    background-size: 28px 28px;
+    border: 1px solid var(--linha);
+    border-radius: var(--r-g);
+  }
+
+  .frente {
+    display: flex;
+    flex-direction: column-reverse;   /* o degrau 1 fica EMBAIXO */
+    align-items: center;
+    gap: 0;
+    min-width: 8.5rem;
+    flex: 1 0 auto;
+  }
+
+  .frente-cabeca {
+    order: 1;                          /* com column-reverse, vai para o topo */
+    text-align: center;
+    padding: 0 var(--e1) var(--e3);
+    max-width: 10rem;
+  }
+
+  .frente-nome {
+    font-family: var(--display); font-weight: 800;
+    font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--texto-2); line-height: 1.25;
+  }
+
+  .frente-conta {
+    font-family: var(--dado); font-size: .68rem;
+    color: var(--texto-3); font-variant-numeric: tabular-nums; margin-top: .15rem;
+  }
+
+  .frente.completa .frente-nome { color: var(--latao-c); }
+
+  /* ── O NÓ ─────────────────────────────────────────────────────────────── */
+  .no {
+    position: relative;
+    width: 3rem; height: 3.4rem;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--casco);
+    border: 1px solid var(--linha);
+    /* Hexágono: grade de mapa tático. */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    cursor: help;
+    flex-shrink: 0;
+  }
+
+  /* A ligação com o degrau de baixo. Fica acesa só quando OS DOIS estão
+     conquistados -- é o que transforma pontos soltos em caminho percorrido. */
+  .elo {
+    width: 2px; height: 1.15rem;
+    background: var(--linha);
+    flex-shrink: 0;
+  }
+
+  .elo.aceso { background: var(--latao); }
+
+  .no-grau {
+    font-family: var(--dado); font-weight: 700;
+    font-size: .8rem; color: var(--texto-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Conquistado: ganha a cor do metal na borda e um fundo fraco dela. */
+  .no.feito {
+    background: color-mix(in srgb, var(--metal) 16%, var(--casco));
+    border-color: var(--metal);
+  }
+
+  .no.feito .no-grau { color: var(--metal); }
+
+  /* O degrau ATUAL -- onde a frente parou. É o único com movimento, e é
+     discreto de propósito: é sinalização, não festa. */
+  .no.atual {
+    border-color: var(--latao-c);
+    animation: pulsarNo 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulsarNo {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .55; }
+  }
+
+  .no.oculta .no-grau { color: var(--texto-3); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .no:hover { border-color: var(--latao-c); }
+  }
+
+  /* ── A LEGENDA DO NÓ, ao passar o mouse ou tocar ──────────────────────── */
+  .no-info {
+    position: absolute; bottom: calc(100% + .4rem); left: 50%;
+    transform: translateX(-50%);
+    width: 13rem; z-index: 20;
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-top: 2px solid var(--metal);
+    border-radius: var(--r-p); padding: .6rem .7rem;
+    text-align: left; pointer-events: none;
+    opacity: 0; transition: opacity var(--d-dica) var(--saida);
+  }
+
+  /* 🔴 `:focus` e nao `:focus-visible`: NO CELULAR NAO EXISTE HOVER.
+     A primeira versao so mostrava a legenda no hover, e o resultado no
+     telefone seria uma tela de hexagonos com numeros e nenhuma forma de
+     descobrir o que sao. Com `:focus`, tocar o no revela -- e o `tabindex`
+     que ja estava la para o teclado serve para isso tambem. */
+  .no:hover .no-info, .no:focus .no-info { opacity: 1; }
+
+  .no-info-nome {
+    font-family: var(--display); font-weight: 700;
+    font-size: .82rem; color: var(--texto); line-height: 1.2; margin-bottom: .2rem;
+  }
+
+  .no-info-desc { font-size: .72rem; color: var(--texto-3); line-height: 1.35; }
+
+  .no-info-metal {
+    font-family: var(--dado); font-size: .58rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--metal); margin-bottom: .25rem;
+  }
+
+  /* ── O RESUMO ─────────────────────────────────────────────────────────── */
+  .quadro-resumo {
+    display: flex; flex-wrap: wrap; gap: var(--e4);
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--latao);
+    border-radius: var(--r-p); padding: var(--e3); margin-bottom: var(--e3);
+  }
+
+  .resumo-item { display: grid; gap: .1rem; }
+
+  .resumo-rot {
+    font-family: var(--dado); font-size: .6rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  .resumo-valor {
+    font-family: var(--dado); font-weight: 700; font-size: var(--t-lg);
+    color: var(--texto); font-variant-numeric: tabular-nums; line-height: 1;
+  }
+
+  .legenda {
+    display: flex; flex-wrap: wrap; gap: var(--e3);
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--texto-3);
+    margin-top: var(--e3);
+  }
+
+  .legenda span { display: inline-flex; align-items: center; gap: .35rem; }
+
+  .legenda i {
+    width: .6rem; height: .7rem; display: inline-block;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .no.atual { animation: none; }
+  }
+
+  @media (max-width: 768px) {
+    /* No telefone a legenda vira uma barra no rodape, em vez de um balao de
+       13rem que nao cabe numa tela de 360px e sairia pela lateral. */
+    .no-info {
+      position: fixed; bottom: 1rem; left: 1rem; right: 1rem;
+      top: auto; width: auto; transform: none;
+      border-top-width: 3px;
+    }
+
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 1.25rem; }
+    .quadro { padding: var(--e3) var(--e1) var(--e4); }
+    .frente { min-width: 7rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
+    <div class="user-details">
+      <div class="user-name" id="user-name"></div>
+    </div>
+  </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Recursos
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+    <a class="nav-link" href="arvore.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3z"/>
+        <path d="M12 3v18M4 7.5l8 4.5 8-4.5"/>
+      </svg>
+      Quadro
+    </a>
+    <a class="nav-link active" href="tags.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
+      Minhas tags
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Quadro de operações</h1>
+      <p class="page-sub">Suas condecorações, organizadas pelas frentes em que se conquistam.</p>
+    </div>
+      <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
+  </div>
+
+  <div id="conteudo">
+    <div class="esqueleto-linha media"></div>
+    <div class="esqueleto-bloco" style="height:18rem"></div>
+  </div>
+</main>
+
+<script type="module">
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, relatar }
+    from './assets/js/astral.js?v=bfdb6e4b';
+  import { carregarProgresso } from './assets/js/estado.js?v=5dab0815';
+  import { aplicarDivisa } from './assets/js/divisa.js?v=01156cb1';
+
+  const METAL_COR = {
+    bronze: 'var(--brasa)', prata: 'var(--texto-2)',
+    ouro: 'var(--latao)', platina: 'var(--papel)',
+  };
+
+  function noHTML(no, ehAtual) {
+    const cor = METAL_COR[no.metal] || 'var(--linha)';
+    const nome = no.oculta ? '???' : no.nome;
+    const desc = no.oculta ? 'Condecoração secreta.' : no.descricao;
+    const classes = ['no'];
+    if (no.conquistada) classes.push('feito');
+    if (ehAtual) classes.push('atual');
+    if (no.oculta) classes.push('oculta');
+    return `
+      <div class="${classes.join(' ')}" style="--metal:${att(cor)}" tabindex="0"
+           aria-label="${att(nome)} — ${no.conquistada ? 'conquistada' : 'não conquistada'}">
+        <span class="no-grau">${no.conquistada ? '◆' : no.degrau}</span>
+        <span class="no-info">
+          <span class="no-info-metal">${esc(no.metalInfo?.nome || '')}</span>
+          <span class="no-info-nome">${esc(nome)}</span>
+          <span class="no-info-desc">${esc(desc)}</span>
+        </span>
+      </div>`;
+  }
+
+  function render(quadro) {
+    const alvo = document.getElementById('conteudo');
+    const r = quadro.resumo;
+
+    alvo.innerHTML = `
+      <div class="quadro-resumo">
+        <div class="resumo-item">
+          <span class="resumo-rot">Condecorações</span>
+          <span class="resumo-valor">${r.conquistadas} / ${r.total}</span>
+        </div>
+        <div class="resumo-item">
+          <span class="resumo-rot">Frentes abertas</span>
+          <span class="resumo-valor">${r.frentes}</span>
+        </div>
+        <div class="resumo-item">
+          <span class="resumo-rot">Frentes completas</span>
+          <span class="resumo-valor">${r.frentesCompletas} / ${r.frentes}</span>
+        </div>
+      </div>
+
+      <div class="quadro">
+        ${quadro.frentes.map((f) => `
+          <div class="frente${f.completa ? ' completa' : ''}">
+            <div class="frente-cabeca">
+              <div class="frente-nome">${esc(f.nome)}</div>
+              <div class="frente-conta">${f.feitos} / ${f.total}</div>
+            </div>
+            ${f.nós.map((no, i) => (i > 0
+              ? `<div class="elo${no.conquistada && f.nós[i - 1].conquistada ? ' aceso' : ''}"></div>`
+              : '') + noHTML(no, f.atual?.id === no.id)).join('')}
+          </div>`).join('')}
+      </div>
+
+      <div class="legenda">
+        <span><i style="background:var(--brasa)"></i> Bronze</span>
+        <span><i style="background:var(--texto-2)"></i> Prata</span>
+        <span><i style="background:var(--latao)"></i> Ouro</span>
+        <span><i style="background:var(--papel)"></i> Platina</span>
+        <span><i style="background:var(--casco);border:1px solid var(--latao-c)"></i> Próximo degrau</span>
+        <span>??? Secreta</span>
+      </div>`;
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    const uid = sessao.user.id;
+    await nomeDoUsuario(sessao);
+
+    const dados = await carregarProgresso(uid);
+    aplicarDivisa({
+      xp: dados.xp, edital: dados.edital?.nome || dados.edital || '',
+      forca: dados.edital?.forca || null,
+      patenteInicial: dados.edital?.patenteInicial || null,
+      materias: dados.materias, tagEscolhida: dados.tagEscolhida,
+    }, esc);
+
+    const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+    if (error || !fatos) {
+      document.getElementById('conteudo').innerHTML =
+        '<div class="card"><div class="vazio-texto">Não consegui carregar o quadro agora. Tente recarregar a página.</div></div>';
+      if (error) relatar(error, 'arvore/fatos');
+      return;
+    }
+
+    const [{ conferir }, { montarQuadro }] = await Promise.all([
+      import('./assets/js/condecoracoes.js?v=8aa132cc'),
+      import('./assets/js/arvore.js?v=0b7c685b'),
+    ]);
+    render(montarQuadro(conferir(fatos).condecoracoes));
+  })();
+
+  window.fazerLogout = fazerLogout;
+</script>
+</body>
+</html>

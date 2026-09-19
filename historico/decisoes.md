@@ -369,6 +369,55 @@ filtro que promete e vem vazio.
 
 ---
 
+### 🗄️ Onde guardar o XP e as conquistas — decisão dele, 20/09/2026
+
+> *"Nós podemos fazer isso no mesmo lugar. Em uma página só. Entendeu? A gente economizaria bem."*
+
+⚠️ **Registro honesto de como a pergunta chegou:** ele disse antes *"eu não entendi bem a sua
+pergunta"* — e com razão, porque eu perguntei em linguagem técnica. Eu falava de **onde o banco
+guarda**; a palavra "página" na resposta é de tela. Mas a decisão que ele tomou — **um lugar só
+para as duas coisas** — responde exatamente o que eu precisava, e é a escolha certa. Fica valendo
+nessa leitura; se ele quiser corrigir depois, corrige.
+
+#### O que fica decidido
+
+**Um único lugar guarda as duas coisas:** o XP conferido pelo servidor e a lista de condecorações
+conquistadas.
+
+#### Por que isso é o certo, e não só mais barato
+
+As duas respondem à **mesma pergunta**: *"o que esta pessoa já conquistou, de forma permanente?"*
+Separar criaria dois lugares para a mesma verdade — e dois lugares para a mesma verdade divergem,
+é só questão de tempo. O barato aqui veio junto com o correto.
+
+#### Os dois problemas que isso destrava
+
+| | Medido em |
+|---|---|
+| **XP forjável** — dá para escrever 999.999.999, e de forma permanente | 17/09, `tools/testa-xp-forjado.js`, 5 furos |
+| **Trocar de concurso apaga 4 condecorações e 3 divisas** | 19/09, `tools/testa-troca-de-edital.js` |
+
+O segundo contraria a regra dele de 02/08 — *"conquista não se desconquista"* — que o próprio
+`salvar_progresso` já respeita para os badges antigos, fazendo **união** e nunca substituição.
+
+#### 🔴 O que AINDA falta decidir, e é dele
+
+"Um lugar só" resolve o **onde**. Falta o **como**, e é onde dá para errar de um jeito que não se
+conserta sozinho:
+
+1. **A conquista é gravada quando cai, ou recalculada sempre?** Hoje é recalculada — e é por isso
+   que ela se desfaz ao trocar de concurso. Gravar resolve, mas passa a existir dado que pode
+   divergir do cálculo.
+2. **Quem grava: o navegador ou o servidor?** Se for o navegador, volta a ser forjável — medi
+   isso, e o banco aceitou uma conquista chamada `conquista_que_nao_existe`.
+3. **O que acontece com quem já tem progresso** no dia em que a tabela nascer.
+
+**Por isso eu parei e não construí sozinho enquanto ele estava fora:** dado permanente de usuário
+modelado errado só se conserta migrando o dado de quem já usou. É a fronteira que ele mesmo
+desenhou em 19/09.
+
+---
+
 ### 🚦 Trabalhar sozinho enquanto ele está longe — 19/09/2026
 
 > *"Vou ficar longe do pc, então pode ir prosseguindo sem minha autorização, mas pare se for
