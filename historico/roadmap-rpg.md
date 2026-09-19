@@ -23,7 +23,8 @@
 
 | | Item | O quê | Por que vem antes |
 |---|---|---|---|
-| 🔴 | **R0** | **O servidor passa a calcular o XP** | Hoje o navegador informa o total, e medi que dá para escrever qualquer número — inclusive de forma **permanente**. Enquanto o XP não vale nada, é autoengano e não faz mal. **No instante em que destrancar qualquer coisa, vira furar a fila.** Regressão: `node tools/testa-xp-forjado.js` (hoje acusa 5 furos, tem de passar a acusar 0) |
+| 🟡 | **R0** | **O servidor passa a calcular o XP** | Hoje o navegador informa o total, e medi que dá para escrever qualquer número — inclusive de forma **permanente**. Enquanto o XP não vale nada, é autoengano e não faz mal. **No instante em que destrancar qualquer coisa, vira furar a fila.** Regressão: `node tools/testa-xp-forjado.js` (hoje acusa 5 furos, tem de passar a acusar 0) |
+| ✅ | **R0.1** | **Estudar pelo cronograma deixa rastro** | **FEITO em 19/09/2026, e sem isto o R1 quebraria o produto.** Das 5 ações que dão XP, só o cronômetro gravava em `sessoes_estudo` — marcar a sessão do dia, que é o caminho **principal**, subia o XP e sumia. Quem estuda assim teria ficha zerada, e o conserto do XP **apagaria o progresso dessa pessoa**. Foi o Lucas quem apontou. Prova: `node tools/testa-sessao-cronograma.js` (9 de 9) |
 
 > 🎯 **A boa notícia:** o R0 e o R1 são **o mesmo trabalho**. Um atributo calculado a partir dos
 > registros de estudo não pode ser informado — ele é derivado. Fazer a ficha no servidor entrega

@@ -318,14 +318,26 @@ export async function removerEvento(uid, id) {
   if (error) throw new Error('Não consegui remover o evento.');
 }
 
-// ── Sessoes do cronometro ───────────────────────────────────────────────────
+// ── Sessoes de estudo ───────────────────────────────────────────────────────
+/* Os tres modos, e a diferenca entre eles NAO e cosmetica:
+
+     'livre' | 'pomodoro'   tempo MEDIDO -- o relogio correu de verdade
+     'cronograma'           tempo DECLARADO -- a pessoa marcou a sessao do dia
+
+   Sao graus de confianca diferentes, e o calculo de XP no servidor vai poder
+   tratar cada um do seu jeito. Ate 19/09/2026 esta funcao tinha uma lista
+   branca de dois nomes que convertia QUALQUER outra coisa em 'livre' -- entao
+   a sessao vinda do cronograma era gravada como se o cronometro tivesse
+   rodado. O teste pegou: materia certa, duracao certa, modo errado. */
+const MODOS = new Set(['livre', 'pomodoro', 'cronograma']);
+
 export async function registrarSessao(uid, { materia, segundos, xp, modo }) {
   const { data, error } = await supabase.from('sessoes_estudo').insert({
     usuario_id: uid,
     materia: materia ? String(materia).slice(0, 160) : null,
     segundos: Math.min(86400, Math.max(0, Math.round(Number(segundos) || 0))),
     xp: Math.max(0, Math.round(Number(xp) || 0)),
-    modo: modo === 'pomodoro' ? 'pomodoro' : 'livre',
+    modo: MODOS.has(modo) ? modo : 'livre',
   }).select().single();
   if (error) { console.error('Falha ao registrar a sessão.', error); return null; }
   return data;
