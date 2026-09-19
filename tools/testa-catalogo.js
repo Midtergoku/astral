@@ -32,10 +32,37 @@ const { pathToFileURL } = require("url");
   // A lista branca de tipos que EXIGEM esforco medido. Tipo novo que nao
   // estiver aqui derruba o teste de proposito: obriga a decisao consciente.
   const EXIGEM_ESTUDO = new Set([
-    "sessoes", "horas", "streak", "sessaoUnica", "materias", "atributo",
-    "horario", "diaSemana", "retorno", "edital", "todas",
-    "materiaDominada", "condecoracao", "viradaMateria",
+    // tempo e volume
+    "sessoes", "horas", "sessaoUnica", "sessoesNoDia", "horasNoDia", "xp",
+    // constancia
+    "streak", "diasEstudados", "semanaPerfeita", "meses", "retorno",
+    // conteudo
+    "materias", "materiaDominada", "materiaSeguida", "materiasNoDia",
+    "dominioMinimo", "viradaMateria", "edital",
+    // derivados
+    "atributo", "atributosTodos", "horario", "diaSemana", "modo",
+    "condecoracao", "todas",
   ]);
+
+  /* 🔴 O QUE NAO ENTRA, e por que -- registrado em 19/09/2026 depois de esta
+     checagem pegar quatro condecoracoes minhas:
+
+       "eventos"   marcar prazo no calendario  -> e um CLIQUE
+       "recursos"  buscar professores          -> e um CLIQUE
+
+     As duas sao acoes uteis e nenhuma exige estudar um minuto. Como
+     condecoracao seriam o primeiro passo do cassino que ele proibiu. Como
+     MISSAO (R12, que e tarefa do dia) talvez caibam -- mas ai e outra decisao,
+     tomada de proposito, e nao um tipo que escorregou para dentro da lista.
+
+     Deixar esta lista branca FECHADA e o ponto: tipo novo derruba o teste e
+     obriga a olhar. Foi o que aconteceu. */
+  const NUNCA = new Set(["eventos", "recursos", "login", "visita", "presenca"]);
+  const proibidos = [...cat.CONDECORACOES, ...cat.DIVISAS]
+    .filter((x) => NUNCA.has(x.condicao?.tipo))
+    .map((x) => `${x.id} (${x.condicao.tipo})`);
+  if (!proibidos.length) ok("nada se ganha com clique", "calendário e busca não valem medalha");
+  else falha("🔴 recompensa por clique, não por estudo", proibidos.join(", "));
   const suspeitas = [...cat.CONDECORACOES, ...cat.DIVISAS]
     .filter((x) => !EXIGEM_ESTUDO.has(x.condicao?.tipo))
     .map((x) => `${x.id} (${x.condicao?.tipo})`);

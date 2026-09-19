@@ -14,6 +14,7 @@
 | 🔴 | **não começou** |
 | 🟡 | em andamento |
 | ✅ | **feito** |
+| 🔮 | **adiado de propósito**, com gatilho escrito |
 | 💰 | é onde entra dinheiro |
 | 🔒 | depende do XP estar protegido |
 
@@ -46,8 +47,9 @@
 
 | | Item | O quê | Estado |
 |---|---|---|---|
-| ✅ | **R6** | **CATÁLOGO** — condecorações e divisas | **ESCRITO em 19/09/2026:** `assets/js/catalogo.js` — **28 condecorações** (7 secretas) e **23 divisas** (4 secretas), cada divisa com raridade e **cor por token**. Prova: `node tools/testa-catalogo.js` |
+| ✅ | **R6** | **CATÁLOGO** — condecorações e divisas | **ESCRITO em 19/09/2026 e AMPLIADO no mesmo dia** a pedido dele (*"eu quero bem mais, e mais secretas também"*): `assets/js/catalogo.js` com **74 condecorações** (22 secretas) e **33 divisas** (10 secretas), cada divisa com raridade e **cor por token**. Prova: `node tools/testa-catalogo.js` |
 | 🔴 | **R13** | **MOTOR DE CONDECORAÇÕES** — quem confere e concede | **ideia dele, 19/09:** *"sabe quando a pessoa joga um jogo no PlayStation? Lá tem várias conquistas até você platinar"*. O catálogo já existe; falta a peça que roda as condições e entrega a medalha (e a tag que vem junto) |
+| 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09**, não descartado. Gatilho: **mais de 100 usuários ativos** — abaixo disso uma pessoa move o número em mais de 1 ponto e vira ruído |
 | 🔴 | **R5** | **LOOT COM RARIDADE** — comum · incomum · rara · lendária, com a raridade visível na cor | 🔒 aprovado |
 | 🔴 | **R12** | **MISSÕES** — as **gerais** (permanentes, nunca expiram) e as **DIÁRIAS** | pedido dele em 18/09: *"todo bom RPG tem missões diárias"*. ⚠️ ver o aviso do cassino abaixo |
 | 🔴 | **R3** | **O CHEFE TEM DATA** — a prova vira o chefe da campanha, com contagem regressiva; cada simulado é um sub-chefe | aprovado |
@@ -72,12 +74,16 @@ condição nenhuma, basta dizer em que altura a medalha cai. As três condecora�
 
 | | Quantas | O que são |
 |---|---|---|
-| 🥉 **Bronze** | 7 | primeiros passos — dias |
-| 🥈 **Prata** | 11 | constância — semanas |
-| 🥇 **Ouro** | 9 | compromisso — meses |
-| 🏆 **Platina** | 1 | **todas as outras 27** |
-| 🔒 **Secretas** | 7 das 28 | não aparecem até disparar |
-| 🎖️ **Divisas (tags)** | 23 | 4 secretas, cada uma com raridade e cor |
+| 🥉 **Bronze** | 19 | primeiros passos — dias |
+| 🥈 **Prata** | 29 | constância — semanas |
+| 🥇 **Ouro** | 25 | compromisso — meses |
+| 🏆 **Platina** | 1 | **todas as outras 73** |
+| 🔒 **Secretas** | 22 das 74 | não aparecem até disparar |
+| 🎖️ **Divisas (tags)** | 33 | 10 secretas, cada uma com raridade e cor |
+
+> ⚠️ **Ampliado em 19/09, no mesmo dia, por ordem dele:** *"eu quero mais, tá? Eu quero bem
+> mais. E mais secretas também, óbvio."* Saiu de 28 para 74 condecorações e de 7 para 22
+> secretas. **Platinar passou a exigir 73.**
 
 **Por que 25% de secretas, e não mais:** secreta demais deixa a tela vazia — a pessoa abre e não
 vê o que perseguir. Secreta de menos e não há surpresa nenhuma. A mistura é o que faz a caçada
@@ -87,16 +93,39 @@ existir. O `testa-catalogo.js` trava se a proporção sair da faixa.
 
 1. **🔴 Nada se cumpre sem estudar.** Não existe medalha por abrir o aplicativo, por sequência de
    login ou por presença. O teste varre nome, descrição e condição atrás disso e falha se achar.
+   **E ele já pegou uma falha minha, no dia em que o catálogo dobrou de tamanho:** eu tinha
+   escrito quatro condecorações que se ganhavam com **um clique** — marcar um prazo no calendário
+   e buscar professores. São ações úteis, mas não exigem estudar um minuto, e como medalha seriam
+   o primeiro passo do cassino que ele proibiu. Trocadas por condecorações de dias estudados e
+   de matérias no mesmo dia. **A lista de tipos permitidos é fechada de propósito:** tipo novo
+   derruba o teste e obriga a decidir na mão, em vez de escorregar para dentro.
 2. **Toda condição é conferível com dado que já temos** — `sessoes_estudo`, `progresso` e os
    atributos da ficha. Ideia bonita que não dá para medir hoje **não entra**: conquista que nunca
    dispara é pior que conquista nenhuma, porque a pessoa persegue algo que não existe.
 3. **Cor só por token do design system.** Mudar a paleta muda as tags junto, em vez de deixar 23
    códigos de cor órfãos para trás.
 
-> ⚠️ **Uma coisa do PlayStation que NÃO dá para copiar: a raridade medida** (*"3,1% dos jogadores
-> têm"*). Com 8 usuários cadastrados qualquer porcentagem é ruído, e ela contaria a cada pessoa o
-> que as outras fizeram. Aqui raridade é **projetada** — propriedade da divisa, decidida por
-> quanto esforço ela pede — e não medição da base.
+#### 🔮 R14 — a porcentagem de raridade, adiada (não descartada)
+
+> Decisão dele em 19/09: *"não mostre essa porcentagem agora. Talvez no futuro, quando o site
+> estiver com muitos usuários, aí fica interessante esse estilo de porcentagem de troféu."*
+
+No PlayStation cada troféu mostra quantos jogadores o têm (*"3,1%"*), e isso é metade da graça:
+é o que transforma uma medalha em **raridade de verdade**, medida, não prometida.
+
+**Por que não hoje, em número:** com **8 usuários cadastrados**, uma pessoa sozinha move a
+porcentagem em **12,5 pontos**. Um troféu que dois usuários têm apareceria como "25% dos
+candidatos" — e isso não é raridade, é ruído. Pior: contaria a cada pessoa o que as outras
+fizeram.
+
+| | |
+|---|---|
+| **Gatilho para revisitar** | uma base em que **uma pessoa mude menos de 1 ponto** — ou seja, **mais de 100 usuários ativos** |
+| **O que já está pronto para isso** | nada precisa mudar no catálogo: a raridade projetada continua valendo como classificação, e a porcentagem entra **ao lado** dela, não no lugar |
+| **O que precisa de cuidado** | a conta tem de sair de uma função no servidor que devolve **só o número agregado**, nunca a lista de quem tem o quê |
+
+**Enquanto isso, raridade é projetada** — propriedade da divisa, decidida por quanto esforço ela
+pede. Comum · Incomum · Rara · Lendária.
 
 > ✏️ **E uma correção, de 19/09:** o roadmap dizia que o catálogo estava *"aprovado por você,
 > código nunca escrito"*. Fui procurar o conteúdo para não refazer trabalho e **ele não existia
