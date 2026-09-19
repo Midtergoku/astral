@@ -50,7 +50,7 @@
 | ✅ | **R6** | **CATÁLOGO** — condecorações e divisas | **ESCRITO em 19/09/2026 e AMPLIADO no mesmo dia** a pedido dele (*"eu quero bem mais, e mais secretas também"*): `assets/js/catalogo.js` com **74 condecorações** (22 secretas) e **33 divisas** (10 secretas), cada divisa com raridade e **cor por token**. Prova: `node tools/testa-catalogo.js` |
 | ✅ | **R13** | **MOTOR DE CONDECORAÇÕES** | **FEITO em 19/09/2026.** Os **fatos** saem do servidor (`fatos_do_usuario`, 11 consultas sobre `sessoes_estudo` e `progresso`); a **conferência** acontece no navegador; e **nada é gravado** — a lista é função pura dos fatos. A sala está em `conquistas.html`, com placar, "falta pouco" e as secretas como `???`. Provas: `testa-motor` (21) · `testa-fatos` (17) · `testa-sala` (9) |
 | 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09**, não descartado. Gatilho: **mais de 100 usuários ativos** — abaixo disso uma pessoa move o número em mais de 1 ponto e vira ruído |
-| 🔴 | **R5** | **LOOT COM RARIDADE** — comum · incomum · rara · lendária, com a raridade visível na cor | 🔒 aprovado |
+| ✅ | **R5** | **LOOT COM RARIDADE** | **FEITO em 19/09/2026.** A vitrine de `tags.html` deixou de mostrar só as tags de matéria e passa a mostrar **o catálogo inteiro** — conquistadas em cima, trancadas embaixo, secretas fora. Raridade na **cor do nome** e num rótulo. Prova: `node tools/testa-tags.js` (9 de 9) |
 | ✅ | **R12** | **MISSÕES** — diárias e campanhas | **FEITO em 19/09/2026.** **3 diárias por dia**, sorteadas de 11 com semente `uid + data` — recarregar não troca; **4 campanhas** de 4 etapas, que nunca expiram. Ambas no dashboard. Provas: `testa-missoes` (16, função pura) · `testa-missoes-tela` (11, ponta a ponta) |
 | 🔴 | **R3** | **O CHEFE TEM DATA** — a prova vira o chefe da campanha, com contagem regressiva; cada simulado é um sub-chefe | aprovado |
 | 🔴 | **R9** | **REENGAJAMENTO NARRADO** — "enferrujada/suspensa" (que já existe) vira *fora de serviço*, com missão de retorno | aprovado |
@@ -174,6 +174,38 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | 🔴 | **R7** | **DIÁRIO DE CAMPANHA** — o histórico vira log narrado: *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* | aprovado |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🎖️ A vitrine de divisas, e um defeito antigo que apareceu no caminho
+
+A tela de tags mostrava **só as tags de matéria** — as 20 divisas de hábito e de condecoração
+existiam no catálogo e não apareciam em lugar nenhum. Agora ela mostra as 33: conquistadas em
+cima, trancadas embaixo (apagadas, para se ver o que falta) e **as secretas fora da lista**,
+porque secreta que aparece na vitrine deixa de ser secreta.
+
+#### 🔴 O defeito que estava lá desde agosto, e contrariava uma ordem dele
+
+`tagVestida` só aceitava a tag escolhida **se a pessoa "ainda a possuísse"** — se o domínio
+caísse abaixo de 70%, a escolha sumia sozinha. Parecia zeloso. Mas a ordem dele de 02/08 é o
+contrário:
+
+> *"ACUMULA: todas as tags conquistadas ficam guardadas, **para sempre**.
+> VESTE: uma de cada vez, escolhida por ele."*
+
+E havia uma consequência pior, que o teste escancarou: como a função só sabia derivar tags de
+**matéria**, quem vestisse uma divisa de **hábito** — "Sentinela", de DISCIPLINA acima de 60 —
+veria a barra superior mostrar **outra coisa** em todas as páginas. O sistema pareceria quebrado
+justamente no momento de exibir a conquista.
+
+**Corrigido:** a escolha vale, desde que o nome seja do catálogo. **Tag não é habilidade** —
+habilidade enferruja e suspende de propósito, porque é estado atual; tag é identidade
+conquistada, e identidade não se desconquista.
+
+> ⚠️ **O que ainda falta para o "para sempre" ser inteiro, e é honesto dizer:** as divisas são
+> **derivadas dos fatos**, então uma de hábito volta a aparecer como trancada na vitrine se o
+> hábito cair — só a que está **vestida** sobrevive. Fechar isso exige guardar a lista de
+> conquistadas no banco, que é a mesma decisão que o R0 vai ter de tomar para o XP. Ficam juntas.
 
 ---
 

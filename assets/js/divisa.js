@@ -314,17 +314,55 @@ export function tagsConquistadas(materias = []) {
   return fora.sort((a, b) => b.dominio - a.dominio);
 }
 
+/* Os nomes de TODAS as divisas do catalogo -- as de materia, as de habito e as
+   que vem com condecoracao. Lista estatica, sem custo de rede.
+
+   Existe porque esta funcao precisa RECONHECER uma tag escolhida que ela nao
+   saberia derivar sozinha: "Inabalavel" vem de DISCIPLINA no maximo, e isso
+   mora nos fatos do servidor, nao na lista de materias. Sem este
+   reconhecimento, quem vestisse uma tag de habito veria a barra superior
+   mostrar outra coisa em todas as paginas. */
+const NOMES_DO_CATALOGO = new Set([
+  'Orador de Guerra', 'Calculista', 'Engenheiro de Campo', 'Intérprete',
+  'Guardião da Lei', 'Navegador', 'Memória da Nação', 'Operador Cyber',
+  'Alquimista', 'Médico de Combate', 'Estrategista', 'Administrador de Elite',
+  'Legislador', 'Sentinela', 'Inabalável', 'Sapador', 'Incansável', 'Batedor',
+  'Instrutor', 'Veterano', 'Inquebrantável', 'Reintegrado', 'Vigília',
+  'Turno da Noite', 'Marcha Forçada', 'Ferro em Brasa', 'Obstinado',
+  'Especialista', 'Travessia', 'Método', 'Sem Brecha', 'Um Ano de Farda',
+  'Condecorado',
+]);
+
 /* A tag que vai na divisa.
-   A escolha do usuario ganha SEMPRE, desde que ele ainda a possua -- se ele
-   escolheu uma e depois o progresso caiu abaixo de 70%, a escolha some
-   sozinha em vez de exibir algo que ele nao tem mais. */
+   A ESCOLHA DELE GANHA, e nao se perde.
+
+   ✏️ MUDOU em 19/09/2026, e a versao anterior contrariava uma ordem dele.
+   Antes esta funcao so aceitava a escolha se a pessoa "ainda possuisse" a tag
+   -- se o dominio caisse abaixo de 70%, a escolha sumia sozinha. Parecia
+   zeloso, mas a ordem dele de 02/08 e o contrario:
+
+     "ACUMULA: todas as tags conquistadas ficam guardadas, PARA SEMPRE.
+      VESTE: uma de cada vez, escolhida por ele."
+
+   Tag nao e habilidade. HABILIDADE enferruja e suspende de proposito (é o
+   estado atual); TAG e identidade conquistada, e identidade nao se
+   desconquista. Quem chegou a 70% em Portugues foi Orador de Guerra, e
+   continua tendo sido.
+
+   Por isso a escolha guardada vale, desde que seja um nome REAL do catalogo --
+   a conferencia existe para um valor estranho no banco nao virar texto na tela. */
 export function tagVestida(materias = [], escolhida = null) {
   const minhas = tagsConquistadas(materias);
-  if (!minhas.length) return null;
+
   if (escolhida) {
     const achada = minhas.find((t) => t.nome === escolhida);
     if (achada) return achada;
+    // Nao deriva das materias, mas e do catalogo: e uma tag de habito ou de
+    // condecoracao, conquistada em algum momento. Vale.
+    if (NOMES_DO_CATALOGO.has(escolhida)) return { nome: escolhida, materia: null, dominio: null };
   }
+
+  if (!minhas.length) return null;
   return minhas[0];   // padrao: a de maior dominio
 }
 

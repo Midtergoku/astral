@@ -62,6 +62,38 @@
     text-transform: uppercase; color: var(--texto-3);
   }
 
+  /* ── RARIDADE (R5) ──────────────────────────────────────────────────────
+     A cor da raridade entra no NOME da tag e no rótulo. É o sinal mais barato
+     de um sistema de coleção e o mais eficaz: dá para varrer a vitrine com o
+     olho e achar as raras sem ler nada. */
+  .peca { --cor-divisa: var(--latao-c); }
+
+  .peca .divisa .tag { color: var(--cor-divisa); }
+
+  .peca-raridade {
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--cor-divisa); font-weight: 700;
+  }
+
+  /* Trancada: apagada, sem cursor de clique, e sem a cor da raridade gritando
+     — quem ainda não tem não precisa saber o quanto ela é rara. */
+  .peca.trancada {
+    opacity: .42; cursor: default;
+  }
+
+  .peca.trancada .divisa .tag,
+  .peca.trancada .peca-raridade { color: var(--texto-3); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .peca.trancada:hover { transform: none; border-color: var(--linha); }
+  }
+
+  .titulo-trancadas {
+    font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
+    margin: var(--e5) 0 var(--e2);
+  }
+
   @media (max-width: 768px) {
     .vitrine { grid-template-columns: 1fr; }
     /* Sem isto a sidebar (fixed, 240px) fica POR CIMA do conteudo no celular:
@@ -188,11 +220,39 @@
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=5dab0815';
-  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=c75452b6';
+  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=01156cb1';
   import { icone } from './assets/js/icones.js?v=7c816270';
 
   let estado = null;
   let uid = null;
+
+  /* Um cartão de divisa. A RARIDADE é o que muda aqui em relação à versão
+     anterior: ela vira a cor do nome e um rótulo, que é o sinal mais barato e
+     mais viciante de um sistema de coleção — dá para ler a vitrine inteira de
+     relance e ver onde estão as raras. */
+  function pecaHTML(t, n, vestida, conquistada) {
+    const cor = t.cor || 'var(--latao-c)';
+    const rar = { comum: 'Comum', incomum: 'Incomum', rara: 'Rara', lendaria: 'Lendária' }[t.raridade] || '';
+    const vestindo = conquistada && t.nome === vestida?.nome;
+    return `
+      <button type="button" class="peca${conquistada ? '' : ' trancada'}"
+              ${conquistada ? `data-tag="${esc(t.nome)}"` : 'disabled'}
+              style="--cor-divisa:${esc(cor)}"
+              aria-pressed="${vestindo ? 'true' : 'false'}">
+        <div class="peca-topo">
+          <span class="divisa"><span class="nivel">${esc(n.nome)}</span><span class="tag">${esc(t.nome)}</span></span>
+        </div>
+        <div class="peca-topo">
+          <span class="peca-origem">${esc(t.comoGanha || t.materia || '')}</span>
+          ${t.dominio != null ? `<span class="peca-dominio">${t.dominio}%</span>` : ''}
+        </div>
+        <div class="peca-topo">
+          <span class="peca-raridade">${esc(rar)}</span>
+          <span class="peca-estado">${
+            !conquistada ? 'trancada' : (vestindo ? '● vestindo' : 'vestir esta')}</span>
+        </div>
+      </button>`;
+  }
 
   function render() {
     const alvo = document.getElementById('conteudo');
@@ -219,6 +279,19 @@
     const n = nivelDe(estado.xp, estado.edital?.nome || estado.edital || '',
                      estado.edital?.forca || null, estado.edital?.patenteInicial || null);
 
+    /* A vitrine mostra o CATÁLOGO INTEIRO quando ele já chegou (33 divisas),
+       e só as de matéria enquanto os fatos não vieram. Assim a tela desenha
+       na hora e fica completa quando o servidor responde, em vez de esperar. */
+    const doCatalogo = estado.divisas || [];
+    const conquistadas = doCatalogo.length
+      ? doCatalogo.filter((d) => d.conquistada)
+      : minhas.map((t) => ({ ...t, conquistada: true, raridade: 'incomum',
+                             cor: 'var(--latao-c)', comoGanha: `${t.materia} acima de 70%` }));
+
+    /* As trancadas aparecem apagadas — ver o que falta é o que faz voltar.
+       Menos as SECRETAS: essas nem entram na lista, senão deixam de ser. */
+    const trancadas = doCatalogo.filter((d) => !d.conquistada && !d.secreta);
+
     alvo.innerHTML = `
       <div class="vitrine-atual">
         <span class="rot">na sua divisa</span>
@@ -229,24 +302,21 @@
       </div>
 
       <p class="page-sub" style="margin-bottom:0">
-        Você tem <strong>${minhas.length}</strong> ${minhas.length === 1 ? 'tag conquistada' : 'tags conquistadas'}.
+        Você tem <strong>${conquistadas.length}</strong>
+        ${conquistadas.length === 1 ? 'divisa conquistada' : 'divisas conquistadas'}${
+          doCatalogo.length ? ` de ${doCatalogo.length}` : ''}.
         Clique numa para vesti-la.
       </p>
 
       <div class="vitrine cascata">
-        ${minhas.map((t) => `
-          <button type="button" class="peca" data-tag="${esc(t.nome)}"
-                  aria-pressed="${t.nome === vestida?.nome ? 'true' : 'false'}">
-            <div class="peca-topo">
-              <span class="divisa"><span class="nivel">${esc(n.nome)}</span><span class="tag">${esc(t.nome)}</span></span>
-            </div>
-            <div class="peca-topo">
-              <span class="peca-origem">${esc(t.materia)}</span>
-              <span class="peca-dominio">${t.dominio}%</span>
-            </div>
-            <span class="peca-estado">${t.nome === vestida?.nome ? '● vestindo' : 'vestir esta'}</span>
-          </button>`).join('')}
-      </div>`;
+        ${conquistadas.map((t) => pecaHTML(t, n, vestida, true)).join('')}
+      </div>
+
+      ${trancadas.length ? `
+        <div class="titulo-trancadas">Ainda por conquistar</div>
+        <div class="vitrine cascata">
+          ${trancadas.map((t) => pecaHTML(t, n, vestida, false)).join('')}
+        </div>` : ''}`;
 
     /* addEventListener, nunca onclick inline: o nome da matéria vem do edital,
        que é dado NÃO CONFIÁVEL (regra 4 do CLAUDE.md). */
@@ -284,12 +354,26 @@
     /* inicial: fonte unica em assets/js/divisa.js */
 
     estado = await carregarProgresso(uid);
-    render();
+    render();                                  // desenha já, com o que tem
+
+    /* O CATÁLOGO chega depois e a tela se completa sozinha. Não segura o
+       primeiro desenho: quem só quer trocar de tag vê a vitrine na hora, e as
+       33 divisas entram quando o servidor responde.
+
+       Se a chamada falhar, a tela fica como sempre foi — as tags de matéria.
+       Degradar para a versão anterior é melhor que degradar para o vazio. */
+    try {
+      const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+      if (error || !fatos) return;
+      const { conferir } = await import('./assets/js/condecoracoes.js?v=8aa132cc');
+      estado.divisas = conferir(fatos).divisas;
+      render();
+    } catch { /* fica a vitrine simples */ }
   })();
 
   document.getElementById('btn-sair').addEventListener('click', fazerLogout);
 </script>
-<script type="module" src="/assets/js/divisa.js?v=c75452b6"></script>
+<script type="module" src="/assets/js/divisa.js?v=01156cb1"></script>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
