@@ -53,7 +53,7 @@
 | ✅ | **R5** | **LOOT COM RARIDADE** | **FEITO em 19/09/2026.** A vitrine de `tags.html` deixou de mostrar só as tags de matéria e passa a mostrar **o catálogo inteiro** — conquistadas em cima, trancadas embaixo, secretas fora. Raridade na **cor do nome** e num rótulo. Prova: `node tools/testa-tags.js` (9 de 9) |
 | ✅ | **R12** | **MISSÕES** — diárias e campanhas | **FEITO em 19/09/2026.** **3 diárias por dia**, sorteadas de 11 com semente `uid + data` — recarregar não troca; **4 campanhas** de 4 etapas, que nunca expiram. Ambas no dashboard. Provas: `testa-missoes` (16, função pura) · `testa-missoes-tela` (11, ponta a ponta) |
 | ✅ | **R3** | **O CHEFE TEM DATA** | **FEITO em 19/09/2026.** A prova marcada no calendário vira o chefe, no alto do dashboard: fase da campanha, dias restantes, **preparo de 0 a 100** e **o que fazer** — a matéria que custa mais caro, nomeada. Some sozinho quando não há prova. Prova: `node tools/testa-chefe.js` (18 de 18). ⚠️ Os **sub-chefes** (simulados) dependem do banco de questões — ver Q4/R4 |
-| 🔴 | **R9** | **REENGAJAMENTO NARRADO** — "enferrujada/suspensa" (que já existe) vira *fora de serviço*, com missão de retorno | aprovado |
+| ✅ | **R9** | **REENGAJAMENTO NARRADO** | **FEITO em 19/09/2026** — e no caminho **consertou um defeito total**: o decaimento das habilidades **nunca funcionou** (ver abaixo). "Suspensa" virou *Fora de serviço*, com o tempo e o que fazer para voltar. Prova: `node tools/testa-decaimento.js` (9 de 9) |
 
 ---
 
@@ -174,6 +174,47 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | ✅ | **R7** | **DIÁRIO DE CAMPANHA** | **FEITO em 19/09/2026**, em `progresso.html`: linha do tempo dos últimos 30 dias, com tempo, matérias, sequência e **marcos calculados por reprodução da história**. ⚠️ **Sem a parte do domínio** — ver abaixo. Provas: `testa-diario` (20) · `testa-diario-tela` (10) |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🔧 O decaimento das habilidades NUNCA funcionou — achado em 19/09/2026
+
+Fui mexer no R9 e encontrei isto: `conquistas.html` decidia se uma habilidade estava ativa,
+enferrujada ou suspensa a partir de `materia.ultimoEstudo`.
+
+**Esse campo é lido numa linha e escrito em NENHUMA** — em todo o projeto. Nunca existiu.
+
+Consequência: `diasSemEstudar` caía sempre no valor padrão de **999**, e portanto **toda
+habilidade desbloqueada aparecia como SUSPENSA** — inclusive a de quem tinha estudado a matéria
+cinco minutos antes.
+
+Não era decisão deliberada. A própria tela promete, logo acima da lista: *"Enferrujada (7 dias
+sem estudar)"* e *"mantenha seus estudos em dia para não perdê-las"*. A frase *"isto foi feito de
+propósito porque ___"* não fecha de jeito nenhum.
+
+**E o dado sempre existiu:** `sessoes_estudo` grava matéria e data de cada sessão desde 30/07.
+A última vez de cada matéria é uma agregação simples — **nunca foi preciso um campo novo, só
+perguntar**. Agora vem em `fatos_do_usuario.ultimoEstudoPorMateria`.
+
+> 🔴 **E a parte que é erro meu, registrada em `erros.md`:** eu escrevi em
+> `apresentacao-do-produto.md`, na seção **"já está no ar"**, que as habilidades enferrujam em 7
+> dias. Li a legenda da tela, li o código que calculava os três estados, e concluí que
+> funcionava — **sem nunca conferir se o campo que alimenta a conta existia**. Ler o código não
+> é medir. E `grep` por um nome de campo que só aparece **uma vez** é sinal de alarme: dado que
+> ninguém escreve é dado que não existe.
+
+#### O R9 em si: o castigo virou convite
+
+O decaimento existia como **castigo** — a habilidade apagava e pronto. Castigo sozinho afasta:
+quem sumiu vinte dias abre a tela, vê que perdeu coisa e fecha.
+
+| Antes | Agora |
+|---|---|
+| "Suspensa" | **"Fora de serviço"** — linguagem de campanha, não de punição |
+| nada mais | *"25 dias sem Física"* + *"Uma sessão traz ela de volta ao serviço."* |
+
+**O pedido de volta é pequeno de propósito, e o teste cobra isso:** quem voltou depois de sumir
+não volta para uma maratona — volta para um primeiro passo. Uma sessão.
 
 ---
 

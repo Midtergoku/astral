@@ -32,7 +32,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **XP que vem do trabalho** | sessão de estudo marcada = peso da matéria × 5 · cronômetro = 2 XP por minuto |
 | **8 conquistas** | acendem sozinhas ao cruzar o número: primeiro XP, 1 hora estudada, 3 e 7 dias de sequência, níveis 3 e 5, primeiro edital, 5.000 XP |
 | **15 habilidades secretas** | Orador de Guerra, Calculista, Alquimista, Médico de Combate, Navegador, Operador Cyber, Estrategista, Guardião da Lei… Destrancam com **70% de domínio na matéria** — e são secretas **de propósito**: o valor está em descobrir sem esperar |
-| **Elas enferrujam** | 7 dias sem estudar a matéria = enferrujada · 14 dias = suspensa. A habilidade acompanha o seu estado atual, não o seu recorde |
+| **Elas enferrujam** | 7 dias sem estudar a matéria = enferrujada · 14 dias = **fora de serviço**. A habilidade acompanha o seu estado atual, não o seu recorde — e o cartão diz há quanto tempo e o que fazer: **uma sessão** traz ela de volta |
 | **A tag na barra superior** | `NÍVEL · TAG` — o lugar mais nobre da tela mostra **quem você é**, não qual plano você paga |
 | **A ficha** | Cinco atributos no lugar de um número só: **Disciplina** (aparecer, e aparecer de novo) · **Resistência** (aguentar sentado) · **Amplitude** (não abandonar matéria) · **Doutrina** (o quanto já domina) · **Precisão** (ainda esperando o banco de questões). Cada um **diz de onde veio** — *"12 dias de estudo nos últimos 30, sequência de 5"* |
 | **E ela não dá para forjar** | Os atributos são **calculados pelo servidor** a partir das suas sessões. Não existe campo para preencher: o número sai da conta |
