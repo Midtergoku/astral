@@ -46,11 +46,63 @@
 
 | | Item | O quê | Estado |
 |---|---|---|---|
-| 🔴 | **R6** | **CATÁLOGO DE TAGS** — muitas, por área de matéria | ele quer **várias**, e cada uma com **cor própria** |
+| ✅ | **R6** | **CATÁLOGO** — condecorações e divisas | **ESCRITO em 19/09/2026:** `assets/js/catalogo.js` — **28 condecorações** (7 secretas) e **23 divisas** (4 secretas), cada divisa com raridade e **cor por token**. Prova: `node tools/testa-catalogo.js` |
+| 🔴 | **R13** | **MOTOR DE CONDECORAÇÕES** — quem confere e concede | **ideia dele, 19/09:** *"sabe quando a pessoa joga um jogo no PlayStation? Lá tem várias conquistas até você platinar"*. O catálogo já existe; falta a peça que roda as condições e entrega a medalha (e a tag que vem junto) |
 | 🔴 | **R5** | **LOOT COM RARIDADE** — comum · incomum · rara · lendária, com a raridade visível na cor | 🔒 aprovado |
 | 🔴 | **R12** | **MISSÕES** — as **gerais** (permanentes, nunca expiram) e as **DIÁRIAS** | pedido dele em 18/09: *"todo bom RPG tem missões diárias"*. ⚠️ ver o aviso do cassino abaixo |
 | 🔴 | **R3** | **O CHEFE TEM DATA** — a prova vira o chefe da campanha, com contagem regressiva; cada simulado é um sub-chefe | aprovado |
 | 🔴 | **R9** | **REENGAJAMENTO NARRADO** — "enferrujada/suspensa" (que já existe) vira *fora de serviço*, com missão de retorno | aprovado |
+
+---
+
+### 🏅 O SISTEMA DE CONDECORAÇÕES — ideia dele, 19/09/2026
+
+> *"Sabe quando a pessoa joga um jogo no PlayStation? Lá tem várias conquistas até você
+> platinar. Isso faz com que a pessoa busque para fazer."*
+>
+> E a observação que deu origem a tudo, sobre a janela de 30 dias da DISCIPLINA:
+> *"isso é um lugar perfeito para colocar um troféu. Pode ter até uma tag escondida aí."*
+
+**Ele está certo, e a razão é mecânica:** um atributo da ficha já é um número que sobe com
+esforço real e tem **teto conhecido**. Número com teto é gatilho pronto — não é preciso inventar
+condição nenhuma, basta dizer em que altura a medalha cai. As três condecorações de ouro
+**Disciplina de Ferro**, **Fôlego de Combate** e **Doutrina Consolidada** nasceram exatamente daí.
+
+#### O que está escrito (`assets/js/catalogo.js`)
+
+| | Quantas | O que são |
+|---|---|---|
+| 🥉 **Bronze** | 7 | primeiros passos — dias |
+| 🥈 **Prata** | 11 | constância — semanas |
+| 🥇 **Ouro** | 9 | compromisso — meses |
+| 🏆 **Platina** | 1 | **todas as outras 27** |
+| 🔒 **Secretas** | 7 das 28 | não aparecem até disparar |
+| 🎖️ **Divisas (tags)** | 23 | 4 secretas, cada uma com raridade e cor |
+
+**Por que 25% de secretas, e não mais:** secreta demais deixa a tela vazia — a pessoa abre e não
+vê o que perseguir. Secreta de menos e não há surpresa nenhuma. A mistura é o que faz a caçada
+existir. O `testa-catalogo.js` trava se a proporção sair da faixa.
+
+#### As três regras que o catálogo se impõe, e o teste que as cobra
+
+1. **🔴 Nada se cumpre sem estudar.** Não existe medalha por abrir o aplicativo, por sequência de
+   login ou por presença. O teste varre nome, descrição e condição atrás disso e falha se achar.
+2. **Toda condição é conferível com dado que já temos** — `sessoes_estudo`, `progresso` e os
+   atributos da ficha. Ideia bonita que não dá para medir hoje **não entra**: conquista que nunca
+   dispara é pior que conquista nenhuma, porque a pessoa persegue algo que não existe.
+3. **Cor só por token do design system.** Mudar a paleta muda as tags junto, em vez de deixar 23
+   códigos de cor órfãos para trás.
+
+> ⚠️ **Uma coisa do PlayStation que NÃO dá para copiar: a raridade medida** (*"3,1% dos jogadores
+> têm"*). Com 8 usuários cadastrados qualquer porcentagem é ruído, e ela contaria a cada pessoa o
+> que as outras fizeram. Aqui raridade é **projetada** — propriedade da divisa, decidida por
+> quanto esforço ela pede — e não medição da base.
+
+> ✏️ **E uma correção, de 19/09:** o roadmap dizia que o catálogo estava *"aprovado por você,
+> código nunca escrito"*. Fui procurar o conteúdo para não refazer trabalho e **ele não existia
+> em lugar nenhum** — nem em `historico/`, nem na skill, nem no caderno de 2.989 linhas. O que
+> foi aprovado em 02/08 foram as **contagens e o formato**. Escrever os nomes e as condições era
+> o trabalho inteiro, e estava descrito como se fosse o resto dele.
 
 ---
 

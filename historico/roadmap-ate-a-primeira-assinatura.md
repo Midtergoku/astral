@@ -94,7 +94,7 @@ de o produto funcionar, senão é maquiagem em cima de nada.
 
 | # | O quê | Quem | Detalhe |
 |---|---|---|---|
-| 3.1 | **As 18 missões, 22 tags e 12 conquistas secretas** | 🤖 | Catálogo aprovado por você, **código nunca escrito**. É o maior item pendente da Etapa 3 |
+| 3.1 | 🟡 **O catálogo** | 🤖 | ✏️ **Corrigido em 19/09/2026: esta linha dizia "catálogo aprovado por você, código nunca escrito", o que dava a entender que o conteúdo existia e só faltava programar. Não existia.** Procurei em `historico/`, na skill e no caderno original: o que foi aprovado em 02/08 foram as **contagens e o formato** (22 tags em 2 níveis, 12 secretas, 18 missões em 5 trilhas) — nenhum nome, nenhuma condição. **Escrito em 19/09:** `assets/js/catalogo.js`, com 28 condecorações e 23 divisas. Falta o **motor** que concede |
 | 3.2 | **Acumular todas as tags, escolher qual vestir** | 🤖 | Decisão sua. A coluna `tag_escolhida` já existe; a tela `tags.html` também. Falta ligar as missões |
 | 3.3 | **Ranking pessoal** | 🤖 | ⚠️ **pessoal, não entre usuários** — você foi explícito. Ranking público desmotiva quem está atrás |
 | 3.4 | **Página "Minha conta"** | 🤖 | A única feita do zero, funcional e sem acabamento. Você mesmo apontou |
