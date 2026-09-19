@@ -215,6 +215,106 @@
       border-radius: 999px;
     }
 
+/* ── AS MISSÕES (R12) ──────────────────────────────────────────────────
+   Lista de ordens do dia, não cards coloridos. Cada linha tem o texto, o
+   quanto já foi feito e uma régua fina — o "18 / 25 min" é o que puxa. */
+    .missoes-placar {
+      font-family: var(--dado);
+      font-size: var(--t-sm);
+      color: var(--texto-3);
+      font-variant-numeric: tabular-nums;
+    }
+
+.missoes-lista { display: grid; gap: 0.9rem; }
+
+.missao { display: grid; gap: 0.35rem; }
+
+.missao-linha {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+.missao-texto { font-size: 0.88rem; color: var(--texto); line-height: 1.3; }
+
+.missao-conta {
+      font-family: var(--dado);
+      font-size: var(--t-xs);
+      color: var(--texto-3);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+.missao-regua {
+      height: 3px;
+      background: var(--linha);
+      border-radius: var(--r-p);
+      overflow: hidden;
+    }
+
+.missao-preenche {
+      height: 100%;
+      background: var(--latao);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--d-painel) var(--percurso);
+    }
+
+/* Cumprida: some a régua e o texto ganha o traço. O visto verde seria mais
+   óbvio, mas o oliva é a cor de "está certo" neste design system. */
+    .missao.feita .missao-texto {
+      color: var(--texto-3);
+      text-decoration: line-through;
+      text-decoration-color: var(--oliva-c);
+    }
+
+.missao.feita .missao-conta { color: var(--oliva-c); font-weight: 700; }
+
+.missao.feita .missao-preenche { background: var(--oliva-c); }
+
+.campanha {
+      margin-top: 1.25rem;
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--linha);
+    }
+
+.campanha-rotulo {
+      font-family: var(--dado);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--texto-3);
+      margin-bottom: 0.3rem;
+    }
+
+.campanha-etapa {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--texto);
+      margin-bottom: 0.6rem;
+    }
+
+/* A trilha: um traço por etapa. Ver quatro traços com dois acesos diz
+   "você está na metade" sem nenhum número. */
+    .campanha-trilha { display: flex; gap: 0.35rem; }
+
+.campanha-passo {
+      flex: 1;
+      height: 3px;
+      background: var(--linha);
+      border-radius: var(--r-p);
+    }
+
+.campanha-passo.feito { background: var(--latao); }
+
+.campanha-passo.agora { background: var(--latao-c); }
+
+@media (prefers-reduced-motion: reduce) {
+      .missao-preenche { transition: none; }
+    }
+
 /* ── A FICHA (R1) ──────────────────────────────────────────────────────
    Ficha de serviço, não painel de jogo: rótulo em caixa alta, número em
    fonte de dado, régua fina. O latão é a cor da insígnia e por isso é ele
@@ -797,6 +897,28 @@
       </div>
     </div>
 
+    <!-- ── AS MISSÕES (R12) ──────────────────────────────────────────────
+         Vem depois do cronograma e ANTES da ficha, de propósito: o cronograma
+         é o plano, a missão é o desafio de hoje, e a ficha é quem você é.
+         A ordem vai do mais acionável para o mais contemplativo. -->
+    <div id="missoes" style="margin-bottom:1.5rem" hidden>
+      <div class="section-header">
+        <div class="section-title">Missões de hoje</div>
+        <div class="missoes-placar" id="missoes-placar"></div>
+      </div>
+      <div class="card">
+        <div class="missoes-lista" id="missoes-lista"></div>
+        <!-- A campanha em andamento: uma só, a que está mais perto de avançar.
+             Mostrar as quatro faria a pessoa escolher, e o ponto é justamente
+             dizer o próximo passo. -->
+        <div class="campanha" id="campanha" hidden>
+          <div class="campanha-rotulo" id="campanha-nome"></div>
+          <div class="campanha-etapa" id="campanha-etapa"></div>
+          <div class="campanha-trilha" id="campanha-trilha"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── A FICHA (R1) ──────────────────────────────────────────────────
          Cinco atributos no lugar de um XP so. Cada um sai de uma CONTA feita
          no servidor a partir das sessoes de estudo -- ver a migration
@@ -1112,6 +1234,8 @@ function mostrarLevelUp(nomeNivel) {
 
        Importa `condecoracoes.js` sob demanda: quem nao tem medalha nova nao
        paga o download do catalogo de 74 itens so para descobrir isso. */
+    desenharMissoes(session.user.id).catch((e) => relatar(e, 'dashboard/missoes'));
+
     conferirCondecoracoes(session.user.id).catch(() => { /* ja relatado dentro */ });
 
     renderUI();
@@ -1202,6 +1326,68 @@ function mostrarLevelUp(nomeNivel) {
        haveria animacao nenhuma. Dois quadros bastam. */
     requestAnimationFrame(() => requestAnimationFrame(() => {
       grade.querySelectorAll('.atributo-preenche').forEach((el) => {
+        el.style.transform = `scaleX(${el.dataset.ate})`;
+      });
+    }));
+  }
+
+  /* ── AS MISSÕES ─────────────────────────────────────────────────────────
+     Duas chamadas: `fatos_de_hoje` para as diárias e `fatos_do_usuario` para
+     a campanha. São consultas diferentes porque respondem perguntas
+     diferentes — hoje versus a vida inteira. */
+  async function desenharMissoes(uid) {
+    const caixa = document.getElementById('missoes');
+    if (!caixa) return;
+
+    const [hoje, vida] = await Promise.all([
+      supabase.rpc('fatos_de_hoje'),
+      supabase.rpc('fatos_do_usuario'),
+    ]);
+    if (hoje.error || !hoje.data) {
+      if (hoje.error) relatar(hoje.error, 'dashboard/missoes');
+      return;                                  // some, em vez de ficar vazia
+    }
+
+    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=bdc5216c');
+    const lista = missoesDeHoje(uid, hoje.data);
+
+    document.getElementById('missoes-placar').textContent =
+      `${lista.filter((m) => m.cumprida).length} / ${lista.length}`;
+
+    document.getElementById('missoes-lista').innerHTML = lista.map((m) => `
+      <div class="missao${m.cumprida ? ' feita' : ''}">
+        <div class="missao-linha">
+          <span class="missao-texto">${esc(m.texto)}</span>
+          <span class="missao-conta">${m.cumprida ? 'cumprida' : `${m.feito} / ${m.alvo}`}</span>
+        </div>
+        <div class="missao-regua">
+          <div class="missao-preenche" data-ate="${m.progresso}"></div>
+        </div>
+      </div>`).join('');
+
+    /* A campanha mostrada é a que está MAIS PERTO de avançar entre as
+       incompletas. Assim quem já terminou a "Apresentação ao Quartel" vê a
+       próxima, e não uma campanha fechada ocupando espaço. */
+    if (!vida.error && vida.data) {
+      const emAndamento = campanhas(vida.data)
+        .filter((c) => !c.completa)
+        .sort((a, b) => (b.cumpridas / b.etapas.length) - (a.cumpridas / a.etapas.length))[0];
+
+      if (emAndamento) {
+        document.getElementById('campanha-nome').textContent = emAndamento.nome;
+        document.getElementById('campanha-etapa').textContent =
+          `${emAndamento.atual.texto} — ${emAndamento.atual.feito} de ${emAndamento.atual.alvo}`;
+        document.getElementById('campanha-trilha').innerHTML = emAndamento.etapas.map((e) => {
+          const classe = e.cumprida ? ' feito' : (e.id === emAndamento.atual.id ? ' agora' : '');
+          return `<div class="campanha-passo${classe}" title="${att(e.texto)}"></div>`;
+        }).join('');
+        document.getElementById('campanha').hidden = false;
+      }
+    }
+
+    caixa.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      caixa.querySelectorAll('.missao-preenche').forEach((el) => {
         el.style.transform = `scaleX(${el.dataset.ate})`;
       });
     }));

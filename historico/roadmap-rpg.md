@@ -51,7 +51,7 @@
 | ✅ | **R13** | **MOTOR DE CONDECORAÇÕES** | **FEITO em 19/09/2026.** Os **fatos** saem do servidor (`fatos_do_usuario`, 11 consultas sobre `sessoes_estudo` e `progresso`); a **conferência** acontece no navegador; e **nada é gravado** — a lista é função pura dos fatos. A sala está em `conquistas.html`, com placar, "falta pouco" e as secretas como `???`. Provas: `testa-motor` (21) · `testa-fatos` (17) · `testa-sala` (9) |
 | 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09**, não descartado. Gatilho: **mais de 100 usuários ativos** — abaixo disso uma pessoa move o número em mais de 1 ponto e vira ruído |
 | 🔴 | **R5** | **LOOT COM RARIDADE** — comum · incomum · rara · lendária, com a raridade visível na cor | 🔒 aprovado |
-| 🔴 | **R12** | **MISSÕES** — as **gerais** (permanentes, nunca expiram) e as **DIÁRIAS** | pedido dele em 18/09: *"todo bom RPG tem missões diárias"*. ⚠️ ver o aviso do cassino abaixo |
+| ✅ | **R12** | **MISSÕES** — diárias e campanhas | **FEITO em 19/09/2026.** **3 diárias por dia**, sorteadas de 11 com semente `uid + data` — recarregar não troca; **4 campanhas** de 4 etapas, que nunca expiram. Ambas no dashboard. Provas: `testa-missoes` (16, função pura) · `testa-missoes-tela` (11, ponta a ponta) |
 | 🔴 | **R3** | **O CHEFE TEM DATA** — a prova vira o chefe da campanha, com contagem regressiva; cada simulado é um sub-chefe | aprovado |
 | 🔴 | **R9** | **REENGAJAMENTO NARRADO** — "enferrujada/suspensa" (que já existe) vira *fora de serviço*, com missão de retorno | aprovado |
 
@@ -174,6 +174,51 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | 🔴 | **R7** | **DIÁRIO DE CAMPANHA** — o histórico vira log narrado: *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* | aprovado |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🎯 As missões — o que elas são, e o que elas não são
+
+**Missão não é condecoração**, e a diferença justifica existirem as duas:
+
+| | Olha para | Faz o quê |
+|---|---|---|
+| **Condecoração** | **trás** | reconhece o que você já fez |
+| **Missão** | **frente** | propõe o que fazer agora |
+
+Uma lista de 74 medalhas não responde *"o que eu faço nos próximos 25 minutos"* — e é essa
+pergunta que faz alguém abrir o aplicativo num dia ruim.
+
+#### O sorteio, e por que ele não usa sorte
+
+As três missões do dia têm de ser **as mesmas o dia inteiro**. Com `Math.random`, recarregar a
+página daria outras três — e alguém a um minuto de cumprir *"estude 40 minutos"* veria a missão
+virar *"estude 3 matérias"*. Pior: daria para **recarregar até sair a mais fácil**.
+
+Então o sorteio é **determinístico**: a semente é `uid + data`, e a data vem do **servidor**.
+Mesma pessoa, mesmo dia, mesmas missões — em qualquer aparelho, **sem gravar nada**.
+
+> A data vir do servidor não é detalhe: se o navegador usasse o próprio relógio, um aparelho com
+> a hora errada veria as missões de ontem sendo marcadas como cumpridas pelo estudo de hoje.
+
+#### As diárias têm peso, e o motivo é de produto
+
+As mais fáceis aparecem mais (`peso` de 1 a 5), porque **missão diária existe para ser
+cumprida**. Três coisas difíceis todo dia viram uma lista que ninguém olha.
+
+#### As campanhas: o que as separa das medalhas
+
+São **etapas encadeadas** — a próxima só abre quando a anterior fecha. Condecoração é um ponto;
+campanha é uma trilha, e a trilha diz **onde você está**. Quatro delas: *Apresentação ao
+Quartel* · *Operação Constância* · *Frente Ampla* · *Marcha de Resistência*.
+
+Nenhuma expira, conforme a ordem dele de 01/08: *"Não, a missão não some. Quests são literalmente
+quests."*
+
+> 🔴 **A regra do cassino, verificada por programa.** A missão diária é o lugar natural do
+> *"entre hoje e ganhe 50 XP"*. Toda condição aqui lê `fatos_de_hoje`, que **só conhece sessão de
+> estudo** — não há o que contar que não seja trabalho. E o teste roda 200 usuários num dia em
+> que ninguém estudou e exige **zero** missões cumpridas.
 
 ---
 

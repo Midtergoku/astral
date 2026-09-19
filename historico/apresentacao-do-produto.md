@@ -40,6 +40,8 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **33 divisas** | A tag que você veste, uma de cada vez. Cada uma com raridade: comum, incomum, rara, lendária |
 | **"Falta pouco"** | A tela mostra o que está a um passo. Ver um 8 de 10 puxa mais que uma lista de coisas trancadas |
 | **A medalha se anuncia na hora** | No instante em que cai, com confete e a cor do metal. Uma conquista secreta descoberta três semanas depois, numa tabela, é uma linha de tabela — o valor está no instante |
+| **Missões de hoje** | Três por dia, e elas **não mudam se você recarregar**. *"Estude 25 minutos"*, *"duas matérias diferentes"*, *"uma sessão antes das 9h"* — e o quanto já falta aparece em cada uma |
+| **Campanhas** | Quatro trilhas de quatro etapas que **nunca expiram**: Apresentação ao Quartel · Operação Constância · Frente Ampla · Marcha de Resistência. A próxima etapa só abre quando a anterior fecha |
 
 ### O que vem
 
