@@ -173,7 +173,36 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 | | Item | O quê | Estado |
 |---|---|---|---|
 | 🔴 | **R7** | **DIÁRIO DE CAMPANHA** — o histórico vira log narrado: *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* | aprovado |
-| 🔴 | **R8** | **O INSTANTE DA DESCOBERTA** — a conquista secreta passa pelo confete do dashboard **na hora**, em vez de esperar a pessoa ir até a página | aprovado. Maior retorno pelo menor esforço |
+| ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🎉 O anúncio — e as duas maneiras de errar
+
+Registrado em 19/09/2026, porque a segunda é a que estraga o produto e é a menos óbvia:
+
+| | O erro | Por que importa |
+|---|---|---|
+| 1 | **Não anunciar** | a pessoa nunca descobre, e a conquista secreta vira linha de tabela — era o estado até hoje |
+| 2 | **Anunciar demais** | aparelho novo, 30 medalhas antigas, 30 comemorações seguidas. **Pior que a 1**, porque a 1 é só ausência e a 2 é incômodo ativo — e depois que a pessoa aprende a fechar o aviso sem ler, nenhum aviso funciona mais |
+
+**Como o 2 foi resolvido:** a primeira carga em cada aparelho **semeia em silêncio** — grava tudo
+como visto e não anuncia nada. Só o que cair depois aparece.
+
+**Como se sabe que é nova, se nada é gravado:** não se sabe, e não é isso que se pergunta. As
+condecorações são função pura dos fatos, então não existe "conquistado em". A pergunta aqui é
+outra — *"eu já te MOSTREI esta?"* —, que é assunto de interface, não verdade sobre o mundo. Por
+isso a resposta mora no navegador (`astral_vistas_<uid>`).
+
+**O preço honesto:** quem ganha a medalha no celular e depois abre o computador vê o anúncio de
+novo. É repetição, não invenção — e é melhor que o contrário, que seria nunca ver.
+
+#### Dois defeitos que o teste pegou
+
+| O que eu fiz | O que ensinou |
+|---|---|
+| **Misturei escolher com ordenar.** Ordenava do bronze ao ouro e cortava os 3 **primeiros** | O teto jogava fora **exatamente as medalhas mais valiosas**: caíram cinco, entre elas uma de ouro e secreta, e o anúncio mostrou três de prata. São dois passos — escolher as melhores, depois ordenar para exibir |
+| **O teste media com uma foto** um processo que dura mais que o instante | Os anúncios são uma fila de 3,9s cada; contar `querySelectorAll` depois de 5 segundos pegava um só. Acusou falha com o sistema funcionando. Trocado por um observador que registra tudo que apareceu |
 
 ---
 

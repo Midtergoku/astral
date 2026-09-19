@@ -1105,6 +1105,15 @@ function mostrarLevelUp(nomeNivel) {
        buscar -- ja esta desenhado. */
     desenharFicha();
 
+    /* ── O INSTANTE DA DESCOBERTA (R8) ─────────────────────────────────────
+       O dashboard e onde a pessoa CAI depois de marcar a sessao como feita --
+       e por isso e aqui que a medalha tem de aparecer, nao numa pagina que ela
+       talvez nunca abra. Roda depois da ficha, em silencio se nao houver nada.
+
+       Importa `condecoracoes.js` sob demanda: quem nao tem medalha nova nao
+       paga o download do catalogo de 74 itens so para descobrir isso. */
+    conferirCondecoracoes(session.user.id).catch(() => { /* ja relatado dentro */ });
+
     renderUI();
 
     /* ── O GUIA DE PROFESSORES, POR TRAS (04/08/2026) ────────────────────────
@@ -1196,6 +1205,20 @@ function mostrarLevelUp(nomeNivel) {
         el.style.transform = `scaleX(${el.dataset.ate})`;
       });
     }));
+  }
+
+  async function conferirCondecoracoes(uid) {
+    try {
+      const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+      if (error || !fatos) return;                    // sem fatos, sem anúncio
+      const [{ conferir }, { anunciarNovidades }] = await Promise.all([
+        import('./assets/js/condecoracoes.js?v=8aa132cc'),
+        import('./assets/js/anuncio.js?v=dd704853'),
+      ]);
+      await anunciarNovidades(uid, conferir(fatos));
+    } catch (e) {
+      relatar(e, 'dashboard/condecoracoes');
+    }
   }
 
   function renderUI() {

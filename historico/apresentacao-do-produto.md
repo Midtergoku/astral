@@ -39,6 +39,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **74 condecorações** | Bronze, Prata, Ouro — e a **Condecoração Máxima**, que só cai quando as outras 73 caem. **22 são secretas** e nem aparecem até você descobri-las |
 | **33 divisas** | A tag que você veste, uma de cada vez. Cada uma com raridade: comum, incomum, rara, lendária |
 | **"Falta pouco"** | A tela mostra o que está a um passo. Ver um 8 de 10 puxa mais que uma lista de coisas trancadas |
+| **A medalha se anuncia na hora** | No instante em que cai, com confete e a cor do metal. Uma conquista secreta descoberta três semanas depois, numa tabela, é uma linha de tabela — o valor está no instante |
 
 ### O que vem
 

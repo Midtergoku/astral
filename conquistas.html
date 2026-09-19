@@ -649,6 +649,13 @@
 
     sala.hidden = false;
 
+    /* Anuncia aqui também: quem abre esta página direto, sem passar pelo
+       dashboard, merece o mesmo momento. O módulo sabe o que já foi mostrado,
+       então não há risco de anunciar duas vezes a mesma medalha. */
+    import('./assets/js/anuncio.js?v=dd704853')
+      .then(({ anunciarNovidades }) => anunciarNovidades(estado.usuario?.id, { condecoracoes, divisas }))
+      .catch(() => { /* o anúncio é um bônus; a sala já está desenhada */ });
+
     // As réguas crescem depois de estarem na tela, senão não há animação.
     requestAnimationFrame(() => requestAnimationFrame(() => {
       document.querySelectorAll('.medalha-preenche').forEach((el) => {
