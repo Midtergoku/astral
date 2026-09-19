@@ -215,6 +215,87 @@
       border-radius: 999px;
     }
 
+/* ── A FICHA (R1) ──────────────────────────────────────────────────────
+   Ficha de serviço, não painel de jogo: rótulo em caixa alta, número em
+   fonte de dado, régua fina. O latão é a cor da insígnia e por isso é ele
+   que preenche a régua -- a barra É a divisa. */
+    .ficha-grade {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: var(--e4) var(--e5);
+    }
+
+.atributo-topo {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--e2);
+      margin-bottom: 0.4rem;
+    }
+
+.atributo-nome {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: var(--t-xs);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--texto-2);
+    }
+
+.atributo-valor {
+      font-family: var(--dado);
+      font-weight: 700;
+      font-size: var(--t-lg);
+      color: var(--texto);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+.atributo-regua {
+      height: 4px;
+      background: var(--linha);
+      border-radius: var(--r-p);
+      overflow: hidden;
+    }
+
+/* Anima por TRANSFORM, não por width: largura anima layout e a skill de
+   design proíbe. A régua nasce em scaleX(0) e cresce a partir da esquerda. */
+    .atributo-preenche {
+      height: 100%;
+      width: 100%;
+      background: var(--latao);
+      border-radius: var(--r-p);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--d-painel) var(--percurso);
+    }
+
+.atributo-porque {
+      margin-top: 0.4rem;
+      font-size: var(--t-xs);
+      color: var(--texto-3);
+      line-height: 1.35;
+    }
+
+/* PRECISÃO ainda não tem do que ser calculada. Fica visível e apagada --
+   esconder daria a impressão de que a ficha tem 4 atributos, e some a
+   informação de que existe um quinto esperando o banco de questões. */
+    .atributo.trancado .atributo-valor,
+    .atributo.trancado .atributo-nome { color: var(--texto-3); }
+
+.atributo.trancado .atributo-preenche { background: var(--texto-3); opacity: 0.35; }
+
+.ficha-resumo {
+      font-family: var(--dado);
+      font-size: var(--t-xs);
+      color: var(--texto-3);
+      font-variant-numeric: tabular-nums;
+    }
+
+@media (prefers-reduced-motion: reduce) {
+      .atributo-preenche { transition: none; }
+    }
+
 /* ── PROGRESSO POR MATÉRIA ── */
     .materia-list { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -716,6 +797,26 @@
       </div>
     </div>
 
+    <!-- ── A FICHA (R1) ──────────────────────────────────────────────────
+         Cinco atributos no lugar de um XP so. Cada um sai de uma CONTA feita
+         no servidor a partir das sessoes de estudo -- ver a migration
+         20260919160000_ficha_do_usuario.sql.
+
+         Fica aqui, depois da sessao de hoje, de proposito: primeiro o que
+         fazer agora, depois quem voce e. Inverter poria o espelho na frente
+         da tarefa. -->
+    <div id="ficha" style="margin-bottom:1.5rem">
+      <div class="section-header">
+        <div class="section-title">Sua ficha</div>
+        <div class="ficha-resumo" id="ficha-resumo"></div>
+      </div>
+      <div class="card">
+        <div class="ficha-grade" id="ficha-grade">
+          <div class="empty-state">Carregando sua ficha...</div>
+        </div>
+      </div>
+    </div>
+
     <!-- GRID RESUMOS -->
     <!-- CARTAO DA SEMANA -- peca C2, referencia do 21st.dev (activity-chart-card).
 
@@ -999,6 +1100,11 @@ function mostrarLevelUp(nomeNivel) {
       .then(s => aplicarGrafico(s, "Sua semana de estudo"))
       .catch(() => {});
 
+    /* A FICHA busca sozinha e NAO segura a tela, pela mesma razao do grafico
+       acima: se ela falhar, o cronograma do dia -- que e o que a pessoa veio
+       buscar -- ja esta desenhado. */
+    desenharFicha();
+
     renderUI();
 
     /* ── O GUIA DE PROFESSORES, POR TRAS (04/08/2026) ────────────────────────
@@ -1025,6 +1131,73 @@ function mostrarLevelUp(nomeNivel) {
   }
 
   // ── RENDER ──
+  /* ── A FICHA ────────────────────────────────────────────────────────────
+     Os cinco atributos. Quem calcula e o SERVIDOR -- ver a migration
+     20260919160000_ficha_do_usuario.sql e o porque la dentro. Aqui so se
+     desenha o que chegou.
+
+     A ordem nao e alfabetica nem aleatoria: comeca no que a pessoa controla
+     hoje (aparecer) e termina no que leva meses (dominio). Quem bate o olho
+     ve primeiro o que da para mudar amanha. */
+  const ATRIBUTOS = [
+    ['disciplina',  'Disciplina'],
+    ['resistencia', 'Resistência'],
+    ['amplitude',   'Amplitude'],
+    ['doutrina',    'Doutrina'],
+    ['precisao',    'Precisão'],
+  ];
+
+  async function desenharFicha() {
+    const grade = document.getElementById('ficha-grade');
+    const resumo = document.getElementById('ficha-resumo');
+    if (!grade) return;
+
+    const { data, error } = await supabase.rpc('ficha_do_usuario');
+    if (error || !data || !data.atributos) {
+      // Falhou: sai de cena em vez de deixar "Carregando..." para sempre.
+      // Cartao vazio e melhor que cartao mentindo que esta carregando.
+      const caixa = document.getElementById('ficha');
+      if (caixa) caixa.style.display = 'none';
+      if (error) relatar(error, 'dashboard/ficha');
+      return;
+    }
+
+    grade.innerHTML = ATRIBUTOS.map(([chave, rotulo]) => {
+      const a = data.atributos[chave] || {};
+      // `!= null` pega null E ausente de uma vez -- e evita escrever a palavra
+      // que o verifica.js caça, porque ela quase sempre é resto de template
+      // vazado para a tela. Aqui seria uso legítimo, mas não vale gastar um
+      // alarme do verificador: alarme falso ensina a ignorar alarme.
+      const temValor = a.valor != null;
+      const valor = temValor ? Number(a.valor) : 0;
+      return `
+        <div class="atributo${temValor ? '' : ' trancado'}">
+          <div class="atributo-topo">
+            <span class="atributo-nome">${esc(rotulo)}</span>
+            <span class="atributo-valor">${temValor ? valor : '—'}</span>
+          </div>
+          <div class="atributo-regua">
+            <div class="atributo-preenche" data-ate="${temValor ? valor / 100 : 1}"></div>
+          </div>
+          <div class="atributo-porque">${esc(a.porque || '')}</div>
+        </div>`;
+    }).join('');
+
+    if (resumo && data.sessoes) {
+      const s = data.sessoes;
+      resumo.textContent = `${s.total} sessão(ões) · ${s.horas}h · ${s.dias_no_mes} dia(s) no mês`;
+    }
+
+    /* As reguas crescem DEPOIS de estarem na tela -- se o transform final ja
+       estivesse no HTML, o navegador pintaria tudo cheio de uma vez e nao
+       haveria animacao nenhuma. Dois quadros bastam. */
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      grade.querySelectorAll('.atributo-preenche').forEach((el) => {
+        el.style.transform = `scaleX(${el.dataset.ate})`;
+      });
+    }));
+  }
+
   function renderUI() {
     const nome = estado.perfil?.nome
       || estado.usuario?.user_metadata?.full_name

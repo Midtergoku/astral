@@ -36,7 +36,7 @@
 
 | | Item | O quê | Estado |
 |---|---|---|---|
-| 🔴 | **R1** | **A FICHA** — 5 atributos no lugar de um XP só: DISCIPLINA · RESISTÊNCIA · AMPLITUDE · DOUTRINA · PRECISÃO | **é por aqui que começamos** — os 4 primeiros já dá para calcular do que está gravado desde julho |
+| ✅ | **R1** | **A FICHA** — 5 atributos no lugar de um XP só | **FEITA em 19/09/2026.** Os 4 primeiros calculados **pelo servidor** a partir das sessões reais; **PRECISÃO volta `null`** de propósito, porque depende do banco de questões e inventar número aqui derrubaria o crédito da ficha inteira. Cada atributo **diz de onde veio**. Prova: `node tools/testa-ficha.js` (18 de 18, incluindo a tela e o vazamento entre contas) |
 | 🔴 | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | 🔒 aprovado por ele em 18/09. **Trava:** os ramos mudam *como* se joga, nunca *o que* se aprende |
 | 🔴 | **R10** | **PRESTÍGIO** — trocar de edital ou passar não zera nada: vira **veterano**, com marca permanente | aprovado |
 

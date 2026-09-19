@@ -34,12 +34,13 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **15 habilidades secretas** | Orador de Guerra, Calculista, Alquimista, Médico de Combate, Navegador, Operador Cyber, Estrategista, Guardião da Lei… Destrancam com **70% de domínio na matéria** — e são secretas **de propósito**: o valor está em descobrir sem esperar |
 | **Elas enferrujam** | 7 dias sem estudar a matéria = enferrujada · 14 dias = suspensa. A habilidade acompanha o seu estado atual, não o seu recorde |
 | **A tag na barra superior** | `NÍVEL · TAG` — o lugar mais nobre da tela mostra **quem você é**, não qual plano você paga |
+| **A ficha** | Cinco atributos no lugar de um número só: **Disciplina** (aparecer, e aparecer de novo) · **Resistência** (aguentar sentado) · **Amplitude** (não abandonar matéria) · **Doutrina** (o quanto já domina) · **Precisão** (ainda esperando o banco de questões). Cada um **diz de onde veio** — *"12 dias de estudo nos últimos 30, sequência de 5"* |
+| **E ela não dá para forjar** | Os atributos são **calculados pelo servidor** a partir das suas sessões. Não existe campo para preencher: o número sai da conta |
 
 ### O que vem
 
 | | O quê |
 |---|---|
-| **A ficha** | 5 atributos no lugar de um número só: **Disciplina · Resistência · Amplitude · Doutrina · Precisão** — cada um calculado a partir das suas sessões reais |
 | **Árvore de habilidades** | um ponto a cada patente, gasto em **Infantaria** (constância), **Artilharia** (volume) ou **Inteligência** (precisão). Os ramos mudam *como* você joga, nunca *o que* você aprende |
 | **Missões** | as **gerais**, que ficam para sempre depois de cumpridas, e as **diárias**. Sempre cumpridas estudando — nunca por abrir o aplicativo |
 | **Catálogo de tags** | muitas, com cor própria e **raridade**: comum, incomum, rara, lendária |

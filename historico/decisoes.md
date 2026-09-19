@@ -342,6 +342,33 @@ e é exatamente o que um concurseiro pagaria para ter.
 
 ---
 
+### 💰 Filtro de assunto: palavra-chave e so — decisão dele, 19/09/2026
+
+> *"Eu entendo a recomendação, mas não quero gastar nada com esse filtro."*
+
+**O que fica decidido:** o filtro por assunto (Q3) usa **só o classificador por palavra-chave**,
+que custa **R$ 0**. A opção de mandar as questões restantes para a IA — que eu havia recomendado
+para os ~29% que sobram — **está fora**.
+
+**O que isso significa na prática, medido em 19/09:**
+
+| | |
+|---|---|
+| Questões com assunto preenchido | **~71%** (medido às cegas, numa prova que o dicionário nunca viu) |
+| Questões acessíveis só por banca e matéria | ~29% |
+| Custo | **R$ 0, para sempre** |
+
+**E o caminho para melhorar sem gastar existe:** o dicionário saiu de **49% para 83%** numa
+tarde, só acrescentando termos que faltavam. Ele cresce lendo questão, não pagando por token.
+Cada prova nova que entrar no acervo é uma chance de completá-lo — e o ganho fica, porque vale
+para todas as provas seguintes.
+
+**A regra de tela que vem junto:** mostrar no filtro **apenas os assuntos que existem**, e deixar
+o resto acessível por matéria. Ninguém sente falta de um filtro que não está lá; o que irrita é
+filtro que promete e vem vazio.
+
+---
+
 ### De onde o projeto veio — contexto que explica escolhas
 
 O Lucas construiu o Astral até 29/07/2026 com **outras IAs**: Gemini e Opus dentro do
