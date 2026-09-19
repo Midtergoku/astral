@@ -454,7 +454,7 @@ mesmo escrevi. É o erro que o `CLAUDE.md` chama de *"teste que nunca reproduziu
 | **Questões utilizáveis, sem ninguém tocar** | **78 de 96 — 81%** |
 | Precisam de revisão | 18, e **11 delas são o mesmo motivo: dependem de figura** |
 | Anuladas pela banca | 1 (a 72), descartada sozinha |
-| **Gabarito** | Vem **no mesmo PDF**. Não precisa de segunda fonte |
+| **Gabarito** | ⚠️ **Vinha naquele PDF — e isso NÃO é regra.** Ver a correção de 19/09 abaixo |
 | Confiabilidade do gabarito | 95 respostas lidas por **dois caminhos independentes, 0 divergências** |
 | **Peso no banco** | **419 bytes por questão** → 10.000 questões = **4 MB** dos 500 MB do plano free |
 | Custo em dinheiro | **R$ 0.** Zero chamadas de IA — é `pdftotext`, que já está na máquina |
@@ -475,6 +475,85 @@ e (b) revisar os ~19%.
 >   mas isso precisa de confirmação antes de publicar, não de suposição minha.
 > - **Questão com figura eu deixo de fora, marcada.** Questão truncada é **pior** que questão
 >   ausente: quem estuda por alternativa quebrada aprende errado.
+
+### ✏️ CORREÇÃO DE 19/09/2026 — duas afirmações minhas de 17/09 estavam erradas
+
+Testei uma **segunda** prova, e ela derrubou duas coisas que eu tinha escrito depois de medir
+**uma só**. As duas eram do mesmo tipo: eu vi um padrão uma vez e o tratei como regra.
+
+#### 🔴 Erro 1 — "o gabarito vem no mesmo PDF"
+
+Eu escrevi isso como se fosse propriedade da **banca**. É propriedade do **arquivo**.
+
+| | Prova | Gabarito junto? | Rende |
+|---|---|---|---|
+| 1 | EEAR CFS 2/2025, **PDF oficial da FAB** | ✅ sim | **78 de 96 (81%)** |
+| 2 | EEAR 2022, **PDF de cursinho** | ❌ **nenhum** | **2 de 94 (2%)** |
+
+O arquivo 2 **se chama "PROVA E GABARITOS"** e não tem gabarito nenhum dentro. Sem ele, quase
+nada passa — questão sem resposta não pode ir para o banco.
+
+**O que muda na prática:** o acervo tem **duas peças, não uma**. Para cada prova é preciso o
+caderno **e** o gabarito, e às vezes eles moram em arquivos diferentes. Buscar o gabarito
+separado passa a ser parte do trabalho de juntar o acervo (Q2), não um detalhe.
+
+**O que já está pronto para isso:** `tools/prova-para-questoes.js --sem-gabarito` extrai as
+questões mesmo sem resposta, marcadas com `gabarito: null`, para casar depois com um gabarito
+de outra fonte. Sem o sinalizador, elas continuam sendo recusadas — que é o certo para publicar.
+
+#### 🔴 Erro 2 — a matéria deduzida pela numeração
+
+Eu supus que os blocos de 24 questões seguem sempre português → matemática → física → inglês,
+porque é assim na prova de 2025. **Na de 2022 é português → INGLÊS → matemática → física.**
+
+O sintoma foi bonito de ver: **0% em três matérias de quatro**. Um zero limpo demais para ser
+falta de vocabulário — cada questão estava sendo comparada com o dicionário da matéria errada.
+
+**E a prova DIZ a ordem, em letra garrafal:** *"AS QUESTÕES DE 25 A 48 REFEREM-SE À LÍNGUA
+INGLESA"*. Agora o programa **lê** esse cabeçalho em vez de deduzir. Ler o que está escrito é
+melhor do que deduzir de um padrão visto uma vez — que é o mesmo erro das duas linhas acima.
+
+---
+
+### 📊 Q3 — a medição do classificador por palavra-chave (ordem dele, 19/09)
+
+> *"Então vamos medir o de palavra chave."*
+
+`tools/classifica-assunto.js` — um dicionário de termos por assunto, R$ 0, zero IA.
+
+| | Prova | Cobertura |
+|---|---|---|
+| **Afinado** | EEAR 2025 — **eu ajustei o dicionário olhando esta prova** | **83%** |
+| 🎯 **Às cegas** | EEAR 2022 — **o dicionário nunca a viu** | **71%** |
+
+**O número que vale é 71%.** Medir na mesma prova que usei para afinar seria o "teste que nunca
+reproduziu o defeito" de que o `CLAUDE.md` fala — ele confirma o que eu já sabia. **A diferença
+de 12 pontos entre os dois é o tamanho do meu próprio viés, medido.**
+
+Por matéria, às cegas: matemática **87%** · português **76%** · inglês **63%** · física **62%**.
+Matemática generaliza melhor porque o vocabulário é o mesmo em qualquer prova ("losango" é
+losango sempre); inglês é o pior porque a banca **não escreve o nome do assunto** — escreve o
+comando ("Another way of saying…"), e comando varia mais.
+
+**Sobre o acerto, e não só a cobertura:** li as 31 primeiras uma a uma. Achei **3 erradas**, e
+as três tinham causa específica e consertável — o termo casava **dentro do texto citado** em vez
+da pergunta. A questão 1 virou "figuras de linguagem" porque a palavra *ironia* aparecia na
+tirinha da Mafalda. Depois de corrigir (busca em dois passos: primeiro o comando, só depois o
+texto inteiro) as três sararam. **Não dá para afirmar uma taxa de acerto para as 52 sem ler as
+52** — o que li foram 31.
+
+#### O veredito, e a recomendação
+
+| | |
+|---|---|
+| **Serve?** | **Serve** — 71% dos filtros preenchidos sozinhos, a custo zero |
+| **Resolve tudo?** | **Não.** Sobram ~29% sem assunto, e alguns errados dentro dos 71% |
+| **O trabalho é onde?** | **No dicionário.** Ele saiu de 49% para 83% numa tarde, só acrescentando termos que faltavam. O dicionário cresce lendo questão |
+| **E a IA?** | 💰 continua sendo a opção melhor em acerto, e continua custando. **Faz sentido reservá-la para os ~29% que a palavra-chave não pegou**, em vez de mandar 100% das questões para ela — o que já reduz o custo em dois terços, quando houver dinheiro |
+
+**Minha recomendação:** começar com palavra-chave, mostrar o filtro só com os assuntos que
+estiverem preenchidos, e deixar as sem classificar acessíveis pela matéria. Ninguém sente falta
+de um filtro que não existe; o que incomoda é filtro que mente.
 
 > 💡 **A ideia que saiu da medição:** as 11 de figura não estão perdidas. O PDF tem as imagens, e
 > dá para recortá-las e guardá-las junto da questão. Só que isso é trabalho de verdade, e há 78

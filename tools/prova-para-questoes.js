@@ -46,7 +46,24 @@ if (!pdf || !fs.existsSync(pdf)) {
   console.log("     precisa do pdftotext (ja vem com o PortableGit deste projeto)");
   process.exit(pdf ? 1 : 0);
 }
-const saida = process.argv[3] || pdf.replace(/\.pdf$/i, "") + "-questoes.json";
+const saida = (process.argv[3] && !process.argv[3].startsWith("--"))
+  ? process.argv[3]
+  : pdf.replace(/\.pdf$/i, "") + "-questoes.json";
+
+/* 🔴 DESCOBERTO EM 19/09/2026, e corrige uma afirmacao minha de 17/09:
+   O GABARITO NAO VEM SEMPRE NO MESMO PDF.
+
+   Eu tinha escrito "o gabarito vem no mesmo pdf, nao precisa de segunda fonte"
+   depois de medir UMA prova -- a oficial da FAB, que por acaso traz os dois
+   juntos. Testei uma segunda prova da MESMA banca, de outro ano, baixada de um
+   cursinho: 94 questoes encontradas e ZERO gabarito. O arquivo ate se chama
+   "PROVA E GABARITOS", e nao tem gabarito nenhum dentro.
+
+   Ou seja: ter o gabarito junto e propriedade do ARQUIVO, nao da banca. Com
+   este sinalizador as questoes saem mesmo sem resposta, marcadas com
+   gabarito null, para casar depois com um gabarito de outra fonte. Sem ele,
+   questao sem gabarito nao entra -- que continua sendo o certo para publicar. */
+const INCLUIR_SEM_GABARITO = process.argv.includes("--sem-gabarito");
 
 // ── Extrair, de tres jeitos ─────────────────────────────────────────────────
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prova-"));
@@ -81,6 +98,41 @@ for (const m of LEITURAS[0].matchAll(/\b(\d{2})\s+([A-E])\b/g)) {
   if (n >= 1 && n <= 200 && !gabarito.has(n)) gabarito.set(n, m[2]);
 }
 for (const m of LEITURAS[0].matchAll(/\b(\d{2})\s+ANULADA/gi)) anuladas.add(parseInt(m[1], 10));
+
+/* ── De que MATERIA e cada questao ───────────────────────────────────────────
+   🔴 ERRO MEU, achado em 19/09/2026 ao testar a segunda prova: eu deduzia a
+   materia pela FAIXA DE NUMERO, supondo blocos de 24 na ordem portugues,
+   matematica, fisica, ingles. Isso valia para a prova de 2025 e NAO vale em
+   geral -- a de 2022 e portugues, INGLES, matematica, fisica. O resultado foi
+   limpo demais para ser falta de dicionario: 0% em tres materias de quatro,
+   porque toda questao estava sendo comparada com o vocabulario da materia
+   errada.
+
+   A prova DIZ a ordem, em letra garrafal: "AS QUESTOES DE 25 A 48 REFEREM-SE A
+   LINGUA INGLESA". Ler o que esta escrito e melhor do que deduzir de um
+   padrao observado uma vez. */
+function faixasDeMateria(texto) {
+  const faixas = [];
+  const re = /QUEST[ÕO]ES\s+DE\s+(\d+)\s+A\s+(\d+)\s+REFEREM[‐\-]?SE\s+[ÀA]\s+([^\n]+)/gi;
+  for (const m of texto.matchAll(re)) {
+    const nome = m[3].trim()
+      .replace(/^L[ÍI]NGUA\s+/i, "")
+      .replace(/\s{2,}.*$/, "")
+      .replace(/[.:;]+$/, "");
+    faixas.push({ de: parseInt(m[1], 10), ate: parseInt(m[2], 10), materia: arrumarNome(nome) });
+  }
+  return faixas;
+}
+function arrumarNome(n) {
+  const s = n.toLowerCase();
+  if (s.startsWith("portugu")) return "Português";
+  if (s.startsWith("ingles") || s.startsWith("inglês")) return "Inglês";
+  if (s.startsWith("matem")) return "Matemática";
+  if (s.startsWith("f[íi]sica") || s.startsWith("fisica") || s.startsWith("física")) return "Física";
+  return n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+}
+const FAIXAS = faixasDeMateria(LEITURAS[0]);
+const materiaDe = (n) => (FAIXAS.find((f) => n >= f.de && n <= f.ate) || {}).materia || null;
 
 // ── Fatiar ───────────────────────────────────────────────────────────────────
 function fatiar(bruto) {
@@ -140,7 +192,7 @@ for (const q of questoes) {
   if (anuladas.has(q.n)) { motivo("anulada pela banca"); continue; }
   const f = fatiar(q.bruto);
   if (!f || Object.keys(f.alts).length < 4 || !f.enunciado) { motivo("alternativas nao fecharam em 4"); continue; }
-  if (!gabarito.has(q.n)) { motivo("sem gabarito"); continue; }
+  if (!gabarito.has(q.n) && !INCLUIR_SEM_GABARITO) { motivo("sem gabarito"); continue; }
   const tudo = f.enunciado + " " + Object.values(f.alts).join(" ");
   if (PEDE_FIGURA.test(tudo)) { motivo("depende de figura"); continue; }
   if (TEM_FORMULA.test(tudo)) { motivo("tem formula/simbolo"); continue; }
@@ -148,9 +200,9 @@ for (const q of questoes) {
   // Ultima peneira: o rodape da prova as vezes vira texto de alternativa.
   if (/Págin|CÓDIGO DA|MINISTÉRIO|COMANDO DA/i.test(tudo)) { motivo("cabecalho/rodape vazou"); continue; }
   prontas.push({
-    numero: q.n, enunciado: f.enunciado,
+    numero: q.n, materia: materiaDe(q.n), enunciado: f.enunciado,
     a: f.alts.a, b: f.alts.b, c: f.alts.c, d: f.alts.d,
-    gabarito: gabarito.get(q.n),
+    gabarito: gabarito.get(q.n) ?? null,
   });
 }
 
@@ -161,6 +213,9 @@ const total = questoes.length;
 const pct = total ? ((prontas.length / total) * 100).toFixed(0) : 0;
 console.log(`\nPROVA-PARA-QUESTOES  ${path.basename(pdf)}\n`);
 console.log(`  questoes encontradas   ${total}`);
+console.log(`  materias lidas do PDF  ${FAIXAS.length
+  ? FAIXAS.map((f) => `${f.materia} ${f.de}-${f.ate}`).join(" | ")
+  : "🔴 NENHUMA -- este PDF nao traz os cabecalhos de bloco"}`);
 console.log(`  PRONTAS                ${prontas.length}  (${pct}%)  -> ${saida}`);
 console.log(`  precisam de revisao    ${revisar.length}`);
 const porMotivo = {};
