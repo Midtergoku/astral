@@ -280,6 +280,92 @@
 
 
 
+/* ── DIÁRIO DE CAMPANHA (R7) ───────────────────────────────────────────
+   Linha do tempo com um fio vertical: cada dia é um ponto no fio. A forma
+   importa aqui — uma lista de cartões soltos seria um relatório; o fio é o
+   que faz virar história, porque mostra que os dias se ligam. */
+    .diario-lista {
+      display: grid;
+      gap: 0;
+      border-left: 1px solid var(--linha);
+      margin-left: 0.4rem;
+      padding-left: 1.4rem;
+    }
+
+.diario-dia { position: relative; padding: 0.9rem 0 1rem; }
+
+.diario-dia + .diario-dia { border-top: 1px solid color-mix(in srgb, var(--linha) 55%, transparent); }
+
+/* O ponto no fio. Quem tem marco ganha ponto de latão e maior — é o que
+   deixa a pessoa achar os dias importantes correndo o olho. */
+    .diario-dia::before {
+      content: '';
+      position: absolute;
+      left: -1.78rem;
+      top: 1.25rem;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--linha);
+      border: 2px solid var(--breu);
+    }
+
+.diario-dia.marcado::before {
+      background: var(--latao);
+      width: 9px; height: 9px;
+      left: -1.84rem;
+    }
+
+.diario-topo {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.2rem;
+    }
+
+.diario-data {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--texto);
+    }
+
+.diario-linha {
+      font-family: var(--dado);
+      font-size: var(--t-xs);
+      color: var(--texto-3);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+.diario-resumo { font-size: 0.84rem; color: var(--texto-2); line-height: 1.4; }
+
+.diario-marco {
+      display: flex;
+      align-items: baseline;
+      gap: 0.45rem;
+      margin-top: 0.45rem;
+      font-size: 0.82rem;
+      color: var(--latao-c);
+      line-height: 1.35;
+    }
+
+.diario-marco::before {
+      content: '◆';
+      font-size: 0.6rem;
+      color: var(--latao);
+      flex-shrink: 0;
+    }
+
+.diario-vazio {
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 1.5rem 0;
+    }
+
+@media (max-width: 768px) {
+      .diario-topo { flex-direction: column; gap: 0.15rem; }
+    }
 </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
@@ -400,6 +486,20 @@
     <!-- Renderizado pelo JS -->
   </div>
 
+  <!-- ── DIÁRIO DE CAMPANHA (R7) ────────────────────────────────────────
+       Fica aqui, e não no dashboard, porque é leitura: o dashboard responde
+       "o que faço agora" e esta página responde "de onde eu vim". São modos
+       de atenção diferentes, e misturar os dois estraga os dois. -->
+  <div id="diario" style="margin-top:2.5rem" hidden>
+    <div class="section-header" style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;">
+      <div>
+        <div class="section-title">Diário de campanha</div>
+        <div style="font-size:0.82rem;color:var(--muted);" id="diario-sub"></div>
+      </div>
+    </div>
+    <div class="diario-lista" id="diario-lista"></div>
+  </div>
+
 </main>
 
 <script type="module">
@@ -447,6 +547,56 @@
     estado.edital    = estado.progresso.edital;
 
     renderUI();
+
+    /* O diário busca sozinho e não segura a tela: se falhar, o progresso por
+       matéria — que é o que a pessoa veio ver — já está desenhado. */
+    desenharDiario(session.user.id).catch((e) => relatar(e, 'progresso/diario'));
+  }
+
+  /* ── O DIÁRIO DE CAMPANHA ───────────────────────────────────────────────
+     Lê as sessões cruas e deixa o `diario.js` narrar. A leitura é direta da
+     tabela porque a RLS já filtra por quem está logado, e porque o diário
+     precisa das sessões UMA A UMA — os agregados do servidor não servem aqui:
+     é justamente a sequência dos dias que vira a história. */
+  async function desenharDiario(uid) {
+    const caixa = document.getElementById('diario');
+    if (!caixa) return;
+
+    /* 120 dias e no máximo 500 sessões: um teto generoso para quem estuda
+       muito, e curto o bastante para a página não travar com um histórico
+       longo. Quem passar disso vê os 120 dias mais recentes, que é o que
+       alguém lê de qualquer forma. */
+    const desde = new Date(Date.now() - 120 * 86400000).toISOString();
+    const { data, error } = await supabase
+      .from('sessoes_estudo')
+      .select('materia, segundos, modo, criado_em')
+      .eq('usuario_id', uid)
+      .gte('criado_em', desde)
+      .order('criado_em', { ascending: true })
+      .limit(500);
+    if (error) { relatar(error, 'progresso/diario'); return; }
+    if (!data?.length) return;             // sem histórico, sem diário
+
+    const { montarDiario, resumoDoDiario } = await import('./assets/js/diario.js?v=d3fadef5');
+    const dias = montarDiario(data, 30);
+    if (!dias.length) return;
+
+    const r = resumoDoDiario(dias);
+    document.getElementById('diario-sub').textContent =
+      `${r.dias} ${r.dias === 1 ? 'dia registrado' : 'dias registrados'} · ${r.horas}h`
+      + (r.marcos ? ` · ${r.marcos} ${r.marcos === 1 ? 'marco' : 'marcos'}` : '');
+
+    document.getElementById('diario-lista').innerHTML = dias.map((d) => `
+      <div class="diario-dia${d.marcos.length ? ' marcado' : ''}">
+        <div class="diario-topo">
+          <span class="diario-data">${esc(d.titulo)}</span>
+          <span class="diario-linha">${esc(d.linha)}</span>
+        </div>
+        <div class="diario-resumo">${esc(d.resumo)}</div>
+        ${d.marcos.map((m) => `<div class="diario-marco">${esc(m.texto)}</div>`).join('')}
+      </div>`).join('');
+
+    caixa.hidden = false;
   }
 
   function getStatusTag(pct) {

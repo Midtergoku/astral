@@ -369,6 +369,47 @@ filtro que promete e vem vazio.
 
 ---
 
+### 🚦 Trabalhar sozinho enquanto ele está longe — 19/09/2026
+
+> *"Vou ficar longe do pc, então pode ir prosseguindo sem minha autorização, mas pare se for
+> alguma mudança muito violenta."*
+
+Isto **não substitui** a regra 8.1 do `CLAUDE.md` — afina ela para uma situação específica:
+ele não está por perto para desfazer nada, nem para responder uma pergunta. Então o critério
+de sempre (*"se der errado, eu desfaço sozinho em 5 minutos?"*) fica **mais apertado**, porque
+"desfaço sozinho" agora é a única opção que existe.
+
+#### O que eu faço sem perguntar
+
+Seguir o `roadmap-rpg.md` na ordem, item por item, com teste e prova para cada um. Corrigir
+defeito que eu mesmo achar. Registrar tudo. Publicar o que o `verifica.js` aprovar.
+
+#### 🛑 O que eu PARO e deixo esperando — a lista fechada
+
+| | Por quê |
+|---|---|
+| **Qualquer coisa que gaste dinheiro** | regra do 💰, e ele está sem |
+| **Migration destrutiva** — apagar coluna, apertar CHECK, mexer em RLS ou grant | não se desfaz sozinho, e ele não está aqui para autorizar |
+| **Apagar ou mover** arquivo, pasta ou linha do banco | irreversível por definição |
+| **Mudar o que a landing promete**, preço, plano ou cobrança | decisão de dono |
+| **Remover funcionalidade que alguém já usa** | mesmo que pareça obsoleta |
+| **Dado de usuário**: exportar, excluir, mandar para fora | nunca, com ou sem ele |
+| **Funcionalidade nova grande** (mais de uma sessão) | 🔴 **inclui o R2, a árvore de habilidades** — ver abaixo |
+
+> 🔴 **O R2 fica esperando, e o motivo é concreto.** A árvore de habilidades exige **guardar
+> escolhas permanentes** (pontos gastos em ramos), e escolha gravada é o tipo de coisa que, se
+> eu modelar errado, não se conserta sem mexer no dado de quem já usou. É exatamente a fronteira
+> que ele mandou eu não cruzar sozinho. Fica para quando ele voltar.
+
+> ⚠️ **E a regra 9 vale com força:** se eu publicar algo e o site quebrar, **reverto na hora**,
+> sem esperar resposta. Com ele longe, deixar o site fora do ar esperando autorização seria o
+> pior resultado possível.
+
+**Ordem de trabalho enquanto ele está fora:** R7 (diário de campanha) → R9 (reengajamento) →
+R10 (prestígio, **só a parte que não grava nada novo**) → e então parar e relatar.
+
+---
+
 ### De onde o projeto veio — contexto que explica escolhas
 
 O Lucas construiu o Astral até 29/07/2026 com **outras IAs**: Gemini e Opus dentro do

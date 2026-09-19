@@ -172,8 +172,48 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 
 | | Item | O quê | Estado |
 |---|---|---|---|
-| 🔴 | **R7** | **DIÁRIO DE CAMPANHA** — o histórico vira log narrado: *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* | aprovado |
+| ✅ | **R7** | **DIÁRIO DE CAMPANHA** | **FEITO em 19/09/2026**, em `progresso.html`: linha do tempo dos últimos 30 dias, com tempo, matérias, sequência e **marcos calculados por reprodução da história**. ⚠️ **Sem a parte do domínio** — ver abaixo. Provas: `testa-diario` (20) · `testa-diario-tela` (10) |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 📖 O diário — e a parte da ideia que eu NÃO pude cumprir
+
+A ideia aprovada em 18/09 dizia:
+
+> *"Dia 34 — 2h20 em Matemática. **Domínio 58% → 61%.** Desbloqueado: Calculista."*
+
+**A parte do meio é impossível hoje, e é melhor dizer do que inventar:** o projeto guarda o
+domínio **atual** de cada matéria, nunca o histórico dele. Não existe "58%" em lugar nenhum do
+banco — existe o valor de agora, e só.
+
+Escrever "58% → 61%" exigiria gravar histórico novo (mudança de banco) ou **inventar o número**.
+Inventar seria o pior defeito possível num diário: **um diário que mente sobre o passado não vale
+nada, e ninguém teria como perceber.** Há um teste que varre os textos atrás de qualquer frase
+sobre domínio e falha se achar — para o caso de alguém acrescentar uma por cima depois.
+
+#### O que o diário conta, e conta bem
+
+| | De onde vem |
+|---|---|
+| tempo, matérias e sessões de cada dia | direto de `sessoes_estudo` |
+| a sequência de dias **naquele momento** | recontada dia a dia |
+| marcos: primeiro dia, estreia de matéria, recorde, retorno, horas acumuladas | **calculados reproduzindo a história em ordem** |
+
+#### Por que os marcos são calculados por reprodução
+
+*"Seu dia mais longo até então"* só é verdade contra o que veio **antes**. Um dia de 3 horas é
+recorde em janeiro e rotina em junho. Percorrer a história em ordem, guardando o máximo até ali,
+é a única forma de o marco ser verdadeiro **na data em que aparece** — e não um rótulo colado por
+cima com o número de hoje. O teste planta 60min → 30min → 90min e exige que **só o terceiro**
+seja recorde.
+
+#### Dois defeitos que o teste pegou, e o segundo é o pior tipo
+
+| | |
+|---|---|
+| Data ilegível virava o dia **`NaN-NaN-NaN`**, com tempo somado, como se fosse um dia de verdade | Errar alto é aceitável; errar em silêncio, num arquivo cujo trabalho é contar o passado, não é. Agora a sessão é descartada e o resto continua correto |
+| 🔴 **Um teste meu passou pelo motivo errado** | A checagem de ordem comparava **texto**, e `"NaN-NaN-NaN"` vem depois de `"2026-08-23"` porque `N` > `2`. Ele deu verde com o diário produzindo lixo. **Teste que passa pelo motivo errado é pior que teste que falha: dá confiança sem dar cobertura.** Agora compara data de verdade |
 
 ---
 
