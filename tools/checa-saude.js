@@ -142,6 +142,12 @@ async function json(url, opts) {
         "testar um cadastro valido por fora antes de concluir que quebrou",
       );
 
+  // Os lembretes que ele mandou guardar, com gatilho MEDIDO. Ficam aqui porque
+  // este arquivo e a primeira coisa de toda sessao -- combinado que depende de
+  // eu lembrar sozinho nao e combinado, e um esquecimento com data marcada.
+  try { await require("./lembretes.js").rodar({ silencioseLonge: true }); }
+  catch (e) { console.log(`  (lembretes nao rodaram: ${e.message})`); }
+
   console.log("\n" + "=".repeat(66));
   if (!problemas.length) {
     console.log("TUDO CERTO — o Astral esta utilizavel agora.\n");

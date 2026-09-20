@@ -43,7 +43,9 @@ const pw = acharPlaywright();
 if (!pw) { console.log("playwright nao encontrado"); process.exit(0); }
 const { chromium } = pw;
 
-const RAIZ = path.resolve("C:/Users/Lucas/Documents/ASTRAL");
+// 20/09/2026: estava escrito a mao aqui dentro. Mesmo defeito que matou o
+// valida-css.js em silencio em 15/09 -- a raiz sai de __dirname, sempre.
+const RAIZ = path.resolve(__dirname, "..");
 const PORTA = 8890;
 const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2" };
 

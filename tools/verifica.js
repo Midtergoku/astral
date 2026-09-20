@@ -420,6 +420,74 @@ for (const p of paginas) {
   }
 }
 
+
+/* ── 16. A MARCA DE "VOCE ESTA AQUI" APONTA PARA OUTRA PAGINA ─────────
+   Achado por ELE em 20/09/2026, com um print: clicava em Quadro ou em
+   Instrucao, a pagina trocava, mas quem ficava aceso na barra era "Minhas
+   tags". Causa: `arvore.html` e `habilidades.html` nasceram de uma COPIA da
+   barra de `tags.html`, e o `active` veio junto -- eu acrescentei o link novo
+   e nao movi a marca.
+
+   Por que isso passa por qualquer teste que nao seja este: a pagina certa
+   abre, o conteudo certo aparece, nenhum erro acontece. So a orientacao fica
+   mentindo -- e quem usa perde a nocao de onde esta, que e a unica coisa que
+   a barra lateral existe para dizer.
+
+   A regra e simples e vale para SEMPRE: numa pagina com barra lateral, o
+   unico `nav-link active` e o que aponta para ela mesma. Pagina nova copiada
+   de outra cai nisto sozinha, entao a checagem nao usa lista escrita a mao --
+   ela pergunta aos arquivos quem tem barra lateral. */
+{
+  for (const p of paginas) {
+    const html = ler(p);
+    if (!/class\s*=\s*["'][^"']*\bsidebar\b/.test(html)) continue;
+
+    const ativos = (html.match(/<a\b[^>]*>/g) || [])
+      .filter((a) => {
+        const cls = (a.match(/class\s*=\s*"([^"]*)"/) || [])[1] || '';
+        return /\bnav-link\b/.test(cls) && /\bactive\b/.test(cls);
+      })
+      .map((a) => (a.match(/href\s*=\s*"([^"]*)"/) || [])[1] || '(sem href)');
+
+    if (ativos.length === 1 && ativos[0] === p) continue;
+
+    anota('aceso', p, ativos.length === 0
+      ? 'a barra lateral nao acende nenhum link — quem abre esta pagina nao ve onde esta'
+      : `a barra lateral acende ${ativos.join(' + ')} — devia acender ${p}`);
+  }
+}
+
+/* ── 17. CAMINHO ABSOLUTO DESTA MAQUINA DENTRO DE UMA FERRAMENTA ───────
+   Terceira ocorrencia do mesmo defeito. Em 15/09 o `valida-css.js` estava
+   morto havia semanas com "c:/Users/Lucas/Desktop/ASTRAL" digitado dentro --
+   morria com ENOENT desde que o projeto mudou de pasta, e ninguem sabia.
+   Em 20/09 achei outro escondido no `testa-botoes.js`, e quase escrevi mais
+   dois ao promover scripts do rascunho para `tools/`.
+
+   Ferramenta que so funciona num computador especifico nao e ferramenta. E o
+   pior e o modo de falhar: ela nao grita, ela some -- passa a nao testar nada
+   e o relatorio continua bonito. A raiz sai de `__dirname`, sempre.
+
+   Comentario nao conta: as linhas que EXPLICAM este erro citam o caminho de
+   proposito, e travar nelas ensinaria a ignorar o alarme. */
+{
+  // Apaga comentario de bloco e de linha, preservando as quebras de linha, para
+  // o numero da linha continuar valendo. Sem isto a checagem acusa as proprias
+  // linhas que EXPLICAM o erro -- e alarme falso ensina a ignorar o alarme.
+  const semComentarios = (src) => src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/\/\/[^\n]*/g, (m) => m.replace(/[^\n]/g, ' '));
+
+  const toolsDir = path.join(RAIZ, 'tools');
+  for (const f of fs.readdirSync(toolsDir).filter((x) => x.endsWith('.js'))) {
+    const linhas = semComentarios(fs.readFileSync(path.join(toolsDir, f), 'utf8')).split('\n');
+    linhas.forEach((linha, i) => {
+      if (!/[a-zA-Z]:[\\/]+Users[\\/]/.test(linha)) return;
+      anota('caminho', `tools/${f}`,
+        `linha ${i + 1}: caminho desta maquina escrito no codigo — use path.resolve(__dirname, '..')`);
+    });
+  }
+}
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -437,6 +505,8 @@ const GRUPOS = {
   adiado:   'Botao chama funcao que so existe depois (modulo adiado)',
   segredo:  'SEGREDO prestes a ser publicado num repositorio PUBLICO',
   catalogo: 'Catalogo do banco defasado em relacao ao catalogo.js',
+  aceso:    'Barra lateral acendendo a pagina errada',
+  caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

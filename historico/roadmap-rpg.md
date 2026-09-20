@@ -51,7 +51,7 @@
 |---|---|---|---|
 | ✅ | **R6** | **CATÁLOGO** — condecorações e divisas | **ESCRITO em 19/09/2026 e AMPLIADO no mesmo dia** a pedido dele (*"eu quero bem mais, e mais secretas também"*): `assets/js/catalogo.js` com **74 condecorações** (22 secretas) e **33 divisas** (10 secretas), cada divisa com raridade e **cor por token**. Prova: `node tools/testa-catalogo.js` |
 | ✅ | **R13** | **MOTOR DE CONDECORAÇÕES** | **FEITO em 19/09/2026.** Os **fatos** saem do servidor (`fatos_do_usuario`, 11 consultas sobre `sessoes_estudo` e `progresso`); a **conferência** acontece no navegador; e **nada é gravado** — a lista é função pura dos fatos. A sala está em `conquistas.html`, com placar, "falta pouco" e as secretas como `???`. Provas: `testa-motor` (21) · `testa-fatos` (17) · `testa-sala` (9) |
-| 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09**, não descartado. Gatilho: **mais de 100 usuários ativos** — abaixo disso uma pessoa move o número em mais de 1 ponto e vira ruído |
+| 🔮 | **R14** | **PORCENTAGEM DE RARIDADE** — *"3,1% dos candidatos têm"* | **adiado por ele em 19/09 e reafirmado em 20/09**, não descartado. Gatilho fechado em **200 usuários com login nos últimos 30 dias** (ele deu 100 como exemplo e pediu que eu estipulasse). **E o lembrete não depende de eu lembrar:** `tools/lembretes.js` mede sozinho e o `checa-saude.js` o chama toda sessão. Medido em 20/09: **1 de 200** |
 | ✅ | **R5** | **LOOT COM RARIDADE** | **FEITO em 19/09/2026.** A vitrine de `tags.html` deixou de mostrar só as tags de matéria e passa a mostrar **o catálogo inteiro** — conquistadas em cima, trancadas embaixo, secretas fora. Raridade na **cor do nome** e num rótulo. Prova: `node tools/testa-tags.js` (9 de 9) |
 | ✅ | **R12** | **MISSÕES** — diárias e campanhas | **FEITO em 19/09/2026.** **3 diárias por dia**, sorteadas de 11 com semente `uid + data` — recarregar não troca; **4 campanhas** de 4 etapas, que nunca expiram. Ambas no dashboard. Provas: `testa-missoes` (16, função pura) · `testa-missoes-tela` (11, ponta a ponta) |
 | ✅ | **R3** | **O CHEFE TEM DATA** | **FEITO em 19/09/2026.** A prova marcada no calendário vira o chefe, no alto do dashboard: fase da campanha, dias restantes, **preparo de 0 a 100** e **o que fazer** — a matéria que custa mais caro, nomeada. Some sozinho quando não há prova. Prova: `node tools/testa-chefe.js` (18 de 18). ⚠️ Os **sub-chefes** (simulados) dependem do banco de questões — ver Q4/R4 |
@@ -122,9 +122,45 @@ fizeram.
 
 | | |
 |---|---|
-| **Gatilho para revisitar** | uma base em que **uma pessoa mude menos de 1 ponto** — ou seja, **mais de 100 usuários ativos** |
+| **Gatilho para revisitar** | **200 usuários com login nos últimos 30 dias** — fechado em 20/09 (ver abaixo) |
 | **O que já está pronto para isso** | nada precisa mudar no catálogo: a raridade projetada continua valendo como classificação, e a porcentagem entra **ao lado** dela, não no lugar |
 | **O que precisa de cuidado** | a conta tem de sair de uma função no servidor que devolve **só o número agregado**, nunca a lista de quem tem o quê |
+
+##### 🔔 O número, fechado em 20/09/2026 — e por que ele se cobra sozinho
+
+Ordem dele: *"vamos estipular um número de usuários (...) por exemplo, ah, com 100 usuários isso
+já fica legal, e aí você me lembra disso. Não é um número fixo de 100, mas é só um exemplo."*
+
+**O número é 200 usuários com login nos últimos 30 dias**, e não 100. A diferença importa por
+duas razões, uma pequena e uma grande:
+
+| | Com 100 | Com 200 |
+|---|---|---|
+| Quanto **uma pessoa** move a porcentagem | **1 ponto inteiro** — a medalha que hoje diz 3% diz 4% amanhã porque alguém entrou | **meio ponto** |
+
+E a razão maior, que não é de precisão: **porcentagem de raridade só interessa se ela variar.**
+Com pouca gente, quase toda medalha fica em 0% ou 100% e a tela vira uma coluna de números
+iguais — trabalho feito para não dizer nada. É por volta de 200 pessoas ativas que as
+condecorações começam a se espalhar pela curva e a porcentagem passa a **separar** uma medalha
+da outra, que é a única coisa que ela existe para fazer.
+
+**Por que "ativo nos últimos 30 dias" e não "cadastrado":** conta criada e esquecida infla o
+denominador e faz toda medalha parecer mais rara do que é. A conta tem de ser sobre quem está
+jogando. Medido em 20/09: **8 contas cadastradas, 1 com login nos últimos 30 dias.**
+
+> 🔴 **E aqui está a parte que não é sobre o número.** Um combinado do tipo *"me lembre quando
+> chegar a 200"* depende de **eu lembrar** — e eu não lembro. Escrever "lembrar quando der 200"
+> num documento é a mesma família do erro de 17/09, em que uma contagem certa no dia em que foi
+> escrita envelheceu calada e ninguém percebeu.
+>
+> Então o lembrete **não mora num documento**. Mora em `tools/lembretes.js`, que **mede**, e o
+> `checa-saude.js` — a primeira coisa que eu rodo em toda sessão — chama ele. Enquanto está
+> longe, sai uma linha discreta (`R14 1/200`). Quando chegar, abre um aviso mandando avisar você.
+>
+> E isso também foi provado, não prometido: `node tools/testa-lembretes.js` confere que com 199
+> **não** dispara, com 200 **dispara**, acima de 200 **continua** avisando (não é evento de uma
+> vez só) e que, sem conseguir medir, ele diz *"NÃO MEDI"* em vez de inventar número.
+
 
 **Enquanto isso, raridade é projetada** — propriedade da divisa, decidida por quanto esforço ela
 pede. Comum · Incomum · Rara · Lendária.
