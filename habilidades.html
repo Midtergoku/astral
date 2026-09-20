@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="stylesheet" href="/assets/css/base.css?v=ba2130d6"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Instrução</title>
+  <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  /* ── A ÁRVORE DE HABILIDADES (R2) ─────────────────────────────────────────
+     DE PROPÓSITO diferente do Quadro de Operações. Lá são hexágonos num mapa,
+     porque o Quadro MOSTRA o que você conquistou. Aqui são fichas retangulares
+     numa prancheta, porque esta página é onde você ESCOLHE -- e escolher é
+     ato de papelada militar, não de mapa.
+
+     Se as duas parecessem iguais, a pessoa acharia que é a mesma tela. */
+
+  .pontos {
+    display: flex; align-items: baseline; gap: var(--e3); flex-wrap: wrap;
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--latao); border-radius: var(--r-p);
+    padding: var(--e3); margin-bottom: var(--e4);
+  }
+
+  .pontos-valor {
+    font-family: var(--dado); font-weight: 700; font-size: var(--t-xl);
+    color: var(--latao-c); font-variant-numeric: tabular-nums; line-height: 1;
+  }
+
+  .pontos-rot {
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  .pontos-nota { font-size: .8rem; color: var(--texto-2); flex: 1; min-width: 14rem; }
+
+  .btn-esquecer {
+    background: none; border: 1px solid var(--linha); color: var(--texto-3);
+    border-radius: var(--r-p); padding: .45rem .8rem;
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .12em;
+    text-transform: uppercase; cursor: pointer;
+    transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn-esquecer:hover { border-color: var(--brasa); color: var(--brasa-c); }
+  }
+
+  .ramos {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--e4);
+  }
+
+  .ramo-cabeca { margin-bottom: var(--e3); }
+
+  .ramo-nome {
+    font-family: var(--display); font-weight: 800;
+    font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--texto-2); margin-bottom: .15rem;
+  }
+
+  .ramo-lema { font-size: .78rem; color: var(--texto-3); line-height: 1.35; }
+
+  .degraus { display: grid; gap: .5rem; }
+
+  /* A ficha. A barra da esquerda e o estado: apagada = trancada,
+     latao = disponivel, oliva = ja sua. Oliva porque e a cor da farda neste
+     design system -- o que voce ja veste. */
+  .ficha-hab {
+    position: relative; width: 100%; text-align: left;
+    background: var(--casco); border: 1px solid var(--linha);
+    border-left: 3px solid var(--linha);
+    border-radius: var(--r-p); padding: .8rem .9rem;
+    display: grid; gap: .25rem; cursor: default;
+    transition: border-color var(--d-dica) var(--saida);
+  }
+
+  .ficha-hab.disponivel { border-left-color: var(--latao); cursor: pointer; }
+
+  .ficha-hab.minha { border-left-color: var(--oliva-c); background: color-mix(in srgb, var(--oliva) 10%, var(--casco)); }
+
+  .ficha-hab.trancada { opacity: .45; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ficha-hab.disponivel:hover { border-color: var(--latao-c); }
+  }
+
+  .ficha-topo {
+    display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
+  }
+
+  .ficha-nome {
+    font-family: var(--display); font-weight: 700; font-size: .9rem;
+    color: var(--texto); line-height: 1.2;
+  }
+
+  .ficha-bonus {
+    font-family: var(--dado); font-weight: 700; font-size: .78rem;
+    color: var(--latao-c); white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+
+  .ficha-hab.minha .ficha-bonus { color: var(--oliva-c); }
+
+  .ficha-desc { font-size: .76rem; color: var(--texto-3); line-height: 1.35; }
+
+  .ficha-estado {
+    font-family: var(--dado); font-size: .58rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3); margin-top: .15rem;
+  }
+
+  .ficha-hab.minha .ficha-estado { color: var(--oliva-c); }
+
+  .ficha-hab.disponivel .ficha-estado { color: var(--latao-c); }
+
+  .aviso-trava {
+    font-size: .78rem; color: var(--texto-3); line-height: 1.45;
+    border-top: 1px solid var(--linha); padding-top: var(--e3); margin-top: var(--e5);
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
+    <div class="user-details">
+      <div class="user-name" id="user-name"></div>
+    </div>
+  </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Recursos
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+    <a class="nav-link" href="arvore.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3z"/>
+        <path d="M12 3v18M4 7.5l8 4.5 8-4.5"/>
+      </svg>
+      Quadro
+    </a>
+    <a class="nav-link" href="habilidades.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2v20M12 7l5-3M12 12l6-3.5M12 17l4-2.5M12 7 7 4M12 12l-6-3.5M12 17l-4-2.5"/>
+      </svg>
+      Instrução
+    </a>
+    <a class="nav-link active" href="tags.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
+      Minhas tags
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Instrução</h1>
+      <p class="page-sub">Cada patente dá um ponto. Escolha onde ele rende mais para o seu jeito de estudar.</p>
+    </div>
+      <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
+  </div>
+
+  <div id="conteudo">
+    <div class="esqueleto-linha media"></div>
+    <div class="esqueleto-bloco" style="height:16rem"></div>
+  </div>
+</main>
+
+<script type="module">
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
+    from './assets/js/astral.js?v=bfdb6e4b';
+  import { carregarProgresso } from './assets/js/estado.js?v=5dab0815';
+  import { aplicarDivisa } from './assets/js/divisa.js?v=01156cb1';
+
+  const LEMAS = {
+    infantaria:   'Constância. Premia aparecer, e aparecer de novo.',
+    artilharia:   'Volume. Premia aguentar sentado.',
+    inteligencia: 'Amplitude e alvo. Premia não abandonar matéria — e atacar a mais fraca.',
+  };
+  const TITULOS = { infantaria: 'Infantaria', artilharia: 'Artilharia', inteligencia: 'Inteligência' };
+
+  let catalogo = [];
+  let estado = { pontos: 0, gastos: 0, minhas: new Set() };
+
+  function render() {
+    const alvo = document.getElementById('conteudo');
+    const livres = Math.max(0, estado.pontos - estado.gastos);
+
+    const porRamo = {};
+    for (const h of catalogo) (porRamo[h.ramo] ||= []).push(h);
+
+    alvo.innerHTML = `
+      <div class="pontos">
+        <div>
+          <div class="pontos-rot">Pontos livres</div>
+          <div class="pontos-valor">${livres}</div>
+        </div>
+        <div>
+          <div class="pontos-rot">Gastos</div>
+          <div class="pontos-valor">${estado.gastos}</div>
+        </div>
+        <div class="pontos-nota">
+          Você ganha um ponto a cada patente. Os pontos vêm do seu XP <strong>sem bônus</strong> —
+          habilidade não compra habilidade.
+        </div>
+        ${estado.gastos > 0 ? '<button class="btn-esquecer" id="btn-esquecer">Recomeçar do zero</button>' : ''}
+      </div>
+
+      <div class="ramos">
+        ${['infantaria', 'artilharia', 'inteligencia'].map((ramo) => `
+          <div class="ramo">
+            <div class="ramo-cabeca">
+              <div class="ramo-nome">${esc(TITULOS[ramo])}</div>
+              <div class="ramo-lema">${esc(LEMAS[ramo])}</div>
+            </div>
+            <div class="degraus">
+              ${(porRamo[ramo] || []).sort((a, b) => a.degrau - b.degrau).map((h, i, todos) => {
+                const minha = estado.minhas.has(h.id);
+                const anterior = i === 0 || estado.minhas.has(todos[i - 1].id);
+                const disponivel = !minha && anterior && livres > 0;
+                const classe = minha ? 'minha' : (disponivel ? 'disponivel' : 'trancada');
+                const estadoTexto = minha ? '● sua'
+                  : (!anterior ? 'precisa do degrau anterior'
+                  : (livres === 0 ? 'sem ponto livre' : 'gastar 1 ponto'));
+                return `
+                  <button type="button" class="ficha-hab ${classe}"
+                          ${disponivel ? `data-escolher="${att(h.id)}"` : 'disabled'}>
+                    <div class="ficha-topo">
+                      <span class="ficha-nome">${esc(h.nome)}</span>
+                      <span class="ficha-bonus">+${Math.round(Number(h.bonus) * 100)}%</span>
+                    </div>
+                    <div class="ficha-desc">${esc(h.descricao)}</div>
+                    <div class="ficha-estado">${esc(estadoTexto)}</div>
+                  </button>`;
+              }).join('')}
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <p class="aviso-trava">
+        Nenhuma habilidade tira nada de você. Todas somam XP sobre um comportamento — o pior que
+        uma escolha errada faz é render menos do que renderia. Por isso recomeçar é de graça:
+        punir quem explorou seria o contrário do que um aplicativo de estudo deve fazer.
+      </p>`;
+
+    /* addEventListener, nunca onclick inline -- os ids vêm do banco, e a regra
+       4 do CLAUDE.md vale mesmo para dado que parece seguro. */
+    alvo.querySelectorAll('[data-escolher]').forEach((b) => {
+      b.addEventListener('click', () => escolher(b.getAttribute('data-escolher')));
+    });
+    const btn = document.getElementById('btn-esquecer');
+    if (btn) btn.addEventListener('click', esquecer);
+  }
+
+  async function escolher(id) {
+    const { data, error } = await supabase.rpc('escolher_habilidade', { p_id: id });
+    if (error) {
+      // A mensagem vem do servidor, que é quem confere de verdade. A tela
+      // também trava, mas travar na tela é conveniência.
+      toast(error.message || 'Não consegui aplicar essa escolha.', 'error');
+      return;
+    }
+    estado.minhas.add(id);
+    estado.gastos = data?.gastos ?? estado.gastos + 1;
+    render();
+    const h = catalogo.find((x) => x.id === id);
+    toast(`${h?.nome || 'Habilidade'} aplicada.`, 'success');
+  }
+
+  async function esquecer() {
+    const { error } = await supabase.rpc('esquecer_habilidades');
+    if (error) { toast('Não consegui recomeçar agora.', 'error'); return; }
+    estado.minhas = new Set();
+    estado.gastos = 0;
+    render();
+    toast('Pontos devolvidos. Escolha de novo.', 'success');
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    await nomeDoUsuario(sessao);
+
+    const dados = await carregarProgresso(sessao.user.id);
+    aplicarDivisa({
+      xp: dados.xp, edital: dados.edital?.nome || dados.edital || '',
+      forca: dados.edital?.forca || null,
+      patenteInicial: dados.edital?.patenteInicial || null,
+      materias: dados.materias, tagEscolhida: dados.tagEscolhida,
+    }, esc);
+
+    const [cat, sinc] = await Promise.all([
+      supabase.from('catalogo_habilidades').select('id,ramo,degrau,nome,descricao,bonus').order('ramo').order('degrau'),
+      supabase.rpc('sincronizar_conquistas'),
+    ]);
+
+    if (cat.error || !cat.data?.length) {
+      document.getElementById('conteudo').innerHTML =
+        '<div class="card"><div class="vazio-texto">Não consegui carregar as habilidades agora. Tente recarregar.</div></div>';
+      if (cat.error) relatar(cat.error, 'habilidades/catalogo');
+      return;
+    }
+
+    catalogo = cat.data;
+    if (!sinc.error && sinc.data) {
+      estado.pontos = sinc.data.pontos || 0;
+      estado.gastos = sinc.data.gastos || 0;
+      estado.minhas = new Set(sinc.data.habilidades || []);
+    }
+    render();
+  })();
+
+  window.fazerLogout = fazerLogout;
+</script>
+</body>
+</html>

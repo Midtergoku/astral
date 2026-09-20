@@ -162,7 +162,13 @@ async function abrir(nav, ap, pagina) {
   console.log("\n== 3. NAO FICAR PRESO: o menu abre e fecha? ==");
   {
     const ap = APARELHOS[0];
-    const comSidebar = ["arvore.html", "dashboard.html", "progresso.html", "questoes.html", "recursos.html", "calendario.html", "conquistas.html", "cronometro.html", "edital.html", "conta.html", "tags.html", "cronograma.html"];
+    // 🔴 A lista NAO se escreve a mao. Ela ja envelheceu calada uma vez: tags e
+    // cronograma nasceram depois do conserto de 30/07 e ficaram de fora, entao o
+    // teste passava verde enquanto a barra cobria 2/3 do celular. Quem tem barra
+    // lateral diz isso no proprio arquivo -- perguntar a ele, nao a uma lista.
+    const comSidebar = PAGINAS.filter((f) =>
+      /class\s*=\s*["'][^"']*\bsidebar\b/.test(fs.readFileSync(path.join(RAIZ, f), "utf8")));
+    console.log(`  (${comSidebar.length} paginas tem barra lateral: ${comSidebar.join(" ")})`);
     let ruins = 0;
     for (const pagina of comSidebar) {
       const { ctx, pg } = await abrir(nav, ap, pagina);

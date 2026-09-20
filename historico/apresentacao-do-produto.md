@@ -44,17 +44,17 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **Campanhas** | Quatro trilhas de quatro etapas que **nunca expiram**: Apresentação ao Quartel · Operação Constância · Frente Ampla · Marcha de Resistência. A próxima etapa só abre quando a anterior fecha |
 | **Quadro de operações** | As 74 condecorações num mapa, organizadas em **8 frentes** — Tempo de Serviço, Marcha, Presença, Fôlego, Volume de Fogo, Terreno, Vigília e Comando. Cada frente é uma escada de degraus ligados, e o caminho que você já percorreu aparece aceso |
 | **A prova é o chefe** | Sua data vira o chefe da campanha, no alto do painel: quanto falta, **o quanto você está preparado** (0 a 100) e **qual matéria atacar agora** — a que mais custa ponto, com nome. Contagem regressiva sem direção é só pressão; com direção, é plano |
+| **Árvore de habilidades** | Um ponto a cada faixa de XP, gasto em **Infantaria** (constância), **Artilharia** (volume) ou **Inteligência** (mirar a matéria fraca). São 12 habilidades em 3 ramos de 4 degraus, e o bônus vai de +5% a +20% de XP na sessão que cumprir a condição. **Nenhuma tira nada** — os ramos mudam *como* você joga, nunca *o que* você aprende. Dá para recomeçar e redistribuir quando quiser |
+| **Diário de campanha** | Os últimos 30 dias em linha do tempo: quanto tempo, quais matérias, a sequência — e os **marcos**, que aparecem no dia exato em que aconteceram. Quem abre no mês seguinte vê uma campanha, não uma planilha |
+| **Trocar de concurso não apaga nada** | Mudou de edital, ou passou? As condecorações ficam. **Conquista não se desconquista** — antes, trocar de edital apagava 4 medalhas e 3 divisas em silêncio |
 
 ### O que vem
 
-| | O quê |
-|---|---|
-| **Árvore de habilidades** | um ponto a cada patente, gasto em **Infantaria** (constância), **Artilharia** (volume) ou **Inteligência** (precisão). Os ramos mudam *como* você joga, nunca *o que* você aprende |
-| **Missões** | as **gerais**, que ficam para sempre depois de cumpridas, e as **diárias**. Sempre cumpridas estudando — nunca por abrir o aplicativo |
-| **Catálogo de tags** | muitas, com cor própria e **raridade**: comum, incomum, rara, lendária |
-| **O chefe tem data** | a sua prova vira o chefe da campanha, com contagem regressiva. Cada simulado é um sub-chefe |
-| **Diário de campanha** | *"Dia 34 — 2h20 em Matemática. Domínio 58% → 61%. Desbloqueado: Calculista."* |
-| **Prestígio** | trocar de concurso ou passar não apaga nada: você vira **veterano**, com marca permanente |
+| | O quê | Por que ainda não |
+|---|---|---|
+| **PRECISÃO na ficha** | o quinto atributo hoje volta vazio de propósito | depende do banco de questões. Inventar um número aqui derrubaria a credibilidade dos outros quatro |
+| **Sub-chefes** | cada simulado vira um chefe menor antes da prova | mesma coisa: sem questões não há simulado |
+| **Raridade em porcentagem** | *"3,1% dos candidatos têm esta medalha"* | **adiado de propósito.** Com poucos usuários, uma pessoa mexe o número em mais de um ponto — seria número inventado com cara de dado |
 
 ---
 

@@ -337,9 +337,16 @@ páginas** — no CSS de cada uma teriam sido 9 cópias para divergir depois.
 > }
 > ```
 >
-> Agora há teste: `node tools/testa-celular.js` **mede** se a barra se esconde nas 11 páginas do
-> app, em 360/375/390px. O texto acima dizia "as 9 páginas" — o número estava certo no dia em que
-> foi escrito e envelheceu calado. **Contagem em documentação não substitui verificação.**
+> Agora há teste: `node tools/testa-celular.js` **mede** se a barra se esconde, em 360/375/390px.
+> O texto acima dizia "as 9 páginas" — o número estava certo no dia em que foi escrito e
+> envelheceu calado. **Contagem em documentação não substitui verificação.**
+>
+> 🔴 **20/09/2026 — e o próprio teste caiu na mesma armadilha.** A lista de páginas com barra
+> lateral estava **escrita à mão dentro dele**. Criei `habilidades.html`, ela não entrou na lista,
+> e o teste deu verde sem nunca ter aberto a página nova. Era a repetição exata do caso de 17/09.
+> Agora a lista **se descobre sozinha**, lendo quem declara `class="sidebar"` — passou de 12 nomes
+> fixos para **13 páginas encontradas**. **Não escrever contagem nem lista de páginas à mão, nem
+> em documento, nem em teste: perguntar aos arquivos.**
 
 ### Toast em todo lugar, sem mexer em 13 arquivos
 

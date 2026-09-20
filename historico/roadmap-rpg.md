@@ -40,7 +40,7 @@
 |---|---|---|---|
 | ✅ | **R1** | **A FICHA** — 5 atributos no lugar de um XP só | **FEITA em 19/09/2026.** Os 4 primeiros calculados **pelo servidor** a partir das sessões reais; **PRECISÃO volta `null`** de propósito, porque depende do banco de questões e inventar número aqui derrubaria o crédito da ficha inteira. Cada atributo **diz de onde veio**. Prova: `node tools/testa-ficha.js` (18 de 18, incluindo a tela e o vazamento entre contas) |
 | ✅ | **R15** | **QUADRO DE OPERAÇÕES** — a árvore de condecorações | **FEITO em 20/09/2026**, em `arvore.html`: as 74 condecorações em **8 frentes**, cada uma um degrau ligado ao anterior. Pedido dele com uma imagem de árvore de talentos e a ordem de **não** copiar aquela forma. Prova: `node tools/testa-arvore.js` (23 de 23) |
-| 🔴 | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | 🔒 aprovado por ele em 18/09. **Trava:** os ramos mudam *como* se joga, nunca *o que* se aprende. ⚠️ **Não confundir com o R15:** o Quadro **mostra** o que você conquistou; a Árvore fará você **escolher** — e escolha gravada é o que ainda espera decisão |
+| ✅ | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | **FEITO em 20/09/2026**, em `habilidades.html`: **12 habilidades em 3 ramos de 4 degraus**, escolha **gravada no servidor** e impossível de forjar. **Trava cumprida e verificada por programa:** todo bônus é positivo — nenhum ramo faz ninguém estudar pior. Provas: `testa-habilidades` (22 de 22, com 3 tentativas de fraude) · `testa-habilidades-tela` (14 de 14). ⚠️ **Não confundir com o R15:** o Quadro **mostra** o que você conquistou; a Árvore faz você **escolher** |
 | ✅ | **R10** | **PRESTÍGIO** — trocar de edital não zera nada | **FECHADO em 20/09/2026**, junto com o R0 e pela mesma peça. As 4 condecorações e 3 divisas que se perdiam agora ficam gravadas: **conquista não se desconquista.** Provado no próprio teste do R0 — 29 condecorações antes da troca, 29 depois |
 
 ---
@@ -278,6 +278,83 @@ significaria que a ordem da frente está errada e a pessoa veria um caminho que 
 |---|---|
 | **Escalas misturadas na mesma frente** | Comparei o número cru de cada condição, e "1 semana perfeita" ficou **antes** de "2 dias seguidos", porque 1 < 2. Cada frente passou a converter tudo para a sua unidade natural (dias, minutos, sessões) |
 | 🔴 **A legenda do nó só aparecia no hover** | **No celular não existe hover.** A tela seria hexágonos com números e nenhuma forma de descobrir o que são. Agora responde ao toque (`:focus`), e no telefone vira uma barra no rodapé em vez de um balão de 13rem que não cabe em 360px |
+
+---
+
+### 🌳 R2 — a Árvore de Habilidades, 20/09/2026
+
+É o último item do RPG, e o único em que a pessoa **escolhe** em vez de receber. Por isso ele
+só pôde vir depois do R0: escolha permanente precisa de um lugar fechado para morar, e agora há.
+
+**12 habilidades, 3 ramos de 4 degraus**, em `habilidades.html`:
+
+| Ramo | O que premia | Os 4 degraus |
+|---|---|---|
+| **Infantaria** | constância | Marcha Firme (3 dias seguidos) → … → 30 dias seguidos |
+| **Artilharia** | volume | Carga Dupla (sessão de 40 min) → … → 3 horas num dia |
+| **Inteligência** | direcionamento | Reconhecimento (2 matérias no dia) → … → **Alvo Prioritário**: a matéria mais fraca |
+
+O bônus sobe por degrau: **+5% · +10% · +15% · +20%** sobre o XP da sessão que cumprir a
+condição. Os pontos chegam em **10 limiares de XP** — 500, 1.200, 2.500, 4.500, 7.000, 10.000,
+14.000, 19.000, 25.000 e 35.000.
+
+#### 🔴 A trava dele, cumprida e cobrada por programa
+
+Ordem de 18/09: *"os ramos mudam **como** se joga, nunca **o que** se aprende."* Um ramo que
+desse desconto num outro faria a escolha custar caro — e quem hesita em escolher não joga.
+
+Então **todo bônus é positivo, e o teste recusa o contrário**: `testa-habilidades.js` percorre
+as 12 linhas do catálogo e falha se alguma tiver fator negativo. Não é promessa de comentário;
+é checagem que roda.
+
+A página diz isso em letra grande — *"Nenhuma habilidade tira nada"* — e o teste de tela cobra
+**a frase estar lá**. Se alguém reescrever o texto e tirar a garantia, o teste cai.
+
+#### A circularidade, cortada antes de existir
+
+O erro natural aqui é o bônus gerar ponto: escolhe → XP sobe → ganha ponto → escolhe de novo.
+Em poucas semanas a árvore estaria toda aberta e a escolha não teria significado nenhum.
+
+**O corte:** o ponto vem de `xp_base` — a soma crua das sessões, sem bônus algum. O bônus vai
+para `xp_validado`, que é o que aparece na tela. **Habilidade não compra habilidade**, e há
+um teste com esse nome.
+
+#### A escrita é fechada, como o R0
+
+Nem `anon` nem `authenticated` têm insert, update ou delete em `habilidades_escolhidas`.
+Só passam duas funções `security definer`, e as duas leem o dono de `auth.uid()`, nunca de
+parâmetro:
+
+- `escolher_habilidade(text)` — confere **no servidor** o pré-requisito e o ponto disponível
+- `esquecer_habilidades()` — devolve tudo, para quem quiser recomeçar
+
+Três tentativas de fraude com credencial válida estão no teste: inserir escolha na mão
+(**403**), pular degrau (**recusado**) e turbinar o próprio fator de bônus (**continua 0.05**).
+
+#### Por que a página não parece o Quadro
+
+O Quadro (R15) são hexágonos numa grade tática; a Árvore são **fichas retangulares numa
+prancheta**. A diferença é de propósito: o Quadro mostra **o que já aconteceu** e a Árvore
+pede **uma decisão**. Se as duas telas parecessem a mesma coisa, a pessoa não saberia que numa
+delas ela tem algo a fazer.
+
+A borda esquerda da ficha diz o estado sem depender de ícone: `--linha` trancada, `--latao`
+disponível, `--oliva-c` sua.
+
+#### A checagem que mais importa desta camada
+
+**Depois de escolher, a página tem de continuar certa após recarregar.** Se a escolha só
+existisse na tela, ninguém perceberia até a pessoa voltar no dia seguinte e ver tudo zerado.
+O teste fecha a aba, abre outra e mede de novo: 1 habilidade, 2 pontos livres, vindos do
+servidor.
+
+#### Um defeito meu, pego no caminho
+
+O `testa-celular.js` tinha a lista de páginas com barra lateral **escrita à mão**, e
+`habilidades.html` não entrou nela — o teste teria passado verde sem olhar a página nova. É a
+repetição exata do que aconteceu em 17/09 com `tags` e `cronograma`. Agora a lista **se
+descobre sozinha**, lendo quem declara `class="sidebar"`: passou de 12 nomes fixos para
+**13 páginas encontradas**, e a nova entrou junto. *Lista escrita à mão envelhece calada.*
 
 ---
 
