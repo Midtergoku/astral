@@ -1,0 +1,33 @@
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 🚨 CONSERTO URGENTE -- eu quebrei o salvamento de progresso na migration
+--    anterior, e o teste pegou em menos de um minuto.
+--
+-- ── O QUE EU FIZ DE ERRADO ─────────────────────────────────────────────────
+-- Na 20260920200000 troquei o grant de tabela inteira por grant COLUNA A
+-- COLUNA em `public.progresso`, para fechar o `xp_validado`. Na lista de
+-- colunas devolvidas deixei `atualizado_em` de fora, raciocinando que quem a
+-- escreve e o gatilho `progresso_atualizado_em`.
+--
+-- Esta errado: `salvar_progresso` escreve `atualizado_em = now()` EXPLICITAMENTE
+-- no seu `on conflict do update` (linha 133 da migration de 05/08). E ela e
+-- `security invoker` -- roda com a permissao de quem chamou. Sem o grant na
+-- coluna, a funcao inteira passa a falhar.
+--
+-- Consequencia enquanto durou: NINGUEM CONSEGUIA SALVAR PROGRESSO. O teste
+-- mostrou o sintoma de lado -- as conquistas de dominio sumiram, porque as
+-- materias nao estavam sendo gravadas.
+--
+-- ── A LICAO, e ela e maior que esta coluna ────────────────────────────────
+-- Trocar grant de tabela por grant de coluna exige LER TODA FUNCAO que escreve
+-- na tabela, nao so imaginar quais colunas o usuario "deveria" mexer. Eu
+-- raciocinei sobre intencao em vez de ler o codigo -- que e a mesma falha do
+-- `ultimoEstudo` de ontem, com outra roupa.
+--
+-- E o proprio comentario da migration anterior avisava: "perder uma coluna
+-- aqui quebraria o salvamento de progresso, que e a coisa que ele mais pediu
+-- para eu nao quebrar". Escrevi o aviso e cai nele na mesma migration.
+
+grant update (atualizado_em) on public.progresso to authenticated;
+
+-- `criado_em` continua de fora: quem a escreve e o default, no insert, e ela
+-- nunca e alterada depois. Conferido lendo `salvar_progresso` inteira desta vez.

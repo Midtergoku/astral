@@ -1501,10 +1501,16 @@ function mostrarLevelUp(nomeNivel) {
      Nenhuma peça derruba as outras: cada uma tem o seu próprio try. Se a
      ficha falhar, as missões continuam lá. */
   async function carregarRPG(uid) {
-    const [vida, hoje] = await Promise.all([
+    /* `sincronizar_conquistas` vem junto porque e ela que GRAVA -- e sem
+       gravar, a conquista de dominio se desfaz quando a pessoa troca de
+       concurso (medido em 19/09). Ela devolve o que ja esta registrado, e e
+       essa lista que manda na tela. */
+    const [vida, hoje, sinc] = await Promise.all([
       supabase.rpc('fatos_do_usuario'),
       supabase.rpc('fatos_de_hoje'),
+      supabase.rpc('sincronizar_conquistas'),
     ]);
+    const gravadas = sinc.error ? null : sinc.data;
 
     if (vida.error) relatar(vida.error, 'dashboard/fatos');
     const fatos = vida.data || null;
@@ -1519,7 +1525,7 @@ function mostrarLevelUp(nomeNivel) {
     }
 
     if (fatos) {
-      try { await conferirCondecoracoes(uid, fatos); } catch (e) { relatar(e, 'dashboard/condecoracoes'); }
+      try { await conferirCondecoracoes(uid, fatos, gravadas); } catch (e) { relatar(e, 'dashboard/condecoracoes'); }
     }
   }
 
@@ -1626,14 +1632,14 @@ function mostrarLevelUp(nomeNivel) {
     }));
   }
 
-  async function conferirCondecoracoes(uid, fatos) {
+  async function conferirCondecoracoes(uid, fatos, gravadas) {
     try {
       if (!fatos) return;                             // sem fatos, sem anúncio
       const [{ conferir }, { anunciarNovidades }] = await Promise.all([
-        import('./assets/js/condecoracoes.js?v=8aa132cc'),
+        import('./assets/js/condecoracoes.js?v=2bfaf79d'),
         import('./assets/js/anuncio.js?v=dd704853'),
       ]);
-      await anunciarNovidades(uid, conferir(fatos));
+      await anunciarNovidades(uid, conferir(fatos, gravadas));
     } catch (e) {
       relatar(e, 'dashboard/condecoracoes');
     }

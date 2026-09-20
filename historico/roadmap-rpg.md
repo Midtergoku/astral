@@ -25,7 +25,7 @@
 
 | | Item | O quê | Por que vem antes |
 |---|---|---|---|
-| 🟡 | **R0** | **O servidor passa a calcular o XP** | Hoje o navegador informa o total, e medi que dá para escrever qualquer número — inclusive de forma **permanente**. Enquanto o XP não vale nada, é autoengano e não faz mal. **No instante em que destrancar qualquer coisa, vira furar a fila.** Regressão: `node tools/testa-xp-forjado.js` (hoje acusa 5 furos, tem de passar a acusar 0) |
+| ✅ | **R0** | **O servidor calcula e GRAVA** | **FEITO em 20/09/2026**, com as três respostas dele. `progresso.xp_validado` guarda o XP que o servidor calcula das sessões, e a tabela `conquistas` guarda as medalhas. **A única porta de escrita é `sincronizar_conquistas()`** — o usuário não tem grant de insert nem update em nenhuma das duas. Prova: `node tools/testa-conquistas-gravadas.js` (14 de 14, incluindo três tentativas de fraude com credencial válida) |
 | ✅ | **R0.1** | **Estudar pelo cronograma deixa rastro** | **FEITO em 19/09/2026, e sem isto o R1 quebraria o produto.** Das 5 ações que dão XP, só o cronômetro gravava em `sessoes_estudo` — marcar a sessão do dia, que é o caminho **principal**, subia o XP e sumia. Quem estuda assim teria ficha zerada, e o conserto do XP **apagaria o progresso dessa pessoa**. Foi o Lucas quem apontou. Prova: `node tools/testa-sessao-cronograma.js` (9 de 9) |
 
 > 🎯 **A boa notícia:** o R0 e o R1 são **o mesmo trabalho**. Um atributo calculado a partir dos
@@ -41,7 +41,7 @@
 | ✅ | **R1** | **A FICHA** — 5 atributos no lugar de um XP só | **FEITA em 19/09/2026.** Os 4 primeiros calculados **pelo servidor** a partir das sessões reais; **PRECISÃO volta `null`** de propósito, porque depende do banco de questões e inventar número aqui derrubaria o crédito da ficha inteira. Cada atributo **diz de onde veio**. Prova: `node tools/testa-ficha.js` (18 de 18, incluindo a tela e o vazamento entre contas) |
 | ✅ | **R15** | **QUADRO DE OPERAÇÕES** — a árvore de condecorações | **FEITO em 20/09/2026**, em `arvore.html`: as 74 condecorações em **8 frentes**, cada uma um degrau ligado ao anterior. Pedido dele com uma imagem de árvore de talentos e a ordem de **não** copiar aquela forma. Prova: `node tools/testa-arvore.js` (23 de 23) |
 | 🔴 | **R2** | **ÁRVORE DE HABILIDADES** — ponto a cada patente, gasto em Infantaria (constância) · Artilharia (volume) · Inteligência (precisão) | 🔒 aprovado por ele em 18/09. **Trava:** os ramos mudam *como* se joga, nunca *o que* se aprende. ⚠️ **Não confundir com o R15:** o Quadro **mostra** o que você conquistou; a Árvore fará você **escolher** — e escolha gravada é o que ainda espera decisão |
-| 🛑 | **R10** | **PRESTÍGIO** — trocar de edital não zera nada | **MEDIDO em 19/09, e PARADO esperando ele.** A maior parte **já sobrevive** à troca; o que se perde são **4 condecorações** e **3 divisas** ligadas ao domínio das matérias. Consertar exige **guardar as conquistadas** — decisão de modelagem de dado permanente, que é a fronteira que ele mandou não cruzar sozinho. Vigia: `node tools/testa-troca-de-edital.js` |
+| ✅ | **R10** | **PRESTÍGIO** — trocar de edital não zera nada | **FECHADO em 20/09/2026**, junto com o R0 e pela mesma peça. As 4 condecorações e 3 divisas que se perdiam agora ficam gravadas: **conquista não se desconquista.** Provado no próprio teste do R0 — 29 condecorações antes da troca, 29 depois |
 
 ---
 
@@ -176,6 +176,62 @@ o furo medido em 17/09, quando gravei a conquista `conquista_que_nao_existe` e o
 |---|---|---|---|
 | ✅ | **R7** | **DIÁRIO DE CAMPANHA** | **FEITO em 19/09/2026**, em `progresso.html`: linha do tempo dos últimos 30 dias, com tempo, matérias, sequência e **marcos calculados por reprodução da história**. ⚠️ **Sem a parte do domínio** — ver abaixo. Provas: `testa-diario` (20) · `testa-diario-tela` (10) |
 | ✅ | **R8** | **O INSTANTE DA DESCOBERTA** | **FEITO em 19/09/2026.** A medalha se anuncia **na hora**, no dashboard e na sala, com banner na cor do metal, confete e a divisa que vem junto. Prova: `node tools/testa-anuncio.js` (8 de 8) |
+
+---
+
+### 🗄️ O servidor grava — R0 e R10 fechados juntos, 20/09/2026
+
+As três respostas dele destravaram as duas coisas de uma vez:
+
+| Pergunta | Resposta |
+|---|---|
+| Gravar quando cai, ou recalcular sempre? | *"faça o que achar melhor"* → **gravar** |
+| Quem grava? | *"o servidor. Não quero ninguém alterando isso a não ser nós"* |
+| E quem já tem progresso? | *"não acontece nada, quando o site for lançado já terá essa mecânica"* |
+
+#### O problema de ter o catálogo em dois lugares — e como foi evitado
+
+Para o **servidor** decidir quem ganhou o quê, ele precisa conhecer as 74 condições — e elas
+moram em `assets/js/catalogo.js`. A saída óbvia seria reescrevê-las em SQL, e seria a pior
+escolha possível: **duas cópias do mesmo catálogo divergem**, e não é questão de disciplina, é
+questão de tempo.
+
+**A solução: uma fonte, uma derivada.** `catalogo.js` continua sendo o único lugar que se
+escreve — e é onde o Lucas mexe. `tools/gera-catalogo-sql.js` lê esse arquivo e **gera** a
+semente SQL. O banco nunca é editado à mão.
+
+> 🔒 **E há uma trava no `verifica.js`:** mexer no catálogo sem regerar a semente **falha o
+> commit**. Sem ela, alguém acrescentaria uma medalha, veria ela na tela (porque a tela lê o
+> arquivo) e ela nunca seria gravada — apareceria hoje e sumiria amanhã, sem erro em lugar
+> nenhum. **Testei a trava nos dois sentidos:** ela dispara quando o catálogo muda e passa quando
+> está em dia.
+
+#### Como a escrita ficou fechada
+
+A tabela `conquistas` **não dá insert, update nem delete a ninguém** — nem a `authenticated`. A
+única porta é `sincronizar_conquistas()`, que é `security definer`: roda com o dono do banco, mas
+grava **somente o que ela mesma calculou**, para `auth.uid()`.
+
+> 🔴 **O id vem de `auth.uid()`, nunca de parâmetro.** Aceitar um id de fora daria a qualquer um
+> o poder de gravar conquista na conta alheia — e como a função roda como dono do banco, a RLS
+> não a protegeria disso.
+
+**E ela nunca apaga.** Só `insert ... on conflict do nothing`. Não existe `delete` nem `update`
+no corpo dela — é assim que *"conquista não se desconquista"* deixa de ser promessa e vira
+propriedade do código.
+
+#### 🚨 Dois defeitos meus, em sequência, e o segundo foi grave
+
+| | |
+|---|---|
+| **A coluna nova nasceu escrevível pelo usuário** | `progresso` tinha um `grant update` de **tabela inteira** desde 30/07, e **grant de tabela vale para coluna que ainda nem existe**. O teste gravou 999999 em `xp_validado` e o banco aceitou. Consertado com permissão coluna a coluna |
+| 🚨 **Ao consertar, QUEBREI o salvamento de progresso** | Deixei `atualizado_em` de fora da lista, raciocinando que quem escreve é o gatilho. **`salvar_progresso` escreve essa coluna explicitamente**, e é `security invoker`. Ninguém conseguia salvar progresso. O teste pegou em menos de um minuto |
+
+**A lição das duas é a mesma, e é a de ontem com outra roupa:** eu raciocinei sobre *intenção*
+em vez de **ler o código**. Trocar grant de tabela por grant de coluna exige ler **toda função
+que escreve naquela tabela**. E o agravante: o comentário que eu mesmo escrevi na migration
+avisava que perder uma coluna ali quebraria o salvamento — **escrevi o aviso e caí nele na mesma
+migration**.
 
 ---
 

@@ -395,6 +395,31 @@ for (const p of paginas) {
   }
 }
 
+/* ── 15. O CATALOGO E A SEMENTE DO BANCO SAIRAM DE SINCRONIA ────────────────
+   Desde 20/09/2026 o SERVIDOR decide quem ganhou cada condecoracao -- decisao
+   dele: "o servidor vai gravar, nao quero ninguem alterando isso a nao ser
+   nos". Para isso o banco tem uma copia do catalogo, GERADA de `catalogo.js`.
+
+   O risco: alguem acrescenta uma condecoracao no arquivo, ve ela aparecer na
+   tela (porque a tela le o arquivo) e nao regera a semente. O banco passa a
+   decidir por uma lista DESATUALIZADA, e a medalha nova nunca e gravada --
+   aparece hoje e some amanha, sem erro nenhum em lugar nenhum.
+
+   Esta checagem torna isso barulhento na hora. */
+{
+  const semente = path.join(RAIZ, 'supabase', 'migrations', '20260920180000_catalogo_no_banco.sql');
+  const gerador = path.join(RAIZ, 'tools', 'gera-catalogo-sql.js');
+  if (fs.existsSync(semente) && fs.existsSync(gerador)) {
+    try {
+      execFileSync(process.execPath, [gerador], { stdio: 'pipe' });
+    } catch {
+      anota('catalogo', 'assets/js/catalogo.js',
+        'o catalogo mudou e a semente do banco NAO foi regerada — '
+        + 'rode: node tools/gera-catalogo-sql.js --escrever');
+    }
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -411,6 +436,7 @@ const GRUPOS = {
   espera:   'Espaco reservado que mostra informacao errada',
   adiado:   'Botao chama funcao que so existe depois (modulo adiado)',
   segredo:  'SEGREDO prestes a ser publicado num repositorio PUBLICO',
+  catalogo: 'Catalogo do banco defasado em relacao ao catalogo.js',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

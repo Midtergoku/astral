@@ -372,7 +372,7 @@
     try {
       const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
       if (error || !fatos) return;
-      const { conferir } = await import('./assets/js/condecoracoes.js?v=8aa132cc');
+      const { conferir } = await import('./assets/js/condecoracoes.js?v=2bfaf79d');
       estado.divisas = conferir(fatos).divisas;
       render();
     } catch { /* fica a vitrine simples */ }

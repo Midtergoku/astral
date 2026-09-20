@@ -120,8 +120,19 @@ function semAcento(s) {
  * tela, porque a mesma lista serve para o painel (esconde) e para o momento da
  * descoberta (revela).
  */
-export function conferir(fatos) {
-  const jaTem = new Set();
+export function conferir(fatos, gravadas = null) {
+  /* `gravadas` são as que o SERVIDOR já registrou (tabela `conquistas`).
+     Elas entram como conquistadas mesmo que o cálculo de agora diga que não.
+
+     🔴 É isto que faz "conquista não se desconquista" ser verdade. Sem elas,
+     quem troca de concurso perde 4 condecorações e 3 divisas -- medido em
+     19/09 -- porque as que dependem do domínio das matérias deixam de ser
+     verdade quando as matérias viram outras.
+
+     O cálculo continua rodando: ele é quem descobre as NOVAS. A lista gravada
+     só impede que alguma volte atrás. */
+  const jaTem = new Set(gravadas?.condecoracoes || []);
+  const divisasGravadas = new Set(gravadas?.divisas || []);
 
   /* Duas passadas, e a ordem importa: "condecoracao" e "todas" dependem do que
      ja caiu. Uma passada so daria resultado diferente conforme a ordem da lista
@@ -145,17 +156,20 @@ export function conferir(fatos) {
   const condecoracoes = CONDECORACOES.map((c) => ({
     ...c,
     metalInfo: METAIS[c.metal],
-    progresso: avaliadas.get(c.id) ?? 0,
+    // O progresso mostrado e o MAIOR entre o calculado e 1 se ja esta gravada
+    // -- senao a barra de uma medalha conquistada apareceria voltando atras.
+    progresso: jaTem.has(c.id) ? 1 : (avaliadas.get(c.id) ?? 0),
     conquistada: jaTem.has(c.id),
   }));
 
   const divisas = DIVISAS.map((d) => {
-    const p = progressoDe(d.condicao, fatos, jaTem);
+    const gravada = divisasGravadas.has(d.id);
+    const p = gravada ? 1 : progressoDe(d.condicao, fatos, jaTem);
     return {
       ...d,
       raridadeInfo: RARIDADES[d.raridade],
       progresso: p,
-      conquistada: p >= 1,
+      conquistada: gravada || p >= 1,
     };
   });
 

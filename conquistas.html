@@ -597,7 +597,7 @@
     from './assets/js/astral.js?v=bfdb6e4b';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { carregarProgresso } from './assets/js/estado.js?v=5dab0815';
-  import { conferir, quaseLa } from './assets/js/condecoracoes.js?v=8aa132cc';
+  import { conferir, quaseLa } from './assets/js/condecoracoes.js?v=2bfaf79d';
 
   /* ── A SALA DE CONDECORAÇÕES (R13) ──────────────────────────────────────
      Os FATOS vêm do servidor (`fatos_do_usuario`), a conferência acontece
@@ -611,7 +611,11 @@
     const sala = document.getElementById('sala');
     if (!sala) return;
 
-    const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+    const [{ data: fatos, error }, sinc] = await Promise.all([
+      supabase.rpc('fatos_do_usuario'),
+      supabase.rpc('sincronizar_conquistas'),
+    ]);
+    const gravadas = sinc.error ? null : sinc.data;
     if (error || !fatos) {
       // Falhou: a seção não aparece, em vez de ficar vazia mentindo que a
       // pessoa não conquistou nada. Zero falso é pior que ausência.
@@ -625,7 +629,7 @@
     ultimoEstudo = fatos.ultimoEstudoPorMateria || {};
     renderHabilidades();                       // redesenha com o estado certo
 
-    const { condecoracoes, divisas, resumo } = conferir(fatos);
+    const { condecoracoes, divisas, resumo } = conferir(fatos, gravadas);
 
     document.getElementById('sala-contagem').innerHTML =
       `${resumo.conquistadas}<span> / ${resumo.total}</span>`;
