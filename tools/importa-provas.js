@@ -125,6 +125,31 @@ function leituras(pdf) {
     }
   }
 
+  /* ── TIRAR AS REPETIDAS ─────────────────────────────────────────────────
+     🔴 MEDIDO EM 22/09/2026, e sem isto o acervo seria uma mentira educada.
+     O EAGS tem uma prova por ESPECIALIDADE (Administracao, Enfermagem,
+     Eletronica...), 24 no mesmo ano -- e TODAS trazem o mesmo bloco de
+     Portugues. Conferido em 6 provas de 2024: 45 questoes de Portugues
+     apareciam nas 6, identicas.
+
+     Publicar tudo daria "2.681 questoes de Portugues" quando as distintas sao
+     poucas centenas. O numero ficaria grande e o produto ficaria pior: quem
+     estudasse veria a mesma pergunta a tarde inteira.
+
+     Fica a PRIMEIRA ocorrencia. As outras somem, e o relatorio diz quantas. */
+  const vistas = new Map();
+  const unicas = [];
+  let repetidas = 0;
+  for (const q of lote) {
+    const chave = String(q.enunciado).toLowerCase().replace(/\s+/g, " ").trim()
+      + "|" + Object.values(q.alternativas).join("|").toLowerCase().replace(/\s+/g, " ");
+    if (vistas.has(chave)) { repetidas++; continue; }
+    vistas.set(chave, true);
+    unicas.push(q);
+  }
+  lote.length = 0;
+  lote.push(...unicas);
+
   // ── Relatorio ────────────────────────────────────────────────────────────
   console.log("  PROVA                 ACHADAS  PRONTAS  REVISAR  GABARITO  ASSUNTO");
   for (const r of relatorio) {
@@ -146,6 +171,7 @@ function leituras(pdf) {
 
   console.log(`\n  provas que renderam    ${boas.length} de ${relatorio.length}`);
   console.log(`  questoes encontradas   ${achadas}`);
+  console.log(`  repetidas descartadas  ${repetidas}  (mesma questao em varias especialidades)`);
   console.log(`  QUESTOES UTILIZAVEIS   ${lote.length}`);
   if (achadas) console.log(`  aproveitamento         ${Math.round((lote.length / achadas) * 100)}%`);
   const comAss = lote.filter((q) => q.assunto).length;
