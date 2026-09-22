@@ -674,11 +674,71 @@ novo. É repetição, não invenção — e é melhor que o contrário, que seri
 | | Item | O quê | Estado |
 |---|---|---|---|
 | ✅ | **Q1** | **Medir o esforço de digitalizar uma prova** | **FEITO em 17/09.** 78 de 96 questões utilizáveis sozinhas (81%), 0,36 s por prova, R$ 0. `tools/prova-para-questoes.js` |
-| ✅ | **Q2** | **O acervo existe, e ele alimenta sozinho** | **FEITO em 21/09/2026.** A tabela `questoes` no banco, e a tela `importar.html`: **o PDF entra pelo navegador dele**, as questões saem separadas e classificadas, e ele marca o que publica. Nenhuma linha de terminal. Escrita fechada — só `publicar_questoes()`, e só para quem está em `administradores`. Provas: `testa-importar` (18 de 18, com um PDF de verdade fabricado no teste) · `testa-acervo` (19 de 19). ⚠️ **Falta o combustível:** hoje há **0 provas** lá dentro |
+| ✅ | **Q2** | **O ACERVO ESTÁ CHEIO** — 1.532 questões | **FEITO em 21/09 e ABASTECIDO em 22/09/2026.** **56 provas da EEAR (CFS e EAGS), de 2017 a 2026**, baixadas do servidor oficial da FAB e processadas a **custo R$ 0**. Português 514 · Inglês 335 · Matemática 265 · Informática 237 · Física 181. Duas vias: `tools/baixa-provas.js` + `tools/importa-provas.js` (eu, em lote) e `importar.html` (ele, arrastando um PDF). Escrita fechada — só `publicar_questoes()`, e só para quem está em `administradores`. Provas: `testa-acervo-limpo` (12, contra o acervo REAL) · `testa-importar` (20) · `testa-acervo` (19) |
 | ✅ | **Q3** | **FILTROS** — banca · matéria · **assunto dentro da matéria** (funções, porcentagem, crase…) | **FEITO em 21/09/2026**, em `banco.html`. O assunto **depende da matéria**: escolher Matemática abre Logaritmo, Porcentagem, Funções — e trocar para Português troca a lista inteira. Custou **R$ 0**: classificação por palavra-chave, como ele mandou (*"n quero gastar nada com esse filtro"*). O filtro **só oferece o que existe publicado** — não se promete assunto sem questão. Prova: `testa-banco-tela` (11 de 11) |
 | 🟡 | **Q4** | 💰 **Amostra grátis × Pro** | **O PORTÃO JÁ ESTÁ DE PÉ desde 21/09/2026**, dentro de `sortear_questoes()`: free = **10 questões novas por dia** e só provas com 4+ anos; beta e pro = **acervo inteiro, sem cota, com as provas recentes**. Medido nas duas pontas em `testa-acervo`. **Falta** o simulado de degustação e o caderno de erros — os dois dependem do R4 |
 | 🔴 | **R4** | 💰 **MASMORRA = SIMULADO** — incursão de N questões com relatório de missão no fim | 🔒 aprovado. É onde o corte do Pro mora |
 
+
+
+### 📚 O acervo, abastecido em 22/09/2026
+
+Pedido dele: *"eu quero muitas provas, muitas provas mesmo. Eu quero um banco de questões imenso.
+Quanto maior, melhor."*
+
+| | |
+|---|---|
+| **56 provas** | EEAR — CFS (o concurso de sargento) e EAGS (uma prova por **especialidade**) |
+| **De 2017 a 2026** | dez anos |
+| **1.532 questões distintas** | Português 514 · Inglês 335 · Matemática 265 · Informática 237 · Física 181 |
+| **839 com assunto** | 55% — e o resto fica **nulo de propósito**, porque assunto inventado faz o filtro mentir |
+| **Custo** | **R$ 0.** Nenhuma chamada de IA, nem para extrair nem para classificar |
+
+Os PDFs moram em **`../ASTRAL-provas`, fora do repositório** — ele é público, e PDF não se
+versiona: cada nova versão guardaria o arquivo inteiro de novo. Mesma decisão do `backup.js`.
+
+#### 🔴 O defeito que teria feito o número mentir
+
+Com as 69 provas do EAGS, a medição deu **3.859 questões** — 2.681 delas de Português. Número
+bonito e falso: as **24 especialidades do mesmo ano trazem o mesmo bloco de Português**.
+Conferido em 6 provas de 2024 — 45 questões apareciam nas 6, idênticas.
+
+Publicar assim daria um acervo grande no papel e **pior na prática**: quem estudasse veria a
+mesma pergunta a tarde inteira. A importação agora descarta repetida por texto + alternativas.
+**2.327 descartadas.** O número honesto é 1.532.
+
+> Isto é o oposto do que o pedido parecia querer. **1.532 distintas valem mais que 3.859 com a
+> mesma pergunta 24 vezes** — e é por isso que está escrito aqui, e não escondido.
+
+#### Os quatro defeitos que só apareceram ao rodar contra 21 provas em vez de uma
+
+| O que estava errado | Por que passou despercebido antes |
+|---|---|
+| **A matéria era inventada** — saíram matérias chamadas *"Underlined sentence in the text"* e *"Log2x log4x log8x 1 . logo, x = ____"*, com 63 questões dentro | A regra capturava tudo até o fim da **linha** depois de "REFEREM-SE À", e em prova de duas colunas a linha continua com o texto da coluna vizinha. Agora procura-se o **nome** contra uma lista fechada, e o que não casa é descartado |
+| 🔴 **"AS QUESTÕES DE 01 A 24" virava gabarito** | O padrão do gabarito é número + letra, e ali `01 A` casa perfeitamente — só que aquele "A" é a **preposição**. Na prova em que achei, a tabela de verdade vinha antes e venceu por sorte. Numa prova em que a frase viesse primeiro, a questão 1 entraria com **resposta inventada** |
+| **Os PDFs de 2013 a 2016 são o gabarito, não o caderno** | Rendiam 4 a 8 questões com 4 a 9 "gabaritos" — todos casamento por acaso. Agora o arquivo inteiro é recusado quando não traz gabarito para a maioria das questões que ele próprio tem |
+| **Uma linha ruim derrubava 199 boas** | Uma questão chegou com enunciado `"Se de"` (fórmula desmontada), o banco recusou pelo CHECK e a fatia de 200 caiu junto. Agora peneira antes, e quando a fatia cai manda uma a uma |
+
+#### E duas vezes eu errei a peneira, do mesmo jeito
+
+Primeiro cortei *"enunciado com menos de 40 caracteres"* e joguei fora **31 questões boas** —
+*"According to the text, scientists"* tem 33 e é válida, porque as alternativas completam a frase.
+
+Depois cortei *"alternativa com menos de 2 caracteres"* e **Matemática caiu de 268 para 179** —
+porque resposta de matemática **é** um número de um dígito. E essa regra nem pegava o lixo que a
+motivou (`"3 4"` tem três caracteres): só cobrava o preço, sem entregar o benefício.
+
+> **Tamanho não separa questão curta de lixo.** O que separa é ter **frase**: a questão quebrada
+> era "Se de", duas palavras. O critério hoje é contagem de palavras no enunciado.
+
+#### O que ficou de fora, e por quê
+
+| Fonte | Por que não entrou |
+|---|---|
+| **ESA — 91 PDFs no site oficial** | O "gabarito" dela é um documento de **solução**, que dá a resposta por **valor** (*"Alternativa correta: 24 cm"*), não por letra. Casar isso com as alternativas seria adivinhação — e **resposta errada é pior que não ter a prova**. Entra quando houver gabarito por letra |
+| **EPCAR · AFA · CIAAR** | `www.fab.mil.br`, `ingresso.afaepcar.fab.mil.br` e `www2.fab.mil.br/ciaar` recusam qualquer pedido meu (**403**). Só `ingresso.eear.fab.mil.br` responde |
+
+---
 ---
 
 ## As duas travas que não se negociam
