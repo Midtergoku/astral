@@ -22,13 +22,9 @@ const chaves = JSON.parse(execSync(`supabase projects api-keys --project-ref ${R
 const SK = chaves.find((k) => k.name === "service_role").api_key;
 const admin = { apikey: SK, Authorization: `Bearer ${SK}`, "Content-Type": "application/json" };
 
-// As materias que uma prova militar realmente tem. Qualquer coisa fora desta
-// lista e sinal de que a leitura inventou -- foi exatamente o que aconteceu.
-const MATERIAS_VALIDAS = new Set([
-  "Português", "Inglês", "Espanhol", "Matemática", "Física", "Química",
-  "Biologia", "História", "Geografia", "História e Geografia", "Redação",
-  "Informática", "Direito",
-]);
+// 🔴 A LISTA VEM DO MODULO, nao de uma copia aqui. Em 22/09/2026 eu mantinha
+// as duas a mao: acrescentei "Enfermagem" ao leitor e este teste acusou o
+// acervo CERTO de ter materia inventada. Duas listas sempre divergem.
 
 let falhas = 0;
 const ok = (t, d = "") => console.log(`  OK     ${t.padEnd(52)} ${d}`);
@@ -38,6 +34,9 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   + "|" + Object.values(q.alternativas || {}).join("|").toLowerCase().replace(/\s+/g, " ");
 
 (async () => {
+  const { NOMES_DE_MATERIA } = await import("../assets/js/prova.js");
+  const MATERIAS_VALIDAS = new Set(NOMES_DE_MATERIA);
+
   const todas = [];
   for (let off = 0; off < 40000; off += 1000) {
     const r = await fetch(
