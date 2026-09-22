@@ -446,6 +446,32 @@
         </div>
         <div class="cota" id="cota"></div>
       </div>
+
+      <!-- 🔴 DIZER O QUE NAO TEM. Pedido dele em 22/09/2026: "caso nao tenha,
+           talvez um aviso para as pessoas". Uma tela de filtros que oferece
+           so uma banca, sem explicar, parece produto quebrado -- e nao e:
+           e produto honesto com o material que existe de graca. -->
+      <details class="convite" style="margin-bottom:var(--e4)">
+        <summary style="cursor:pointer;font-family:var(--display);font-weight:700">
+          Não achou o seu concurso aqui?
+        </summary>
+        <div style="margin-top:var(--e3);line-height:1.6">
+          O acervo tem hoje <strong>${filtros.total} questões</strong> de
+          ${(filtros.bancas || []).map((b) => esc(b.nome)).join(', ')} — provas que são
+          <strong>documento público</strong> e trazem o gabarito oficial no próprio arquivo.
+          <br><br>
+          Bombeiros, Marinha, Polícia e outras escolas publicam as provas, mas quase sempre com o
+          <strong>gabarito em arquivo separado</strong>. Sem a resposta certa a questão não dá para
+          estudar — e chutar seria pior que não ter. Por isso elas ainda não estão aqui:
+          <strong>é honestidade, não desleixo.</strong> Estamos atrás delas.
+          <br><br>
+          <strong>Enquanto isso:</strong> se você tem o PDF de uma prova antiga do seu concurso,
+          traga a sua em <button class="btn btn-fantasma" data-aba="minhas"
+          style="padding:.3rem .7rem;font-size:.78rem">Minhas questões</button> — ela é lida no
+          seu navegador e fica guardada só para você.
+        </div>
+      </details>
+
       <div id="rodada"></div>`;
   }
 
@@ -870,6 +896,12 @@
     }
 
     $('painel').innerHTML = montarFiltros();
+    // O botao "Minhas questoes" dentro do aviso troca de aba como as abas do topo.
+    $('painel').querySelectorAll('[data-aba]').forEach((b) => b.addEventListener('click', async () => {
+      aba = b.dataset.aba;
+      try { localStorage.setItem('astral_aba_questoes', aba); } catch { /* aba anonima */ }
+      await desenhar();
+    }));
     $('f-materia').addEventListener('change', atualizarAssuntos);
     $('btn-sortear').addEventListener('click', sortear);
     atualizarCota(null);
