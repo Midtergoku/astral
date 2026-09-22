@@ -78,21 +78,37 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 
 ### Já está no ar
 
-Nada ainda. **As questões geradas por IA estão desligadas desde 31/07 de propósito** — eram a
-única ação de custo recorrente, e questão de prova de verdade é melhor que questão inventada.
+| | O quê |
+|---|---|
+| **O acervo de provas antigas** | Questões de provas militares que já caíram, com o **gabarito oficial** — documento público. Não são questões inventadas por IA: são as de verdade |
+| **Filtro por banca, matéria e assunto** | E o assunto é **dentro da matéria**: escolher Matemática abre Logaritmo, Porcentagem, Funções; trocar para Português troca a lista inteira. É o filtro que faz um acervo grande servir para alguma coisa |
+| **Rodada de 10, com correção na hora** | Respondeu, a tela mostra a sua e mostra a certa — e diz em palavra, não só em cor. No fim, o placar e o que ele significa |
+| **A amostra grátis** | **10 questões novas por dia**, de provas com 4 anos ou mais. Dá para sentir o produto inteiro sem pagar nada, e rever o que já viu não gasta a cota de amanhã |
+| **E a conferência antes de publicar** | Cada prova entra por uma tela de conferência: o PDF é lido, as questões saem separadas, e **só entra no acervo o que foi marcado uma a uma**. Questão truncada é pior que questão ausente para quem estuda |
+
+> ⚠️ **O acervo está vazio hoje (21/09/2026).** A máquina está pronta e provada — o que falta é
+> pôr as provas dentro, uma a uma. A tela diz isso a quem chega, em vez de fingir que tem.
+
+> 🔴 **As questões geradas por IA continuam desligadas desde 31/07, de propósito** — eram a única
+> ação de custo recorrente. O banco de provas antigas não substitui aquilo: é melhor que aquilo,
+> e custa **R$ 0**.
 
 ### O que vem
 
-| | O quê |
-|---|---|
-| **Acervo de provas militares antigas** | de domínio público. **Medido em 17/09:** de uma prova real da EEAR com 96 questões, **78 saem utilizáveis automaticamente (81%)**, em 0,36 segundo, a custo zero. O gabarito vem no mesmo PDF |
-| **Filtros de verdade** | por **banca**, por **matéria** e por **assunto dentro da matéria** — funções, porcentagem, crase. É o filtro que faz um acervo grande servir para alguma coisa |
-| **Simulado** | uma incursão com relatório no fim: desempenho por matéria, cruzado com o peso do seu edital |
-| **Caderno de erros** | o que você errou volta até você acertar |
+| | O quê | Por que ainda não |
+|---|---|---|
+| **Provas dentro do acervo** | é o combustível | depende de juntar os PDFs, prova por prova |
+| **Simulado** | uma incursão com relatório no fim: desempenho por matéria, cruzado com o peso do **seu** edital | precisa de acervo primeiro |
+| **Caderno de erros** | o que você errou volta até você acertar | idem |
+| **PRECISÃO na ficha** | o quinto atributo do personagem | idem — ele mede acerto, e acerto precisa de questão |
 
-> 💰 **Grátis × Pro:** o grátis tem **10 questões por dia** e **um simulado completo**, para
-> sentir o produto inteiro uma vez. O Pro tem acesso ilimitado, filtro pelas matérias do **seu**
-> edital, as provas mais recentes e o caderno de erros.
+> 💰 **Grátis × Pro, e o portão já está de pé:** o grátis tem **10 questões novas por dia**, e só
+> de provas com **4 anos ou mais**. O Pro tem o **acervo inteiro, sem cota**, inclusive as provas
+> dos últimos anos — que são justamente as que mais importam para quem vai prestar agora.
+> O simulado completo de degustação e o caderno de erros ainda não existem.
+>
+> A regra não mora na tela: mora dentro do servidor. Esconder um botão não protege nada — quem
+> abrisse o console chamaria a função direto.
 
 ---
 
