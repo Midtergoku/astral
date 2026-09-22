@@ -54,6 +54,19 @@
 
   .solta.por-cima { border-color: var(--latao); background: color-mix(in srgb, var(--latao) 8%, transparent); }
 
+  /* Enquanto o arquivo está sobre a janela, a JANELA INTEIRA vira o alvo --
+     não só o retângulo tracejado. Antes, soltar um dedo fora dele fazia o
+     navegador abrir o PDF numa aba e a pessoa saía da página sem entender. */
+  body.arrastando-arquivo::after {
+    content: 'Solte o PDF em qualquer lugar';
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--breu) 82%, transparent);
+    border: 3px dashed var(--latao);
+    font-family: var(--display); font-weight: 700; font-size: var(--t-lg);
+    color: var(--latao-c); pointer-events: none;
+  }
+
   .solta-titulo { font-family: var(--display); font-weight: 600; margin-bottom: .3rem; }
 
   .solta-nota { font-size: .8rem; color: var(--texto-3); }
@@ -288,7 +301,7 @@
 <script type="module">
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
-  import { montarQuestoes } from './assets/js/prova.js?v=c5001150';
+  import { montarQuestoes } from './assets/js/prova.js?v=9d5af5f6';
   import { classificarLista, assuntosConhecidos } from './assets/js/assuntos.js?v=78708ba1';
 
   const $ = (id) => document.getElementById(id);
@@ -466,7 +479,7 @@
       ${lote.map(fichaDaQuestao).join('')}
 
       <div class="barra-acao">
-        <button class="btn btn-primary" id="btn-gravar">Gravar no acervo</button>
+        <button class="btn btn-roxo btn-primary" id="btn-gravar">Gravar no acervo</button>
         <span id="conta-marcadas" style="font-size:.82rem;color:var(--texto-3)"></span>
       </div>`;
 
@@ -565,22 +578,74 @@
     await desenhar();
   }
 
+  /* ── ARRASTAR O ARQUIVO ───────────────────────────────────────────────────
+     🔴 22/09/2026 -- ELE TENTOU E NAO FUNCIONOU. Medido no navegador depois:
+     dentro da caixa tracejada o evento chegava certo, mas a caixa tinha
+     924x133px, uma FAIXA FINA, e fora dela o `dragover` do documento nao
+     impedia o padrao. Soltar o PDF um dedo acima ou abaixo fazia o navegador
+     ABRIR O ARQUIVO numa aba -- ou seja, a pessoa saia da pagina e parecia
+     que nada tinha acontecido.
+
+     A licao e maior que o conserto: o modo de falhar era SILENCIOSO e tirava
+     a pessoa do lugar. Numa area de soltar, o alvo tem de ser a JANELA
+     INTEIRA, e o padrao do navegador tem de morrer no documento, nao so no
+     retangulo bonito.
+
+     Agora: a pagina toda aceita, a tela inteira acende quando o arquivo
+     entra, e se cair um arquivo que nao e PDF ela DIZ, em vez de engolir. */
+  let arrastando = 0;
+  function ligarArrastar() {
+    if (document.body.dataset.arrastarLigado) return;
+    document.body.dataset.arrastarLigado = '1';
+
+    const temArquivo = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
+    const acender = (lig) => {
+      document.getElementById('solta')?.classList.toggle('por-cima', lig);
+      document.body.classList.toggle('arrastando-arquivo', lig);
+    };
+
+    // preventDefault no dragover do DOCUMENTO e o que impede o navegador de
+    // abrir o arquivo. Sem esta linha, nada mais aqui importa.
+    document.addEventListener('dragover', (e) => {
+      if (!temArquivo(e)) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+    });
+
+    document.addEventListener('dragenter', (e) => {
+      if (!temArquivo(e)) return;
+      e.preventDefault();
+      arrastando++; acender(true);
+    });
+
+    // `dragleave` dispara tambem ao passar de um elemento filho para outro,
+    // entao contar entradas e saidas evita a tela piscar durante o percurso.
+    document.addEventListener('dragleave', (e) => {
+      if (!temArquivo(e)) return;
+      arrastando = Math.max(0, arrastando - 1);
+      if (arrastando === 0) acender(false);
+    });
+
+    document.addEventListener('drop', (e) => {
+      if (!temArquivo(e)) return;
+      e.preventDefault();
+      arrastando = 0; acender(false);
+      const arq = e.dataTransfer?.files?.[0];
+      if (!arq) { toast('Não consegui ler o arquivo que você soltou.'); return; }
+      if (!$('f-pdf')) { toast('Esta página não é para você.'); return; }
+      abrirPdf(arq);
+    });
+  }
+
   // ── Montar a tela ─────────────────────────────────────────────────────────
   async function desenhar() {
     const { data: acervo, error } = await supabase.rpc('acervo_do_administrador');
     if (error) { relatar(error, 'importar/acervo'); return; }
     $('conteudo').innerHTML = bancada(acervo);
 
-    const solta = $('solta');
     const campo = $('f-pdf');
     campo.addEventListener('change', () => abrirPdf(campo.files[0]));
-    ['dragenter', 'dragover'].forEach((ev) => solta.addEventListener(ev, (e) => {
-      e.preventDefault(); solta.classList.add('por-cima');
-    }));
-    ['dragleave', 'drop'].forEach((ev) => solta.addEventListener(ev, (e) => {
-      e.preventDefault(); solta.classList.remove('por-cima');
-    }));
-    solta.addEventListener('drop', (e) => abrirPdf(e.dataTransfer?.files?.[0]));
+    ligarArrastar();
   }
 
   (async () => {

@@ -39,36 +39,88 @@ export function limparPagina(texto) {
    A prova DIZ a ordem, em letra garrafal: "AS QUESTOES DE 25 A 48 REFEREM-SE A
    LINGUA INGLESA". Ler o que esta escrito e melhor que deduzir de um padrao
    observado uma vez. */
-export function faixasDeMateria(texto) {
-  const faixas = [];
-  const re = /QUEST[ÕO]ES\s+DE\s+(\d+)\s+A\s+(\d+)\s+REFEREM[‐\-]?SE\s+[ÀA]\s+([^\n]+)/gi;
-  for (const m of String(texto || "").matchAll(re)) {
-    const nome = m[3].trim()
-      .replace(/^L[ÍI]NGUA\s+/i, "")
-      .replace(/\s{2,}.*$/, "")
-      .replace(/[.:;]+$/, "");
-    faixas.push({ de: parseInt(m[1], 10), ate: parseInt(m[2], 10), materia: arrumarNome(nome) });
-  }
-  return faixas;
+/* 🔴 22/09/2026 -- ESTA FUNCAO ESTAVA INVENTANDO MATERIA, e o defeito so
+   apareceu ao rodar contra 21 provas de verdade em vez de uma.
+
+   A versao anterior capturava `([^\n]+)` -- tudo ate o fim da LINHA. Numa prova
+   de DUAS COLUNAS, a linha fisica continua com o texto da coluna vizinha,
+   entao "REFEREM-SE A LINGUA PORTUGUESA" virava materia
+   "05 - leia o poema de fernando pessoa". Sairam materias chamadas
+   "Underlined sentence in the text" e "Log2x log4x log8x 1 . logo, x = ____",
+   com 63 questoes dentro. O filtro da tela ofereceria essas linhas ao usuario.
+
+   Conserto: nao se pega o resto da linha -- PROCURA-SE O NOME DA MATERIA
+   dentro do trecho seguinte, contra uma lista conhecida. Prova militar tem um
+   punhado de materias, nao infinitas. O que nao casa e DESCARTADO, e as
+   questoes daquela faixa ficam sem materia e nao entram no acervo.
+
+   Perder questao e melhor que rotular errado: questao no lugar errado quebra
+   a confianca no filtro inteiro, que e a unica coisa que o acervo vende. */
+// ⚠️ Sem `\b` no fim de proposito: a banca escreve "LINGUA PORTUGUESA" e
+// "LINGUA INGLESA" -- no feminino. Exigir fim de palavra fazia "PORTUGUESA"
+// nao casar com "portugues", e a materia sumia calada. Achado rodando contra
+// o proprio teste depois de trocar a regra.
+const MATERIAS_CONHECIDAS = [
+  [/portugu[êe]s/i,                    "Português"],
+  [/\bingl[êe]s/i,                     "Inglês"],
+  [/\bespanhol/i,                      "Espanhol"],
+  [/matem[áa]tica/i,                   "Matemática"],
+  [/\bf[íi]sica/i,                     "Física"],
+  [/\bqu[íi]mica/i,                    "Química"],
+  [/\bbiologia/i,                      "Biologia"],
+  [/hist[óo]ria\s+e\s+geografia/i,     "História e Geografia"],
+  [/hist[óo]ria/i,                     "História"],
+  [/geografia/i,                       "Geografia"],
+  [/reda[çc][ãa]o/i,                   "Redação"],
+  [/inform[áa]tica/i,                  "Informática"],
+  [/\bdireito\b/i,                     "Direito"],
+];
+
+/** O nome da materia, ou NULL se o texto nao contiver nenhuma conhecida. */
+export function arrumarNome(n) {
+  const s = String(n || "");
+  // Ordem importa: "Historia e Geografia" tem de ser testado antes de
+  // "Historia" sozinha, senao a materia composta vira so a primeira.
+  for (const [re, nome] of MATERIAS_CONHECIDAS) if (re.test(s)) return nome;
+  return null;
 }
 
-export function arrumarNome(n) {
-  const s = String(n || "").toLowerCase();
-  if (s.startsWith("portugu")) return "Português";
-  if (s.startsWith("ingl")) return "Inglês";
-  if (s.startsWith("matem")) return "Matemática";
-  if (s.startsWith("fisica") || s.startsWith("física")) return "Física";
-  if (s.startsWith("histor") || s.startsWith("históri")) return "História";
-  if (s.startsWith("geograf")) return "Geografia";
-  if (s.startsWith("quimic") || s.startsWith("químic")) return "Química";
-  return n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+export function faixasDeMateria(texto) {
+  const faixas = [];
+  const re = /QUEST[ÕO]ES\s+DE\s+(\d+)\s+A\s+(\d+)\s+REFEREM[‐\-]?SE\s+[ÀA]\s+/gi;
+  const t = String(texto || "");
+  for (const m of t.matchAll(re)) {
+    // So os 60 caracteres seguintes. O nome da materia vem logo depois do
+    // marcador; o que estiver mais longe e texto de outra coluna.
+    const trecho = t.slice(m.index + m[0].length, m.index + m[0].length + 60);
+    const materia = arrumarNome(trecho);
+    if (!materia) continue;                    // nao inventa: descarta a faixa
+    const de = parseInt(m[1], 10), ate = parseInt(m[2], 10);
+    if (!(de >= 1 && ate > de && ate <= 300)) continue;
+    faixas.push({ de, ate, materia });
+  }
+  return faixas;
 }
 
 /** O gabarito e as anuladas, quando a propria prova os traz. */
 export function gabaritoDe(texto) {
   const respostas = new Map();
   const anuladas = new Set();
-  const t = String(texto || "");
+
+  /* 🔴 22/09/2026 -- UM ACHADO QUE TERIA POSTO RESPOSTA ERRADA NO ACERVO.
+     O padrao do gabarito e "numero, espaco, letra" -- e a propria prova contem
+     a frase "AS QUESTOES DE 01 A 24 REFEREM-SE A LINGUA PORTUGUESA". Ali,
+     "01 A" casa perfeitamente: numero 01 seguido da letra A. So que esse "A"
+     e a PREPOSICAO, nao a resposta.
+
+     Na prova em que achei isto, a tabela de verdade vinha antes e venceu por
+     sorte (a regra e "o primeiro que casar manda"). Numa prova em que a frase
+     viesse primeiro, a questao 1 entraria com gabarito inventado -- e quem
+     estudasse aprenderia errado e culparia o site.
+
+     Entao a frase e APAGADA do texto antes de procurar gabarito. */
+  const t = String(texto || "")
+    .replace(/QUEST[ÕO]ES\s+DE\s+\d+\s+[AÀ]\s+\d+/gi, " ");
   for (const m of t.matchAll(/\b(\d{2})\s+([A-E])\b/g)) {
     const n = parseInt(m[1], 10);
     if (n >= 1 && n <= 200 && !respostas.has(n)) respostas.set(n, m[2].toLowerCase());
@@ -122,7 +174,19 @@ export function montarQuestoes(leituras, { incluirSemGabarito = false } = {}) {
   if (!lidas.length) return { prontas: [], revisar: [], total: 0, faixas: [], gabaritos: 0 };
 
   const { respostas, anuladas } = gabaritoDe(lidas[0]);
-  const faixas = faixasDeMateria(lidas[0]);
+
+  // 🔴 As faixas saem das TRES leituras, nao so da primeira. Numa prova de duas
+  // colunas, a leitura em fluxo cola o cabecalho de materia com o texto da
+  // coluna vizinha e a materia fica ilegivel -- mas a leitura de uma coluna so
+  // costuma trazer a mesma linha limpa. Medido em 22/09/2026: na CFS 2/2024, o
+  // fluxo achava 2 de 4 materias e as colunas completavam as outras 2.
+  const faixas = [];
+  for (const leitura of lidas) {
+    for (const f of faixasDeMateria(leitura)) {
+      if (!faixas.some((x) => x.de === f.de && x.ate === f.ate)) faixas.push(f);
+    }
+  }
+  faixas.sort((a, b) => a.de - b.de);
   const materiaDe = (n) => (faixas.find((f) => n >= f.de && n <= f.ate) || {}).materia || null;
 
   // A melhor versao de cada questao entre as tres leituras: vence a que

@@ -38,3 +38,7 @@ build/
 ASTRAL-BACKUPS/
 *backup*/
 *.dump
+
+# Provas em PDF ficam FORA do repositorio (ASTRAL-provas, pasta irma).
+# O repositorio e publico e cada prova tem ~500 KB -- ver tools/baixa-provas.js
+*.pdf

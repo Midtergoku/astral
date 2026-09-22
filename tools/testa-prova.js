@@ -135,6 +135,19 @@ const PROVA = [
       : falha("gabarito lido errado", `1=${g.respostas.get(1)}, 4=${g.respostas.get(4)}`);
     g.anuladas.has(5) ? ok("reconhece ANULADA", "questao 5") : falha("nao viu a anulada");
 
+    // 🔴 A ARMADILHA DE 22/09/2026: a propria prova diz "AS QUESTOES DE 01 A
+    // 24 REFEREM-SE A LINGUA PORTUGUESA". Ali "01 A" casa com o padrao do
+    // gabarito -- so que esse "A" e a PREPOSICAO. Se a frase vier antes da
+    // tabela, a questao 1 entra com resposta inventada.
+    const soAFrase = "AS QUESTÕES DE 01 A 24 REFEREM‐SE À LÍNGUA PORTUGUESA\n"
+                   + "AS QUESTÕES DE 25 A 48 REFEREM‐SE À MATEMÁTICA\n"
+                   + "01\n\nD\n02\n\nC";
+    const gf = P.gabaritoDe(soAFrase);
+    gf.respostas.get(1) === "d" && !gf.respostas.has(24) && !gf.respostas.has(48)
+      ? ok("🎯 'DE 01 A 24' nao vira gabarito", "o 'A' da frase e preposicao, nao resposta")
+      : falha("a frase da faixa virou gabarito",
+              `1=${gf.respostas.get(1)}, 24=${gf.respostas.get(24)}, 48=${gf.respostas.get(48)}`);
+
     // 🔴 Sem gabarito, a questao NAO entra -- a nao ser que se peca.
     const semG = "09 – Pergunta sem gabarito nenhum?\na) um\nb) dois\nc) tres\nd) quatro";
     const fechado = P.montarQuestoes([semG]);

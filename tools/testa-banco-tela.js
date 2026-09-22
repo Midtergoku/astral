@@ -209,7 +209,12 @@ const MARCA = `TELA-${Date.now()}`;
       questoes: document.querySelectorAll('.questao').length,
       selos: [...document.querySelectorAll('.selo.assunto')].map((s) => s.textContent.trim()),
     }));
-    rodada.questoes === 4
+    // ⚠️ Esta checagem exigia EXATAMENTE 4 ate 22/09/2026 -- as 4 que o proprio
+    // teste publica. Funcionava so enquanto o acervo real estava vazio; no dia
+    // em que entraram 1.100 questoes de verdade, vieram 10 e o teste acusou o
+    // produto certo. O que se quer saber e que a rodada TEM questao e respeita
+    // o filtro, nao que o mundo tenha exatamente o tamanho do teste.
+    rodada.questoes >= 4 && rodada.questoes <= 10
       ? ok("🎉 as questões do assunto escolhido apareceram", `${rodada.questoes} de Logaritmo`)
       : falha("questoes na tela", String(rodada.questoes));
 

@@ -268,6 +268,47 @@ const servidor = http.createServer((q, r) => {
       ? ok("🎯 e o assunto foi classificado, de graça", "Crase · Logaritmo")
       : falha("assunto não classificou", medida.texto.slice(0, 120));
 
+    // ── 2b. ARRASTAR, E ARRASTAR TORTO ─────────────────────────────────────
+    // 🔴 ELE TENTOU ARRASTAR E NAO FUNCIONOU (22/09/2026). A caixa tracejada
+    // tinha 924x133px e fora dela o navegador ABRIA o PDF numa aba -- a pessoa
+    // saia da pagina e parecia que nada acontecia. Agora a janela inteira
+    // aceita, e este teste solta o arquivo NO CORPO DA PAGINA, de proposito
+    // longe da caixa, que e o jeito errado que tem de funcionar.
+    console.log("\n== 2b. ARRASTAR PARA QUALQUER LUGAR DA PAGINA ==");
+    {
+      await pg.reload({ waitUntil: "load" });
+      await pg.waitForSelector("#f-pdf", { timeout: 25000 }).catch(() => {});
+      await pg.waitForTimeout(600);
+
+      const base64 = pdf.toString("base64");
+      const soltou = await pg.evaluate(async (b64) => {
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const dt = new DataTransfer();
+        dt.items.add(new File([bytes], "prova.pdf", { type: "application/pdf" }));
+
+        // Longe da caixa: no topo da pagina, sobre o titulo.
+        const alvo = document.querySelector(".page-title") || document.body;
+        const over = new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt });
+        alvo.dispatchEvent(over);
+        const impediu = over.defaultPrevented;
+        alvo.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt }));
+        return { impediu };
+      }, base64);
+
+      soltou.impediu
+        ? ok("🎯 o navegador NAO abre mais o PDF numa aba", "preventDefault no documento inteiro")
+        : falha("🔴 soltar fora da caixa ainda tira a pessoa da pagina");
+
+      await pg.waitForSelector(".qcard", { timeout: 30000 }).catch(() => {});
+      await pg.waitForTimeout(1200);
+      const lidas = await pg.evaluate(() => document.querySelectorAll(".qcard").length);
+      lidas === 4
+        ? ok("🎉 e o PDF solto LONGE da caixa foi lido", `${lidas} questoes, soltando sobre o titulo`)
+        : falha("soltar fora da caixa nao leu o PDF", `${lidas} fichas`);
+    }
+
     // ── 3. GRAVAR ──────────────────────────────────────────────────────────
     console.log("\n== 3. GRAVAR NO ACERVO ==");
     const marca = `TESTE-${Date.now()}`;

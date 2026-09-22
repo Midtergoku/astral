@@ -263,11 +263,26 @@ function fabricar() {
         ? ok("🎯 questao despublicada nao chega a ninguem", "nem ao pro")
         : falha("🔴 rascunho vazou para o acervo", `${r.corpo.questoes.length} questoes`);
 
+      // ⚠️ ESTA CHECAGEM JA FOI ESCRITA ERRADA. Ate 22/09/2026 ela dizia "o
+      // filtro nao pode oferecer Fisica" -- o que so valia enquanto o acervo
+      // REAL estava vazio. No dia em que entraram 1.100 questoes de verdade,
+      // com Fisica entre elas, o teste falhou acusando o produto certo.
+      //
+      // Teste que so passa em banco vazio nao e teste, e sorte. A pergunta
+      // certa e sobre O RASCUNHO DESTE TESTE, nao sobre o acervo do mundo:
+      // ele nao pode aparecer em contagem nenhuma.
       const f = await req("/rest/v1/rpc/filtros_de_questoes",
         { method: "POST", headers: zePro.cabecalho, body: "{}" });
-      (f.corpo?.materias || []).some((m) => m.nome === "Física")
-        ? falha("🔴 o filtro oferece Fisica, que nao tem questao publicada")
-        : ok("e o filtro nao oferece materia sem questao no ar", "nao se promete o que nao ha");
+      const fisica = (f.corpo?.materias || []).find((m) => m.nome === "Física");
+      const cinematica = (fisica?.assuntos || []).find((a) => a.nome === "Cinemática");
+      const doAcervoReal = await req(
+        "/rest/v1/questoes?select=id&publicada=is.true&materia=eq.F%C3%ADsica&assunto=eq.Cinem%C3%A1tica",
+        { headers: admin });
+      const reais = (doAcervoReal.corpo || []).length;
+      const contado = cinematica?.quantas ?? 0;
+      contado === reais
+        ? ok("o filtro conta so o que esta no ar", `Cinematica: ${contado} publicadas, e o rascunho fora`)
+        : falha("o rascunho entrou na contagem do filtro", `filtro diz ${contado}, publicadas sao ${reais}`);
     }
 
   } finally {
