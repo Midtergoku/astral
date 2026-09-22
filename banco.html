@@ -146,6 +146,112 @@
     font-size: .84rem; color: var(--texto-2); line-height: 1.5;
   }
 
+
+  /* ── AS DUAS ABAS ────────────────────────────────────────────────────────
+     "Acervo" são as provas que nós conferimos. "Minhas questões" é o material
+     que a própria pessoa sobe — e os dois NUNCA se misturam. O que ela sobe
+     pode ser apostila comprada ou PDF de cursinho: publicar isso por engano
+     seria distribuir o que não é nosso.
+
+     Por isso as duas abas têm cores de borda diferentes, e a de baixo diz
+     "só você vê" em letra grande. A separação tem de ser óbvia na tela,
+     não só no banco de dados. */
+  .abas {
+    display: flex; gap: 0; border-bottom: 1px solid var(--linha);
+    margin-bottom: var(--e4);
+  }
+
+  .aba {
+    background: none; border: none; cursor: pointer;
+    padding: .7rem var(--e3); margin-bottom: -1px;
+    font-family: var(--display); font-weight: 700; font-size: .84rem;
+    color: var(--texto-3); border-bottom: 2px solid transparent;
+    transition: color var(--d-dica) var(--saida), border-color var(--d-dica) var(--saida);
+    min-height: 44px;
+  }
+
+  .aba.ativa { color: var(--latao-c); border-bottom-color: var(--latao); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .aba:not(.ativa):hover { color: var(--texto-2); }
+  }
+
+  .aba-conta {
+    font-family: var(--dado); font-size: .68rem; color: var(--texto-3);
+    margin-left: .35rem;
+  }
+
+  /* A área de subir PDF, na aba particular. */
+  .minha-bancada {
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--oliva-c); border-radius: var(--r-p);
+    padding: var(--e3); margin-bottom: var(--e4);
+  }
+
+  .so-voce {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-family: var(--dado); font-size: .6rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--oliva-c);
+    border: 1px solid color-mix(in srgb, var(--oliva) 50%, transparent);
+    border-radius: var(--r-p); padding: .15rem .45rem; margin-bottom: var(--e2);
+  }
+
+  .solta-minha {
+    border: 2px dashed var(--linha); border-radius: var(--r-g);
+    padding: var(--e4) var(--e3); text-align: center; margin-top: var(--e3);
+    transition: border-color var(--d-toque) var(--saida), background var(--d-toque) var(--saida);
+  }
+
+  .solta-minha.por-cima {
+    border-color: var(--oliva-c);
+    background: color-mix(in srgb, var(--oliva) 10%, transparent);
+  }
+
+  body.arrastando-arquivo::after {
+    content: 'Solte o PDF em qualquer lugar';
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--breu) 82%, transparent);
+    border: 3px dashed var(--oliva-c);
+    font-family: var(--display); font-weight: 700; font-size: var(--t-lg);
+    color: var(--oliva-c); pointer-events: none;
+  }
+
+  .minha-linha {
+    display: flex; gap: var(--e2); align-items: center; flex-wrap: wrap;
+    background: var(--casco); border: 1px solid var(--linha);
+    border-left: 3px solid var(--oliva-c); border-radius: var(--r-p);
+    padding: .6rem .8rem; margin-bottom: .35rem; font-size: .82rem;
+  }
+
+  .minha-linha .texto { flex: 1; min-width: 12rem; color: var(--texto-2); }
+
+  .btn-apagar {
+    background: none; border: 1px solid var(--linha); color: var(--texto-3);
+    border-radius: var(--r-p); padding: .3rem .6rem; cursor: pointer;
+    font-family: var(--dado); font-size: .6rem; letter-spacing: .1em;
+    text-transform: uppercase; min-height: 32px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn-apagar:hover { border-color: var(--brasa); color: var(--brasa-c); }
+  }
+
+  .campo-min { display: flex; flex-direction: column; gap: .25rem; }
+
+  .campo-min label {
+    font-family: var(--dado); font-size: .58rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  .campo-min input {
+    background: var(--breu); border: 1px solid var(--linha); color: var(--texto);
+    border-radius: var(--r-p); padding: .5rem .6rem; font-family: var(--corpo);
+    font-size: .85rem; min-height: 44px; min-width: 12rem;
+  }
+
+  .campo-min input:focus { outline: 2px solid var(--oliva-c); outline-offset: 1px; }
+
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .main { margin-left: 0; padding: 1.25rem; }
@@ -285,12 +391,17 @@
 <script type="module">
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
+  import { pdfParaLeituras, ligarArrastar } from './assets/js/pdf-para-texto.js?v=e2aa35f7';
 
   const $ = (id) => document.getElementById(id);
 
   let filtros = null;     // o que o acervo tem, vindo do servidor
   let questoes = [];      // a rodada atual
   let respostas = {};     // id da questao -> letra escolhida
+  // Qual aba esta aberta. Fica no navegador so por conveniencia -- quem manda
+  // no que cada um ve e a policy da tabela, nao esta variavel.
+  let aba = 'acervo';
+  try { aba = localStorage.getItem('astral_aba_questoes') || 'acervo'; } catch { /* aba anonima */ }
 
   // ── Os filtros ────────────────────────────────────────────────────────────
   function montarFiltros() {
@@ -398,6 +509,16 @@
     });
 
     const v = bloco.querySelector(`[data-veredito="${CSS.escape(String(id))}"]`);
+    /* 🔴 22/09/2026: aqui saia "a certa era null". No acervo publico isso nao
+       podia acontecer (questao sem gabarito nao entra), mas na aba particular
+       PODE -- muita prova de banca civil publica o gabarito em arquivo
+       separado, e a pessoa sobe o caderno mesmo assim. A tela tem de dizer a
+       verdade nesse caso, nao imprimir "null". */
+    if (!q.gabarito) {
+      v.textContent = 'esta prova veio sem gabarito';
+      v.className = 'veredito';
+      return;
+    }
     const acertou = letra === q.gabarito;
     v.textContent = acertou ? 'acertou' : 'a certa era ' + q.gabarito;
     v.className = 'veredito ' + (acertou ? 'boa' : 'ma');
@@ -406,12 +527,16 @@
   }
 
   function mostrarPlacar() {
-    const acertos = questoes.filter((q) => respostas[q.id] === q.gabarito).length;
-    const pct = Math.round((acertos / questoes.length) * 100);
+    // So entram na conta as que TEM resposta certa conhecida. Contar as sem
+    // gabarito como erro daria uma porcentagem que nao quer dizer nada.
+    const contaveis = questoes.filter((q) => q.gabarito);
+    if (!contaveis.length) return;
+    const acertos = contaveis.filter((q) => respostas[q.id] === q.gabarito).length;
+    const pct = Math.round((acertos / contaveis.length) * 100);
     const div = document.createElement('div');
     div.className = 'placar-final';
     div.innerHTML = `
-      <div class="placar-final-num">${acertos}/${questoes.length}</div>
+      <div class="placar-final-num">${acertos}/${contaveis.length}</div>
       <div style="font-size:.85rem;color:var(--texto-2);margin-top:.3rem">
         ${pct}% de acerto nesta rodada. ${pct >= 70
           ? 'Terreno dominado — vale trocar de assunto.'
@@ -473,6 +598,197 @@
       ${fora > 0 ? `<span>· <span class="cota-num">${fora}</span> de provas recentes ficam fora da amostra</span>` : ''}`;
   }
 
+
+  /* ══ MINHAS QUESTÕES ══════════════════════════════════════════════════════
+     Pedido dele em 22/09/2026: "caso não conseguimos colocar lá e o aluno
+     pense 'poxa, queria ter algo aqui para eu poder estudar', ele mesmo
+     consegue adicionar, mas isso SÓ PARA ELE."
+
+     🔴 Os dois mundos NUNCA se tocam. O que a pessoa sobe pode ser apostila
+     comprada, PDF de cursinho, material com dono — publicar isso por engano
+     seria distribuir o que não é nosso. A separação está no banco (tabela
+     `questoes_minhas`, com policy por auth.uid()) e está na tela, em cor e
+     em palavra: "só você vê". */
+  let minhas = [];
+  let loteMinhas = [];
+
+  async function carregarMinhas() {
+    const { data, error } = await supabase
+      .from('questoes_minhas')
+      .select('id,origem,materia,assunto,enunciado,alternativas,gabarito')
+      .order('id', { ascending: false });
+    if (error) { relatar(error, 'banco/minhas'); return; }
+    minhas = data || [];
+  }
+
+  function telaMinhas() {
+    return `
+      <div class="minha-bancada">
+        <span class="so-voce">🔒 só você vê</span>
+        <div style="font-size:.85rem;color:var(--texto-2);line-height:1.5">
+          Não achou a prova do seu concurso aqui? <strong>Traga a sua.</strong>
+          Solte o PDF e ele é lido <strong>dentro do seu navegador</strong> — o arquivo
+          não sai do seu computador. As questões ficam guardadas na sua conta, e
+          <strong>ninguém mais tem acesso a elas</strong>: nem outros alunos, nem o acervo público.
+        </div>
+        <div class="filtros-linha" style="margin-top:var(--e3)">
+          <div class="campo-min">
+            <label for="m-origem">De onde é</label>
+            <input id="m-origem" type="text" maxlength="80" placeholder="CBMERJ 2024, apostila do cursinho…" />
+          </div>
+        </div>
+        <div class="solta-minha" id="solta-minha">
+          <div style="font-family:var(--display);font-weight:600;margin-bottom:.3rem">Solte o PDF da prova aqui</div>
+          <div style="font-size:.8rem;color:var(--texto-3)">
+            ou <label for="m-pdf" style="color:var(--oliva-c);cursor:pointer;text-decoration:underline">escolha o arquivo</label>
+          </div>
+          <input id="m-pdf" type="file" accept="application/pdf" style="position:absolute;width:1px;height:1px;opacity:0" />
+        </div>
+        <div id="m-lote"></div>
+      </div>
+
+      <div class="filtros">
+        <div class="filtros-linha">
+          <div class="filtro">
+            <label for="m-materia">Matéria</label>
+            <select id="m-materia">
+              <option value="">Todas</option>
+              ${[...new Set(minhas.map((q) => q.materia).filter(Boolean))].sort()
+                .map((m) => `<option value="${att(m)}">${esc(m)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filtro">
+            <label for="btn-estudar-minhas">&nbsp;</label>
+            <button class="btn btn-roxo btn-primary" id="btn-estudar-minhas" style="min-height:44px">Estudar as minhas</button>
+          </div>
+        </div>
+        <div class="cota">
+          <span><span class="cota-num">${minhas.length}</span> questões suas guardadas</span>
+          ${minhas.length >= 1800 ? '<span>· o limite por conta é 2.000</span>' : ''}
+        </div>
+      </div>
+
+      <div id="rodada-minhas"></div>
+
+      ${minhas.length ? `
+        <div class="section-title" style="margin-top:var(--e5)">O que você já guardou</div>
+        ${minhas.slice(0, 60).map((q) => `
+          <div class="minha-linha">
+            <span class="selo">${esc(q.origem)}</span>
+            ${q.materia ? `<span class="selo assunto">${esc(q.materia)}</span>` : ''}
+            <span class="texto">${esc(String(q.enunciado).slice(0, 90))}…</span>
+            <button class="btn-apagar" data-apagar="${att(String(q.id))}">apagar</button>
+          </div>`).join('')}
+        ${minhas.length > 60 ? `<div style="font-size:.8rem;color:var(--texto-3);margin-top:var(--e2)">
+          …e mais ${minhas.length - 60}. Todas entram no sorteio.</div>` : ''}
+      ` : ''}`;
+  }
+
+  async function abrirPdfMinhas(arquivo) {
+    if (!arquivo) return;
+    if (arquivo.type && arquivo.type !== 'application/pdf') { toast('Isso não é um PDF.'); return; }
+    if (arquivo.size > 25 * 1024 * 1024) { toast('PDF acima de 25 MB.'); return; }
+
+    $('m-lote').innerHTML = '<div class="esqueleto-bloco" style="height:6rem"></div>';
+    try {
+      const { montarQuestoes } = await import('./assets/js/prova.js?v=88f602ab');
+      const { classificarLista } = await import('./assets/js/assuntos.js?v=78708ba1');
+      const leituras = await pdfParaLeituras(arquivo);
+      // 🔴 `incluirSemGabarito: true` aqui, e NUNCA no acervo público. Muita
+      // prova de banca civil publica o gabarito em arquivo separado; no acervo
+      // isso seria questão sem resposta certa, mas aqui é o material da
+      // pessoa, e ela sabe de onde veio.
+      const r = montarQuestoes(leituras, { incluirSemGabarito: true });
+      const todas = [...r.prontas, ...r.revisar].filter((q) => Object.keys(q.alternativas || {}).length >= 4);
+      loteMinhas = classificarLista(todas).questoes;
+
+      if (!loteMinhas.length) {
+        $('m-lote').innerHTML = `<div class="convite">Não encontrei questão nenhuma neste PDF.
+          Costuma ser por um destes motivos: o arquivo é digitalizado (foto das páginas, sem texto),
+          ou a banca usa um formato que eu ainda não sei ler. Nada foi guardado.</div>`;
+        return;
+      }
+      const comGab = loteMinhas.filter((q) => q.gabarito).length;
+      $('m-lote').innerHTML = `
+        <div class="convite">
+          <strong>${loteMinhas.length} questões</strong> encontradas — ${comGab} com gabarito no próprio PDF.
+          ${comGab < loteMinhas.length ? `As outras ${loteMinhas.length - comGab} entram sem resposta:
+            dá para responder e conferir depois, comparando com o gabarito oficial.` : ''}
+          <div style="margin-top:var(--e3);display:flex;gap:var(--e3);flex-wrap:wrap;align-items:center">
+            <button class="btn btn-roxo btn-primary" id="btn-guardar">Guardar na minha conta</button>
+            <button class="btn btn-fantasma" id="btn-descartar">Descartar</button>
+          </div>
+        </div>`;
+      $('btn-guardar').addEventListener('click', guardarMinhas);
+      $('btn-descartar').addEventListener('click', () => { loteMinhas = []; $('m-lote').innerHTML = ''; });
+    } catch (e) {
+      relatar(e, 'banco/minhas-pdf');
+      $('m-lote').innerHTML = `<div class="convite">Não consegui ler este PDF: ${esc(String(e.message || e))}</div>`;
+    }
+  }
+
+  async function guardarMinhas() {
+    const origem = ($('m-origem').value || '').trim() || 'Minha prova';
+    const btn = $('btn-guardar');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
+    const { data: sessao } = await supabase.auth.getUser();
+    const uid = sessao?.user?.id;
+    const linhas = loteMinhas.map((q) => ({
+      usuario_id: uid, origem,
+      materia: q.materia || null, assunto: q.assunto || null,
+      enunciado: q.enunciado, alternativas: q.alternativas,
+      gabarito: q.gabarito || null,
+    }));
+
+    let guardadas = 0, recusadas = 0;
+    for (let i = 0; i < linhas.length; i += 100) {
+      const { error } = await supabase.from('questoes_minhas').insert(linhas.slice(i, i + 100));
+      if (error) recusadas += linhas.slice(i, i + 100).length; else guardadas += Math.min(100, linhas.length - i);
+    }
+    btn.disabled = false; btn.textContent = 'Guardar na minha conta';
+
+    if (!guardadas) { toast('Não consegui guardar. Talvez você tenha chegado ao limite de 2.000.'); return; }
+    toast(`${guardadas} questões guardadas${recusadas ? ` (${recusadas} não couberam)` : ''}.`);
+    loteMinhas = [];
+    await carregarMinhas();
+    await desenhar();
+  }
+
+  async function apagarMinha(id) {
+    const { error } = await supabase.from('questoes_minhas').delete().eq('id', id);
+    if (error) { relatar(error, 'banco/apagar-minha'); toast('Não consegui apagar.'); return; }
+    await carregarMinhas();
+    await desenhar();
+  }
+
+  function sortearMinhas() {
+    const mat = $('m-materia').value;
+    const pool = minhas.filter((q) => !mat || q.materia === mat);
+    if (!pool.length) {
+      $('rodada-minhas').innerHTML = `<div class="card"><div class="vazio-texto">
+        Você ainda não tem questão com esse filtro.</div></div>`;
+      return;
+    }
+    // Embaralha e pega 10.
+    const baralho = [...pool];
+    for (let i = baralho.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [baralho[i], baralho[j]] = [baralho[j], baralho[i]];
+    }
+    questoes = baralho.slice(0, 10).map((q, i) => ({
+      id: 'm' + q.id, banca: q.origem, prova: q.origem, ano: '', numero: i + 1,
+      materia: q.materia || 'sua questão', assunto: q.assunto,
+      enunciado: q.enunciado, alternativas: q.alternativas, gabarito: q.gabarito,
+    }));
+    respostas = {};
+    $('rodada-minhas').innerHTML = questoes.map(desenharQuestao).join('');
+    $('rodada-minhas').querySelectorAll('[data-responder]').forEach((b) => {
+      b.addEventListener('click', () => responder(b.dataset.responder, b.dataset.letra));
+    });
+    $('rodada-minhas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   // ── Montar ────────────────────────────────────────────────────────────────
   async function desenhar() {
     const { data, error } = await supabase.rpc('filtros_de_questoes');
@@ -496,11 +812,64 @@
           ${souAdmin ? `<a class="btn btn-roxo btn-primary" href="importar.html"
              style="width:auto;display:inline-flex;margin-top:1.25rem;text-decoration:none">
              Importar a primeira prova</a>` : ''}
+          <div class="convite" style="text-align:left;margin-top:var(--e4)">
+            <strong>Mas você não precisa esperar.</strong> Se tem o PDF de uma prova antiga do
+            seu concurso, traga a sua: ela é lida dentro do seu navegador e fica guardada
+            <strong>só para você</strong>.
+            <div style="margin-top:var(--e3)">
+              <button class="btn btn-roxo btn-primary" data-aba="minhas">Trazer a minha prova</button>
+            </div>
+          </div>
         </div>`;
+      document.querySelectorAll('[data-aba]').forEach((b) => b.addEventListener('click', async () => {
+        aba = b.dataset.aba; await desenhar();
+      }));
       return;
     }
 
-    $('conteudo').innerHTML = montarFiltros();
+    /* ── AS DUAS ABAS ───────────────────────────────────────────────────
+       "Acervo" sao as provas que nos conferimos; "Minhas questoes" e o
+       material que a propria pessoa sobe. Os dois nunca se misturam -- ver o
+       comentario em `telaMinhas` e a migration 20260922180000. */
+    $('conteudo').innerHTML = `
+      <div class="abas">
+        <button class="aba ${aba === 'acervo' ? 'ativa' : ''}" data-aba="acervo">
+          Acervo<span class="aba-conta">${filtros.total}</span>
+        </button>
+        <button class="aba ${aba === 'minhas' ? 'ativa' : ''}" data-aba="minhas">
+          Minhas questões<span class="aba-conta">${minhas.length}</span>
+        </button>
+      </div>
+      <div id="painel"></div>`;
+
+    document.querySelectorAll('[data-aba]').forEach((b) => {
+      b.addEventListener('click', async () => {
+        aba = b.dataset.aba;
+        try { localStorage.setItem('astral_aba_questoes', aba); } catch { /* aba anonima */ }
+        await desenhar();
+      });
+    });
+
+    if (aba === 'minhas') {
+      $('painel').innerHTML = telaMinhas();
+      const campo = $('m-pdf');
+      campo.addEventListener('change', () => abrirPdfMinhas(campo.files[0]));
+      ligarArrastar({
+        aoSoltar: (arq) => {
+          if (!arq) { toast('Não consegui ler o arquivo que você soltou.'); return; }
+          if (aba !== 'minhas') { toast('Abra "Minhas questões" para subir um PDF.'); return; }
+          abrirPdfMinhas(arq);
+        },
+        aoAcender: (lig) => $('solta-minha')?.classList.toggle('por-cima', lig),
+      });
+      $('btn-estudar-minhas').addEventListener('click', sortearMinhas);
+      $('painel').querySelectorAll('[data-apagar]').forEach((b) => {
+        b.addEventListener('click', () => apagarMinha(b.dataset.apagar));
+      });
+      return;
+    }
+
+    $('painel').innerHTML = montarFiltros();
     $('f-materia').addEventListener('change', atualizarAssuntos);
     $('btn-sortear').addEventListener('click', sortear);
     atualizarCota(null);
@@ -512,6 +881,7 @@
     const sessao = await exigirSessao();
     if (!sessao) return;
     await nomeDoUsuario(sessao);
+    await carregarMinhas();
     await desenhar();
   })();
 

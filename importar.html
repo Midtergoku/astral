@@ -303,6 +303,7 @@
     from './assets/js/astral.js?v=bfdb6e4b';
   import { montarQuestoes } from './assets/js/prova.js?v=88f602ab';
   import { classificarLista, assuntosConhecidos } from './assets/js/assuntos.js?v=78708ba1';
+  import { pdfParaLeituras, ligarArrastar } from './assets/js/pdf-para-texto.js?v=e2aa35f7';
 
   const $ = (id) => document.getElementById(id);
 
@@ -310,55 +311,6 @@
   // Nada daqui vira HTML sem passar por esc()/att(). Regra 4 de segurança.
   let lote = [];        // as questões do PDF aberto agora
   let dadosProva = {};  // banca, prova, ano
-
-  /* ── O PDF VIRA TEXTO, AQUI DENTRO ────────────────────────────────────────
-     No terminal quem faz isto é o `pdftotext`. No navegador é o pdf.js, que
-     mora em assets/js/ (não em CDN) pelo mesmo motivo do supabase-js: a CSP
-     só autoriza script do próprio domínio, e se o CDN cair o Astral não cai
-     junto.
-
-     São TRÊS leituras do mesmo arquivo, e isso não é capricho: quando a
-     pergunta fica no pé de uma coluna e as alternativas no alto da outra, a
-     leitura em fluxo separa as duas e a questão se perde. Então lê-se em
-     fluxo, só a coluna esquerda e só a direita, e fica a melhor versão de
-     cada questão. */
-  async function pdfParaLeituras(arquivo) {
-    const pdfjs = await import('./assets/js/pdf-4.10.38.min.mjs');
-    pdfjs.GlobalWorkerOptions.workerSrc = './assets/js/pdf-worker-4.10.38.min.mjs';
-
-    const buf = await arquivo.arrayBuffer();
-    const doc = await pdfjs.getDocument({ data: buf }).promise;
-
-    const fluxo = [], esquerda = [], direita = [];
-    for (let p = 1; p <= doc.numPages; p++) {
-      const pagina = await doc.getPage(p);
-      const largura = pagina.getViewport({ scale: 1 }).width;
-      const corte = largura * 0.5;
-      const itens = (await pagina.getTextContent()).items
-        .filter((i) => i.str && i.str.trim())
-        .map((i) => ({ x: i.transform[4], y: i.transform[5], s: i.str }));
-
-      const emLinhas = (lista) => {
-        const porY = new Map();
-        // Arredonda o Y: itens da mesma linha impressa variam meio ponto.
-        for (const i of lista) {
-          const chave = Math.round(i.y / 3);
-          if (!porY.has(chave)) porY.set(chave, []);
-          porY.get(chave).push(i);
-        }
-        return [...porY.entries()]
-          .sort((a, b) => b[0] - a[0])                 // de cima para baixo
-          .map(([, itens]) => itens.sort((a, b) => a.x - b.x).map((i) => i.s).join(' ')
-            .replace(/\s{2,}/g, ' ').trim())
-          .filter(Boolean).join('\n');
-      };
-
-      fluxo.push(emLinhas(itens));
-      esquerda.push(emLinhas(itens.filter((i) => i.x < corte)));
-      direita.push(emLinhas(itens.filter((i) => i.x >= corte * 0.96)));
-    }
-    return [fluxo.join('\n'), esquerda.join('\n'), direita.join('\n')];
-  }
 
   // ── Desenhar ──────────────────────────────────────────────────────────────
   function bancada(acervo) {
@@ -578,65 +530,6 @@
     await desenhar();
   }
 
-  /* ── ARRASTAR O ARQUIVO ───────────────────────────────────────────────────
-     🔴 22/09/2026 -- ELE TENTOU E NAO FUNCIONOU. Medido no navegador depois:
-     dentro da caixa tracejada o evento chegava certo, mas a caixa tinha
-     924x133px, uma FAIXA FINA, e fora dela o `dragover` do documento nao
-     impedia o padrao. Soltar o PDF um dedo acima ou abaixo fazia o navegador
-     ABRIR O ARQUIVO numa aba -- ou seja, a pessoa saia da pagina e parecia
-     que nada tinha acontecido.
-
-     A licao e maior que o conserto: o modo de falhar era SILENCIOSO e tirava
-     a pessoa do lugar. Numa area de soltar, o alvo tem de ser a JANELA
-     INTEIRA, e o padrao do navegador tem de morrer no documento, nao so no
-     retangulo bonito.
-
-     Agora: a pagina toda aceita, a tela inteira acende quando o arquivo
-     entra, e se cair um arquivo que nao e PDF ela DIZ, em vez de engolir. */
-  let arrastando = 0;
-  function ligarArrastar() {
-    if (document.body.dataset.arrastarLigado) return;
-    document.body.dataset.arrastarLigado = '1';
-
-    const temArquivo = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
-    const acender = (lig) => {
-      document.getElementById('solta')?.classList.toggle('por-cima', lig);
-      document.body.classList.toggle('arrastando-arquivo', lig);
-    };
-
-    // preventDefault no dragover do DOCUMENTO e o que impede o navegador de
-    // abrir o arquivo. Sem esta linha, nada mais aqui importa.
-    document.addEventListener('dragover', (e) => {
-      if (!temArquivo(e)) return;
-      e.preventDefault();
-      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-    });
-
-    document.addEventListener('dragenter', (e) => {
-      if (!temArquivo(e)) return;
-      e.preventDefault();
-      arrastando++; acender(true);
-    });
-
-    // `dragleave` dispara tambem ao passar de um elemento filho para outro,
-    // entao contar entradas e saidas evita a tela piscar durante o percurso.
-    document.addEventListener('dragleave', (e) => {
-      if (!temArquivo(e)) return;
-      arrastando = Math.max(0, arrastando - 1);
-      if (arrastando === 0) acender(false);
-    });
-
-    document.addEventListener('drop', (e) => {
-      if (!temArquivo(e)) return;
-      e.preventDefault();
-      arrastando = 0; acender(false);
-      const arq = e.dataTransfer?.files?.[0];
-      if (!arq) { toast('Não consegui ler o arquivo que você soltou.'); return; }
-      if (!$('f-pdf')) { toast('Esta página não é para você.'); return; }
-      abrirPdf(arq);
-    });
-  }
-
   // ── Montar a tela ─────────────────────────────────────────────────────────
   async function desenhar() {
     const { data: acervo, error } = await supabase.rpc('acervo_do_administrador');
@@ -645,7 +538,14 @@
 
     const campo = $('f-pdf');
     campo.addEventListener('change', () => abrirPdf(campo.files[0]));
-    ligarArrastar();
+    ligarArrastar({
+      aoSoltar: (arq) => {
+        if (!arq) { toast('Não consegui ler o arquivo que você soltou.'); return; }
+        if (!$('f-pdf')) { toast('Esta página não é para você.'); return; }
+        abrirPdf(arq);
+      },
+      aoAcender: (lig) => $('solta')?.classList.toggle('por-cima', lig),
+    });
   }
 
   (async () => {
