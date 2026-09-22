@@ -674,9 +674,9 @@ novo. É repetição, não invenção — e é melhor que o contrário, que seri
 | | Item | O quê | Estado |
 |---|---|---|---|
 | ✅ | **Q1** | **Medir o esforço de digitalizar uma prova** | **FEITO em 17/09.** 78 de 96 questões utilizáveis sozinhas (81%), 0,36 s por prova, R$ 0. `tools/prova-para-questoes.js` |
-| 🔴 | **Q2** | **Juntar os PDFs e montar o acervo** | o gargalo real: é buscar prova por prova. ⚠️ testei **uma banca só** — outras podem render menos |
-| 🔴 | **Q3** | **FILTROS** — banca · matéria · **assunto dentro da matéria** (funções, porcentagem, crase…) | pedido dele em 18/09. **É o filtro que os sites grandes têm e que faz o acervo servir para alguma coisa** |
-| 🔴 | **Q4** | 💰 **Amostra grátis × Pro** | free: 10/dia, sorteadas, provas de 4+ anos, **1 simulado completo de degustação**. Pro: ilimitado, filtrado pelo edital dele, provas recentes, **caderno de erros** |
+| ✅ | **Q2** | **O acervo existe, e ele alimenta sozinho** | **FEITO em 21/09/2026.** A tabela `questoes` no banco, e a tela `importar.html`: **o PDF entra pelo navegador dele**, as questões saem separadas e classificadas, e ele marca o que publica. Nenhuma linha de terminal. Escrita fechada — só `publicar_questoes()`, e só para quem está em `administradores`. Provas: `testa-importar` (18 de 18, com um PDF de verdade fabricado no teste) · `testa-acervo` (19 de 19). ⚠️ **Falta o combustível:** hoje há **0 provas** lá dentro |
+| ✅ | **Q3** | **FILTROS** — banca · matéria · **assunto dentro da matéria** (funções, porcentagem, crase…) | **FEITO em 21/09/2026**, em `banco.html`. O assunto **depende da matéria**: escolher Matemática abre Logaritmo, Porcentagem, Funções — e trocar para Português troca a lista inteira. Custou **R$ 0**: classificação por palavra-chave, como ele mandou (*"n quero gastar nada com esse filtro"*). O filtro **só oferece o que existe publicado** — não se promete assunto sem questão. Prova: `testa-banco-tela` (11 de 11) |
+| 🟡 | **Q4** | 💰 **Amostra grátis × Pro** | **O PORTÃO JÁ ESTÁ DE PÉ desde 21/09/2026**, dentro de `sortear_questoes()`: free = **10 questões novas por dia** e só provas com 4+ anos; beta e pro = **acervo inteiro, sem cota, com as provas recentes**. Medido nas duas pontas em `testa-acervo`. **Falta** o simulado de degustação e o caderno de erros — os dois dependem do R4 |
 | 🔴 | **R4** | 💰 **MASMORRA = SIMULADO** — incursão de N questões com relatório de missão no fim | 🔒 aprovado. É onde o corte do Pro mora |
 
 ---

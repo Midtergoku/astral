@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="stylesheet" href="/assets/css/base.css?v=ba2130d6"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Importar provas</title>
+  <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  /* ── A MESA DE CONFERÊNCIA ────────────────────────────────────────────────
+     Esta tela não é para o concurseiro: é a bancada do Lucas. Por isso ela
+     não tenta ser bonita, tenta ser LEGÍVEL em massa -- ele vai passar o olho
+     por 90 questões de uma vez, e o que importa é achar depressa a que está
+     errada, não admirar a que está certa.
+
+     🔴 NADA AQUI PUBLICA SOZINHO. O PDF entra, as questões aparecem, e só vai
+     para o acervo o que ele marcar. A extração acerta 81% -- questão truncada
+     é PIOR que questão ausente para quem estuda. */
+
+  .bancada {
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--latao); border-radius: var(--r-p);
+    padding: var(--e3); margin-bottom: var(--e4);
+  }
+
+  .campos { display: flex; gap: var(--e3); flex-wrap: wrap; align-items: flex-end; }
+
+  .campo { display: flex; flex-direction: column; gap: .25rem; }
+
+  .campo label {
+    font-family: var(--dado); font-size: .58rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  .campo input, .campo select {
+    background: var(--breu); border: 1px solid var(--linha); color: var(--texto);
+    border-radius: var(--r-p); padding: .5rem .6rem; font-family: var(--corpo);
+    font-size: .85rem; min-height: 44px;
+  }
+
+  .campo input:focus, .campo select:focus { outline: 2px solid var(--latao); outline-offset: 1px; }
+
+  .campo-banca input { width: 8rem; }
+  .campo-prova input { width: 14rem; }
+  .campo-ano   input { width: 6rem; }
+
+  .solta {
+    border: 2px dashed var(--linha); border-radius: var(--r-g);
+    padding: var(--e5) var(--e3); text-align: center; margin-top: var(--e3);
+    transition: border-color var(--d-toque) var(--saida), background var(--d-toque) var(--saida);
+  }
+
+  .solta.por-cima { border-color: var(--latao); background: color-mix(in srgb, var(--latao) 8%, transparent); }
+
+  .solta-titulo { font-family: var(--display); font-weight: 600; margin-bottom: .3rem; }
+
+  .solta-nota { font-size: .8rem; color: var(--texto-3); }
+
+  .placar {
+    display: flex; gap: var(--e4); flex-wrap: wrap; margin: var(--e4) 0 var(--e3);
+  }
+
+  .placar-item { display: flex; flex-direction: column; gap: .1rem; }
+
+  .placar-num {
+    font-family: var(--dado); font-weight: 700; font-size: var(--t-lg);
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+
+  .placar-rot {
+    font-family: var(--dado); font-size: .56rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  .placar-item.boa   .placar-num { color: var(--oliva-c); }
+  .placar-item.ruim  .placar-num { color: var(--brasa-c); }
+  .placar-item.neutro .placar-num { color: var(--latao-c); }
+
+  /* Uma ficha por questão. Borda esquerda diz o estado sem depender de cor
+     sozinha: quem não distingue verde de vermelho lê o rótulo em caixa alta. */
+  .qcard {
+    background: var(--casco); border: 1px solid var(--linha);
+    border-left: 3px solid var(--linha); border-radius: var(--r-p);
+    padding: var(--e3); margin-bottom: var(--e2);
+  }
+
+  .qcard.pronta  { border-left-color: var(--oliva-c); }
+  .qcard.revisar { border-left-color: var(--brasa-c); }
+
+  .qcard-topo {
+    display: flex; gap: var(--e2); align-items: center; flex-wrap: wrap;
+    margin-bottom: .45rem;
+  }
+
+  .qnum {
+    font-family: var(--dado); font-weight: 700; color: var(--latao-c);
+    font-variant-numeric: tabular-nums; min-width: 2.2rem;
+  }
+
+  .qtag {
+    font-family: var(--dado); font-size: .56rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
+    border: 1px solid var(--linha); border-radius: var(--r-p); padding: .1rem .35rem;
+  }
+
+  .qtag.motivo { color: var(--brasa-c); border-color: color-mix(in srgb, var(--brasa) 45%, transparent); }
+
+  .qcard-enunciado { font-size: .85rem; line-height: 1.45; margin-bottom: .4rem; }
+
+  .qalts { display: grid; gap: .12rem; font-size: .78rem; color: var(--texto-2); }
+
+  .qalt-letra { font-family: var(--dado); color: var(--texto-3); }
+
+  .qalt.certa { color: var(--oliva-c); }
+
+  .qalt.certa .qalt-letra { color: var(--oliva-c); font-weight: 700; }
+
+  .qcard-pe {
+    display: flex; gap: var(--e3); align-items: center; flex-wrap: wrap;
+    margin-top: .5rem; padding-top: .4rem; border-top: 1px solid var(--linha);
+  }
+
+  .marca { display: flex; align-items: center; gap: .4rem; font-size: .78rem; cursor: pointer; min-height: 44px; }
+
+  .marca input { width: 18px; height: 18px; accent-color: var(--latao); }
+
+  .qcard-pe select {
+    background: var(--breu); border: 1px solid var(--linha); color: var(--texto-2);
+    border-radius: var(--r-p); padding: .3rem .4rem; font-size: .76rem; min-height: 32px;
+  }
+
+  .barra-acao {
+    position: sticky; bottom: 0; background: var(--breu);
+    border-top: 1px solid var(--linha); padding: var(--e3) 0;
+    display: flex; gap: var(--e3); align-items: center; flex-wrap: wrap;
+  }
+
+  .aviso {
+    font-size: .8rem; color: var(--texto-3); line-height: 1.45;
+    border-top: 1px solid var(--linha); padding-top: var(--e3); margin-top: var(--e4);
+  }
+
+  .negado { text-align: center; padding: var(--e6) var(--e3); }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
+    <div class="user-details">
+      <div class="user-name" id="user-name"></div>
+    </div>
+  </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Recursos
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link" href="banco.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Questões
+    </a>
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+    <a class="nav-link" href="arvore.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3z"/>
+        <path d="M12 3v18M4 7.5l8 4.5 8-4.5"/>
+      </svg>
+      Quadro
+    </a>
+    <a class="nav-link" href="habilidades.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2v20M12 7l5-3M12 12l6-3.5M12 17l4-2.5M12 7 7 4M12 12l-6-3.5M12 17l-4-2.5"/>
+      </svg>
+      Instrução
+    </a>
+    <a class="nav-link" href="tags.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
+      Minhas tags
+    </a>
+      <a class="nav-link active" href="importar.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Importar provas
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Importar provas</h1>
+      <p class="page-sub">O PDF entra, as questões saem separadas e classificadas. Nada vai para o acervo sem você marcar.</p>
+    </div>
+      <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
+  </div>
+
+  <div id="conteudo">
+    <div class="esqueleto-linha media"></div>
+    <div class="esqueleto-bloco" style="height:12rem"></div>
+  </div>
+</main>
+
+<script type="module">
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
+    from './assets/js/astral.js?v=bfdb6e4b';
+  import { montarQuestoes } from './assets/js/prova.js?v=c5001150';
+  import { classificarLista, assuntosConhecidos } from './assets/js/assuntos.js?v=78708ba1';
+
+  const $ = (id) => document.getElementById(id);
+
+  // Tudo o que sai de um PDF é dado NÃO CONFIÁVEL: o arquivo vem da internet.
+  // Nada daqui vira HTML sem passar por esc()/att(). Regra 4 de segurança.
+  let lote = [];        // as questões do PDF aberto agora
+  let dadosProva = {};  // banca, prova, ano
+
+  /* ── O PDF VIRA TEXTO, AQUI DENTRO ────────────────────────────────────────
+     No terminal quem faz isto é o `pdftotext`. No navegador é o pdf.js, que
+     mora em assets/js/ (não em CDN) pelo mesmo motivo do supabase-js: a CSP
+     só autoriza script do próprio domínio, e se o CDN cair o Astral não cai
+     junto.
+
+     São TRÊS leituras do mesmo arquivo, e isso não é capricho: quando a
+     pergunta fica no pé de uma coluna e as alternativas no alto da outra, a
+     leitura em fluxo separa as duas e a questão se perde. Então lê-se em
+     fluxo, só a coluna esquerda e só a direita, e fica a melhor versão de
+     cada questão. */
+  async function pdfParaLeituras(arquivo) {
+    const pdfjs = await import('./assets/js/pdf-4.10.38.min.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc = './assets/js/pdf-worker-4.10.38.min.mjs';
+
+    const buf = await arquivo.arrayBuffer();
+    const doc = await pdfjs.getDocument({ data: buf }).promise;
+
+    const fluxo = [], esquerda = [], direita = [];
+    for (let p = 1; p <= doc.numPages; p++) {
+      const pagina = await doc.getPage(p);
+      const largura = pagina.getViewport({ scale: 1 }).width;
+      const corte = largura * 0.5;
+      const itens = (await pagina.getTextContent()).items
+        .filter((i) => i.str && i.str.trim())
+        .map((i) => ({ x: i.transform[4], y: i.transform[5], s: i.str }));
+
+      const emLinhas = (lista) => {
+        const porY = new Map();
+        // Arredonda o Y: itens da mesma linha impressa variam meio ponto.
+        for (const i of lista) {
+          const chave = Math.round(i.y / 3);
+          if (!porY.has(chave)) porY.set(chave, []);
+          porY.get(chave).push(i);
+        }
+        return [...porY.entries()]
+          .sort((a, b) => b[0] - a[0])                 // de cima para baixo
+          .map(([, itens]) => itens.sort((a, b) => a.x - b.x).map((i) => i.s).join(' ')
+            .replace(/\s{2,}/g, ' ').trim())
+          .filter(Boolean).join('\n');
+      };
+
+      fluxo.push(emLinhas(itens));
+      esquerda.push(emLinhas(itens.filter((i) => i.x < corte)));
+      direita.push(emLinhas(itens.filter((i) => i.x >= corte * 0.96)));
+    }
+    return [fluxo.join('\n'), esquerda.join('\n'), direita.join('\n')];
+  }
+
+  // ── Desenhar ──────────────────────────────────────────────────────────────
+  function bancada(acervo) {
+    const anoAgora = new Date().getFullYear();
+    return `
+      <div class="bancada">
+        <div class="campos">
+          <div class="campo campo-banca">
+            <label for="f-banca">Banca</label>
+            <input id="f-banca" type="text" placeholder="EEAR" maxlength="40" value="${att(dadosProva.banca || '')}" />
+          </div>
+          <div class="campo campo-prova">
+            <label for="f-prova">Prova</label>
+            <input id="f-prova" type="text" placeholder="CFS 2/2025" maxlength="80" value="${att(dadosProva.prova || '')}" />
+          </div>
+          <div class="campo campo-ano">
+            <label for="f-ano">Ano</label>
+            <input id="f-ano" type="number" min="1990" max="${anoAgora}" value="${att(String(dadosProva.ano || anoAgora))}" />
+          </div>
+          <div class="campo">
+            <label for="f-sg">Sem gabarito no PDF</label>
+            <select id="f-sg">
+              <option value="nao">Não — só entra com resposta</option>
+              <option value="sim">Sim — trazer mesmo assim</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="solta" id="solta">
+          <div class="solta-titulo">Solte o PDF da prova aqui</div>
+          <div class="solta-nota">ou <label for="f-pdf" style="color:var(--latao-c);cursor:pointer;text-decoration:underline">escolha o arquivo</label> — nada é enviado para servidor nenhum: o PDF é lido dentro do seu navegador.</div>
+          <input id="f-pdf" type="file" accept="application/pdf" style="position:absolute;width:1px;height:1px;opacity:0" />
+        </div>
+      </div>
+
+      <div class="placar">
+        <div class="placar-item neutro">
+          <span class="placar-num">${acervo.total}</span>
+          <span class="placar-rot">no acervo</span>
+        </div>
+        <div class="placar-item boa">
+          <span class="placar-num">${acervo.no_ar}</span>
+          <span class="placar-rot">publicadas</span>
+        </div>
+        <div class="placar-item neutro">
+          <span class="placar-num">${(acervo.provas || []).length}</span>
+          <span class="placar-rot">provas</span>
+        </div>
+      </div>
+
+      ${(acervo.provas || []).length ? `
+        <div class="card" style="margin-bottom:var(--e4)">
+          <div class="section-title">O que já está lá</div>
+          ${acervo.provas.map((p) => `
+            <div style="display:flex;gap:var(--e3);font-size:.82rem;padding:.25rem 0;border-bottom:1px solid var(--linha)">
+              <span style="font-family:var(--dado);color:var(--latao-c)">${esc(p.banca)}</span>
+              <span style="flex:1">${esc(p.prova)} · ${esc(String(p.ano))}</span>
+              <span style="font-family:var(--dado);color:var(--texto-3)">${p.no_ar}/${p.quantas} no ar</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+      <div id="lote"></div>`;
+  }
+
+  function fichaDaQuestao(q, i) {
+    const conhecidos = assuntosConhecidos()[q.materia] || [];
+    const alts = Object.entries(q.alternativas || {}).sort();
+    return `
+      <div class="qcard ${q.motivo ? 'revisar' : 'pronta'}">
+        <div class="qcard-topo">
+          <span class="qnum">${esc(String(q.numero))}</span>
+          <span class="qtag">${esc(q.materia || 'sem matéria')}</span>
+          ${q.motivo ? `<span class="qtag motivo">${esc(q.motivo)}</span>` : ''}
+          ${q.gabarito ? `<span class="qtag">gabarito ${esc(q.gabarito)}</span>` : '<span class="qtag motivo">sem gabarito</span>'}
+        </div>
+        <div class="qcard-enunciado">${esc(q.enunciado)}</div>
+        <div class="qalts">
+          ${alts.map(([l, t]) => `
+            <div class="qalt ${l === q.gabarito ? 'certa' : ''}">
+              <span class="qalt-letra">${esc(l)})</span> ${esc(t)}
+            </div>`).join('')}
+        </div>
+        <div class="qcard-pe">
+          <label class="marca">
+            <input type="checkbox" data-publicar="${att(String(i))}" ${q.motivo ? '' : 'checked'} />
+            publicar esta
+          </label>
+          <select data-assunto="${att(String(i))}">
+            <option value="">— sem assunto —</option>
+            ${conhecidos.map((a) => `<option value="${att(a)}" ${a === q.assunto ? 'selected' : ''}>${esc(a)}</option>`).join('')}
+          </select>
+        </div>
+      </div>`;
+  }
+
+  function desenharLote() {
+    const alvo = $('lote');
+    if (!lote.length) { alvo.innerHTML = ''; return; }
+    const prontas = lote.filter((q) => !q.motivo).length;
+    const comAssunto = lote.filter((q) => q.assunto).length;
+    const cob = Math.round((comAssunto / lote.length) * 100);
+
+    alvo.innerHTML = `
+      <div class="placar">
+        <div class="placar-item neutro"><span class="placar-num">${lote.length}</span><span class="placar-rot">achadas no PDF</span></div>
+        <div class="placar-item boa"><span class="placar-num">${prontas}</span><span class="placar-rot">prontas</span></div>
+        <div class="placar-item ruim"><span class="placar-num">${lote.length - prontas}</span><span class="placar-rot">pedem revisão</span></div>
+        <div class="placar-item neutro"><span class="placar-num">${cob}%</span><span class="placar-rot">com assunto</span></div>
+      </div>
+
+      <div class="aviso" style="border:0;margin:0 0 var(--e3);padding:0">
+        As de borda <strong style="color:var(--oliva-c)">verde</strong> já vêm marcadas. As de borda
+        <strong style="color:var(--brasa-c)">vermelha</strong> não — elas dependem de figura, vieram truncadas
+        ou perderam o gabarito. <strong>Questão truncada é pior que questão ausente</strong> para quem estuda,
+        então a decisão de trazer uma dessas é sua, uma a uma.
+      </div>
+
+      ${lote.map(fichaDaQuestao).join('')}
+
+      <div class="barra-acao">
+        <button class="btn btn-primary" id="btn-gravar">Gravar no acervo</button>
+        <span id="conta-marcadas" style="font-size:.82rem;color:var(--texto-3)"></span>
+      </div>`;
+
+    alvo.querySelectorAll('[data-publicar]').forEach((el) => {
+      el.addEventListener('change', () => { lote[+el.dataset.publicar].publicar = el.checked; contar(); });
+      lote[+el.dataset.publicar].publicar = el.checked;
+    });
+    alvo.querySelectorAll('[data-assunto]').forEach((el) => {
+      el.addEventListener('change', () => { lote[+el.dataset.assunto].assunto = el.value || null; });
+    });
+    $('btn-gravar').addEventListener('click', gravar);
+    contar();
+  }
+
+  function contar() {
+    const n = lote.filter((q) => q.publicar).length;
+    $('conta-marcadas').textContent = n === 0
+      ? 'nenhuma marcada — nada será gravado'
+      : `${n} marcada${n > 1 ? 's' : ''} para publicar`;
+  }
+
+  // ── Ler o arquivo ─────────────────────────────────────────────────────────
+  async function abrirPdf(arquivo) {
+    if (!arquivo) return;
+    if (arquivo.type && arquivo.type !== 'application/pdf') { toast('Isso não é um PDF.'); return; }
+    if (arquivo.size > 25 * 1024 * 1024) { toast('PDF acima de 25 MB.'); return; }
+
+    $('lote').innerHTML = '<div class="esqueleto-bloco" style="height:8rem"></div>';
+    try {
+      const leituras = await pdfParaLeituras(arquivo);
+      const r = montarQuestoes(leituras, { incluirSemGabarito: $('f-sg').value === 'sim' });
+      const todas = [...r.prontas, ...r.revisar].sort((a, b) => a.numero - b.numero);
+
+      if (!todas.length) {
+        $('lote').innerHTML = `<div class="card"><div class="vazio-texto">
+          Não encontrei questão nenhuma neste PDF. Provavelmente é um arquivo digitalizado
+          (foto das páginas), e aí não existe texto para ler — só imagem.</div></div>`;
+        lote = [];
+        return;
+      }
+
+      lote = classificarLista(todas).questoes;
+      // O ano do nome da prova ajuda, mas o campo manda.
+      const achouAno = String(arquivo.name).match(/\b(19|20)\d{2}\b/);
+      if (achouAno && !dadosProva.ano) $('f-ano').value = achouAno[0];
+      desenharLote();
+    } catch (e) {
+      relatar(e, 'importar/pdf');
+      $('lote').innerHTML = `<div class="card"><div class="vazio-texto">
+        Não consegui ler este PDF: ${esc(String(e.message || e))}</div></div>`;
+    }
+  }
+
+  // ── Gravar ────────────────────────────────────────────────────────────────
+  async function gravar() {
+    const banca = $('f-banca').value.trim();
+    const prova = $('f-prova').value.trim();
+    const ano = parseInt($('f-ano').value, 10);
+
+    if (banca.length < 2) { toast('Escreva a banca (EEAR, ESA, EsPCEx…).'); $('f-banca').focus(); return; }
+    if (prova.length < 2) { toast('Escreva qual prova é (CFS 2/2025…).'); $('f-prova').focus(); return; }
+    if (!(ano >= 1990 && ano <= 2100)) { toast('Ano inválido.'); $('f-ano').focus(); return; }
+
+    const marcadas = lote.filter((q) => q.publicar);
+    if (!marcadas.length) { toast('Nenhuma questão marcada.'); return; }
+
+    // Questão sem gabarito não pode ir publicada: não haveria resposta certa.
+    const semResposta = marcadas.filter((q) => !q.gabarito);
+    if (semResposta.length) {
+      toast(`${semResposta.length} das marcadas estão sem gabarito. Desmarque-as primeiro.`);
+      return;
+    }
+
+    const btn = $('btn-gravar');
+    btn.disabled = true; btn.textContent = 'Gravando…';
+
+    const payload = marcadas.map((q) => ({
+      banca, prova, ano,
+      numero: q.numero,
+      materia: q.materia,
+      assunto: q.assunto || null,
+      enunciado: q.enunciado,
+      alternativas: q.alternativas,
+      gabarito: q.gabarito,
+      publicada: true,
+      revisao: q.motivo || 'ok',
+    }));
+
+    const { data, error } = await supabase.rpc('publicar_questoes', { p_questoes: payload });
+    btn.disabled = false; btn.textContent = 'Gravar no acervo';
+
+    if (error) { relatar(error, 'importar/gravar'); toast('Não consegui gravar: ' + error.message); return; }
+    toast(`${data.gravadas} questões gravadas. O acervo tem ${data.no_ar} no ar.`);
+    dadosProva = { banca, prova, ano };
+    lote = [];
+    await desenhar();
+  }
+
+  // ── Montar a tela ─────────────────────────────────────────────────────────
+  async function desenhar() {
+    const { data: acervo, error } = await supabase.rpc('acervo_do_administrador');
+    if (error) { relatar(error, 'importar/acervo'); return; }
+    $('conteudo').innerHTML = bancada(acervo);
+
+    const solta = $('solta');
+    const campo = $('f-pdf');
+    campo.addEventListener('change', () => abrirPdf(campo.files[0]));
+    ['dragenter', 'dragover'].forEach((ev) => solta.addEventListener(ev, (e) => {
+      e.preventDefault(); solta.classList.add('por-cima');
+    }));
+    ['dragleave', 'drop'].forEach((ev) => solta.addEventListener(ev, (e) => {
+      e.preventDefault(); solta.classList.remove('por-cima');
+    }));
+    solta.addEventListener('drop', (e) => abrirPdf(e.dataTransfer?.files?.[0]));
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    await nomeDoUsuario(sessao);
+
+    // 🔴 O servidor decide, não a tela. Esconder o botão não protege nada --
+    // quem escrever no console chamaria a função direto. A função confere por
+    // auth.uid() e recusa com 42501. Isto aqui é só para não mostrar uma
+    // bancada vazia para quem não é dono.
+    const { data: souAdmin } = await supabase.rpc('sou_administrador');
+    if (!souAdmin) {
+      $('conteudo').innerHTML = `<div class="card negado">
+        <div class="section-title">Esta página não é para você</div>
+        <div class="vazio-texto">Aqui é onde as provas entram no acervo, e só quem administra o
+        Astral faz isso. Para estudar com as questões, vá em <a href="questoes.html">Questões</a>.</div>
+      </div>`;
+      return;
+    }
+    await desenhar();
+  })();
+
+  window.fazerLogout = fazerLogout;
+</script>
+</body>
+</html>

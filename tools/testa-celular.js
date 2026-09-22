@@ -138,7 +138,22 @@ async function abrir(nav, ap, pagina) {
           // -- <label for="id"> e <label><input>texto</label> (implicito).
           const temRotulo = (el.type === "checkbox" || el.type === "radio")
             && ((el.id && !!document.querySelector(`label[for="${el.id}"]`)) || !!el.closest("label"));
-          out.push({ nome, w: Math.round(r.width), h: Math.round(r.height), emLinha, temRotulo });
+          // 🔴 21/09/2026: campo de ARQUIVO escondido atras de um rotulo. O
+          // <input type="file"> nativo nao se estiliza, entao o padrao de toda
+          // a web e encolhe-lo a 1px e por um <label for> por cima -- e o
+          // rotulo E o alvo. Aqui so vale se o rotulo existir E for grande o
+          // bastante: sem essa segunda parte, bastaria esconder qualquer
+          // controle para escapar da regua, e a checagem viraria enfeite.
+          let rotuloGrande = false;
+          if (el.type === "file" && el.id) {
+            const lab = document.querySelector(`label[for="${el.id}"]`);
+            if (lab) {
+              const rl = lab.getBoundingClientRect();
+              rotuloGrande = rl.width >= 44 || rl.height >= 44;
+            }
+          }
+          out.push({ nome, w: Math.round(r.width), h: Math.round(r.height),
+                     emLinha, temRotulo: temRotulo || rotuloGrande });
         }
         return out;
       });

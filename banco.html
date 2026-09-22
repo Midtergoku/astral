@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="stylesheet" href="/assets/css/base.css?v=ba2130d6"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Banco de questões</title>
+  <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  /* ── O BANCO DE QUESTÕES ──────────────────────────────────────────────────
+     Questões de provas militares antigas, que são documento público. NÃO é a
+     mesma coisa que a geração por IA de `questoes.html`, que segue desligada
+     desde 31/07 por causa de custo: aqui não há chamada paga nenhuma, o que é
+     exatamente o motivo de este caminho existir.
+
+     🔴 A tela não decide nada sobre plano. Ela pede ao servidor e desenha o
+     que voltar. O portão free/pro mora dentro de `sortear_questoes` -- se
+     morasse aqui, bastaria abrir o console para derrubá-lo. */
+
+  .filtros {
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--latao); border-radius: var(--r-p);
+    padding: var(--e3); margin-bottom: var(--e4);
+  }
+
+  .filtros-linha { display: flex; gap: var(--e3); flex-wrap: wrap; align-items: flex-end; }
+
+  .filtro { display: flex; flex-direction: column; gap: .25rem; }
+
+  .filtro label {
+    font-family: var(--dado); font-size: .58rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--texto-3);
+  }
+
+  .filtro select {
+    background: var(--breu); border: 1px solid var(--linha); color: var(--texto);
+    border-radius: var(--r-p); padding: .5rem .6rem; font-family: var(--corpo);
+    font-size: .85rem; min-height: 44px; min-width: 10rem;
+  }
+
+  .filtro select:focus { outline: 2px solid var(--latao); outline-offset: 1px; }
+
+  .filtro select:disabled { opacity: .45; }
+
+  .cota {
+    display: flex; gap: var(--e3); align-items: baseline; flex-wrap: wrap;
+    margin-top: var(--e3); padding-top: var(--e2);
+    border-top: 1px solid var(--linha); font-size: .8rem; color: var(--texto-3);
+  }
+
+  .cota-num {
+    font-family: var(--dado); font-weight: 700; color: var(--latao-c);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── A questão ──────────────────────────────────────────────────────────── */
+  .questao {
+    background: var(--casco); border: 1px solid var(--linha);
+    border-radius: var(--r-g); padding: var(--e4); margin-bottom: var(--e3);
+  }
+
+  .questao-topo {
+    display: flex; gap: var(--e2); align-items: center; flex-wrap: wrap;
+    margin-bottom: var(--e3); padding-bottom: var(--e2);
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .selo {
+    font-family: var(--dado); font-size: .58rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
+    border: 1px solid var(--linha); border-radius: var(--r-p); padding: .12rem .4rem;
+  }
+
+  .selo.assunto { color: var(--latao-c); border-color: color-mix(in srgb, var(--latao) 45%, transparent); }
+
+  .questao-enunciado {
+    font-size: .95rem; line-height: 1.6; margin-bottom: var(--e3);
+    text-wrap: pretty;
+  }
+
+  .alts { display: grid; gap: .4rem; }
+
+  .alt {
+    display: flex; gap: .6rem; align-items: flex-start; width: 100%;
+    background: var(--breu); border: 1px solid var(--linha);
+    border-radius: var(--r-p); padding: .7rem .8rem; min-height: 44px;
+    color: var(--texto); font-family: var(--corpo); font-size: .88rem;
+    line-height: 1.45; text-align: left; cursor: pointer;
+    transition: border-color var(--d-toque) var(--saida), background var(--d-toque) var(--saida);
+  }
+
+  @media (hover: hover) {
+    .alt:not(:disabled):hover { border-color: var(--latao); }
+  }
+
+  .alt:focus-visible { outline: 2px solid var(--latao); outline-offset: 1px; }
+
+  .alt-letra {
+    font-family: var(--dado); font-weight: 700; color: var(--texto-3);
+    min-width: 1.1rem;
+  }
+
+  /* Depois de responder: cor E palavra. Quem não distingue verde de vermelho
+     lê o rótulo -- cor sozinha não é informação. */
+  .alt.certa {
+    border-color: var(--oliva-c);
+    background: color-mix(in srgb, var(--oliva) 14%, transparent);
+  }
+
+  .alt.certa .alt-letra { color: var(--oliva-c); }
+
+  .alt.errada {
+    border-color: var(--brasa-c);
+    background: color-mix(in srgb, var(--brasa) 12%, transparent);
+  }
+
+  .alt.errada .alt-letra { color: var(--brasa-c); }
+
+  .alt:disabled { cursor: default; }
+
+  .veredito {
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .14em;
+    text-transform: uppercase; margin-left: auto; white-space: nowrap;
+  }
+
+  .veredito.boa { color: var(--oliva-c); }
+
+  .veredito.ma { color: var(--brasa-c); }
+
+  .placar-final {
+    background: var(--casco-2); border: 1px solid var(--linha);
+    border-left: 3px solid var(--latao); border-radius: var(--r-p);
+    padding: var(--e4); margin-bottom: var(--e3);
+  }
+
+  .placar-final-num {
+    font-family: var(--dado); font-weight: 700; font-size: var(--t-2xl);
+    color: var(--latao-c); line-height: 1; font-variant-numeric: tabular-nums;
+  }
+
+  .convite {
+    border: 1px solid color-mix(in srgb, var(--latao) 40%, transparent);
+    border-radius: var(--r-p); padding: var(--e3); margin-top: var(--e3);
+    font-size: .84rem; color: var(--texto-2); line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 1.25rem; }
+    .filtro select { min-width: 100%; }
+    .filtro { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
+    <div class="user-details">
+      <div class="user-name" id="user-name"></div>
+    </div>
+  </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="edital.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meu Edital
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <a class="nav-link" href="recursos.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Recursos
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+    <a class="nav-link" href="arvore.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3z"/>
+        <path d="M12 3v18M4 7.5l8 4.5 8-4.5"/>
+      </svg>
+      Quadro
+    </a>
+    <a class="nav-link" href="habilidades.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2v20M12 7l5-3M12 12l6-3.5M12 17l4-2.5M12 7 7 4M12 12l-6-3.5M12 17l-4-2.5"/>
+      </svg>
+      Instrução
+    </a>
+    <a class="nav-link" href="tags.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
+      Minhas tags
+    </a>
+      <a class="nav-link active" href="banco.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Questões
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Banco de questões</h1>
+      <p class="page-sub">Questões de provas militares antigas, do jeito que caíram na prova.</p>
+    </div>
+      <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
+  </div>
+
+  <div id="conteudo">
+    <div class="esqueleto-linha media"></div>
+    <div class="esqueleto-bloco" style="height:14rem"></div>
+  </div>
+</main>
+
+<script type="module">
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
+    from './assets/js/astral.js?v=bfdb6e4b';
+
+  const $ = (id) => document.getElementById(id);
+
+  let filtros = null;     // o que o acervo tem, vindo do servidor
+  let questoes = [];      // a rodada atual
+  let respostas = {};     // id da questao -> letra escolhida
+
+  // ── Os filtros ────────────────────────────────────────────────────────────
+  function montarFiltros() {
+    const mats = filtros.materias || [];
+    const bancas = filtros.bancas || [];
+    const anos = filtros.anos || [];
+
+    return `
+      <div class="filtros">
+        <div class="filtros-linha">
+          <div class="filtro">
+            <label for="f-materia">Matéria</label>
+            <select id="f-materia">
+              <option value="">Todas</option>
+              ${mats.map((m) => `<option value="${att(m.nome)}">${esc(m.nome)} (${m.quantas})</option>`).join('')}
+            </select>
+          </div>
+          <div class="filtro">
+            <label for="f-assunto">Assunto</label>
+            <select id="f-assunto" disabled>
+              <option value="">Escolha a matéria primeiro</option>
+            </select>
+          </div>
+          <div class="filtro">
+            <label for="f-banca">Banca</label>
+            <select id="f-banca">
+              <option value="">Todas</option>
+              ${bancas.map((b) => `<option value="${att(b.nome)}">${esc(b.nome)} (${b.quantas})</option>`).join('')}
+            </select>
+          </div>
+          <div class="filtro">
+            <label for="f-ano">Ano</label>
+            <select id="f-ano">
+              <option value="">Todos</option>
+              ${anos.map((a) => `<option value="${att(String(a))}">${esc(String(a))}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filtro">
+            <label for="btn-sortear">&nbsp;</label>
+            <button class="btn btn-primary" id="btn-sortear" style="min-height:44px">Começar</button>
+          </div>
+        </div>
+        <div class="cota" id="cota"></div>
+      </div>
+      <div id="rodada"></div>`;
+  }
+
+  // O assunto depende da matéria -- é o pedido dele de 18/09: "às vezes ela
+  // quer estudar matemática, mas ela quer estudar sobre funções ou porcentagem".
+  function atualizarAssuntos() {
+    const sel = $('f-assunto');
+    const nome = $('f-materia').value;
+    const mat = (filtros.materias || []).find((m) => m.nome === nome);
+    const lista = mat?.assuntos || [];
+
+    if (!nome) {
+      sel.innerHTML = '<option value="">Escolha a matéria primeiro</option>';
+      sel.disabled = true;
+      return;
+    }
+    if (!lista.length) {
+      sel.innerHTML = '<option value="">Esta matéria ainda não tem assunto marcado</option>';
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">Todos os assuntos</option>'
+      + lista.map((a) => `<option value="${att(a.nome)}">${esc(a.nome)} (${a.quantas})</option>`).join('');
+  }
+
+  // ── A rodada ──────────────────────────────────────────────────────────────
+  function desenharQuestao(q, i) {
+    const alts = Object.entries(q.alternativas || {}).sort();
+    return `
+      <div class="questao" data-q="${att(String(q.id))}">
+        <div class="questao-topo">
+          <span class="selo">${esc(q.banca)} ${esc(String(q.ano))}</span>
+          <span class="selo">${esc(q.materia)}</span>
+          ${q.assunto ? `<span class="selo assunto">${esc(q.assunto)}</span>` : ''}
+          <span class="selo">questão ${esc(String(i + 1))} de ${questoes.length}</span>
+          <span class="veredito" data-veredito="${att(String(q.id))}"></span>
+        </div>
+        <div class="questao-enunciado">${esc(q.enunciado)}</div>
+        <div class="alts">
+          ${alts.map(([letra, texto]) => `
+            <button class="alt" data-responder="${att(String(q.id))}" data-letra="${att(letra)}">
+              <span class="alt-letra">${esc(letra)})</span>
+              <span>${esc(texto)}</span>
+            </button>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  function responder(id, letra) {
+    if (respostas[id]) return;              // já respondeu: não se muda a resposta
+    const q = questoes.find((x) => String(x.id) === String(id));
+    if (!q) return;
+    respostas[id] = letra;
+
+    const bloco = document.querySelector(`.questao[data-q="${CSS.escape(String(id))}"]`);
+    bloco.querySelectorAll('.alt').forEach((b) => {
+      b.disabled = true;
+      if (b.dataset.letra === q.gabarito) b.classList.add('certa');
+      else if (b.dataset.letra === letra) b.classList.add('errada');
+    });
+
+    const v = bloco.querySelector(`[data-veredito="${CSS.escape(String(id))}"]`);
+    const acertou = letra === q.gabarito;
+    v.textContent = acertou ? 'acertou' : 'a certa era ' + q.gabarito;
+    v.className = 'veredito ' + (acertou ? 'boa' : 'ma');
+
+    if (Object.keys(respostas).length === questoes.length) mostrarPlacar();
+  }
+
+  function mostrarPlacar() {
+    const acertos = questoes.filter((q) => respostas[q.id] === q.gabarito).length;
+    const pct = Math.round((acertos / questoes.length) * 100);
+    const div = document.createElement('div');
+    div.className = 'placar-final';
+    div.innerHTML = `
+      <div class="placar-final-num">${acertos}/${questoes.length}</div>
+      <div style="font-size:.85rem;color:var(--texto-2);margin-top:.3rem">
+        ${pct}% de acerto nesta rodada. ${pct >= 70
+          ? 'Terreno dominado — vale trocar de assunto.'
+          : 'Este assunto ainda cobra preço. Vale repetir amanhã.'}
+      </div>`;
+    $('rodada').prepend(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  async function sortear() {
+    const btn = $('btn-sortear');
+    btn.disabled = true; btn.textContent = 'Sorteando…';
+    respostas = {};
+
+    const { data, error } = await supabase.rpc('sortear_questoes', {
+      p_materia: $('f-materia').value || null,
+      p_assunto: $('f-assunto').value || null,
+      p_banca: $('f-banca').value || null,
+      p_ano: $('f-ano').value ? parseInt($('f-ano').value, 10) : null,
+      p_limite: 10,
+    });
+
+    btn.disabled = false; btn.textContent = 'Sortear outras';
+
+    if (error) { relatar(error, 'banco/sortear'); toast('Não consegui buscar as questões agora.'); return; }
+
+    atualizarCota(data);
+    questoes = data.questoes || [];
+
+    if (!questoes.length) {
+      $('rodada').innerHTML = data.acabou
+        ? `<div class="card"><div class="empty-title">A amostra de hoje acabou</div>
+             <div class="vazio-texto">${esc(data.motivo || '')}<br><br>
+             Ela se renova amanhã. No Pro não há amostra: o acervo é liberado por inteiro,
+             inclusive as provas dos últimos anos.</div></div>`
+        : `<div class="card"><div class="empty-title">Nada com esses filtros</div>
+             <div class="vazio-texto">Não há questão publicada com essa combinação. Tente afrouxar
+             um dos filtros — por exemplo, deixar o ano em "todos".</div></div>`;
+      return;
+    }
+
+    $('rodada').innerHTML = questoes.map(desenharQuestao).join('');
+    $('rodada').querySelectorAll('[data-responder]').forEach((b) => {
+      b.addEventListener('click', () => responder(b.dataset.responder, b.dataset.letra));
+    });
+    $('rodada').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function atualizarCota(data) {
+    const el = $('cota');
+    if (!data || data.limite_do_dia == null) {
+      el.innerHTML = '<span>Acervo liberado por inteiro.</span>';
+      return;
+    }
+    const usadas = data.vistas_hoje ?? 0;
+    const fora = data.fora_da_amostra ?? 0;
+    el.innerHTML = `
+      <span><span class="cota-num">${usadas}</span> de <span class="cota-num">${data.limite_do_dia}</span> questões da amostra de hoje</span>
+      ${fora > 0 ? `<span>· <span class="cota-num">${fora}</span> de provas recentes ficam fora da amostra</span>` : ''}`;
+  }
+
+  // ── Montar ────────────────────────────────────────────────────────────────
+  async function desenhar() {
+    const { data, error } = await supabase.rpc('filtros_de_questoes');
+    if (error) { relatar(error, 'banco/filtros'); return; }
+    filtros = data;
+
+    // O acervo ainda está sendo montado -- dizer isso é melhor que mostrar
+    // uma tela de filtros que não filtra nada.
+    if (!filtros.total) {
+      const { data: souAdmin } = await supabase.rpc('sou_administrador');
+      $('conteudo').innerHTML = `
+        <div class="card" style="text-align:center;padding:var(--e6) var(--e3)">
+          <div class="empty-title">O acervo está sendo montado</div>
+          <div class="vazio-texto">
+            Ainda não há nenhuma prova aqui dentro. As questões vêm de provas militares
+            antigas, que são documento público — e cada prova entra depois de conferida,
+            uma a uma.<br><br>
+            Enquanto isso, o resto do Astral continua inteiro: o edital, o cronograma,
+            o progresso, as condecorações e a árvore de habilidades.
+          </div>
+          ${souAdmin ? `<a class="btn btn-primary" href="importar.html"
+             style="width:auto;display:inline-flex;margin-top:1.25rem;text-decoration:none">
+             Importar a primeira prova</a>` : ''}
+        </div>`;
+      return;
+    }
+
+    $('conteudo').innerHTML = montarFiltros();
+    $('f-materia').addEventListener('change', atualizarAssuntos);
+    $('btn-sortear').addEventListener('click', sortear);
+    atualizarCota(null);
+    $('cota').innerHTML = `<span><span class="cota-num">${filtros.total}</span> questões no acervo.
+      Escolha o terreno e comece.</span>`;
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    await nomeDoUsuario(sessao);
+    await desenhar();
+  })();
+
+  window.fazerLogout = fazerLogout;
+</script>
+</body>
+</html>
