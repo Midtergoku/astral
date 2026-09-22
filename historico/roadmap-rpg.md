@@ -677,9 +677,60 @@ novo. É repetição, não invenção — e é melhor que o contrário, que seri
 | ✅ | **Q2** | **O ACERVO ESTÁ CHEIO** — 1.532 questões | **FEITO em 21/09 e ABASTECIDO em 22/09/2026.** **56 provas da EEAR (CFS e EAGS), de 2017 a 2026**, baixadas do servidor oficial da FAB e processadas a **custo R$ 0**. Português 514 · Inglês 335 · Matemática 265 · Informática 237 · Física 181. Duas vias: `tools/baixa-provas.js` + `tools/importa-provas.js` (eu, em lote) e `importar.html` (ele, arrastando um PDF). Escrita fechada — só `publicar_questoes()`, e só para quem está em `administradores`. Provas: `testa-acervo-limpo` (12, contra o acervo REAL) · `testa-importar` (20) · `testa-acervo` (19) |
 | ✅ | **Q3** | **FILTROS** — banca · matéria · **assunto dentro da matéria** (funções, porcentagem, crase…) | **FEITO em 21/09/2026**, em `banco.html`. O assunto **depende da matéria**: escolher Matemática abre Logaritmo, Porcentagem, Funções — e trocar para Português troca a lista inteira. Custou **R$ 0**: classificação por palavra-chave, como ele mandou (*"n quero gastar nada com esse filtro"*). O filtro **só oferece o que existe publicado** — não se promete assunto sem questão. Prova: `testa-banco-tela` (11 de 11) |
 | 🟡 | **Q4** | 💰 **Amostra grátis × Pro** | **O PORTÃO JÁ ESTÁ DE PÉ desde 21/09/2026**, dentro de `sortear_questoes()`: free = **10 questões novas por dia** e só provas com 4+ anos; beta e pro = **acervo inteiro, sem cota, com as provas recentes**. Medido nas duas pontas em `testa-acervo`. **Falta** o simulado de degustação e o caderno de erros — os dois dependem do R4 |
+| ✅ | **Q5** | **MINHAS QUESTÕES** — o aluno traz a prova que o acervo não tem | **FEITO em 22/09/2026**, em `banco.html`, aba *Minhas questões*. Ela solta o PDF, ele é lido **dentro do navegador dela** e as questões ficam **só na conta dela**. 🔴 **Os dois mundos nunca se tocam** — o material pode ter dono, e publicá-lo por engano seria distribuir o que não é nosso. Separação no banco (RLS por `auth.uid()`, `usuario_id` fora do grant de update), no servidor (`sortear_questoes` não enxerga a tabela) e **na tela** (selo "só você vê"). Teto de 2.000 por conta — o plano do Supabase é o free. Provas: `testa-minhas-questoes` (14, com invasão por credencial válida) · `testa-minhas-tela` (16, com PDF de verdade fabricado no teste) |
 | 🔴 | **R4** | 💰 **MASMORRA = SIMULADO** — incursão de N questões com relatório de missão no fim | 🔒 aprovado. É onde o corte do Pro mora |
 
 
+
+### 📄 O leitor entende outras bancas — 22/09/2026
+
+Ele perguntou: *"você não conseguiu provas dos bombeiros, da polícia, da marinha? Eu queria de
+todas as especialidades (...) a pessoa que vai fazer prova de oficial dos bombeiros tem química."*
+
+**Não era falta de prova — era falta de leitura.** Baixei provas de bombeiro de MG, do ES e da ESA
+no primeiro minuto, e o leitor devolvia **zero** em todas, porque só conhecia o formato da FAB.
+
+| Formato | Marca da questão | Alternativas | Onde aparece |
+|---|---|---|---|
+| `fab` | `01 – ` | `a)` `b)` | Força Aérea |
+| `questao` | `Questão 01` | `(A)` `(B)` | bombeiro de MG, bancas civis |
+| `ponto` | `1.` | `A)` `B)` | bombeiro do ES |
+| `circulo` | `01 ` | `Ⓐ` `Ⓑ` | ESA |
+
+O formato **não é escolhido à mão**: conta-se quantas questões cada padrão acha e vence o que
+achar mais. Prova de banca desconhecida cai sozinha no formato certo — ou em nenhum, que é a
+resposta honesta.
+
+E a lista de matérias foi de **13 para 39**, com o que ele pediu: Química, Biologia, Direito penal,
+Direito constitucional, Direitos humanos, Legislação de trânsito, Raciocínio lógico, Proteção e
+defesa civil, Primeiros socorros, Enfermagem.
+
+#### 🔴 O gargalo mudou de lugar: agora é o gabarito
+
+Testei **40 PDFs de seis instituições**. A extração funciona em quase todos (67% a 79%). O que
+separa os que entram no acervo é uma coisa só: **se o gabarito está no mesmo arquivo.**
+
+| | |
+|---|---|
+| Força Aérea | publica o caderno **já com o gabarito dentro** → 1.755 questões no acervo |
+| Bombeiros, Marinha, ESA, bancas civis | gabarito em **arquivo separado** → nenhuma entrou |
+
+**Sem a resposta certa a questão não serve, e adivinhar seria pior que não ter a prova.** A lista
+completa do que testei, com links, está em `onde-baixar-provas.md`.
+
+#### O gabarito de arquivo separado já é lido — com duas travas
+
+1. **Bate ou não entra.** A fileira de números diz quantas respostas vêm; extraem-se as letras e
+   **só se a conta bater exatamente** o bloco é aceito. O `pdftotext` cola as letras (`E DCA E B`),
+   então contar posição a posição seria adivinhação.
+2. 🔴 **Um arquivo, quatro provas.** O gabarito do CBMERJ traz TIPO 1, 2, 3 e 4 — respostas
+   **diferentes** para os mesmos números. Sem separar, a questão 1 ficaria com a resposta do tipo 1
+   mesmo que o caderno fosse o tipo 3: todas erradas, sem nenhum sinal. Se há mais de um tipo e
+   ninguém disse qual, a função devolve **zero** respostas e o motivo.
+
+Medido no gabarito real do CBMERJ: **100 de 100 respostas em cada um dos 4 tipos.**
+
+---
 
 ### 📚 O acervo, abastecido em 22/09/2026
 
