@@ -261,12 +261,18 @@ export function gabaritoDeTabela(texto, { secao = null } = {}) {
     t = t.slice(ini, fim);
   }
 
+  /* ⚠️ Cada banca numera do seu jeito na tabela do gabarito. O CBMES escreve
+     "Q01 Q02 Q03" e so depois "E B D"; o CBMERJ escreve "1 2 3". Tirar o "Q"
+     deixa os dois com a mesma forma, e a regra de contagem vale para ambos.
+     Achado medindo o gabarito real do bombeiro do ES em 23/09/2026. */
+  t = t.replace(/\bQ(?=\d)/gi, "");
+
   const respostas = new Map();
   const anuladas = new Set();
   let blocosAceitos = 0, blocosRecusados = 0;
 
   // Fileiras de numeros consecutivos e crescentes: "1 2 3 ... 20".
-  const re = /(?:^|\s)((?:\d{1,3}\s+){4,}\d{1,3})(?=\s)/g;
+  const re = /(?:^|\s)((?:\d{1,3}\s+){2,}\d{1,3})(?=\s)/g;
   let m;
   while ((m = re.exec(t)) !== null) {
     const nums = m[1].trim().split(/\s+/).map(Number);
@@ -276,7 +282,7 @@ export function gabaritoDeTabela(texto, { secao = null } = {}) {
 
     // O trecho ate a proxima fileira de numeros.
     const depois = t.slice(re.lastIndex);
-    const proxima = depois.search(/(?:\d{1,3}\s+){4,}\d{1,3}\s/);
+    const proxima = depois.search(/(?:\d{1,3}\s+){2,}\d{1,3}\s/);
     const trecho = proxima > 0 ? depois.slice(0, proxima) : depois.slice(0, nums.length * 6);
 
     /* 🔴 PARAR NA CONTA CERTA, e conferir o que foi atravessado.
@@ -315,6 +321,30 @@ export function gabaritoDeTabela(texto, { secao = null } = {}) {
       if (!respostas.has(n)) respostas.set(n, letras[i].toLowerCase());
     });
   }
+  /* ── SEGUNDA FORMA: o par isolado "Q04 E" ────────────────────────────────
+     O MESMO arquivo do bombeiro do ES usa as duas formas. Uma parte vem em
+     grupos ("Q01 Q02 Q03" e depois "E B D"), e o resto vem em pares soltos,
+     um por linha ("Q04 E"). Isso acontece porque o PDF desenha uma GRADE, e o
+     pdftotext le parte por linha e parte por coluna.
+
+     🔴 A TRAVA QUE IMPEDE O DESASTRE: em "Q01 Q02 Q03 E B D", o pedaco
+     "Q03 E" tambem casa com "numero seguido de letra" -- so que ali a
+     resposta E pertence a questao 01, nao a 03. Ler assim poria a resposta
+     certa na questao ERRADA, que e pior que nao ter resposta.
+
+     Entao o par so vale quando NAO vem logo depois de outro "Q<numero>".
+     E o prefixo "Q" e o que torna esta leitura segura: sem ele, qualquer
+     numero seguido de letra no texto viraria gabarito. */
+  const bruto = String(texto || "").replace(/\s+/g, " ");
+  for (const m of bruto.matchAll(/Q(\d{1,3})\s+([A-E*])(?![A-Za-z0-9])/gi)) {
+    const antes = bruto.slice(Math.max(0, m.index - 8), m.index);
+    if (/Q\d{1,3}\s+$/i.test(antes)) continue;      // faz parte de um grupo
+    const n = parseInt(m[1], 10);
+    if (!(n >= 1 && n <= 300)) continue;
+    if (m[2] === "*") { anuladas.add(n); continue; }
+    if (!respostas.has(n)) { respostas.set(n, m[2].toLowerCase()); blocosAceitos++; }
+  }
+
   return { respostas, anuladas, secoes, blocosAceitos, blocosRecusados, ambiguo: null };
 }
 

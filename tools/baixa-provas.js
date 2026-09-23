@@ -78,6 +78,18 @@ async function baixar(url) {
     }
     if (SO_LISTAR) { console.log(`  FALTA   ${p.banca} ${p.prova} ${p.ano}`); continue; }
 
+    // Quando a prova tem gabarito em arquivo separado, ele vem junto -- e com
+    // o mesmo nome mais "_gabarito", que e como o importa-provas o procura.
+    if (p.gabarito) {
+      const alvoG = path.join(DESTINO, nomeDe(p).replace(/\.pdf$/, "") + "_gabarito.pdf");
+      if (!fs.existsSync(alvoG) || fs.statSync(alvoG).size <= 20000) {
+        const g = await baixar(p.gabarito);
+        if (g.erro) { console.log(`  🔴 ${String(p.banca).padEnd(8)} gabarito de ${p.prova}: ${g.erro}`); }
+        else { fs.writeFileSync(alvoG, g.buf); console.log(`  ✔  ${String(p.banca).padEnd(8)} gabarito de ${p.prova}  ${(g.buf.length / 1024).toFixed(0)} KB`); }
+        await pausa(700);
+      }
+    }
+
     const r = await baixar(p.url);
     if (r.erro) {
       falharam++;

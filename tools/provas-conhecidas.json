@@ -635,5 +635,23 @@
     "ano": 2026,
     "formato": "eear",
     "url": "https://ingresso.eear.fab.mil.br/SOO/escolaridade/EAGS%202026/prova_eags_2026_cod_59.pdf?concurso=EAGS+2026"
+  },
+  {
+    "banca": "CBMES",
+    "prova": "CFSd Soldado TIPO A",
+    "ano": 2022,
+    "formato": "questao",
+    "url": "https://cb.es.gov.br/media/RH/CFSd_2022/Provas/PROVA%20-%20TIPO%20A.pdf",
+    "gabarito": "https://cb.es.gov.br/media/RH/CFSd_2022/Convoca%C3%A7%C3%B5es/GABARITO%20DEFINITIVO%20OFICIAL%20DA%20PROVA%20OBJETIVA%20-%20TIPO%20A.pdf",
+    "tipo": "A"
+  },
+  {
+    "banca": "CBMES",
+    "prova": "CFSd Soldado TIPO B",
+    "ano": 2022,
+    "formato": "questao",
+    "url": "https://cb.es.gov.br/media/RH/CFSd_2022/Provas/PROVA%20-%20TIPO%20B.pdf",
+    "gabarito": "https://cb.es.gov.br/media/RH/CFSd_2022/Convoca%C3%A7%C3%B5es/GABARITO%20DEFINITIVO%20OFICIAL%20DA%20PROVA%20OBJETIVA%20-%20TIPO%20B.pdf",
+    "tipo": "B"
   }
 ]

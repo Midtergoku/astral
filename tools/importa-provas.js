@@ -46,7 +46,7 @@ function leituras(pdf) {
 }
 
 (async () => {
-  const { montarQuestoes } = await import("../assets/js/prova.js");
+  const { montarQuestoes, gabaritoDeTabela } = await import("../assets/js/prova.js");
   const { classificarLista } = await import("../assets/js/assuntos.js");
 
   console.log(`\nIMPORTA-PROVAS  ${PASTA}`);
@@ -59,7 +59,50 @@ function leituras(pdf) {
     const arq = path.join(PASTA, nomeDe(p));
     if (!fs.existsSync(arq)) { relatorio.push({ ...p, estado: "sem o arquivo" }); continue; }
 
-    const r = montarQuestoes(leituras(arq), { incluirSemGabarito: false });
+    /* ── O GABARITO QUE VEM EM OUTRO ARQUIVO ───────────────────────────────
+       A Forca Aerea publica o caderno JA com o gabarito dentro. Bombeiro,
+       policia e ESA nao: o gabarito e um PDF separado. Quando a entrada da
+       lista traz `gabarito`, esse arquivo e lido e casado com a prova.
+
+       🔴 `tipo` NAO E OPCIONAL quando o gabarito tem varias provas. O mesmo
+       arquivo costuma trazer TIPO A, B, C, D com respostas DIFERENTES para os
+       mesmos numeros. Se nao der para saber qual, `gabaritoDeTabela` devolve
+       zero respostas e o motivo -- e a prova inteira e recusada aqui. */
+    let respostasDeFora = null;
+    if (p.gabarito) {
+      const arqGab = path.join(PASTA, nomeDe(p).replace(/\.pdf$/, "") + "_gabarito.pdf");
+      if (!fs.existsSync(arqGab)) {
+        relatorio.push({ ...p, estado: "sem o gabarito", motivo: "falta " + path.basename(arqGab) });
+        continue;
+      }
+      const g = gabaritoDeTabela(leituras(arqGab).join("\n"), { secao: p.tipo || null });
+      if (g.ambiguo) {
+        relatorio.push({ ...p, estado: "gabarito ambiguo", motivo: g.ambiguo });
+        continue;
+      }
+      if (!g.respostas.size) {
+        relatorio.push({ ...p, estado: "gabarito ilegivel",
+                         motivo: `${g.blocosRecusados} blocos recusados, 0 respostas lidas` });
+        continue;
+      }
+      respostasDeFora = g;
+    }
+
+    const r = montarQuestoes(leituras(arq), { incluirSemGabarito: !!respostasDeFora });
+
+    // Cola as respostas do arquivo separado nas questoes que sairam sem.
+    if (respostasDeFora) {
+      const anexar = (q) => {
+        if (respostasDeFora.anuladas.has(q.numero)) return null;   // anulada nao entra
+        const letra = respostasDeFora.respostas.get(q.numero);
+        if (!letra) return null;
+        if (!q.alternativas || !q.alternativas[letra]) return null; // a letra tem de existir
+        return { ...q, gabarito: letra };
+      };
+      r.prontas = r.prontas.map(anexar).filter(Boolean);
+      r.gabaritos = respostasDeFora.respostas.size;
+    }
+
     const classificadas = classificarLista(r.prontas);
 
     /* 🔴 A TRAVA QUE IMPEDE RESPOSTA ERRADA DE ENTRAR NO ACERVO.

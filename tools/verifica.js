@@ -488,6 +488,45 @@ for (const p of paginas) {
     });
   }
 }
+/* ── 18. CARACTERE DE CONTROLE GRAVADO DENTRO DO CODIGO ─────────────────────
+   🔴 QUARTA OCORRENCIA DO MESMO DEFEITO, e a pior de todas.
+
+   Em 23/09/2026 um `\b` de expressao regular foi gravado como o caractere
+   BACKSPACE de verdade (0x08), e nao como os dois caracteres `\` e `b`. O
+   regex virou "BACKSPACE seguido de Q" -- que nunca casa com nada.
+
+   O modo de falhar e o que torna isto grave: NAO da erro de sintaxe, NAO da
+   aviso, e o codigo roda. Ele so devolve o resultado vazio, para sempre. Eu
+   gastei oito comandos procurando em todo lugar menos nos BYTES do arquivo.
+
+   As tres anteriores, todas ja em historico/erros.md:
+     17/09  `\u2028` e `\u2029` gravados de verdade partiram um comentario
+     17/09  `\f` e `\n` comidos pelo shell dentro de `node -e`
+     19/09  `\b` como BACKSPACE dentro de uma expressao regular de teste
+
+   A regra que nasce daqui: dentro de `.js`, `.ts` e `.sql`, o unico caractere
+   abaixo de 0x20 que pode existir e a quebra de linha. Tabulacao inclusive --
+   este projeto indenta com espaco. */
+{
+  const controle = /[\x00-\x08\x0B\x0C\x0E-\x1F]/;
+  const nomes = { 8: 'BACKSPACE', 9: 'TAB', 11: 'VTAB', 12: 'FORM FEED', 0: 'NUL' };
+  const paraOlhar = [...jsFiles, ...cssFiles, 'tools/verifica.js'];
+
+  for (const f of paraOlhar) {
+    let src;
+    try { src = ler(f); } catch { continue; }
+    if (ehDeTerceiro(f, src)) continue;
+    src.split('\n').forEach((linha, i) => {
+      if (!controle.test(linha)) return;
+      const c = linha.split('').find((x) => controle.test(x));
+      const cod = c.charCodeAt(0);
+      anota('controle', f,
+        `linha ${i + 1}: caractere ${nomes[cod] || '0x' + cod.toString(16)} dentro do codigo `
+        + `— quase sempre um \\b, \\f ou \\t de regex gravado como o caractere de verdade`);
+    });
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -507,6 +546,7 @@ const GRUPOS = {
   catalogo: 'Catalogo do banco defasado em relacao ao catalogo.js',
   aceso:    'Barra lateral acendendo a pagina errada',
   caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
+  controle: 'Caractere de controle gravado dentro do codigo',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');
