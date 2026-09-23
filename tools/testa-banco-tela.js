@@ -155,6 +155,9 @@ const MARCA = `TELA-${Date.now()}`;
         enunciado: `Enunciado da questao ${i}, com tamanho suficiente para o check do banco.`,
         alternativas: { a: "alternativa a", b: "alternativa b", c: "alternativa c", d: "alternativa d" },
         gabarito: "c", publicada: true, revisao: "ok",
+        // So as pares tem explicacao -- e assim se prova que a tela NAO
+        // inventa bloco para quem nao tem.
+        explicacao: i % 2 === 0 ? `Porque a alternativa c e a unica que fecha a conta da questao ${i}.` : null,
       });
     }
     await req("/rest/v1/rpc/publicar_questoes",
@@ -248,6 +251,63 @@ const MARCA = `TELA-${Date.now()}`;
     resposta.travadas
       ? ok("depois de responder não dá para trocar a resposta")
       : falha("dava para responder de novo");
+
+    // ── 3b. O FILTRO POR CONCURSO ────────────────────────────────────────
+    // Pedido dele em 23/09: "la no filtro ja e bom colocar de todas as provas
+    // de todos os concursos que tem". Banca e a instituicao; concurso e o que
+    // a pessoa tem na cabeca quando diz "a prova de bombeiro de 2022".
+    console.log("\n== 3b. O FILTRO POR CONCURSO ==");
+    {
+      const temProva = await pg.evaluate(() => {
+        const s = document.getElementById("f-prova");
+        if (!s) return null;
+        return [...s.options].map((o) => o.textContent.trim()).filter((t) => t && t !== "Todos");
+      });
+      temProva && temProva.length
+        ? ok("🎯 da para escolher o CONCURSO pelo nome", `${temProva.length} provas, ex: ${temProva[0].slice(0, 40)}`)
+        : falha("nao ha filtro por concurso", JSON.stringify(temProva));
+    }
+
+    // ── 3c. A EXPLICACAO DO GABARITO ─────────────────────────────────────
+    console.log("\n== 3c. A EXPLICACAO ==");
+    {
+      /* 🔴 A CHECAGEM QUE MAIS IMPORTA DESTE BLOCO: antes de responder, a
+         explicacao NAO pode estar no HTML. Desenha-la escondida poria a
+         resposta na pagina, e quem abrisse o inspetor leria o gabarito sem
+         responder -- o que acaba com a graca de estudar. */
+      await pg.click("#btn-sortear");
+      await pg.waitForSelector(".questao", { timeout: 20000 }).catch(() => {});
+      await pg.waitForTimeout(800);
+
+      const antes = await pg.evaluate(() =>
+        document.getElementById("rodada").innerHTML.includes("fecha a conta da questao"));
+      !antes
+        ? ok("🎯 antes de responder, a explicacao NAO esta no HTML", "nem escondida")
+        : falha("🔴 a explicacao vaza no HTML antes de responder");
+
+      // Responde TODAS, para pegar pelo menos uma com explicacao.
+      await pg.evaluate(() => {
+        document.querySelectorAll(".questao").forEach((q) => q.querySelector('.alt[data-letra="a"]')?.click());
+      });
+      await pg.waitForTimeout(900);
+
+      const depois = await pg.evaluate(() => ({
+        blocos: document.querySelectorAll(".explicacao").length,
+        questoes: document.querySelectorAll(".questao").length,
+        texto: document.querySelector(".explicacao-texto")?.textContent || "",
+      }));
+      depois.blocos > 0
+        ? ok("🎉 depois de responder, a explicacao aparece", `${depois.blocos} de ${depois.questoes} questoes`)
+        : falha("a explicacao nao apareceu", JSON.stringify(depois));
+
+      /fecha a conta/.test(depois.texto)
+        ? ok("e e o texto da banca, nao um palpite", depois.texto.slice(0, 44))
+        : falha("texto da explicacao errado", depois.texto.slice(0, 50));
+
+      depois.blocos < depois.questoes
+        ? ok("🎯 quem nao tem explicacao nao ganha bloco vazio", "nada e inventado")
+        : falha("apareceu explicacao onde nao havia", `${depois.blocos} blocos para ${depois.questoes} questoes`);
+    }
 
     // ── 4. NENHUMA COR FORA DO SISTEMA ───────────────────────────────────
     console.log("\n== 4. A CASA ==");

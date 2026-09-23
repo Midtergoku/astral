@@ -129,6 +129,33 @@
 
   .veredito.ma { color: var(--brasa-c); }
 
+  /* A explicacao do gabarito. Aparece so DEPOIS de responder -- antes seria
+     entregar a resposta. Fica recolhida atras de um resumo curto para nao
+     poluir a tela de quem so quer emendar uma questao na outra, que foi a
+     ressalva dele: "se voce achar que vai ficar muito poluido, nao precisa". */
+  .explicacao {
+    margin-top: var(--e3);
+    border-left: 2px solid var(--oliva-c);
+    background: color-mix(in srgb, var(--oliva) 8%, transparent);
+    border-radius: var(--r-p);
+    padding: .6rem .8rem;
+    font-size: .84rem; line-height: 1.55; color: var(--texto-2);
+  }
+
+  .explicacao summary {
+    cursor: pointer; list-style: none;
+    font-family: var(--dado); font-size: .62rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--oliva-c);
+  }
+
+  .explicacao summary::-webkit-details-marker { display: none; }
+
+  .explicacao summary::before { content: '▸ '; }
+
+  .explicacao[open] summary::before { content: '▾ '; }
+
+  .explicacao-texto { margin-top: .5rem; white-space: pre-wrap; }
+
   .placar-final {
     background: var(--casco-2); border: 1px solid var(--linha);
     border-left: 3px solid var(--latao); border-radius: var(--r-p);
@@ -433,6 +460,15 @@
             </select>
           </div>
           <div class="filtro">
+            <label for="f-prova">Concurso</label>
+            <select id="f-prova">
+              <option value="">Todos</option>
+              ${(filtros.provas || []).map((p) =>
+                `<option value="${att(p.nome)}" data-banca="${att(p.banca)}">`
+                + `${esc(p.banca)} — ${esc(p.nome)} (${p.quantas})</option>`).join('')}
+            </select>
+          </div>
+          <div class="filtro">
             <label for="f-ano">Ano</label>
             <select id="f-ano">
               <option value="">Todos</option>
@@ -518,6 +554,7 @@
               <span>${esc(texto)}</span>
             </button>`).join('')}
         </div>
+        <div data-explicacao="${att(String(q.id))}"></div>
       </div>`;
   }
 
@@ -548,6 +585,19 @@
     const acertou = letra === q.gabarito;
     v.textContent = acertou ? 'acertou' : 'a certa era ' + q.gabarito;
     v.className = 'veredito ' + (acertou ? 'boa' : 'ma');
+
+    /* 🔴 A explicacao so entra AGORA. Desenha-la junto com a questao, mesmo
+       escondida, poria a resposta no HTML da pagina -- e quem abrisse o
+       inspetor leria o gabarito sem responder. */
+    if (q.explicacao) {
+      const alvo = bloco.querySelector(`[data-explicacao="${CSS.escape(String(id))}"]`);
+      if (alvo) {
+        alvo.innerHTML = `<details class="explicacao"${acertou ? '' : ' open'}>
+          <summary>Por que a resposta é ${esc(q.gabarito)}</summary>
+          <div class="explicacao-texto">${esc(q.explicacao)}</div>
+        </details>`;
+      }
+    }
 
     if (Object.keys(respostas).length === questoes.length) mostrarPlacar();
   }
@@ -581,6 +631,7 @@
       p_materia: $('f-materia').value || null,
       p_assunto: $('f-assunto').value || null,
       p_banca: $('f-banca').value || null,
+      p_prova: $('f-prova').value || null,
       p_ano: $('f-ano').value ? parseInt($('f-ano').value, 10) : null,
       p_limite: 10,
     });
@@ -670,6 +721,19 @@
           </div>
           <input id="m-pdf" type="file" accept="application/pdf" style="position:absolute;width:1px;height:1px;opacity:0" />
         </div>
+
+        <!-- 🔴 Quase toda banca civil publica o gabarito em arquivo SEPARADO.
+             Sem ele a questao entra sem resposta certa, e da para treinar mas
+             nao da para conferir. Este segundo campo e o que fecha a conta. -->
+        <div class="solta-minha" id="solta-gab" style="margin-top:var(--e2);padding:var(--e3)">
+          <div style="font-size:.82rem;color:var(--texto-2)">
+            <strong>Tem o gabarito?</strong> Solte-o aqui também —
+            <label for="m-gab" style="color:var(--oliva-c);cursor:pointer;text-decoration:underline">ou escolha o arquivo</label>.
+            Quase toda banca publica o gabarito num PDF à parte.
+          </div>
+          <div id="m-gab-estado" style="font-size:.78rem;color:var(--texto-3);margin-top:.35rem"></div>
+          <input id="m-gab" type="file" accept="application/pdf" style="position:absolute;width:1px;height:1px;opacity:0" />
+        </div>
         <div id="m-lote"></div>
       </div>
 
@@ -710,6 +774,64 @@
       ` : ''}`;
   }
 
+  /* O gabarito que o aluno trouxe. Fica guardado ate ele soltar a prova --
+     a ordem nao importa, porque ninguem lembra de soltar na ordem certa. */
+  let gabaritoDoAluno = null;
+
+  async function abrirGabaritoMinhas(arquivo) {
+    if (!arquivo) return;
+    if (arquivo.type && arquivo.type !== 'application/pdf') { toast('O gabarito também precisa ser um PDF.'); return; }
+    const estado = $('m-gab-estado');
+    estado.textContent = 'lendo o gabarito…';
+    try {
+      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=317ffa19');
+      const texto = (await pdfParaLeituras(arquivo)).join('\n');
+      let g = gabaritoDeTabela(texto);
+
+      /* 🔴 UM ARQUIVO, VARIAS PROVAS. Quando o gabarito traz TIPO A, B, C...
+         com respostas diferentes, perguntar e a unica saida honesta: colar a
+         resposta do tipo errado poria a resposta certa na questao errada. */
+      if (g.ambiguo && g.secoes.length > 1) {
+        const escolha = prompt(
+          'Este gabarito tem ' + g.secoes.length + ' tipos de prova (' + g.secoes.join(', ') + ').\n'
+          + 'Qual é o tipo do SEU caderno?');
+        if (!escolha) { estado.textContent = 'gabarito não usado — sem saber o tipo, não dá para casar.'; return; }
+        g = gabaritoDeTabela(texto, { secao: escolha.trim() });
+      }
+
+      if (g.ambiguo || !g.respostas.size) {
+        gabaritoDoAluno = null;
+        estado.innerHTML = '<span style="color:var(--brasa-c)">não consegui ler este gabarito'
+          + (g.ambiguo ? ' — ' + esc(g.ambiguo) : '')
+          + '. As questões entram sem resposta, e ainda dá para treinar.</span>';
+        return;
+      }
+      gabaritoDoAluno = g;
+      estado.innerHTML = '<span style="color:var(--oliva-c)">✔ '
+        + g.respostas.size + ' respostas lidas'
+        + (g.anuladas.size ? ' (' + g.anuladas.size + ' anuladas)' : '')
+        + ' — solte a prova agora.</span>';
+      if (loteMinhas.length) aplicarGabaritoDoAluno();
+    } catch (e) {
+      relatar(e, 'banco/gabarito-aluno');
+      estado.innerHTML = '<span style="color:var(--brasa-c)">não consegui abrir este PDF.</span>';
+    }
+  }
+
+  function aplicarGabaritoDoAluno() {
+    if (!gabaritoDoAluno || !loteMinhas.length) return;
+    let casadas = 0;
+    loteMinhas = loteMinhas.filter((q) => {
+      if (gabaritoDoAluno.anuladas.has(q.numero)) return false;   // anulada nao serve
+      const letra = gabaritoDoAluno.respostas.get(q.numero);
+      // A letra tem de existir entre as alternativas -- senao o casamento
+      // esta errado e e melhor deixar a questao sem resposta.
+      if (letra && q.alternativas && q.alternativas[letra]) { q.gabarito = letra; casadas++; }
+      return true;
+    });
+    return casadas;
+  }
+
   async function abrirPdfMinhas(arquivo) {
     if (!arquivo) return;
     if (arquivo.type && arquivo.type !== 'application/pdf') { toast('Isso não é um PDF.'); return; }
@@ -727,6 +849,7 @@
       const r = montarQuestoes(leituras, { incluirSemGabarito: true });
       const todas = [...r.prontas, ...r.revisar].filter((q) => Object.keys(q.alternativas || {}).length >= 4);
       loteMinhas = classificarLista(todas).questoes;
+      const casadas = aplicarGabaritoDoAluno();
 
       if (!loteMinhas.length) {
         $('m-lote').innerHTML = `<div class="convite">Não encontrei questão nenhuma neste PDF.
@@ -735,6 +858,7 @@
         return;
       }
       const comGab = loteMinhas.filter((q) => q.gabarito).length;
+      if (casadas) console.info('gabarito do aluno casou em', casadas, 'questoes');
       $('m-lote').innerHTML = `
         <div class="convite">
           <strong>${loteMinhas.length} questões</strong> encontradas — ${comGab} com gabarito no próprio PDF.
@@ -880,6 +1004,8 @@
       $('painel').innerHTML = telaMinhas();
       const campo = $('m-pdf');
       campo.addEventListener('change', () => abrirPdfMinhas(campo.files[0]));
+      const campoGab = $('m-gab');
+      campoGab.addEventListener('change', () => abrirGabaritoMinhas(campoGab.files[0]));
       ligarArrastar({
         aoSoltar: (arq) => {
           if (!arq) { toast('Não consegui ler o arquivo que você soltou.'); return; }
