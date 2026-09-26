@@ -629,3 +629,82 @@ O que sobra do design é o **V2 — casca compartilhada**, onde vivem os 35 sele
 entre páginas e a unificação da escala tipográfica. E o que não mudou em cinco semanas:
 **0 chamadas de IA**. A Fase 1 segue travada nos US$ 5 de crédito, e continua sendo a única
 coisa que responde se o Astral faz o que promete.
+
+---
+
+## Sessão de 20 a 26/09/2026 — O banco de questões, de zero a 1.851
+
+Começou no R2 (a árvore de habilidades, último item do RPG) e terminou com um banco de questões
+de verdade no ar. No meio, **cinco defeitos meus** que só apareceram porque o trabalho saiu do
+laboratório e encostou em material real.
+
+### A linha do tempo
+
+| Bloco | O que ficou de pé |
+|---|---|
+| **R2** | Árvore de habilidades: 12 habilidades, 3 ramos, escolha gravada no servidor |
+| **Conserto** | A barra lateral acendia a página errada — **ele achou, com um print** |
+| **Q2 · Q3** | A tabela `questoes`, a tela de importar, os filtros. Custo R$ 0 |
+| **Abastecimento** | 63 provas da EEAR → 1.755 questões |
+| **Q5** | "Minhas questões": o aluno traz a prova dele, e ela fica **só dele** |
+| **Multi-formato** | 4 formatos de prova, 39 matérias. Bombeiro, polícia e ESA passaram a ser legíveis |
+| **Pareamento** | O gabarito que vem em arquivo separado. CBMES entrou: +96 questões |
+| **Acabamento** | Explicação do gabarito, filtro por concurso, gabarito do aluno |
+
+### 🔴 Os cinco defeitos meus, e o que cada um ensinou
+
+**1. A barra lateral acendia a página errada.** Copiei a barra de `tags.html` para duas páginas
+novas e o `active` veio junto. Passou por tudo — a página certa abre, o conteúdo certo aparece,
+nenhum erro é lançado. **Só a orientação mentia.** Ele viu olhando; eu não tinha checagem que
+olhasse. Virou a checagem 16.
+
+**2. O teste que devia me proteger tinha lista escrita à mão.** O `testa-celular` listava as
+páginas com barra lateral **dentro dele**, e a página nova não entrou. Verde sem ter aberto nada.
+Repetição exata de 17/09, uma camada acima. *Lista de arquivos não se escreve à mão — pergunta-se
+aos arquivos.*
+
+**3. A matéria estava sendo inventada.** A regra capturava tudo até o fim da **linha** depois de
+"REFEREM-SE À", e em prova de duas colunas a linha continua com a coluna vizinha. Saíram matérias
+chamadas *"Underlined sentence in the text"*, com 63 questões dentro. **Só apareceu ao rodar
+contra 21 provas em vez de uma.**
+
+**4. Cortei por TAMANHO, duas vezes, e joguei fora questão boa.** Primeiro "enunciado com menos de
+40 caracteres" — perdi 31 questões de inglês válidas. Depois "alternativa com menos de 2
+caracteres" — Matemática caiu de 268 para 179, porque **resposta de matemática é um número de um
+dígito**. E essa segunda regra nem pegava o lixo que a motivou. *Tamanho não separa questão curta
+de lixo; ter frase separa.*
+
+**5. 🔴 Um `\b` gravado como o caractere BACKSPACE de verdade — QUARTA vez.** O regex virou
+"backspace seguido de Q", que nunca casa com nada. Não dá erro, não dá aviso, o código roda e
+devolve vazio para sempre. **Gastei oito comandos procurando no lugar errado** — reli a função três
+vezes, testei o regex isolado (funcionava), desconfiei de cache de módulo e de duplicata de função.
+Só achei rodando `od -c` e vendo os bytes.
+
+> **A lição nova não é "usar string crua", que eu já sabia.** É: *quando o código está visivelmente
+> certo e o resultado é vazio, o próximo passo é olhar os BYTES, não reler a lógica.*
+
+E um **sexto, de processo**: commitei com o `verifica.js` falhando, porque rodei
+`verifica | tail && git commit` — num pipeline o código de saída é o do **último** comando, o
+`tail`, que sempre dá certo. **Canalizar para `tail` transforma uma trava em enfeite.**
+
+### As decisões que valem mais que o código
+
+**Recusar em vez de adivinhar.** Metade do trabalho do gabarito é isso: a fileira de números diz
+quantas respostas vêm, e **só se a conta bater exatamente** o bloco entra. Um gabarito com quatro
+tipos de prova e ninguém dizendo qual → devolve **zero** respostas e o motivo. *Resposta errada é
+pior que prova ausente: a pessoa estuda, aprende errado, e culpa o site.*
+
+**Número honesto em vez de número grande.** Com as 69 provas do EAGS a conta deu **3.859**
+questões. Fui conferir: as 24 especialidades do mesmo ano trazem o **mesmo** bloco de Português.
+Descartei **2.327 repetidas**. O oposto do que o pedido parecia querer — e o certo.
+
+**Os dois mundos não se tocam.** O que o aluno sobe pode ser apostila comprada ou PDF de cursinho.
+Publicar por engano seria distribuir o que não é nosso. Separação no banco, no servidor **e na
+tela** (selo "só você vê").
+
+**Não contornar o bloqueio.** Ele pediu que eu tentasse burlar o anti-robô da Marinha e da
+AFA/EPCAR. Medi: é um desafio da Cloudflare que o **próprio órgão** instalou — e até o `robots.txt`
+deles está atrás dele. Não contornei, e disse por quê. Do navegador dele abre em segundos.
+
+**Nenhuma explicação gerada por IA.** Além do custo que ele não tem, explicação errada é pior que
+nenhuma: a pessoa confia, decora o raciocínio torto e erra a prova por causa do site.

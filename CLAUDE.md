@@ -154,6 +154,8 @@ supabase functions deploy       edge functions NAO passam pelo git, entram no ar
 
 ## Onde estamos
 
+> 🔖 **26/09/2026 — o estado atual mora em `historico/onde-paramos.md`.** Ele foi escrito a pedido dele, antes de uma pausa: *"guarde para quando eu voltar"*. Site no ar, arvore limpa, nada pela metade. **1.851 questoes no banco**, e duas coisas a um passo de destravar mais.
+
 **Etapa 1 (blindagem) fechada.** Etapa 2 (pagamento) parada no Mercado Pago. **Estamos na Etapa 3
 — design e gamificação.** Ordem dele: *"quero repaginar tudo (...) menos cara de feita de IA
 possível"*, e a escolha da direção visual é minha. **Não começar mexendo em CSS**: o problema
@@ -244,6 +246,8 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 
 | Arquivo | O que tem | Consultar quando |
 |---|---|---|
+| **`onde-paramos.md`** | **o ponto de retomada: o que esta no ar, o que falta, e as DUAS coisas a um passo** | **PRIMEIRA COISA ao voltar depois de um tempo fora** |
+| **`provas-para-baixar.md`** | os links de prova por forca, com o que eu medi em cada uma | ao trazer material novo para o banco de questoes |
 | `CLAUDE-original-2989.md` | o caderno inteiro antes desta reorganização | algo parecer que sumiu |
 | `erros.md` | os 33 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
 | `auditorias.md` | as auditorias de 29/07 — código, segurança e banco | antes de auditar de novo |
