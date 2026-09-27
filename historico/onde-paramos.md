@@ -1,3 +1,28 @@
+# 🧪 ATENÇÃO — A CONTA DO DONO ESTÁ COM UM EDITAL SIMULADO (desde 27/09/2026)
+
+> Pedido dele: *"simule como se eu tivesse colocado um edital dos bombeiros e me dê acesso a tudo
+> como se eu já estivesse avançado, apenas para testar (...) depois vamos reverter isso e colocar
+> um edital real."*
+
+| | |
+|---|---|
+| **O que tem na conta dele** | edital *"SIMULAÇÃO — Soldado Bombeiro Militar (teste do dono)"*, 9 matérias, prova 06/12/2026 · 112 sessões em 58 dias (79,6 h) · **9.554 XP = 1º Sargento BM** · 48 conquistas e divisas · 5 pontos de habilidade para ele gastar · plano **pro** |
+| **Como desfazer** | `node tools/simula-edital.js --email <o e-mail dele> --reverter` |
+| **De onde o desfazer lê** | `../ASTRAL-BACKUPS/simulacao/<id>.json` — a cópia de ANTES, fora do repositório. **Não apagar essa pasta enquanto a simulação estiver ativa** |
+| **Provado antes de aplicar** | numa conta descartável: aplicar → reverter deixou as 5 tabelas **idênticas**; aplicar duas vezes é recusado |
+| **Telas** | `tools/testa-simulacao-tela.js`: 12 páginas abertas com uma conta igual, nenhuma quebrou |
+
+⚠️ **O plano pro fica** depois de reverter — ele pediu a conta Pro separadamente, e ela não faz parte da simulação.
+
+🔴 **Achado no mesmo pedido — o RPG inteiro é forjável na própria conta.** `sessoes_estudo` aceita do
+navegador **qualquer `xp` e qualquer `criado_em`** (grant de insert nas duas colunas, sem gatilho, sem
+teto; medido em produção). Ficha, patente, pontos de habilidade, sequência e conquistas são calculados
+dessas sessões — então quem abre o console e grava sessões falsas ganha tudo, **só na própria conta**.
+Plano e acesso pago **não** (ver `testa-plano-forjado.js`). O `testa-xp-forjado.js` ainda mede o caminho
+antigo (`progresso.xp`), não este. **Conserto proposto a ele, aguardando o sim** (é mudança de grant).
+
+---
+
 # 🔖 Atualização de 27/09/2026 — o que entrou depois da pausa
 
 > Ele voltou com 10 pedidos numa mensagem só. Os dez foram respondidos ou feitos, e está tudo no ar.
