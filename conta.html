@@ -400,8 +400,15 @@
   // Mostra o limite de cada recurso de IA e quanto ja foi gasto nas ultimas 24h.
   // Antes disso o plano era so uma palavra no canto da tela, sem significado
   // nenhum -- nada no app mudava por causa dele.
+  /* 🔴 27/09/2026: aqui aparecia "Questoes geradas por IA -- 10 de 10
+     disponiveis hoje". Esse recurso esta DESLIGADO desde 31/07 (custo), e o
+     servidor continua devolvendo a cota dele porque a funcao existe, parada.
+     Mostrar a cota de uma coisa desligada e prometer o que nao ha -- e foi
+     exatamente onde ele leu e perguntou.
+
+     A linha saiu. No lugar dela entra o que existe de verdade: o banco de
+     questoes de provas antigas, que nao usa IA e nao custa nada. */
   const NOME_FUNCAO = {
-    'gerar-questoes':   'Questões geradas por IA',
     'processar-edital': 'Editais processados',
     'buscar-recursos':  'Buscas de materiais',
   };
@@ -425,6 +432,13 @@
         ? `${quota.plano.toUpperCase()} — acesso completo`
         : `${quota.plano.toUpperCase()} — acesso gratuito`],
     ];
+
+    // O banco de questoes: a amostra gratis e de 10 questoes NOVAS por dia, de
+    // provas com 4 anos ou mais; no Pro e no beta, o acervo inteiro. A regra
+    // mora no servidor (sortear_questoes) -- aqui so se diz qual e.
+    linhas.push(['Banco de questões', quota.completo
+      ? 'acervo inteiro, sem limite, inclusive as provas recentes'
+      : '10 questões novas por dia, de provas com 4 anos ou mais']);
 
     for (const [chave, rotulo] of Object.entries(NOME_FUNCAO)) {
       const f = quota.funcoes[chave];
