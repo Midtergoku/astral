@@ -618,6 +618,7 @@
       return;
     }
     const acertou = letra === q.gabarito;
+    registrarNoCaderno(q, letra);
     // Multipla: "a certa era c". Certo/Errado: "o gabarito e Errado" --
     // "a certa era Certo" soaria estranho, e o que o Cebraspe publica e o
     // gabarito do item, nao uma alternativa.
@@ -992,7 +993,8 @@
       [baralho[i], baralho[j]] = [baralho[j], baralho[i]];
     }
     questoes = baralho.slice(0, 10).map((q, i) => ({
-      id: 'm' + q.id, banca: q.origem, prova: q.origem, ano: '', numero: i + 1,
+      id: 'm' + q.id, _origem: 'minha', _idReal: q.id,
+      banca: q.origem, prova: q.origem, ano: '', numero: i + 1,
       materia: q.materia || 'sua questão', assunto: q.assunto,
       enunciado: q.enunciado, alternativas: q.alternativas, gabarito: q.gabarito,
       tipo: q.tipo, texto_apoio: q.texto_apoio, explicacao: q.explicacao,
@@ -1003,6 +1005,103 @@
       b.addEventListener('click', () => responder(b.dataset.responder, b.dataset.letra));
     });
     $('rodada-minhas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+
+  /* ══ CADERNO DE ERROS ═════════════════════════════════════════════════════
+     Pedido dele em 27/09/2026: "muitas pessoas utilizam so o caderno de erros
+     para estudar". A regra: o que voce errou volta ate voce acertar.
+
+     Toda resposta dada em QUALQUER aba (acervo, minhas, o proprio caderno) e
+     mandada ao servidor -- so a LETRA. Quem decide se errou e o servidor,
+     comparando com o gabarito; a tela nao tem como mentir o resultado. */
+  let caderno = { total: 0, por_materia: [], questoes: [] };
+
+  async function carregarCaderno(materia = null, limite = 1) {
+    const { data, error } = await supabase.rpc('caderno_de_erros',
+      { p_materia: materia, p_limite: limite });
+    if (error) { relatar(error, 'banco/caderno'); return null; }
+    return data;
+  }
+
+  function registrarNoCaderno(q, letra) {
+    // Fora do caminho critico: a pessoa ve o resultado na hora, e a gravacao
+    // acontece por tras. Se falhar, o estudo nao para -- so aquela resposta
+    // nao entra no caderno.
+    const origem = q._origem || 'acervo';
+    const id = q._idReal ?? q.id;
+    if (!q.gabarito) return;                   // sem gabarito nao ha erro a guardar
+    supabase.rpc('registrar_resposta', { p_origem: origem, p_id: id, p_letra: letra })
+      .then(({ error }) => { if (error) relatar(error, 'banco/registrar'); });
+  }
+
+  function telaCaderno() {
+    if (!caderno.total) {
+      return `
+        <div class="card" style="text-align:center;padding:var(--e5) var(--e3)">
+          <div class="empty-title">Seu caderno de erros está vazio</div>
+          <div class="vazio-texto">
+            Toda questão que você <strong>errar</strong> — no Acervo ou nas suas — entra aqui
+            sozinha. E ela <strong>só sai quando você acertar</strong>. É o jeito mais eficiente
+            de estudar: gastar o tempo no que você ainda não domina.
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="filtros">
+        <div style="font-size:.86rem;color:var(--texto-2);line-height:1.5;margin-bottom:var(--e3)">
+          <strong>${caderno.total} ${caderno.total === 1 ? 'questão' : 'questões'}</strong> que você errou
+          e ainda não acertou. As que você mais erra vêm primeiro. Acertou na revisão, ela sai do caderno.
+        </div>
+        <div class="filtros-linha">
+          <div class="filtro">
+            <label for="k-materia">Matéria</label>
+            <select id="k-materia">
+              <option value="">Todas (${caderno.total})</option>
+              ${(caderno.por_materia || []).map((m) =>
+                `<option value="${att(m.nome)}">${esc(m.nome)} (${m.quantas})</option>`).join('')}
+            </select>
+          </div>
+          <div class="filtro">
+            <label for="btn-revisar">&nbsp;</label>
+            <button class="btn btn-roxo btn-primary" id="btn-revisar" style="min-height:44px">Revisar</button>
+          </div>
+        </div>
+      </div>
+      <div id="rodada-caderno"></div>`;
+  }
+
+  async function revisarCaderno() {
+    const btn = $('btn-revisar');
+    btn.disabled = true; btn.textContent = 'Carregando…';
+    const dados = await carregarCaderno($('k-materia').value || null, 10);
+    btn.disabled = false; btn.textContent = 'Revisar outras';
+    if (!dados) { toast('Não consegui abrir o caderno agora.'); return; }
+
+    respostas = {};
+    // Prefixo no id: uma questao do acervo e uma das minhas podem ter o
+    // mesmo numero, e na mesma rodada uma apagaria a outra.
+    questoes = (dados.questoes || []).map((q) => ({
+      ...q,
+      id: (q.origem === 'minha' ? 'm' : 'a') + q.id,
+      _origem: q.origem, _idReal: q.id,
+      ano: q.ano ?? '',
+    }));
+    if (!questoes.length) {
+      $('rodada-caderno').innerHTML = `<div class="card"><div class="vazio-texto">
+        Nada no caderno com esse filtro.</div></div>`;
+      return;
+    }
+    $('rodada-caderno').innerHTML = questoes.map((q, i) => {
+      const cartao = desenharQuestao(q, i);
+      // O que diferencia a revisao: quantas vezes ja errou, e o que marcou.
+      const selo = `<span class="selo" style="color:var(--brasa-c);border-color:color-mix(in srgb,var(--brasa) 45%,transparent)">errou ${q.vezes_errou}×</span>`;
+      return cartao.replace('<span class="veredito"', selo + '<span class="veredito"');
+    }).join('');
+    $('rodada-caderno').querySelectorAll('[data-responder]').forEach((b) => {
+      b.addEventListener('click', () => responder(b.dataset.responder, b.dataset.letra));
+    });
+    $('rodada-caderno').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ── Montar ────────────────────────────────────────────────────────────────
@@ -1047,6 +1146,7 @@
        "Acervo" sao as provas que nos conferimos; "Minhas questoes" e o
        material que a propria pessoa sobe. Os dois nunca se misturam -- ver o
        comentario em `telaMinhas` e a migration 20260922180000. */
+    caderno = (await carregarCaderno(null, 1)) || caderno;
     $('conteudo').innerHTML = `
       <div class="abas">
         <button class="aba ${aba === 'acervo' ? 'ativa' : ''}" data-aba="acervo">
@@ -1054,6 +1154,9 @@
         </button>
         <button class="aba ${aba === 'minhas' ? 'ativa' : ''}" data-aba="minhas">
           Minhas questões<span class="aba-conta">${minhas.length}</span>
+        </button>
+        <button class="aba ${aba === 'caderno' ? 'ativa' : ''}" data-aba="caderno">
+          Caderno de erros<span class="aba-conta">${caderno.total || 0}</span>
         </button>
       </div>
       <div id="painel"></div>`;
@@ -1065,6 +1168,12 @@
         await desenhar();
       });
     });
+
+    if (aba === 'caderno') {
+      $('painel').innerHTML = telaCaderno();
+      $('btn-revisar')?.addEventListener('click', revisarCaderno);
+      return;
+    }
 
     if (aba === 'minhas') {
       $('painel').innerHTML = telaMinhas();

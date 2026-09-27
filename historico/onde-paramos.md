@@ -1,3 +1,23 @@
+# 🔖 Atualização de 27/09/2026 — o que entrou depois da pausa
+
+> Ele voltou com 10 pedidos numa mensagem só. Os dez foram respondidos ou feitos, e está tudo no ar.
+
+| Pedido dele | O que ficou |
+|---|---|
+| Filtro "só funciona com tudo em Todos" | **Não estava quebrado — a mensagem mentia.** A conta dele é grátis: 10 por dia e só provas com 4+ anos. Havia 209 questões com o filtro, todas recentes. Agora a tela diz isso |
+| Barra lateral pula ao clicar em Questões | O link estava no fim do menu só nessa página. Corrigido, e o `verifica.js` ganhou a **checagem 19** (menu em ordem diferente entre páginas) |
+| Formato Certo/Errado | Entrou, com a **PRF 2021 (Cebraspe)**. Dois botões, texto de apoio junto, veredito por palavra. Acervo: **1.925 questões** |
+| "Questões geradas por IA" ainda escrito | Tirado de `conta.html`, `termos.html` (3 correções de fato), `questoes.html`, `importar.html` |
+| Relógio no Cronômetro | Terceira aba: **de parede** (ponteiros) ou **digital**, com tela inteira. O cronômetro segue contando por trás |
+| **Caderno de erros** | Terceira aba do Banco. Errou → entra. Acertou na revisão → sai. Filtro por matéria. `tools/testa-caderno.js` (17) + seção 3e do `testa-banco-tela.js` |
+| Aluno traz o gabarito — custa? | **Medido: R$ 0 por uso.** Zero chamada de IA (o PDF é lido no navegador). Custo é só espaço: ~1,2 KB por questão, teto de 2.000 por pessoa ≈ 2,4 MB. **Não precisa trancar** |
+
+**Decisão pendente dele:** o caderno ficou aberto a todos os planos, mas o documento do produto o
+tinha listado como coisa do Pro. Trancar é uma linha. E a conta dele é grátis — por isso ele mesmo
+esbarra na cota; promovê-lo a beta resolve.
+
+---
+
 # 🔖 Onde paramos — 26/09/2026
 
 > Escrito a pedido dele: *"guarde para quando eu voltar, você lembre de tudo. Vou abrir outro

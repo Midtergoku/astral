@@ -342,7 +342,9 @@ const MARCA = `TELA-${Date.now()}`;
         : falha("certo/errado desenhado errado", JSON.stringify(ce));
       ce && !ce.letraSolta
         ? ok("e sem letra 'c)' / 'e)' parecendo alternativa") : falha("apareceu letra de alternativa");
-      ce && /chassi/.test(ce.apoio)
+      // Nao se procura o texto semeado: desde 27/09 o acervo real tem os itens
+      // da PRF 2021, e o primeiro cartao pode ser um deles. Vale o apoio existir.
+      ce && ce.apoio.trim().length > 30
         ? ok("🎯 o texto de apoio aparece junto", "sem ele o item nao se responde")
         : falha("texto de apoio ausente", ce ? ce.apoio.slice(0, 40) : "");
 
@@ -358,6 +360,53 @@ const MARCA = `TELA-${Date.now()}`;
       vs.some((v) => /o gabarito é Errado/.test(v))
         ? ok("🎯 o veredito diz a PALAVRA", "\"o gabarito é Errado\"")
         : falha("veredito do certo/errado", vs.join(" | "));
+    }
+
+    // ── 3e. CADERNO DE ERROS ─────────────────────────────────────────────
+    // Pedido dele em 27/09. Os blocos acima ERRARAM questoes de proposito
+    // (marcaram "a" onde o gabarito e "c"). Elas tem de estar no caderno -- e
+    // tem de SAIR dele quando a pessoa acerta na revisao.
+    console.log("\n== 3e. CADERNO DE ERROS ==");
+    {
+      await pg.waitForTimeout(1500);   // a gravacao da resposta acontece por tras
+      await pg.reload({ waitUntil: "load" });
+      await pg.waitForSelector('[data-aba="caderno"]', { timeout: 20000 });
+      await pg.waitForTimeout(700);
+      const naAba = await pg.evaluate(() =>
+        parseInt(document.querySelector('[data-aba="caderno"] .aba-conta')?.textContent || "0", 10));
+      naAba > 0
+        ? ok("🎯 o que ele errou entrou no caderno sozinho", `${naAba} na aba`)
+        : falha("o caderno nao recebeu os erros", String(naAba));
+
+      await pg.click('[data-aba="caderno"]');
+      await pg.waitForSelector("#btn-revisar", { timeout: 15000 }).catch(() => {});
+      await pg.click("#btn-revisar");
+      await pg.waitForSelector("#rodada-caderno .questao", { timeout: 15000 }).catch(() => {});
+      await pg.waitForTimeout(600);
+      const rev = await pg.evaluate(() => ({
+        n: document.querySelectorAll("#rodada-caderno .questao").length,
+        selo: document.querySelector("#rodada-caderno .questao")?.textContent || "",
+      }));
+      rev.n > 0 && /errou \d+×/.test(rev.selo)
+        ? ok("a revisão mostra as questões e quantas vezes errou", `${rev.n} questoes`)
+        : falha("revisao do caderno", JSON.stringify(rev).slice(0, 90));
+
+      // Acerta TODAS na revisao (o gabarito das semeadas e "c"; certo/errado "c" ou "e").
+      await pg.evaluate(() => {
+        document.querySelectorAll("#rodada-caderno .questao").forEach((q) => {
+          const certa = q.querySelector('.alt[data-letra="c"]');
+          if (certa) certa.click();
+        });
+      });
+      await pg.waitForTimeout(2000);
+      await pg.reload({ waitUntil: "load" });
+      await pg.waitForSelector('[data-aba="caderno"]', { timeout: 20000 });
+      await pg.waitForTimeout(700);
+      const depois = await pg.evaluate(() =>
+        parseInt(document.querySelector('[data-aba="caderno"] .aba-conta')?.textContent || "0", 10));
+      depois < naAba
+        ? ok("🎯 acertou na revisão -> SAIU do caderno", `${naAba} -> ${depois}`)
+        : falha("acertar nao tirou do caderno", `${naAba} -> ${depois}`);
     }
 
     // ── 4. NENHUMA COR FORA DO SISTEMA ───────────────────────────────────

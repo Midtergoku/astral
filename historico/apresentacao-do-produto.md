@@ -107,6 +107,12 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 > dos últimos anos — que são justamente as que mais importam para quem vai prestar agora.
 > O simulado completo de degustação e o caderno de erros ainda não existem.
 >
+> ✏️ **27/09/2026 — o caderno de erros existe.** Terceira aba do Banco de questões. Toda questão
+> que a pessoa **erra** entra sozinha; **só sai quando ela acerta** na revisão. Dá para escolher a
+> matéria (*"só os meus erros de Matemática"*), e as que ela mais erra vêm primeiro. Quem decide
+> se errou é o servidor — a tela manda só a letra. Aberto a todos os planos, e revisar não gasta
+> a cota das 10 por dia.
+>
 > A regra não mora na tela: mora dentro do servidor. Esconder um botão não protege nada — quem
 > abrisse o console chamaria a função direto.
 
