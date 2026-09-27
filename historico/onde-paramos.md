@@ -16,6 +16,26 @@
 tinha listado como coisa do Pro. Trancar é uma linha. E a conta dele é grátis — por isso ele mesmo
 esbarra na cota; promovê-lo a beta resolve.
 
+
+### 27/09/2026 (tarde) — segundo pedido do dia
+
+| Pedido | O que ficou |
+|---|---|
+| Conta dele como **Pro** | Feito. `perfis.tipo_plano` = `pro` (estava `free`) |
+| "Pessoas de fora conseguem virar Pro?" | **Não — medido.** `tools/testa-plano-forjado.js` (novo): 9 ataques com sessão real (editar o plano, upsert, apagar o perfil, virar beta, pôr "pro" nos dados do login, virar administrador, sem login, conta nova já pedindo pro) + leitura das permissões **em produção**. Tudo barrado; o servidor lê o plano só da tabela |
+| Aba "Meu edital" é repetida? | **Não é.** Medido: o dashboard não tem trocar edital, remover edital, lista de pesos nem data da prova. Pela condição dele, a aba ficou |
+| Caderno de erros no grátis ou no Pro? | Decisão dele: **fica para todos** |
+| Diminuir abas / levar Recursos para o dashboard | Ele pediu para **não mexer agora**; estudar depois |
+| Buscar gabaritos na internet | **Começado.** ESA 2023 (Geral, Saúde, Música — tipo A) entrou com o gabarito oficial, recuperado do Internet Archive porque o Exército tirou do site. **1.980 questões no ar** |
+
+**Onde procurar gabarito de prova antiga:** o site do órgão costuma **apagar** o gabarito depois do
+concurso. O Internet Archive guarda: `http://web.archive.org/cdx/search/cdx?url=esa.eb.mil.br/*&filter=mimetype:application/pdf`
+lista todo PDF arquivado do domínio. Foi assim que o gabarito da ESA 2023 apareceu.
+
+**ESA — o que ainda falta:** 2024 (o gabarito oficial é **desenhado**, bolinhas pintadas — sem texto para ler),
+2025, 2026, e 2006–2022. **CBMMG:** a busca achou gabaritos oficiais no próprio site
+(`bombeiros.mg.gov.br/storage/files/303/Gabaritos CFO_ publicar.pdf`, `ATO nº 16393 gabarito cfsd 2022`) — próximo lote.
+
 ---
 
 # 🔖 Onde paramos — 26/09/2026

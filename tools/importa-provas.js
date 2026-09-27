@@ -45,8 +45,52 @@ function leituras(pdf) {
   return r.filter(Boolean);
 }
 
+/* ── O GABARITO DA ESA: uma tabela por area e tipo ───────────────────────────
+   Achado em 27/09/2026. O arquivo traz NOVE tabelas -- "GERAL - A", "GERAL - B",
+   ..., "MUSICO - C" --, cada uma com as questoes 1 a 50.
+
+   🔴 A LEITURA NORMAL DESTE ARQUIVO DESLOCA AS LETRAS UMA LINHA. O pdftotext
+   com layout poe a primeira resposta na linha do cabecalho, e "1 D" aparece
+   onde o certo e "1 C". O `leituras()` junta tres leituras e o primeiro par
+   que casa manda -- ia gravar a resposta da questao VIZINHA, calado.
+   Por isso aqui so vale o modo -raw, que le celula por celula, e medido:
+   9 tabelas, 50 respostas cada, 1 a 50 em ordem; 6 questoes de matematica
+   resolvidas na mao bateram com as 6 respostas.
+
+   A trava: so linha "N LETRA", da secao pedida, e 1..N sem buraco nem
+   repeticao. Qualquer coisa fora disso recusa o gabarito INTEIRO. */
+function gabaritoPorSecao(pdf, rotulo) {
+  const semAcento = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
+  const alvo = semAcento(rotulo);
+  const txt = execFileSync("pdftotext", ["-raw", "-enc", "UTF-8", pdf, "-"], { encoding: "utf8" });
+  const respostas = new Map();
+  const anuladas = new Set();
+  // A tabela tambem diz a MATERIA de cada faixa ("Matematica" antes do 1,
+  // "Portugues" antes do 15). E fonte oficial -- melhor que adivinhar a
+  // materia pelo titulo da prova, que na ESA 2023 o leitor nao reconhece.
+  const materias = [];
+  let dentro = false, achou = false, esperado = 1;
+  for (const bruta of txt.split(/\r?\n/)) {
+    const l = semAcento(bruta);
+    if (/^[A-Z]+ - [A-Z]$/.test(l)) { dentro = l === alvo; achou = achou || dentro; continue; }
+    if (!dentro) continue;
+    if (/^[A-Z ]+$/.test(l) && !/QUESTAO|GABARITO/.test(l)) { materias.push({ nome: bruta.trim(), de: esperado }); continue; }
+    const m = l.match(/^(\d{1,3}) ([A-E]|\*|ANULADA)$/);
+    if (!m) continue;
+    const n = +m[1];
+    if (n !== esperado++) {
+      return { respostas: new Map(), anuladas: new Set(), blocosRecusados: 1,
+               ambiguo: `na secao ${rotulo} a questao ${n} veio fora de ordem` };
+    }
+    if (m[2] === "*" || m[2] === "ANULADA") anuladas.add(n); else respostas.set(n, m[2].toLowerCase());
+  }
+  if (!achou) return { respostas, anuladas, blocosRecusados: 0, ambiguo: `nao achei a secao ${rotulo}` };
+  const materiaDe = (n) => [...materias].reverse().find((f) => n >= f.de)?.nome || null;
+  return { respostas, anuladas, blocosRecusados: 0, ambiguo: null, materiaDe };
+}
+
 (async () => {
-  const { montarQuestoes, gabaritoDeTabela } = await import("../assets/js/prova.js");
+  const { montarQuestoes, gabaritoDeTabela, arrumarNome } = await import("../assets/js/prova.js");
   const { classificarLista } = await import("../assets/js/assuntos.js");
 
   console.log(`\nIMPORTA-PROVAS  ${PASTA}`);
@@ -75,7 +119,9 @@ function leituras(pdf) {
         relatorio.push({ ...p, estado: "sem o gabarito", motivo: "falta " + path.basename(arqGab) });
         continue;
       }
-      const g = gabaritoDeTabela(leituras(arqGab).join("\n"), { secao: p.tipo || null });
+      const g = p.secaoGabarito
+        ? gabaritoPorSecao(arqGab, p.secaoGabarito)
+        : gabaritoDeTabela(leituras(arqGab).join("\n"), { secao: p.tipo || null });
       if (g.ambiguo) {
         relatorio.push({ ...p, estado: "gabarito ambiguo", motivo: g.ambiguo });
         continue;
@@ -97,6 +143,14 @@ function leituras(pdf) {
         const letra = respostasDeFora.respostas.get(q.numero);
         if (!letra) return null;
         if (!q.alternativas || !q.alternativas[letra]) return null; // a letra tem de existir
+        if (respostasDeFora.materiaDe) {
+          // A materia do gabarito manda. "Saude" na ESA e a prova de tecnico de
+          // enfermagem. Nome que o banco nao conhece (Musica) fica sem materia
+          // e cai na peneira abaixo -- nao se inventa materia nova aqui.
+          const oficial = respostasDeFora.materiaDe(q.numero);
+          const nome = /^sa[uú]de$/i.test(oficial || "") ? "Enfermagem" : arrumarNome(oficial);
+          return { ...q, gabarito: letra, materia: nome };
+        }
         return { ...q, gabarito: letra };
       };
       r.prontas = r.prontas.map(anexar).filter(Boolean);

@@ -661,5 +661,32 @@
     "formato": "certo_errado",
     "url": "https://cdn.cebraspe.org.br/concursos/prf_21/arquivos/578_PRF_001_01.PDF",
     "gabarito": "https://cdn.cebraspe.org.br/concursos/prf_21/arquivos/GAB_DEFINITIVO_578_PRF_001_01.PDF"
+  },
+  {
+    "banca": "ESA",
+    "prova": "CFGS Geral Tipo A",
+    "ano": 2023,
+    "formato": "ponto",
+    "url": "http://web.archive.org/web/20250220144343id_/https://esa.eb.mil.br/images/Prova_Geral_Tipo_A.pdf",
+    "gabarito": "http://web.archive.org/web/20240309232413id_/https://esa.eb.mil.br/images/GABARITO.pdf",
+    "secaoGabarito": "GERAL - A"
+  },
+  {
+    "banca": "ESA",
+    "prova": "CFGS Saude Tipo A",
+    "ano": 2023,
+    "formato": "ponto",
+    "url": "http://web.archive.org/web/20250210191223id_/https://esa.eb.mil.br/images/Prova_Sa%C3%BAde_Tipo_A.pdf",
+    "gabarito": "http://web.archive.org/web/20240309232413id_/https://esa.eb.mil.br/images/GABARITO.pdf",
+    "secaoGabarito": "SAÚDE - A"
+  },
+  {
+    "banca": "ESA",
+    "prova": "CFGS Musico Tipo A",
+    "ano": 2023,
+    "formato": "ponto",
+    "url": "http://web.archive.org/web/20250108115733id_/https://esa.eb.mil.br/images/Prova_M%C3%BAsico_Tipo_A.pdf",
+    "gabarito": "http://web.archive.org/web/20240309232413id_/https://esa.eb.mil.br/images/GABARITO.pdf",
+    "secaoGabarito": "MÚSICO - A"
   }
 ]
