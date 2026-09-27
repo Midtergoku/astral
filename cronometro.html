@@ -135,6 +135,67 @@ select.materia-select:focus { border-color:var(--purple); }
 
 
 
+
+/* ══ RELÓGIO ════════════════════════════════════════════════════════════════
+   Pedido dele em 27/09/2026: "muitas pessoas gostam de estudar assim, elas
+   nao utilizam cronometro, so deixam rodando o relogio". Duas formas: o de
+   PAREDE, com ponteiros, e o DIGITAL correndo na tela inteira.
+
+   🔴 E uma VISTA, nao um modo. Trocar de modo chama resetar(), que joga fora
+   o tempo de uma sessao em andamento. Quem olha o relogio no meio do estudo
+   nao pode perder a sessao por isso -- entao o cronometro continua rodando
+   por tras, intacto, e volta como estava. */
+.relogio-container { display:none; flex-direction:column; align-items:center; gap:var(--e4); width:100%; }
+.relogio-container.show { display:flex; }
+.crono-container.escondido { display:none; }
+
+.relogio-estilos { display:flex; gap:.35rem; background:var(--casco); border:1px solid var(--linha);
+  border-radius:var(--r-p); padding:.25rem; }
+.relogio-estilo { padding:.45rem 1rem; border:none; background:none; color:var(--texto-3);
+  font-family:var(--dado); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+  border-radius:var(--r-p); cursor:pointer; min-height:36px;
+  transition:background-color var(--d-toque) var(--saida), color var(--d-toque) var(--saida); }
+.relogio-estilo.ativo { background:var(--latao-e); color:var(--latao-c); }
+
+/* O de parede. Tamanho pela tela, nao em pixel fixo: no celular ocupa a largura. */
+.relogio-parede { width:min(82vw, 24rem); aspect-ratio:1; }
+.relogio-parede svg { width:100%; height:100%; display:block; }
+.rel-face { fill:var(--casco); stroke:var(--linha); stroke-width:2; }
+.rel-traco-h { stroke:var(--texto-2); stroke-width:3; stroke-linecap:round; }
+.rel-traco-m { stroke:var(--linha); stroke-width:1.2; stroke-linecap:round; }
+.rel-numero { fill:var(--texto-2); font-family:var(--display); font-weight:700; font-size:15px;
+  text-anchor:middle; dominant-baseline:central; }
+.rel-ponteiro-h { stroke:var(--texto); stroke-width:6; stroke-linecap:round; }
+.rel-ponteiro-m { stroke:var(--texto); stroke-width:4; stroke-linecap:round; }
+.rel-ponteiro-s { stroke:var(--latao); stroke-width:1.6; stroke-linecap:round; }
+.rel-centro { fill:var(--latao); }
+/* Os ponteiros giram em volta do CENTRO do relogio, nao da origem do SVG. */
+.rel-ponteiro { transform-origin:120px 120px; transform-box:view-box; }
+
+/* O digital. */
+.relogio-digital { display:none; flex-direction:column; align-items:center; }
+.relogio-digital.show { display:flex; }
+.relogio-parede.escondido { display:none; }
+.rel-digitos { font-family:var(--dado); font-weight:700; color:var(--texto);
+  font-size:clamp(3.2rem, 15vw, 11rem); line-height:1; font-variant-numeric:tabular-nums;
+  letter-spacing:.02em; }
+.rel-segundos { color:var(--latao-c); }
+.rel-data { font-family:var(--corpo); color:var(--texto-3); font-size:var(--t-md);
+  margin-top:var(--e3); text-transform:capitalize; }
+
+.rel-tela-cheia { background:none; border:1px solid var(--linha); color:var(--texto-3);
+  border-radius:var(--r-p); padding:.5rem 1rem; cursor:pointer; min-height:40px;
+  font-family:var(--dado); font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; }
+@media (hover:hover) and (pointer:fine) {
+  .rel-tela-cheia:hover { border-color:var(--latao); color:var(--latao-c); }
+}
+.rel-aviso-sessao { font-size:.8rem; color:var(--oliva-c); font-family:var(--corpo); }
+
+/* Em tela cheia, o relogio e a unica coisa na tela, centralizado no escuro. */
+.relogio-container:fullscreen { background:var(--breu); justify-content:center; }
+.relogio-container:fullscreen .relogio-parede { width:min(80vmin, 44rem); }
+.relogio-container:fullscreen .rel-digitos { font-size:clamp(4rem, 20vw, 22rem); }
+
 </style>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
      Ver o cabecalho de assets/js/cedo.js: 4 usuarios reais perderam o clique
@@ -259,6 +320,34 @@ select.materia-select:focus { border-color:var(--purple); }
   <div class="modo-selector">
     <button class="modo-btn active" id="btn-livre" onclick="setModo('livre')"><i data-icone="relogio"></i> Livre</button>
     <button class="modo-btn" id="btn-pomodoro" onclick="setModo('pomodoro')"><i data-icone="relogio"></i> Pomodoro</button>
+    <button class="modo-btn" id="btn-relogio" onclick="mostrarRelogio()"><i data-icone="relogio"></i> Relógio</button>
+  </div>
+
+  <!-- O RELOGIO: uma VISTA, nao um modo. O cronometro continua por tras. -->
+  <div class="relogio-container" id="relogio-container">
+    <div class="relogio-estilos" role="tablist" aria-label="Estilo do relógio">
+      <button class="relogio-estilo ativo" data-estilo="parede" role="tab">De parede</button>
+      <button class="relogio-estilo" data-estilo="digital" role="tab">Digital</button>
+    </div>
+
+    <div class="relogio-parede" id="relogio-parede">
+      <svg viewBox="0 0 240 240" role="img" aria-label="Relógio de parede">
+        <circle class="rel-face" cx="120" cy="120" r="114"/>
+        <g id="rel-tracos"></g>
+        <line class="rel-ponteiro rel-ponteiro-h" id="rel-h" x1="120" y1="120" x2="120" y2="66"/>
+        <line class="rel-ponteiro rel-ponteiro-m" id="rel-m" x1="120" y1="120" x2="120" y2="36"/>
+        <line class="rel-ponteiro rel-ponteiro-s" id="rel-s" x1="120" y1="136" x2="120" y2="28"/>
+        <circle class="rel-centro" cx="120" cy="120" r="5"/>
+      </svg>
+    </div>
+
+    <div class="relogio-digital" id="relogio-digital">
+      <div class="rel-digitos" id="rel-digitos">00:00<span class="rel-segundos">:00</span></div>
+    </div>
+
+    <div class="rel-data" id="rel-data"></div>
+    <div class="rel-aviso-sessao" id="rel-aviso-sessao"></div>
+    <button class="rel-tela-cheia" id="rel-tela-cheia">Tela inteira</button>
   </div>
 
   <div class="crono-container">
@@ -381,7 +470,114 @@ select.materia-select:focus { border-color:var(--purple); }
     document.getElementById('crono-progress').style.strokeDashoffset=CIRCUNFERENCIA;
   }
 
+
+  /* ══ RELÓGIO ══════════════════════════════════════════════════════════════
+     Uma VISTA: nao mexe em `modo`, nao chama resetar(). Quem esta com o
+     cronometro rodando e abre o relogio continua com a sessao intacta. */
+  let vista = 'timer';
+  let estiloRelogio = 'parede';
+  try { estiloRelogio = localStorage.getItem('astral_estilo_relogio') || 'parede'; } catch { /* aba anonima */ }
+  let tiqueRelogio = null;
+
+  // Os tracos do mostrador: 60 de minuto, 12 de hora mais grossos, e os numeros.
+  (function desenharMostrador() {
+    const g = document.getElementById('rel-tracos');
+    if (!g) return;
+    const ns = 'http://www.w3.org/2000/svg';
+    for (let i = 0; i < 60; i++) {
+      const hora = i % 5 === 0;
+      const ang = (i * 6 - 90) * Math.PI / 180;
+      const r1 = hora ? 96 : 102, r2 = 108;
+      const l = document.createElementNS(ns, 'line');
+      l.setAttribute('x1', 120 + r1 * Math.cos(ang)); l.setAttribute('y1', 120 + r1 * Math.sin(ang));
+      l.setAttribute('x2', 120 + r2 * Math.cos(ang)); l.setAttribute('y2', 120 + r2 * Math.sin(ang));
+      l.setAttribute('class', hora ? 'rel-traco-h' : 'rel-traco-m');
+      g.appendChild(l);
+      if (hora) {
+        const t = document.createElementNS(ns, 'text');
+        const n = i === 0 ? 12 : i / 5;
+        t.setAttribute('x', 120 + 82 * Math.cos(ang)); t.setAttribute('y', 120 + 82 * Math.sin(ang));
+        t.setAttribute('class', 'rel-numero');
+        t.textContent = String(n);
+        g.appendChild(t);
+      }
+    }
+  })();
+
+  function atualizarRelogio() {
+    const d = new Date();
+    const h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+    // Ponteiros: a hora anda com os minutos, o minuto anda com os segundos --
+    // senao o ponteiro da hora pula de uma vez na virada.
+    const gira = (id, graus) => {
+      const el = document.getElementById(id);
+      if (el) el.style.transform = `rotate(${graus}deg)`;
+    };
+    gira('rel-h', (h % 12) * 30 + m * 0.5);
+    gira('rel-m', m * 6 + s * 0.1);
+    gira('rel-s', s * 6);
+
+    const p = (n) => String(n).padStart(2, '0');
+    const dig = document.getElementById('rel-digitos');
+    if (dig) dig.innerHTML = `${p(h)}:${p(m)}<span class="rel-segundos">:${p(s)}</span>`;
+
+    const data = document.getElementById('rel-data');
+    if (data) data.textContent = d.toLocaleDateString('pt-BR',
+      { weekday: 'long', day: 'numeric', month: 'long' });
+
+    // Se o cronometro esta rodando por tras, diz isso -- a pessoa precisa
+    // saber que o estudo continua sendo contado.
+    const aviso = document.getElementById('rel-aviso-sessao');
+    if (aviso) aviso.textContent = rodando
+      ? 'O cronômetro continua contando esta sessão por trás.' : '';
+  }
+
+  function aplicarEstiloRelogio() {
+    document.getElementById('relogio-parede').classList.toggle('escondido', estiloRelogio !== 'parede');
+    document.getElementById('relogio-digital').classList.toggle('show', estiloRelogio === 'digital');
+    document.querySelectorAll('.relogio-estilo').forEach((b) =>
+      b.classList.toggle('ativo', b.dataset.estilo === estiloRelogio));
+  }
+
+  function mostrarVista(v) {
+    vista = v;
+    const noRelogio = v === 'relogio';
+    document.getElementById('relogio-container').classList.toggle('show', noRelogio);
+    document.querySelector('.crono-container').classList.toggle('escondido', noRelogio);
+    document.getElementById('btn-relogio').classList.toggle('active', noRelogio);
+    document.getElementById('btn-livre').classList.toggle('active', !noRelogio && modo === 'livre');
+    document.getElementById('btn-pomodoro').classList.toggle('active', !noRelogio && modo === 'pomodoro');
+    clearInterval(tiqueRelogio);
+    if (noRelogio) {
+      aplicarEstiloRelogio();
+      atualizarRelogio();
+      tiqueRelogio = setInterval(atualizarRelogio, 1000);
+    }
+  }
+
+  window.mostrarRelogio = () => mostrarVista('relogio');
+
+  document.querySelectorAll('.relogio-estilo').forEach((b) => b.addEventListener('click', () => {
+    estiloRelogio = b.dataset.estilo;
+    try { localStorage.setItem('astral_estilo_relogio', estiloRelogio); } catch { /* aba anonima */ }
+    aplicarEstiloRelogio();
+  }));
+
+  document.getElementById('rel-tela-cheia').addEventListener('click', () => {
+    const alvo = document.getElementById('relogio-container');
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else alvo.requestFullscreen?.().catch(() => toast('O navegador não deixou abrir em tela inteira.'));
+  });
+  document.addEventListener('fullscreenchange', () => {
+    document.getElementById('rel-tela-cheia').textContent =
+      document.fullscreenElement ? 'Sair da tela inteira' : 'Tela inteira';
+  });
+
   window.setModo=function(m){
+    // Voltando do relogio para o MESMO modo: so troca a vista. Chamar
+    // resetar() aqui jogaria fora a sessao que ficou rodando por tras.
+    if (vista === 'relogio' && m === modo) { mostrarVista('timer'); return; }
+    if (vista === 'relogio') mostrarVista('timer');
     modo=m;resetar();
     document.getElementById('btn-livre').classList.toggle('active',m==='livre');
     document.getElementById('btn-pomodoro').classList.toggle('active',m==='pomodoro');
