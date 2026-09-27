@@ -132,7 +132,11 @@ function leituras(pdf) {
       // Peneiras finais. Sem gabarito ou sem materia nao publica.
       if (!q.gabarito || !q.materia) continue;
       const alts = Object.entries(q.alternativas || {});
-      if (alts.length < 4) continue;
+      // Certo/Errado (Cebraspe) tem 2 alternativas por natureza; o resto, 4+.
+      const ehCE = q.tipo === "certo_errado";
+      if (ehCE ? alts.length !== 2 : alts.length < 4) continue;
+      // Item do Cebraspe sem o texto de apoio nao se responde -- ver prova.js.
+      if (ehCE && !q.texto_apoio) continue;
       // 🔴 22/09/2026: uma questao chegou com enunciado "Se de" e alternativas
       // "3 4", " 3 4". E formula matematica que o pdftotext desmontou -- o
       // texto existe mas nao diz nada. O banco recusou (CHECK de 10 caracteres)
@@ -164,6 +168,7 @@ function leituras(pdf) {
         numero: q.numero, materia: q.materia, assunto: q.assunto || null,
         enunciado: q.enunciado, alternativas: q.alternativas,
         gabarito: q.gabarito, publicada: true, revisao: "ok",
+        tipo: q.tipo || "multipla", texto_apoio: q.texto_apoio || null,
       });
     }
   }

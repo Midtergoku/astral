@@ -160,6 +160,16 @@ const MARCA = `TELA-${Date.now()}`;
         explicacao: i % 2 === 0 ? `Porque a alternativa c e a unica que fecha a conta da questao ${i}.` : null,
       });
     }
+    // Dois itens do formato Cebraspe: afirmacao + texto de apoio, gabarito c/e.
+    for (const [n, g] of [[50, "c"], [51, "e"]]) {
+      linhas.push({
+        banca: MARCA, prova: "TELA", ano: ANO - 6, numero: n,
+        materia: "Direito penal", assunto: null, tipo: "certo_errado",
+        texto_apoio: "Texto de apoio do cenario: em uma blitz, o policial constatou alteracao no chassi.",
+        enunciado: `Afirmacao ${n} sobre o cenario, para julgar como certa ou errada.`,
+        alternativas: { c: "Certo", e: "Errado" }, gabarito: g, publicada: true, revisao: "ok",
+      });
+    }
     await req("/rest/v1/rpc/publicar_questoes",
       { method: "POST", headers: dono.cabecalho, body: JSON.stringify({ p_questoes: linhas }) });
 
@@ -307,6 +317,47 @@ const MARCA = `TELA-${Date.now()}`;
       depois.blocos < depois.questoes
         ? ok("🎯 quem nao tem explicacao nao ganha bloco vazio", "nada e inventado")
         : falha("apareceu explicacao onde nao havia", `${depois.blocos} blocos para ${depois.questoes} questoes`);
+    }
+
+    // ── 3d. CERTO OU ERRADO ──────────────────────────────────────────────
+    // Pedido dele em 27/09. O item do Cebraspe e uma AFIRMACAO: dois botoes,
+    // e o texto de apoio -- sem ele o item nao se responde.
+    console.log("\n== 3d. CERTO OU ERRADO ==");
+    {
+      await pg.selectOption("#f-materia", "Direito penal");
+      await pg.waitForTimeout(300);
+      await pg.click("#btn-sortear");
+      await pg.waitForSelector(".alts.ce", { timeout: 15000 }).catch(() => {});
+      await pg.waitForTimeout(600);
+      const ce = await pg.evaluate(() => {
+        const q = document.querySelector(".questao");
+        return q ? {
+          botoes: [...q.querySelectorAll(".alts.ce .alt")].map((b) => b.textContent.trim()),
+          apoio: q.querySelector(".apoio-texto")?.textContent || "",
+          letraSolta: !!q.querySelector(".alt-letra"),
+        } : null;
+      });
+      ce && ce.botoes.join("|") === "Certo|Errado"
+        ? ok("🎯 item Certo/Errado vira DOIS botoes", "Certo · Errado")
+        : falha("certo/errado desenhado errado", JSON.stringify(ce));
+      ce && !ce.letraSolta
+        ? ok("e sem letra 'c)' / 'e)' parecendo alternativa") : falha("apareceu letra de alternativa");
+      ce && /chassi/.test(ce.apoio)
+        ? ok("🎯 o texto de apoio aparece junto", "sem ele o item nao se responde")
+        : falha("texto de apoio ausente", ce ? ce.apoio.slice(0, 40) : "");
+
+      // Responde errado de proposito e le o veredito.
+      await pg.evaluate(() => {
+        document.querySelectorAll(".questao").forEach((q) => {
+          const gabC = !!q.querySelector('.alts.ce');
+          if (gabC) q.querySelector('.alt[data-letra="c"]').click();
+        });
+      });
+      await pg.waitForTimeout(500);
+      const vs = await pg.evaluate(() => [...document.querySelectorAll(".veredito")].map((v) => v.textContent.trim()));
+      vs.some((v) => /o gabarito é Errado/.test(v))
+        ? ok("🎯 o veredito diz a PALAVRA", "\"o gabarito é Errado\"")
+        : falha("veredito do certo/errado", vs.join(" | "));
     }
 
     // ── 4. NENHUMA COR FORA DO SISTEMA ───────────────────────────────────

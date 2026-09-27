@@ -40,7 +40,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   const todas = [];
   for (let off = 0; off < 40000; off += 1000) {
     const r = await fetch(
-      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,assunto,enunciado,alternativas,gabarito&publicada=is.true&limit=1000&offset=${off}`,
+      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,assunto,enunciado,alternativas,gabarito,tipo,texto_apoio&publicada=is.true&limit=1000&offset=${off}`,
       { headers: admin });
     const p = await r.json();
     if (!Array.isArray(p)) { console.log("🔴 nao consegui ler o acervo:", JSON.stringify(p).slice(0, 120)); process.exit(1); }
@@ -62,8 +62,12 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
       ? ok("🎯 o gabarito aponta para uma alternativa que existe", "ninguem fica sem resposta certa")
       : falha("gabarito aponta para alternativa inexistente", `${gabFantasma.length}`);
 
-    const poucas = todas.filter((q) => Object.keys(q.alternativas || {}).length < 4);
-    poucas.length === 0 ? ok("todas tem 4 alternativas ou mais") : falha("com menos de 4", `${poucas.length}`);
+    // Certo/Errado (Cebraspe) tem 2 alternativas por natureza -- e so ele.
+    const poucas = todas.filter((q) => {
+      const n = Object.keys(q.alternativas || {}).length;
+      return q.tipo === "certo_errado" ? n !== 2 : n < 4;
+    });
+    poucas.length === 0 ? ok("todas tem as alternativas do seu tipo", "4+ ou Certo/Errado") : falha("com menos de 4", `${poucas.length}`);
   }
 
   // ── 2. Nenhuma materia inventada ────────────────────────────────────────

@@ -266,6 +266,9 @@ export function gabaritoDeTabela(texto, { secao = null } = {}) {
      deixa os dois com a mesma forma, e a regra de contagem vale para ambos.
      Achado medindo o gabarito real do bombeiro do ES em 23/09/2026. */
   t = t.replace(/\bQ(?=\d)/gi, "");
+  // Cebraspe: "Item 9 10 11 / Gabarito C E C". Os rotulos sao da TABELA, nao
+  // resposta -- e "X" e item anulado. Medido no gabarito real da PRF 2021.
+  t = t.replace(/\b(?:Itens|Item|Gabaritos|Gabarito)\b/gi, " ").replace(/\bX\b/g, "*");
 
   const respostas = new Map();
   const anuladas = new Set();
@@ -346,6 +349,129 @@ export function gabaritoDeTabela(texto, { secao = null } = {}) {
   }
 
   return { respostas, anuladas, secoes, blocosAceitos, blocosRecusados, ambiguo: null };
+}
+
+/* ══ CERTO OU ERRADO -- o formato do Cebraspe ══════════════════════════════
+   Pedido dele em 27/09/2026: "adicione o formato de certo e errado porque
+   muitas questoes sao de certo e errado". Medido na prova REAL da PRF 2021,
+   baixada do servidor oficial do Cebraspe.
+
+   Cada item e UMA AFIRMACAO numerada, sem alternativas. A estrutura e:
+
+       Texto 1A18-I                          <- o texto de apoio (opcional)
+       <paragrafos do texto>
+       Com relacao ao texto..., julgue os itens a seguir.   <- o COMANDO
+       9 A transferencia da policia ... .    <- item
+       10 Seriam mantidos a correcao ... .   <- item
+
+   🔴 O TEXTO DE APOIO NAO E OPCIONAL. Todo item de um grupo depende do texto
+   que vem antes, mesmo quando nao diz "do texto". O item 9 sozinho -- "A
+   transferencia da policia marca uma mudanca de paradigma" -- nao se julga.
+   Guardar o item sem o texto seria publicar questao que nao se responde. */
+
+// A materia vem do COMANDO ("No que se refere a legislacao de transito,
+// julgue..."), porque o Cebraspe nao poe cabecalho de materia. A ORDEM MANDA:
+// "carreira de policial rodoviario" tem de vir antes de transito, senao o
+// "rodoviario" joga um item de legislacao funcional em Legislacao de transito.
+const MATERIAS_CEBRASPE = [
+  [/aspectos lingu[íi]sticos|reda[çc][ãa]o oficial|manual de reda[çc][ãa]o|sentidos e (os )?aspectos/i, "Português"],
+  [/carreira de policial|servidor(es)? p[úu]blicos? federa|regime jur[íi]dico/i, "Legislação"],
+  [/[ée]tica no servi[çc]o|[ée]tica p[úu]blica/i, "Ética"],
+  [/tr[âa]nsito|contran|motorista profissional|transporte de cargas|velocidade e tempo|peso e dimens|balan[çc]a rodovi/i, "Legislação de trânsito"],
+  [/internet|intranet|windows|cloud|seguran[çc]a da informa|transforma[çc][ãa]o digital|inform[áa]tica/i, "Informática"],
+  [/mec[âa]nica cl[áa]ssica|cinem[áa]tica|din[âa]mica|\bf[íi]sica\b/i, "Física"],
+  [/direitos? fundament|constitucional|constitui[çc][ãa]o federal|defesa do estado|rem[ée]dios constitucionais/i, "Direito constitucional"],
+  [/penal|crime|tortura|drogas|armas de fogo|identifica[çc][ãa]o criminal/i, "Direito penal"],
+  [/rede de transportes|estrutura urbana|metr[óo]pole|geograf/i, "Geografia"],
+  [/probabilidade|racioc[íi]nio l[óo]gico|matem[áa]tic|estat[íi]stic|combinat[óo]ri/i, "Raciocínio lógico"],
+];
+
+export function materiaCebraspe(...trechos) {
+  for (const t of trechos) {
+    if (!t) continue;
+    for (const [re, nome] of MATERIAS_CEBRASPE) if (re.test(t)) return nome;
+  }
+  return null;
+}
+
+/** A prova e do Cebraspe (certo/errado)? Pelo comando "julgue", que e dele. */
+export function ehCertoErrado(texto) {
+  const t = String(texto || "");
+  const comandos = (t.match(/julgue (os|o) (itens|pr[óo]ximos? itens?|item)/gi) || []).length;
+  return comandos >= 3;
+}
+
+const LIXO_CEBRASPE = /^(Espa[çc]o livre|BLOCO [IVX]+|CEBRASPE|\d+_\w+_\d+)/i;
+
+/**
+ * Le uma prova do Cebraspe. Devolve os itens com enunciado, texto de apoio,
+ * materia e alternativas {c: "Certo", e: "Errado"}.
+ */
+export function montarCertoErrado(texto) {
+  // O comando e o primeiro item as vezes vem GRUDADOS numa linha so --
+  // "...julgue os itens que se seguem. 43 Na posicao de compressao maxima".
+  // Medido nas linhas 61 e 143 da PRF 2021. Separa antes de ler.
+  const bruto = limparPagina(texto)
+    .replace(/(julgue[^.\n]{0,160}\.)\s+(\d{1,3})\s+(?=[A-ZÀ-Ú“"(])/g, "$1\n$2 ");
+
+  const itens = [];
+  let apoio = [];
+  let comando = null, apoioDoGrupo = null, materiaDoGrupo = null;
+  let atual = null, ultimo = 0;
+
+  const fechar = () => {
+    if (!atual) return;
+    const enunciado = atual.partes.join(" ").replace(/\s+/g, " ").trim();
+    const texto = [apoioDoGrupo, comando].filter(Boolean).join("\n\n");
+    if (enunciado.length >= 15) {
+      itens.push({
+        numero: atual.numero, materia: materiaDoGrupo, enunciado,
+        texto_apoio: texto || null,
+        alternativas: { c: "Certo", e: "Errado" },
+        tipo: "certo_errado", gabarito: null,
+      });
+    }
+    atual = null;
+  };
+
+  for (const cru of bruto.split("\n")) {
+    const L = cru.trim();
+    if (!L || LIXO_CEBRASPE.test(L)) continue;
+
+    if (/julgue (os|o) /i.test(L)) {
+      fechar();
+      comando = L;
+      apoioDoGrupo = apoio.join("\n").trim() || null;
+      materiaDoGrupo = materiaCebraspe(comando, apoioDoGrupo);
+      apoio = [];
+      continue;
+    }
+
+    const m = /^(\d{1,3})\s+(\S.*)$/.exec(L);
+    if (comando && m) {
+      const n = parseInt(m[1], 10);
+      // O numero tem de SUBIR. "2021" numa citacao ou "1.o" num texto nao e item.
+      if (n > ultimo && n <= 300) {
+        fechar();
+        atual = { numero: n, partes: [m[2]] };
+        ultimo = n;
+        continue;
+      }
+    }
+
+    if (atual) {
+      // Item que ja terminou em ponto nao continua: a linha seguinte e o
+      // comeco do texto de apoio do PROXIMO grupo. Sem esta regra, o cenario
+      // "Considerando essa situacao hipotetica" grudava no item anterior.
+      const ultimaParte = atual.partes[atual.partes.length - 1];
+      if (/[.?!”")]$/.test(ultimaParte)) { fechar(); apoio.push(L); continue; }
+      atual.partes.push(L);
+      continue;
+    }
+    apoio.push(L);
+  }
+  fechar();
+  return itens;
 }
 
 /* ── OS FORMATOS DE PROVA ────────────────────────────────────────────────────
@@ -507,6 +633,19 @@ const suja = (alts) => Object.values(alts).some(
  */
 export function montarQuestoes(leituras, { incluirSemGabarito = false } = {}) {
   const lidas = (leituras || []).map(limparPagina).filter((t) => t && t.trim());
+
+  /* Prova do Cebraspe tem estrutura propria (afirmacao sem alternativas, com
+     texto de apoio), entao vai por outro caminho. A leitura em FLUXO e a que
+     serve aqui: o Cebraspe imprime em coluna unica. */
+  if (lidas.length && ehCertoErrado(lidas[0])) {
+    const itens = montarCertoErrado(lidas[0]);
+    const prontas = [], revisar = [];
+    for (const q of itens) {
+      if (!q.materia) { revisar.push({ ...q, motivo: "materia nao identificada no comando" }); continue; }
+      prontas.push(q);
+    }
+    return { prontas, revisar, total: itens.length, faixas: [], gabaritos: 0, formato: "certo_errado" };
+  }
   if (!lidas.length) return { prontas: [], revisar: [], total: 0, faixas: [], gabaritos: 0 };
 
   const { respostas, anuladas } = gabaritoDe(lidas[0]);

@@ -133,6 +133,31 @@
      entregar a resposta. Fica recolhida atras de um resumo curto para nao
      poluir a tela de quem so quer emendar uma questao na outra, que foi a
      ressalva dele: "se voce achar que vai ficar muito poluido, nao precisa". */
+  /* ── O TEXTO DE APOIO (Cebraspe e afins) ──────────────────────────────
+     O item "A transferencia da policia marca uma mudanca de paradigma" nao se
+     julga sem o texto que vem antes. Recolhido quando e longo, para nao
+     empurrar a afirmacao para baixo da dobra; aberto quando e so o comando. */
+  .apoio {
+    background: var(--breu); border: 1px solid var(--linha);
+    border-radius: var(--r-p); padding: .6rem .8rem; margin-bottom: var(--e3);
+    font-size: .84rem; line-height: 1.6; color: var(--texto-2);
+  }
+  .apoio summary {
+    cursor: pointer; list-style: none;
+    font-family: var(--dado); font-size: .6rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--latao-c);
+  }
+  .apoio summary::-webkit-details-marker { display: none; }
+  .apoio summary::before { content: '▸ '; }
+  .apoio[open] summary::before { content: '▾ '; }
+  .apoio-texto { margin-top: .5rem; white-space: pre-wrap; max-height: 22rem; overflow-y: auto; }
+
+  /* Certo/Errado: dois botoes lado a lado, grandes -- e uma decisao binaria,
+     e botao pequeno com letra "c)" faria parecer alternativa de multipla. */
+  .alts.ce { grid-template-columns: 1fr 1fr; }
+  .alts.ce .alt { justify-content: center; font-family: var(--display); font-weight: 700;
+                  font-size: .95rem; letter-spacing: .04em; min-height: 52px; }
+
   .explicacao {
     margin-top: var(--e3);
     border-left: 2px solid var(--oliva-c);
@@ -546,14 +571,24 @@
           <span class="selo">questão ${esc(String(i + 1))} de ${questoes.length}</span>
           <span class="veredito" data-veredito="${att(String(q.id))}"></span>
         </div>
+        ${q.texto_apoio ? `
+          <details class="apoio"${q.texto_apoio.length < 400 ? ' open' : ''}>
+            <summary>Texto de apoio</summary>
+            <div class="apoio-texto">${esc(q.texto_apoio)}</div>
+          </details>` : ''}
         <div class="questao-enunciado">${esc(q.enunciado)}</div>
-        <div class="alts">
-          ${alts.map(([letra, texto]) => `
-            <button class="alt" data-responder="${att(String(q.id))}" data-letra="${att(letra)}">
-              <span class="alt-letra">${esc(letra)})</span>
-              <span>${esc(texto)}</span>
-            </button>`).join('')}
-        </div>
+        ${q.tipo === 'certo_errado' ? `
+          <div class="alts ce">
+            <button class="alt" data-responder="${att(String(q.id))}" data-letra="c">Certo</button>
+            <button class="alt" data-responder="${att(String(q.id))}" data-letra="e">Errado</button>
+          </div>` : `
+          <div class="alts">
+            ${alts.map(([letra, texto]) => `
+              <button class="alt" data-responder="${att(String(q.id))}" data-letra="${att(letra)}">
+                <span class="alt-letra">${esc(letra)})</span>
+                <span>${esc(texto)}</span>
+              </button>`).join('')}
+          </div>`}
         <div data-explicacao="${att(String(q.id))}"></div>
       </div>`;
   }
@@ -583,7 +618,14 @@
       return;
     }
     const acertou = letra === q.gabarito;
-    v.textContent = acertou ? 'acertou' : 'a certa era ' + q.gabarito;
+    // Multipla: "a certa era c". Certo/Errado: "o gabarito e Errado" --
+    // "a certa era Certo" soaria estranho, e o que o Cebraspe publica e o
+    // gabarito do item, nao uma alternativa.
+    const nomeDaCerta = q.tipo === 'certo_errado'
+      ? (q.gabarito === 'c' ? 'Certo' : 'Errado')
+      : q.gabarito;
+    v.textContent = acertou ? 'acertou'
+      : (q.tipo === 'certo_errado' ? 'o gabarito é ' : 'a certa era ') + nomeDaCerta;
     v.className = 'veredito ' + (acertou ? 'boa' : 'ma');
 
     /* 🔴 A explicacao so entra AGORA. Desenha-la junto com a questao, mesmo
@@ -710,7 +752,7 @@
   async function carregarMinhas() {
     const { data, error } = await supabase
       .from('questoes_minhas')
-      .select('id,origem,materia,assunto,enunciado,alternativas,gabarito')
+      .select('id,origem,materia,assunto,enunciado,alternativas,gabarito,tipo,texto_apoio,explicacao')
       .order('id', { ascending: false });
     if (error) { relatar(error, 'banco/minhas'); return; }
     minhas = data || [];
@@ -802,7 +844,7 @@
     const estado = $('m-gab-estado');
     estado.textContent = 'lendo o gabarito…';
     try {
-      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=317ffa19');
+      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=afc67e01');
       const texto = (await pdfParaLeituras(arquivo)).join('\n');
       let g = gabaritoDeTabela(texto);
 
@@ -857,7 +899,7 @@
 
     $('m-lote').innerHTML = '<div class="esqueleto-bloco" style="height:6rem"></div>';
     try {
-      const { montarQuestoes } = await import('./assets/js/prova.js?v=317ffa19');
+      const { montarQuestoes } = await import('./assets/js/prova.js?v=afc67e01');
       const { classificarLista } = await import('./assets/js/assuntos.js?v=78708ba1');
       const leituras = await pdfParaLeituras(arquivo);
       // 🔴 `incluirSemGabarito: true` aqui, e NUNCA no acervo público. Muita
@@ -865,7 +907,11 @@
       // isso seria questão sem resposta certa, mas aqui é o material da
       // pessoa, e ela sabe de onde veio.
       const r = montarQuestoes(leituras, { incluirSemGabarito: true });
-      const todas = [...r.prontas, ...r.revisar].filter((q) => Object.keys(q.alternativas || {}).length >= 4);
+      // Certo/Errado (Cebraspe) tem 2 alternativas; multipla, 4 ou mais.
+      const todas = [...r.prontas, ...r.revisar].filter((q) => {
+        const n = Object.keys(q.alternativas || {}).length;
+        return q.tipo === 'certo_errado' ? n === 2 : n >= 4;
+      });
       loteMinhas = classificarLista(todas).questoes;
       const casadas = aplicarGabaritoDoAluno();
 
@@ -907,6 +953,7 @@
       materia: q.materia || null, assunto: q.assunto || null,
       enunciado: q.enunciado, alternativas: q.alternativas,
       gabarito: q.gabarito || null,
+      tipo: q.tipo || 'multipla', texto_apoio: q.texto_apoio || null,
     }));
 
     let guardadas = 0, recusadas = 0;
@@ -948,6 +995,7 @@
       id: 'm' + q.id, banca: q.origem, prova: q.origem, ano: '', numero: i + 1,
       materia: q.materia || 'sua questão', assunto: q.assunto,
       enunciado: q.enunciado, alternativas: q.alternativas, gabarito: q.gabarito,
+      tipo: q.tipo, texto_apoio: q.texto_apoio, explicacao: q.explicacao,
     }));
     respostas = {};
     $('rodada-minhas').innerHTML = questoes.map(desenharQuestao).join('');

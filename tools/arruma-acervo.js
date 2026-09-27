@@ -36,7 +36,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   const todas = [];
   for (let off = 0; off < 60000; off += 1000) {
     const r = await fetch(
-      `${BASE}/rest/v1/questoes?select=id,prova,numero,materia,enunciado,alternativas,gabarito&publicada=is.true&limit=1000&offset=${off}`,
+      `${BASE}/rest/v1/questoes?select=id,prova,numero,materia,enunciado,alternativas,gabarito,tipo&publicada=is.true&limit=1000&offset=${off}`,
       { headers: admin });
     const p = await r.json();
     if (!Array.isArray(p)) { console.log("🔴 nao consegui ler:", JSON.stringify(p).slice(0, 120)); process.exit(1); }
@@ -52,7 +52,15 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
     const e = String(q.enunciado || "").trim();
     if (e.split(/\s+/).length < 3 || e.length < 15) marcar(q, "truncada");
     else if (!q.materia || !validas.has(q.materia)) marcar(q, "materia desconhecida");
-    else if (Object.keys(q.alternativas || {}).length < 4) marcar(q, "poucas alternativas");
+    /* 🔴 27/09/2026: esta linha dizia "menos de 4 alternativas = tirar do ar".
+       No dia em que entrou o formato Certo/Errado (2 alternativas por
+       natureza), ela derrubou as 75 questoes da PRF MINUTOS depois de eu
+       publica-las. A ferramenta de limpeza tinha uma regra velha, e limpeza
+       com regra velha apaga coisa boa em silencio. So nao virou perda porque
+       ela nunca apaga -- so despublica. */
+    else if (q.tipo === "certo_errado"
+      ? Object.keys(q.alternativas || {}).length !== 2
+      : Object.keys(q.alternativas || {}).length < 4) marcar(q, "poucas alternativas");
     else if (Object.values(q.alternativas).some((t) => !String(t).trim())) marcar(q, "alternativa vazia");
     else if (!q.gabarito || !q.alternativas[q.gabarito]) marcar(q, "sem resposta certa");
   }

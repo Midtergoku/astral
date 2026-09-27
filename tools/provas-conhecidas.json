@@ -653,5 +653,13 @@
     "url": "https://cb.es.gov.br/media/RH/CFSd_2022/Provas/PROVA%20-%20TIPO%20B.pdf",
     "gabarito": "https://cb.es.gov.br/media/RH/CFSd_2022/Convoca%C3%A7%C3%B5es/GABARITO%20DEFINITIVO%20OFICIAL%20DA%20PROVA%20OBJETIVA%20-%20TIPO%20B.pdf",
     "tipo": "B"
+  },
+  {
+    "banca": "Cebraspe",
+    "prova": "PRF Policial Rodoviario Federal",
+    "ano": 2021,
+    "formato": "certo_errado",
+    "url": "https://cdn.cebraspe.org.br/concursos/prf_21/arquivos/578_PRF_001_01.PDF",
+    "gabarito": "https://cdn.cebraspe.org.br/concursos/prf_21/arquivos/GAB_DEFINITIVO_578_PRF_001_01.PDF"
   }
 ]
