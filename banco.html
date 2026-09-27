@@ -356,6 +356,13 @@
       Questões
     </a>
     -->
+    <a class="nav-link active" href="banco.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Questões
+    </a>
     <a class="nav-link" href="conquistas.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
       Conquistas
@@ -377,14 +384,7 @@
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
       Minhas tags
     </a>
-      <a class="nav-link active" href="banco.html">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
-      Questões
-    </a>
-  </nav>
+    </nav>
   <div class="sidebar-bottom">
     <a class="nav-link" href="conta.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
@@ -649,9 +649,27 @@
              <div class="vazio-texto">${esc(data.motivo || '')}<br><br>
              Ela se renova amanhã. No Pro não há amostra: o acervo é liberado por inteiro,
              inclusive as provas dos últimos anos.</div></div>`
-        : `<div class="card"><div class="empty-title">Nada com esses filtros</div>
-             <div class="vazio-texto">Não há questão publicada com essa combinação. Tente afrouxar
-             um dos filtros — por exemplo, deixar o ano em "todos".</div></div>`;
+        /* 🔴 27/09/2026 -- ELE DISSE QUE O FILTRO NAO FUNCIONAVA, E FUNCIONAVA.
+           Medido contra o servidor: no plano Pro todas as combinacoes devolvem
+           questao. No gratis, "so Enfermagem" devolvia ZERO -- porque as 209
+           questoes de Enfermagem sao de provas de 2024 a 2026, e a amostra
+           gratis so mostra prova de 4 anos ou mais.
+
+           A tela entao dizia "nao ha questao publicada com essa combinacao".
+           Isso era MENTIRA: havia 209, trancadas. O servidor ja devolvia o
+           numero certo em `fora_da_amostra`; a tela so nao usava. Quem ve
+           "nao ha" conclui que o produto esta quebrado -- e foi exatamente o
+           que o dono do produto concluiu. */
+        : (data.fora_da_amostra > 0
+          ? `<div class="card"><div class="empty-title">Essas questões existem — e ficam no Pro</div>
+               <div class="vazio-texto">Há <strong>${data.fora_da_amostra} questões</strong> com esse
+               filtro, mas todas são de <strong>provas dos últimos 4 anos</strong>. A amostra grátis
+               mostra as provas mais antigas; as recentes, que são as que mais parecem com a sua
+               prova, ficam liberadas no Pro.<br><br>
+               Para estudar agora de graça, tente outro filtro — ou deixe o ano em "todos".</div></div>`
+          : `<div class="card"><div class="empty-title">Nada com esses filtros</div>
+               <div class="vazio-texto">Não há questão publicada com essa combinação. Tente afrouxar
+               um dos filtros — por exemplo, deixar o ano em "todos".</div></div>`);
       return;
     }
 

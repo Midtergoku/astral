@@ -527,6 +527,45 @@ for (const p of paginas) {
   }
 }
 
+/* ── 19. A ORDEM DO MENU E A MESMA EM TODA PAGINA ────────────────────────────
+   🔴 TERCEIRO defeito de barra lateral em uma semana, e todos com a mesma raiz:
+   pagina nova montada por COPIA, e ninguem conferindo o que a copia trouxe.
+
+     20/09  o `active` acendia a pagina errada          -> checagem 16
+     20/09  o teste de celular tinha lista escrita a mao
+     27/09  "Questoes" estava no FIM do menu so em banco.html. Ele disse: "quando
+            eu clico em questoes, ela pula para a ultima opcao da barra lateral".
+            Eu tinha posto o link da propria pagina antes do </nav>, e o link
+            global entrou antes de "Conquistas" nas outras -- menos nesta, que
+            ja tinha o dela.
+
+   A regra: a sequencia de links e a do dashboard. Uma pagina pode ter UM link
+   a mais que so ela tem (a bancada do dono tem "Importar provas"), mas os
+   links COMUNS tem de vir na mesma ordem. */
+{
+  const ordemDe = (html) => {
+    const nav = (html.match(/<nav class="nav-links">([\s\S]*?)<\/nav>/) || [])[1] || '';
+    return [...nav.replace(/<!--[\s\S]*?-->/g, '')
+      .matchAll(/class="nav-link[^"]*"\s+href="([^"]+)"/g)].map((m) => m[1]);
+  };
+  let referencia = null;
+  try { referencia = ordemDe(ler('dashboard.html')); } catch { /* sem dashboard */ }
+  if (referencia && referencia.length) {
+    for (const p of paginas) {
+      const html = ler(p);
+      if (!/class\s*=\s*["'][^"']*\bsidebar\b/.test(html)) continue;
+      // Link que so esta pagina tem nao entra na comparacao.
+      const ordem = ordemDe(html).filter((h) => referencia.includes(h));
+      const esperada = referencia.filter((h) => ordem.includes(h));
+      if (JSON.stringify(ordem) !== JSON.stringify(esperada)) {
+        const i = ordem.findIndex((h, k) => h !== esperada[k]);
+        anota('ordem', p, `o menu sai da ordem na posicao ${i + 1}: `
+          + `tem "${ordem[i]}" onde devia ter "${esperada[i]}" -- ao navegar, o item "pula" de lugar`);
+      }
+    }
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -547,6 +586,7 @@ const GRUPOS = {
   aceso:    'Barra lateral acendendo a pagina errada',
   caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
   controle: 'Caractere de controle gravado dentro do codigo',
+  ordem:    'Menu lateral em ordem diferente entre paginas',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');
