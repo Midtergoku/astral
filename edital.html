@@ -612,7 +612,9 @@
 
       if (!estado.badges.includes('primeiro_edital')) {
         estado.badges.push('primeiro_edital');
-        estado.xp += 100;
+        // 28/09/2026: o +100 XP que vinha aqui saiu. O XP passou a ser do
+        // servidor, calculado das sessoes de estudo -- somar aqui mostraria
+        // 100 XP que sumiriam ao recarregar. A conquista Alistamento continua.
       }
 
       // await + imediato: a navegacao abaixo cancelaria um salvamento adiado,

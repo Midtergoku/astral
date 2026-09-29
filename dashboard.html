@@ -500,9 +500,9 @@
       line-height: 1.35;
     }
 
-/* PRECISÃO ainda não tem do que ser calculada. Fica visível e apagada --
-   esconder daria a impressão de que a ficha tem 4 atributos, e some a
-   informação de que existe um quinto esperando o banco de questões. */
+/* PRECISÃO fica apagada até a pessoa responder 20 questões do Banco -- antes disso
+   não há amostra. Esconder daria a impressão de que a ficha tem 4 atributos, e some a
+   informação de que existe um quinto esperando a pessoa responder. */
     .atributo.trancado .atributo-valor,
     .atributo.trancado .atributo-nome { color: var(--texto-3); }
 
@@ -2048,7 +2048,9 @@ function verificarBalanco() {
       // Badge de edital lido
       if (!estado.badges.includes('primeiro_edital')) {
         estado.badges.push('primeiro_edital');
-        estado.xp += 100;
+        // 28/09/2026: o +100 XP que vinha aqui saiu. O XP passou a ser do
+        // servidor, calculado das sessoes de estudo -- somar aqui mostraria
+        // 100 XP que sumiriam ao recarregar. A conquista Alistamento continua.
       }
 
       // Imediato: processar o edital muda tudo de uma vez, e o usuario

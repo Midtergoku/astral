@@ -99,6 +99,19 @@ let uid = null;
     });
   };
 
+  /* 28/09/2026: XP e horas passaram a sair das SESSOES, calculados pelo
+     servidor (migration 20260928100000). A corrida entre duas telas nao
+     alcanca mais esses dois numeros -- nenhuma das telas manda neles. O que
+     o teste passa a exigir: com as duas telas salvando numeros diferentes,
+     fica o que as sessoes dizem (aqui, 1500 XP e 12 h plantados). */
+  if (!MODO_ANTIGO) {
+    await req('/rest/v1/sessoes_estudo', { method: 'POST', headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify([
+        { usuario_id: uid, materia: 'Português', modo: 'livre', segundos: 21600, xp: 750 },
+        { usuario_id: uid, materia: 'Matemática', modo: 'livre', segundos: 21600, xp: 750 },
+      ]) });
+  }
+
   const r0 = await gravar(INICIAL);
   if (!r0.ok) throw new Error('gravacao inicial falhou: ' + r0.status + ' ' + (await r0.text()).slice(0, 200));
 
@@ -139,8 +152,8 @@ let uid = null;
   console.log('  A tela B estudou Matemática (20→60) e ganhou "madrugador", e salvou DEPOIS.\n');
 
   const checagens = [
-    ['o XP mais alto sobreviveu',            d.xp === 1500,                   'xp = ' + d.xp + ' (A=1500, B=1200)'],
-    ['as horas mais altas sobreviveram',     Number(d.horas) === 12,          'horas = ' + d.horas],
+    ['o XP é o das sessões, não o da última tela', d.xp === 1500,              'xp = ' + d.xp + ' (A mandou 1500, B mandou 1200)'],
+    ['as horas são as das sessões',          Number(d.horas) === 12,          'horas = ' + d.horas],
     ['o progresso de Português (tela A)',    prog('Português') === 70,        prog('Português') + '%'],
     ['o progresso de Matemática (tela B)',   prog('Matemática') === 60,       prog('Matemática') + '%'],
     ['a conquista da tela A não se perdeu',  temBadge('maratonista'),         JSON.stringify(d.badges)],

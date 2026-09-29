@@ -145,7 +145,7 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
     else falha("conta nova deveria ser tudo zero", zeros.join(", "));
 
     if (vazia?.atributos?.precisao?.valor === null) {
-      ok("PRECISAO vem null (banco de questoes nao existe)", "nao inventa numero");
+      ok("PRECISAO vem null numa conta sem respostas", "nao inventa numero");
     } else {
       falha("🔴 PRECISAO inventou um numero", String(vazia?.atributos?.precisao?.valor));
     }
@@ -185,11 +185,14 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
     console.log("");
 
     // As contas, conferidas uma a uma contra o que foi plantado:
-    //   DISCIPLINA  12 dias de 20 = 0,6 -> 39,6  +  streak 5 de 7 = 0,714 -> 24,3   = 64
+    //   DISCIPLINA  12 dias de 20 = 0,6 -> 39,6  +  sequencia 12 de 7 = 1 -> 34     = 74
+    //     (28/09/2026: a sequencia passou a vir das SESSOES -- os 12 dias plantados
+    //      sao seguidos e terminam hoje. Antes vinha o "5" que o navegador mandava
+    //      em p_streak, e o esperado era 64. Ver a migration 20260928100000.)
     //   RESISTENCIA 60 min de 90 = 0,667 -> 67
     //   AMPLITUDE   3 materias de 4 do edital = 75
     //   DOUTRINA    media(60,40,20,0) = 30
-    const esperado = { disciplina: 64, resistencia: 67, amplitude: 75, doutrina: 30 };
+    const esperado = { disciplina: 74, resistencia: 67, amplitude: 75, doutrina: 30 };
     for (const [k, v] of Object.entries(esperado)) {
       const got = Number(at[k]?.valor);
       if (Math.abs(got - v) <= 1) ok(`${k} bate com o esforco plantado`, `${got} (esperado ~${v})`);
@@ -253,7 +256,7 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
          disco (ver historico/erros.md). Comparar valor a valor nao tem
          barra invertida nenhuma, entao nao tem como se perder. */
       const valoresNaTela = naTela.valores.map((v) => String(v).trim());
-      const esperadoNaTela = ["64", "67", "75", "30", "—"];
+      const esperadoNaTela = ["74", "67", "75", "30", "—"];
       const iguais = esperadoNaTela.every((v, i) => valoresNaTela[i] === v);
       if (iguais) ok("os numeros da tela batem com o banco", valoresNaTela.join(" "));
       else falha("numeros da tela nao batem",
@@ -265,6 +268,27 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
       const cresceu = naTela.reguas.filter((t) => t && t !== "none" && !/matrix\(0,/.test(t)).length;
       if (cresceu >= 4) ok("as reguas cresceram", `${cresceu} de 5 com transform aplicado`);
       else falha("reguas nao animaram", naTela.reguas.join(" | ").slice(0, 80));
+    }
+
+    // ── 3c. PRECISAO: acertou de primeira ───────────────────────────────────
+    // 28/09/2026. 20 questoes do acervo respondidas: 15 de primeira (nunca
+    // errou), 5 com erro. Tem de dar 75 -- e com 19 tem de continuar null.
+    {
+      const qs = (await req("/rest/v1/questoes?publicada=is.true&select=id&limit=20", { headers: admin })).corpo || [];
+      const linhasR = qs.map((q, i) => ({
+        usuario_id: a.id, questao_id: q.id, letra: "a", acertou: i < 15,
+        vezes_errou: i < 15 ? 0 : 1, vezes_acertou: i < 15 ? 1 : 0,
+      }));
+      await req("/rest/v1/respostas", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+        body: JSON.stringify(linhasR.slice(0, 19)) });
+      const f19 = await ficha(tA);
+      if (f19?.atributos?.precisao?.valor === null) ok("com 19 respostas, PRECISAO ainda null", f19.atributos.precisao.porque);
+      else falha("PRECISAO com amostra pequena demais", String(f19?.atributos?.precisao?.valor));
+      await req("/rest/v1/respostas", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+        body: JSON.stringify(linhasR.slice(19)) });
+      const f20 = await ficha(tA);
+      if (qs.length === 20 && f20?.atributos?.precisao?.valor === 75) ok("🎯 PRECISAO = acertou de primeira", `75 — ${f20.atributos.precisao.porque}`);
+      else falha("PRECISAO errada", JSON.stringify(f20?.atributos?.precisao));
     }
 
     // ── 4. 🔴 A ficha e SO minha? ────────────────────────────────────────────

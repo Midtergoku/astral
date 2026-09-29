@@ -123,6 +123,21 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
     usuario = await criarUsuario();
     console.log(`\nTESTA-PERSISTENCIA  usuario ${usuario.id.slice(0, 8)}\n`);
 
+    /* 28/09/2026: XP, sequencia e horas passaram a ser calculados pelo
+       SERVIDOR a partir das sessoes (migration 20260928100000) -- o numero que
+       o navegador manda e ignorado. Entao o estudo e plantado como SESSOES que
+       somam exatamente PROGRESSO: 9 dias seguidos ate hoje, 33 h, 4242 XP.
+       A pergunta do teste nao muda: o que a pessoa fez aparece igual em
+       qualquer aparelho? */
+    const sessoes = Array.from({ length: 9 }, (_, d) => ({
+      usuario_id: usuario.id, materia: "Matemática", modo: "livre",
+      segundos: 13200, xp: d === 0 ? 474 : 471,
+      criado_em: new Date(Date.now() - d * 86400000).toISOString(),
+    }));
+    await req("/rest/v1/sessoes_estudo", { method: "POST",
+      headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(sessoes) });
+
     // ── 1. NAVEGADOR A: entra e estuda ──────────────────────────────────────
     const s1 = await sessaoNova(usuario.email);
     const ctxA = await nav.newContext({ viewport: { width: 1280, height: 900 } });
