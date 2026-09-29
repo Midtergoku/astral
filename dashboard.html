@@ -812,6 +812,149 @@
 
 
 
+
+/* ── O EDITAL, DENTRO DO DASHBOARD (28/09/2026) ──────────────────────────────
+   Pedido dele: "a aba meu edital e bem simples e facilmente caberia no
+   dashboard". A aba tinha 5 coisas: nome, data, tipo, materias e pesos,
+   trocar e remover. Aqui cabem numa faixa so -- e a lista de pesos fica
+   FECHADA ate ele pedir, para nao empurrar a sessao de hoje para baixo. */
+.edital-faixa {
+  background: var(--casco);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--latao);
+  border-radius: var(--r-g);
+  padding: var(--e3) var(--e4);
+  margin-bottom: var(--e4);
+}
+.edital-faixa-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  flex-wrap: wrap;
+}
+.edital-id { min-width: 0; }
+.edital-rotulo {
+  font-family: var(--dado);
+  font-size: var(--t-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--texto-3);
+}
+.edital-nome {
+  font-family: var(--display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  color: var(--papel);
+  margin-top: .15rem;
+  line-height: 1.25;
+}
+.edital-meta {
+  font-family: var(--dado);
+  font-size: var(--t-xs);
+  color: var(--texto-2);
+  margin-top: .35rem;
+  font-variant-numeric: tabular-nums;
+}
+.edital-meta b { color: var(--latao-c); font-weight: 600; }
+.edital-acoes { display: flex; gap: var(--e2); flex-shrink: 0; }
+.edital-btn {
+  background: transparent;
+  border: 1px solid var(--linha);
+  color: var(--texto);
+  border-radius: var(--r-p);
+  padding: .5rem .85rem;
+  font-family: var(--display);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida);
+}
+.edital-btn svg { transition: transform var(--d-menu) var(--saida); }
+.edital-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) {
+  .edital-btn:hover { border-color: var(--latao); color: var(--latao-c); }
+}
+.edital-pesos {
+  margin-top: var(--e3);
+  padding-top: var(--e3);
+  border-top: 1px solid var(--linha);
+  animation: edital-abre var(--d-menu) var(--saida);
+}
+@keyframes edital-abre {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+.edital-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--e5);
+}
+.edital-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem 2.8rem;
+  align-items: center;
+  gap: var(--e3);
+  padding: .55rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--linha) 60%, transparent);
+}
+.edital-materia {
+  font-size: var(--t-sm);
+  color: var(--texto);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.edital-materia small {
+  font-family: var(--dado);
+  font-size: .68rem;
+  color: var(--texto-3);
+  margin-left: .35rem;
+}
+.edital-barra { height: 4px; background: var(--casco-2); border-radius: 2px; overflow: hidden; }
+.edital-barra span { display: block; height: 100%; background: var(--latao); }
+.edital-peso {
+  font-family: var(--dado);
+  font-size: var(--t-sm);
+  color: var(--latao-c);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.edital-rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--e3);
+  margin-top: var(--e3);
+  font-size: var(--t-xs);
+  color: var(--texto-3);
+  flex-wrap: wrap;
+}
+.edital-remover {
+  background: none;
+  border: none;
+  color: var(--brasa-c);
+  font-family: var(--display);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: .25rem 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .edital-remover:hover { text-decoration: underline; }
+}
+@media (max-width: 720px) {
+  .edital-grade { grid-template-columns: 1fr; }
+  .edital-acoes { width: 100%; }
+  .edital-btn { flex: 1; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edital-pesos { animation: none; }
+  .edital-btn svg { transition: none; }
+}
 </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
@@ -842,10 +985,6 @@
     <a class="nav-link active" href="dashboard.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
-    </a>
-    <a class="nav-link" href="edital.html">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Meu Edital
     </a>
     <a class="nav-link" href="calendario.html">
   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
@@ -1019,6 +1158,31 @@
   <!-- MAIN GRID (aparece depois do upload) -->
   <div id="main-content" style="display:none;">
 
+    <!-- O EDITAL. Era a aba "Meu edital"; entrou aqui em 28/09/2026. -->
+    <section class="edital-faixa" id="edital-faixa" hidden>
+      <div class="edital-faixa-topo">
+        <div class="edital-id">
+          <div class="edital-rotulo">Edital ativo</div>
+          <div class="edital-nome" id="edital-nome"></div>
+          <div class="edital-meta" id="edital-meta"></div>
+        </div>
+        <div class="edital-acoes">
+          <button class="edital-btn" id="edital-ver" type="button" aria-expanded="false" aria-controls="edital-pesos">
+            Matérias e pesos
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <button class="edital-btn" id="edital-trocar" type="button">Trocar edital</button>
+        </div>
+      </div>
+      <div class="edital-pesos" id="edital-pesos" hidden>
+        <div class="edital-grade" id="edital-grade"></div>
+        <div class="edital-rodape">
+          <span>Pesos lidos do edital. Na dúvida, vale o documento oficial.</span>
+          <button class="edital-remover" id="edital-remover" type="button">Remover edital</button>
+        </div>
+      </div>
+    </section>
+
 <div class="balanco-banner" id="balanco-banner">
   <div class="balanco-banner-icon"><i data-icone="balanca"></i></div>
   <div class="balanco-banner-info">
@@ -1160,6 +1324,15 @@
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=cddd9d5b';
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=cddd9d5b';
   import { aplicarGrafico } from './assets/js/grafico.js?v=770bee87';
+  import { nivelDe } from './assets/js/divisa.js?v=01156cb1';
+
+  /* 28/09/2026: o cartao "Nivel atual" usava a tabela TABELAS_NIVEIS daqui,
+     e o topo da pagina usa a do divisa.js -- com a conta simulada, o topo
+     dizia 1º Sargento e o cartao 2º Sargento. Uma patente, uma fonte. */
+  function nivelDaConta() {
+    const e = estado.edital || {};
+    return nivelDe(estado.xp, e.nome || '', e.forca || null, e.patenteInicial || null);
+  }
 
   // ── NÍVEIS ──
   const TABELAS_NIVEIS = {
@@ -1564,10 +1737,18 @@ function mostrarLevelUp(nomeNivel) {
       .eq('categoria', 'prova')
       .order('data', { ascending: true })
       .limit(1);
-    if (error || !provas?.length) return;      // sem prova marcada, sem chefe
+    /* 28/09/2026: a prova so chegava ao calendario quando a pessoa ABRIA o
+       calendario. Quem nunca abriu ficava sem o chefe, com a data no edital.
+       Sem prova no calendario, vale a data do proprio edital. */
+    let prova = provas?.[0] || null;
+    if (!prova && estado.edital?.dataProva) {
+      const m = String(estado.edital.dataProva).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (m) prova = { nome: 'Prova — ' + (estado.edital.nome || 'Concurso'), data: `${m[3]}-${m[2]}-${m[1]}`, categoria: 'prova' };
+    }
+    if (error || !prova) return;      // sem prova marcada, sem chefe
 
     const { chefeDe } = await import('./assets/js/chefe.js?v=76f7fa60');
-    const c = chefeDe(provas[0], fatos);
+    const c = chefeDe(prova, fatos);
     if (!c) return;                            // prova já passou
 
     const cor = TONS[c.tom] || TONS.calmo;
@@ -1694,6 +1875,7 @@ function mostrarLevelUp(nomeNivel) {
     if (estado.edital && estado.materias.length > 0) {
       document.getElementById('upload-section').style.display = 'none';
     }
+    renderEdital();
     document.getElementById('main-content').style.display = 'block';
     renderCronograma();
     renderProgressoResumo();
@@ -1724,35 +1906,19 @@ function verificarBalanco() {
 
   function renderXP() {
     const xp = estado.xp;
-    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
-    const NIVEIS = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
-    
-    let nivelAtual = NIVEIS[0];
-    let nivelProximo = NIVEIS[1];
-    let nivelIndex = 0;
+    const n = nivelDaConta();
 
-    for (let i = NIVEIS.length - 1; i >= 0; i--) {
-      if (xp >= NIVEIS[i].xp) {
-        nivelAtual = NIVEIS[i];
-        nivelIndex = i;
-        nivelProximo = NIVEIS[i + 1] || null;
-        break;
-      }
-    }
-
-    document.getElementById('nivel-nome').textContent = nivelAtual.nome;
-    document.getElementById('nivel-sub').textContent = `Nível ${nivelIndex + 1}`;
+    document.getElementById('nivel-nome').textContent = n.nome;
+    document.getElementById('nivel-sub').textContent = `Nível ${n.indice + 1}`;
 
     const proximoRankEl = document.getElementById('proximo-rank');
 
-    if (nivelProximo) {
-      const xpNoNivel = xp - nivelAtual.xp;
-      const xpParaProximo = nivelProximo.xp - nivelAtual.xp;
-      const pct = Math.min(100, Math.round((xpNoNivel / xpParaProximo) * 100));
+    if (n.proximo) {
+      const pct = Math.min(100, Math.round(n.fracao * 100));
       document.getElementById('xp-atual').textContent = `${xp} XP`;
-      document.getElementById('xp-proximo').textContent = `${nivelProximo.xp} XP`;
+      document.getElementById('xp-proximo').textContent = `${n.proximo.xp} XP`;
       document.getElementById('xp-fill').style.width = `${pct}%`;
-      if (proximoRankEl) proximoRankEl.textContent = nivelProximo.nome;
+      if (proximoRankEl) proximoRankEl.textContent = n.proximo.nome;
     } else {
       document.getElementById('xp-atual').textContent = `${xp} XP`;
       document.getElementById('xp-proximo').textContent = 'Patente máxima!';
@@ -1865,9 +2031,7 @@ function verificarBalanco() {
     const xp = estado.xp;
     const streak = estado.streak;
     const temEdital = estado.edital !== null;
-    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
-    const NIVEIS_ATUAL = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
-    const nivelIndex = NIVEIS_ATUAL.findLastIndex(n => xp >= n.xp);
+    const nivelIndex = nivelDaConta().indice;
 
     const desbloqueados = BADGES_DEF.filter(b => {
       if (b.xp_req     && xp >= b.xp_req)               return true;
@@ -1912,9 +2076,7 @@ function verificarBalanco() {
     if (item.feito) return;
 
     // Guarda nível anterior para detectar level up
-    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
-    const NIVEIS_ATUAL = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
-    const nivelAntes = NIVEIS_ATUAL.findLastIndex(n => estado.xp >= n.xp);
+    const nivelAntes = nivelDaConta().indice;
 
     item.feito = true;
     estado.xp += item.xp;
@@ -1946,7 +2108,7 @@ function verificarBalanco() {
     }).catch(() => { /* ja logado dentro de registrarSessao */ });
 
     // Detecta level up
-    const nivelDepois = NIVEIS_ATUAL.findLastIndex(n => estado.xp >= n.xp);
+    const nivelDepois = nivelDaConta().indice;
     const levelUp = nivelDepois > nivelAntes;
 
     salvarDados();
@@ -1960,7 +2122,7 @@ function verificarBalanco() {
     if (levelUp) {
       setTimeout(() => {
         dispararConfete();
-        mostrarLevelUp(NIVEIS_ATUAL[nivelDepois].nome);
+        mostrarLevelUp(nivelDaConta().nome);
       }, 300);
     }
 
@@ -2001,7 +2163,9 @@ function verificarBalanco() {
       return;
     }
 
-    // Mostra processing
+    // Mostra processing. Na TROCA de edital a secao de upload esta escondida,
+    // e sem reabri-la o "lendo seu edital" rodaria invisivel.
+    document.getElementById('upload-section').style.display = 'block';
     document.getElementById('upload-area').style.display = 'none';
     const proc = document.getElementById('ai-processing');
     proc.style.display = 'flex';
@@ -2066,15 +2230,74 @@ function verificarBalanco() {
       // sessao expirada). Antes isso era um alert() com err.message cru.
       toast(err.message || 'Erro ao processar o edital. Tente novamente.', 'error');
       proc.style.display = 'none';
-      document.getElementById('upload-area').style.display = 'block';
+      // Falhou a troca: quem ja tinha edital volta para o que tinha.
+      if (estado.edital && estado.materias.length) document.getElementById('upload-section').style.display = 'none';
+      else document.getElementById('upload-area').style.display = 'block';
     }
   }
+
+
+  // ── O EDITAL (era a aba "Meu edital") ──────────────────────────────────────
+  const NOME_DA_FORCA = { bombeiros: 'Bombeiros', marinha: 'Marinha', aeronautica: 'Aeronáutica',
+                          exercito: 'Exército', pm: 'Polícia Militar' };
+
+  function renderEdital() {
+    const faixa = document.getElementById('edital-faixa');
+    if (!faixa) return;
+    const e = estado.edital;
+    if (!e || !estado.materias.length) { faixa.hidden = true; return; }
+    faixa.hidden = false;
+
+    document.getElementById('edital-nome').textContent = e.nome || 'Edital';
+    const partes = [];
+    const forca = NOME_DA_FORCA[nivelDaConta().tipo];
+    if (forca) partes.push(esc(forca));
+    partes.push(`${estado.materias.length} matérias`);
+    const m = String(e.dataProva || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) {
+      const dias = Math.round((new Date(+m[3], +m[2] - 1, +m[1]) - new Date(new Date().toDateString())) / 86400000);
+      partes.push(`prova em <b>${esc(e.dataProva)}</b>` + (dias >= 0 ? ` · faltam ${dias} dia${dias === 1 ? '' : 's'}` : ' · realizada'));
+    } else {
+      partes.push('data da prova não identificada');
+    }
+    document.getElementById('edital-meta').innerHTML = partes.join(' · ');
+
+    const ordem = [...estado.materias].sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0));
+    const maior = Math.max(1, ...ordem.map((x) => Number(x.peso) || 0));
+    document.getElementById('edital-grade').innerHTML = ordem.map((x) => `
+      <div class="edital-linha">
+        <span class="edital-materia">${esc(x.nome)}${x.questoes ? `<small>${Number(x.questoes)} q.</small>` : ''}</span>
+        <span class="edital-barra"><span style="width:${Math.round((Number(x.peso) || 0) / maior * 100)}%"></span></span>
+        <span class="edital-peso">${Number(x.peso) || 0}%</span>
+      </div>`).join('');
+  }
+
+  document.getElementById('edital-ver')?.addEventListener('click', (ev) => {
+    const painel = document.getElementById('edital-pesos');
+    painel.hidden = !painel.hidden;
+    ev.currentTarget.setAttribute('aria-expanded', String(!painel.hidden));
+  });
+
+  document.getElementById('edital-trocar')?.addEventListener('click', () => {
+    if (!confirm('Trocar de edital refaz as matérias e o cronograma a partir do PDF novo. Seu XP, sua patente e suas conquistas ficam. Continuar?')) return;
+    document.getElementById('file-input').click();
+  });
+
+  document.getElementById('edital-remover')?.addEventListener('click', async () => {
+    if (!confirm('Remover o edital atual? As matérias e o cronograma saem. Seu XP e suas conquistas ficam.')) return;
+    estado.edital = null;
+    estado.materias = [];
+    estado.cronogramaHoje = [];
+    // Espera gravar: recarregar antes perderia a remocao.
+    await salvarDados({ imediato: true });
+    location.reload();
+  });
 
   // ── SALVAR DADOS ──
   // Grava no navegador na hora e no banco logo em seguida. Marcar varias
   // sessoes seguidas vira uma escrita so, nao uma por clique.
   function salvarDados({ imediato = false } = {}) {
-    salvarProgresso(estado.usuario.id, {
+    return salvarProgresso(estado.usuario.id, {
       xp:             estado.xp,
       streak:         estado.streak,
       horas:          estado.horas,

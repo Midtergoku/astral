@@ -63,7 +63,7 @@ const servidor = http.createServer((q, r) => {
 // O que cada pagina tem de mostrar para uma conta adiantada de bombeiro.
 const PAGINAS = [
   ["dashboard.html",   /Sargento BM/,               "a patente de bombeiro"],
-  ["edital.html",      /SIMULA[ÇC][ÃA]O/,           "o edital simulado"],
+  ["dashboard.html",   /SIMULA[ÇC][ÃA]O/,           "o edital, dentro do dashboard"],
   ["cronograma.html",  /Portugu[êe]s|Matem[áa]tica/, "as materias do edital"],
   ["calendario.html",  null, null],
   ["progresso.html",   /Legisla[çc][ãa]o/,          "as 9 materias"],
