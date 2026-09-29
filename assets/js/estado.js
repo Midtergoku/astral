@@ -22,6 +22,7 @@ const VAZIO = () => ({
   edital: null,
   badges: [],
   tagEscolhida: null,   // nulo = o Astral escolhe. Ver skills/astral-gamificacao.
+  rotina: null,         // nulo = nunca respondeu o questionario. Ver assets/js/cronograma.js.
 });
 
 const chaveLocal = (uid) => `astral_dados_${uid}`;
@@ -55,6 +56,7 @@ function normalizar(bruto) {
     // Sem isto, quem escolheu a tag num aparelho a perderia ao abrir noutro.
     tagEscolhida:   (typeof (bruto.tagEscolhida ?? bruto.tag_escolhida) === 'string')
                       ? (bruto.tagEscolhida ?? bruto.tag_escolhida) : null,
+    rotina:         (bruto.rotina && typeof bruto.rotina === 'object') ? bruto.rotina : null,
   };
 }
 
@@ -398,4 +400,18 @@ export async function sessoesDaSemana(uid) {
     if (alvo) alvo.segundos += Number(s.segundos) || 0;
   }
   return dias;
+}
+
+// ── Rotina de estudo (28/09/2026) ───────────────────────────────────────────
+/* Gravada A PARTE do resto do progresso, e de proposito: `salvar_progresso`
+   nao conhece esta coluna, entao salvar XP ou materias nunca apaga a rotina,
+   e a rotina nao disputa a mesma gravacao que o cronometro. Uma linha so,
+   uma coluna so. Quem monta a semana com ela e assets/js/cronograma.js. */
+export async function salvarRotina(uid, rotina) {
+  const { error } = await supabase.from('progresso')
+    .update({ rotina }).eq('usuario_id', uid);
+  if (error) throw new Error('Não consegui salvar sua rotina. Tente de novo.');
+  // O espelho do navegador tambem, senao a proxima leitura rapida mostraria a velha.
+  const local = lerLocal(uid);
+  if (local) gravarLocal(uid, { ...local, rotina });
 }

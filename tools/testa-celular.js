@@ -76,6 +76,11 @@ async function abrir(nav, ap, pagina) {
   await pg.addInitScript(SESSAO);
   await pg.route("**/rest/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
   await pg.route("**/functions/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"success":true,"data":{}}' }));
+  // 28/09/2026: conta que NUNCA respondeu a rotina abre o questionario por
+  // cima de tudo no dashboard -- de proposito, e a primeira visita. Aqui se
+  // testa o menu, entao a conta finge ja ter respondido.
+  await pg.route("**/rest/v1/progresso**", (r) => r.fulfill({ status: 200, contentType: "application/json",
+    body: JSON.stringify([{ usuario_id: "00000000-0000-0000-0000-000000000001", materias: [], rotina: { dias: [1, 2, 3, 4, 5, 6] } }]) }));
   await pg.goto(`http://localhost:${PORTA}/${pagina}`, { waitUntil: "load" }).catch(() => {});
   await pg.waitForTimeout(800);
   return { ctx, pg };

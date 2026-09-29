@@ -9,97 +9,173 @@
 <style>
   body { display: flex; min-height: 100vh; margin: 0; }
 
-  .semana {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: var(--e3);
-    margin-top: var(--e4);
-  }
+  /* ── CRONOGRAMA, refeito em 28/09/2026 ────────────────────────────────────
+     Ele: "nao gostei de nada aqui, achei a tabela toda fora de simetria".
+     A grade antiga era auto-fit de 15rem: 4 colunas numa linha e 3 na outra,
+     cada dia com 3 cartoes iguais. Agora e uma GRADE HORARIA de verdade:
+     7 colunas iguais, segunda a domingo, e cada bloco com altura
+     proporcional ao tempo -- 50 minutos parecem maiores que 25. */
 
-  .dia { display: flex; flex-direction: column; gap: var(--e2); }
-  .dia-cabeca {
-    display: flex; align-items: baseline; justify-content: space-between;
-    gap: var(--e2); margin-bottom: var(--e1);
+  .painel {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: var(--e3); flex-wrap: wrap;
   }
-  .dia-nome {
-    font-family: var(--display); font-weight: 800;
-    font-size: var(--t-sm); letter-spacing: .1em; text-transform: uppercase;
-    color: var(--texto-2);
+  .painel-rotulo {
+    font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
   }
-  .dia-data {
-    font-family: var(--dado); font-size: var(--t-xs);
-    color: var(--texto-3); font-variant-numeric: tabular-nums;
+  .painel-rotina {
+    font-family: var(--display); font-weight: 700; font-size: var(--t-md);
+    color: var(--papel); margin-top: .2rem;
   }
-  .dia.hoje .dia-nome { color: var(--latao-c); }
-
-  .sessao {
-    display: flex; align-items: center; gap: var(--e2);
-    background: var(--casco); border: 1px solid var(--linha);
-    border-left: 3px solid var(--oliva);
-    border-radius: var(--r-p); padding: .7rem .85rem;
-    transition: transform 220ms var(--saida), border-color 220ms ease,
-                box-shadow 220ms var(--saida);
+  .painel-acoes { display: flex; gap: var(--e2); flex-wrap: wrap; }
+  .acao {
+    background: transparent; border: 1px solid var(--linha); color: var(--texto);
+    border-radius: var(--r-p); padding: .55rem .9rem; cursor: pointer;
+    font-family: var(--display); font-weight: 600; font-size: .8rem;
+    transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida), background-color var(--d-dica) var(--saida);
   }
-  .sessao.pesada { border-left-color: var(--latao); }
+  .acao.forte { background: var(--latao); border-color: var(--latao); color: var(--breu); font-weight: 800; }
+  .acao.perigo { color: var(--brasa-c); }
   @media (hover: hover) and (pointer: fine) {
-    .sessao:hover {
-      transform: translateX(3px);
-      border-color: color-mix(in srgb, var(--latao) 40%, transparent);
-      box-shadow: 0 8px 20px -14px rgba(0,0,0,.8);
-    }
-  }
-  .sessao-materia {
-    flex: 1; font-size: var(--t-sm); color: var(--texto);
-    line-height: 1.35;
-  }
-  .sessao-tempo {
-    font-family: var(--dado); font-size: var(--t-xs);
-    color: var(--texto-3); white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-  .sessao-xp {
-    font-family: var(--dado); font-size: var(--t-xs); font-weight: 700;
-    color: var(--latao-c); white-space: nowrap;
-  }
-
-  .dia.descanso .sessao {
-    border-left-color: var(--linha);
-    color: var(--texto-3);
-    justify-content: center;
-    font-style: italic;
+    .acao:not(.forte):hover { border-color: var(--latao); color: var(--latao-c); }
   }
 
   .resumo {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1px; background: var(--linha);
     border: 1px solid var(--linha); border-radius: var(--r-p);
-    overflow: hidden; margin-top: var(--e3);
+    overflow: hidden; margin: var(--e3) 0 0;
   }
-  .resumo > div { background: var(--casco-2); padding: var(--e3); }
+  .resumo > div { background: var(--casco-2); padding: .85rem var(--e3); }
   .resumo dt {
-    font-family: var(--dado); font-size: var(--t-xs); letter-spacing: .12em;
-    text-transform: uppercase; color: var(--texto-3); margin-bottom: var(--e1);
-    font-weight: 700;
+    font-family: var(--dado); font-size: .68rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
   }
   .resumo dd {
-    margin: 0; font-family: var(--dado); font-size: var(--t-xl);
+    margin: .2rem 0 0; font-family: var(--dado); font-size: var(--t-xl);
     font-weight: 700; color: var(--texto); font-variant-numeric: tabular-nums;
   }
+  .resumo dd.ouro { color: var(--latao-c); }
 
-  .vazio {
-    text-align: center; padding: var(--e5) var(--e3);
-    color: var(--texto-2);
+  .grade {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: .5rem; margin-top: var(--e4); align-items: stretch;
   }
-  .vazio .titulo {
-    font-family: var(--display); font-weight: 700;
-    font-size: var(--t-lg); color: var(--texto); margin-bottom: var(--e2);
+  .dia {
+    display: flex; flex-direction: column; gap: .4rem; min-width: 0;
+    padding: .5rem; border-radius: var(--r-g);
+    background: color-mix(in srgb, var(--casco) 45%, transparent);
+    border: 1px solid transparent;
+  }
+  .dia.hoje { border-color: color-mix(in srgb, var(--latao) 55%, transparent); background: color-mix(in srgb, var(--latao) 6%, var(--casco)); }
+  .dia.passou .bloco:not(.feito), .dia.passou .folga { opacity: .5; }
+  .dia-cabeca { padding: .15rem .2rem .45rem; border-bottom: 1px solid var(--linha); margin-bottom: .1rem; }
+  .dia-nome {
+    font-family: var(--display); font-weight: 800; font-size: .78rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--texto-2);
+    display: flex; justify-content: space-between; gap: .3rem;
+  }
+  .dia.hoje .dia-nome { color: var(--latao-c); }
+  .dia-data, .dia-total {
+    font-family: var(--dado); font-size: .68rem; color: var(--texto-3);
+    font-variant-numeric: tabular-nums; letter-spacing: 0; font-weight: 400;
+  }
+  .dia-total { margin-top: .15rem; }
+
+  .bloco {
+    position: relative;
+    min-height: calc(var(--min, 30) * 1.25px + 1.5rem);
+    display: flex; flex-direction: column; justify-content: space-between; gap: .3rem;
+    background: var(--casco); border: 1px solid var(--linha);
+    border-left: 3px solid var(--oliva);
+    border-radius: var(--r-p); padding: .5rem .55rem;
+  }
+  .bloco.prioridade { border-left-color: var(--latao); }
+  .bloco.feito { border-left-color: var(--oliva-c); background: color-mix(in srgb, var(--oliva) 14%, var(--casco)); }
+  .bloco-materia {
+    font-size: .82rem; color: var(--texto); line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .bloco-pe {
+    display: flex; justify-content: space-between; align-items: baseline; gap: .3rem;
+    font-family: var(--dado); font-size: .68rem; font-variant-numeric: tabular-nums;
+  }
+  .bloco-tempo { color: var(--texto-3); }
+  .bloco-xp { color: var(--latao-c); font-weight: 700; }
+  .bloco.feito .bloco-xp { color: var(--oliva-c); }
+
+  .folga {
+    flex: 1; min-height: 6rem; border-radius: var(--r-p);
+    border: 1px dashed var(--linha);
+    background: repeating-linear-gradient(135deg, transparent 0 7px,
+                color-mix(in srgb, var(--linha) 45%, transparent) 7px 8px);
+    display: grid; place-items: center;
+    font-family: var(--dado); font-size: .7rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--texto-3);
   }
 
+  /* Edicao da semana */
+  .editando .bloco { padding-right: 1.6rem; }
+  .bloco select {
+    width: 100%; background: var(--breu); color: var(--texto);
+    border: 1px solid var(--linha); border-radius: var(--r-p);
+    font-family: var(--corpo); font-size: .78rem; padding: .25rem;
+  }
+  .bloco select.min { font-family: var(--dado); font-size: .7rem; }
+  .tirar {
+    position: absolute; top: .3rem; right: .3rem;
+    width: 1.3rem; height: 1.3rem; display: grid; place-items: center;
+    background: none; border: 1px solid var(--linha); border-radius: var(--r-p);
+    color: var(--texto-3); cursor: pointer; font-size: .7rem; line-height: 1;
+  }
+  .por {
+    border: 1px dashed var(--linha); background: none; color: var(--texto-3);
+    border-radius: var(--r-p); padding: .45rem; cursor: pointer;
+    font-family: var(--display); font-size: .75rem; font-weight: 600;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tirar:hover { color: var(--brasa-c); border-color: var(--brasa-c); }
+    .por:hover { color: var(--latao-c); border-color: var(--latao); }
+  }
+  .barra-edicao {
+    position: sticky; bottom: 1rem; z-index: 5;
+    display: flex; justify-content: space-between; align-items: center; gap: var(--e3); flex-wrap: wrap;
+    margin-top: var(--e3); padding: .75rem 1rem; border-radius: var(--r-g);
+    background: var(--casco); border: 1px solid var(--latao);
+    box-shadow: 0 16px 40px -20px rgba(0,0,0,.9);
+  }
+  .barra-edicao span { font-size: var(--t-sm); color: var(--texto-2); }
+
+  /* Tempo por materia */
+  .porMateria { margin-top: var(--e4); }
+  .pm-linha {
+    display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) 4.5rem;
+    align-items: center; gap: var(--e3); padding: .45rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--linha) 60%, transparent);
+    font-size: var(--t-sm);
+  }
+  .pm-barra { height: 6px; background: var(--casco-2); border-radius: 3px; overflow: hidden; }
+  .pm-barra span { display: block; height: 100%; background: var(--latao); }
+  .pm-min { font-family: var(--dado); text-align: right; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+
+  .vazio { text-align: center; padding: var(--e5) var(--e3); color: var(--texto-2); }
+  .vazio .titulo { font-family: var(--display); font-weight: 700; font-size: var(--t-lg); color: var(--texto); margin-bottom: var(--e2); }
+
+  @media (max-width: 1100px) and (min-width: 769px) {
+    .bloco-pe { flex-direction: column; gap: 0; }
+  }
   @media (max-width: 768px) {
-    .semana { grid-template-columns: 1fr; }
+    .grade { grid-template-columns: 1fr; }
+    .dia { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); column-gap: .6rem; align-items: start; }
+    .dia-cabeca { grid-row: span 20; border-bottom: none; border-right: 1px solid var(--linha); padding-right: .4rem; }
+    .dia-nome { flex-direction: column; }
+    .bloco { min-height: 0; }
+    .folga { min-height: 2.6rem; }
+    .resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pm-linha { grid-template-columns: minmax(0, 8rem) minmax(0, 1fr) 3.5rem; }
     /* Sem isto a sidebar (fixed, 240px) fica POR CIMA do conteudo no celular:
-       240 de 360px cobertos. As outras 9 paginas do app ja faziam isto; estas
-       duas ficaram de fora. O botao de menu do astral.js traz ela de volta. */
+       240 de 360px cobertos. O botao de menu do astral.js traz ela de volta. */
     .sidebar { transform: translateX(-100%); }
     .main { margin-left: 0; padding: 1.25rem; }
   }
@@ -222,7 +298,7 @@
   <div class="topbar">
     <div>
       <h1 class="page-title">Cronograma</h1>
-      <p class="page-sub">Sua semana montada a partir dos pesos do edital.</p>
+      <p class="page-sub">Sua semana, montada na sua rotina e nos pesos do edital.</p>
     </div>
       <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
   </div>
@@ -233,122 +309,207 @@
 </main>
 
 <script type="module">
-  import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, nomeDoPlano }
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, nomeDoPlano, toast }
     from './assets/js/astral.js?v=bfdb6e4b';
-  import { carregarProgresso } from './assets/js/estado.js?v=cddd9d5b';
+  import { carregarProgresso, sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
+  import { montarSemana, blocosDeHoje, resumoDaRotina, normalizarRotina, xpDoBloco, DIAS, DIAS_CURTOS }
+    from './assets/js/cronograma.js?v=17358f63';
+  import { perguntarRotina } from './assets/js/rotina.js?v=7f7e6c15';
+  import { necessidadeDe } from './assets/js/plano.js?v=22c00529';
 
-  const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  // Segunda primeiro: e assim que se planeja uma semana de estudo.
+  const ORDEM = [1, 2, 3, 4, 5, 6, 0];
+  const MINUTOS = [20, 25, 30, 40, 45, 50, 60, 90, 120];
 
-  /* Monta a semana a partir dos PESOS do edital.
-     Regra: a materia mais pesada aparece mais vezes. Nada de IA aqui -- e conta
-     simples, roda no navegador e nao gasta credito nenhum.
-     Domingo fica de descanso de proposito: cronograma sem folga e cronograma
-     que a pessoa abandona na segunda semana. */
-  function montarSemana(materias) {
-    if (!materias || !materias.length) return null;
+  let uid = null, materias = [], rotina = null, hoje = [];
+  let rascunho = null;          // a semana sendo editada; null = fora da edicao
 
-    const ordenadas = [...materias].sort((a, b) => (b.peso || 1) - (a.peso || 1));
-    const semana = [];
-
-    for (let d = 0; d < 7; d++) {
-      if (d === 0) { semana.push({ descanso: true, sessoes: [] }); continue; }
-
-      const sessoes = [];
-      // 2 a 3 sessoes por dia, girando a lista para variar sem ficar aleatorio
-      const quantas = Math.min(3, ordenadas.length);
-      for (let s = 0; s < quantas; s++) {
-        const m = ordenadas[((d - 1) * quantas + s) % ordenadas.length];
-        const peso = m.peso || 1;
-        sessoes.push({
-          materia: m.nome,
-          tempo: Math.max(30, Math.round(peso * 2)),
-          xp: Math.round(peso * 5),
-          pesada: peso >= (ordenadas[0].peso || 1) * 0.8,
-        });
-      }
-      semana.push({ descanso: false, sessoes });
-    }
-    return semana;
-  }
+  const hm = (m) => `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`;
 
   function datasDaSemana() {
-    const hoje = new Date();
-    const domingo = new Date(hoje);
-    domingo.setDate(hoje.getDate() - hoje.getDay());
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(domingo);
-      d.setDate(domingo.getDate() + i);
-      return d;
-    });
+    const agora = new Date();
+    const seg = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - ((agora.getDay() + 6) % 7));
+    // Posicao i na ordem segunda..domingo = i dias depois da segunda.
+    return Array.from({ length: 7 }, (_, i) => new Date(seg.getFullYear(), seg.getMonth(), seg.getDate() + i));
   }
 
-  function render(semana) {
+  function render() {
     const alvo = document.getElementById('conteudo');
-
-    if (!semana) {
+    if (!materias.length) {
       alvo.innerHTML = `
-        <div class="card">
-          <div class="vazio">
-            <div class="titulo">Seu cronograma aparece aqui</div>
-            <p>Suba o PDF do seu edital e o Astral monta a semana a partir dos pesos de cada matéria.</p>
-            <a class="btn btn-roxo" href="dashboard.html" style="margin-top:1rem">
-              Enviar meu edital
-            </a>
-          </div>
-        </div>`;
+        <div class="card"><div class="vazio">
+          <div class="titulo">Seu cronograma aparece aqui</div>
+          <p>Envie o PDF do seu edital no Dashboard e o Astral monta a semana na sua rotina, pelos pesos de cada matéria.</p>
+          <a class="btn btn-roxo" href="dashboard.html" style="margin-top:1rem">Ir para o Dashboard</a>
+        </div></div>`;
       return;
     }
 
+    const semana = rascunho
+      ? rascunho.map((blocos, dia) => ({ dia, estuda: blocos.length > 0, blocos: blocos.map((b) => ({ ...b, xp: xpDoBloco(b.minutos) })) }))
+      : montarSemana(materias, rotina);
+    const agora = new Date();
+    const hojeIdx = agora.getDay();
+    const feitosHoje = blocosDeHoje(semana, hoje, agora);
     const datas = datasDaSemana();
-    const hojeIdx = new Date().getDay();
 
-    const totalMin = semana.reduce((t, d) => t + d.sessoes.reduce((s, x) => s + x.tempo, 0), 0);
-    const totalXp  = semana.reduce((t, d) => t + d.sessoes.reduce((s, x) => s + x.xp, 0), 0);
-    const totalSes = semana.reduce((t, d) => t + d.sessoes.length, 0);
+    // As 3 materias que mais precisam de tempo ganham a borda de latao.
+    const prioridade = new Set([...materias].sort((a, b) => necessidadeDe(b) - necessidadeDe(a)).slice(0, 3).map((m) => m.nome));
+
+    const blocos = semana.flatMap((d) => d.blocos);
+    const totalMin = blocos.reduce((s, b) => s + b.minutos, 0);
+    const totalXp = blocos.reduce((s, b) => s + b.xp, 0);
+    const dias = semana.filter((d) => d.blocos.length).length;
+
+    const porMateria = {};
+    for (const b of blocos) porMateria[b.materia] = (porMateria[b.materia] || 0) + b.minutos;
+    const pm = Object.entries(porMateria).sort((a, b) => b[1] - a[1]);
+    const maiorPm = Math.max(1, ...pm.map((x) => x[1]));
+
+    const posHoje = (hojeIdx + 6) % 7;   // posicao de hoje na ordem segunda..domingo
 
     alvo.innerHTML = `
       <div class="card">
-        <div class="section-title">Esta semana</div>
-        <p class="section-sub">Domingo é descanso — cronograma sem folga é cronograma abandonado.</p>
+        <div class="painel">
+          <div>
+            <div class="painel-rotulo">Sua rotina</div>
+            <div class="painel-rotina">${esc(resumoDaRotina(rotina))}</div>
+          </div>
+          <div class="painel-acoes">
+            ${rascunho ? '' : `
+              <button class="acao" id="ajustar" type="button">Ajustar rotina</button>
+              <button class="acao" id="editar" type="button">Editar semana</button>`}
+          </div>
+        </div>
         <dl class="resumo">
-          <div><dt>Sessões</dt><dd>${totalSes}</dd></div>
-          <div><dt>Tempo total</dt><dd>${Math.floor(totalMin / 60)}h${String(totalMin % 60).padStart(2, '0')}</dd></div>
-          <div><dt>XP possível</dt><dd>${totalXp}</dd></div>
+          <div><dt>Sessões</dt><dd>${blocos.length}</dd></div>
+          <div><dt>Tempo</dt><dd>${hm(totalMin)}</dd></div>
+          <div><dt>Dias de estudo</dt><dd>${dias}</dd></div>
+          <div><dt>XP possível</dt><dd class="ouro">${totalXp}</dd></div>
         </dl>
       </div>
 
-      <div class="semana cascata">
-        ${semana.map((dia, i) => `
-          <section class="dia ${i === hojeIdx ? 'hoje' : ''} ${dia.descanso ? 'descanso' : ''}">
+      <div class="grade ${rascunho ? 'editando' : ''}">
+        ${ORDEM.map((d, pos) => {
+          const dia = semana[d];
+          const min = dia.blocos.reduce((s, b) => s + b.minutos, 0);
+          const ehHoje = d === hojeIdx;
+          const lista = ehHoje ? feitosHoje : dia.blocos;
+          return `
+          <section class="dia ${ehHoje ? 'hoje' : ''} ${pos < posHoje ? 'passou' : ''}" aria-label="${DIAS[d]}">
             <div class="dia-cabeca">
-              <span class="dia-nome">${DIAS[i]}${i === hojeIdx ? ' · hoje' : ''}</span>
-              <span class="dia-data">${String(datas[i].getDate()).padStart(2, '0')}/${String(datas[i].getMonth() + 1).padStart(2, '0')}</span>
+              <div class="dia-nome"><span>${DIAS_CURTOS[d]}${ehHoje ? ' · hoje' : ''}</span>
+                <span class="dia-data">${String(datas[pos].getDate()).padStart(2, '0')}/${String(datas[pos].getMonth() + 1).padStart(2, '0')}</span></div>
+              <div class="dia-total">${min ? hm(min) : '—'}</div>
             </div>
-            ${dia.descanso
-              ? '<div class="sessao">descanso</div>'
-              : dia.sessoes.map(s => `
-                  <div class="sessao ${s.pesada ? 'pesada' : ''}">
-                    <span class="sessao-materia">${esc(s.materia)}</span>
-                    <span class="sessao-tempo">${s.tempo} min</span>
-                    <span class="sessao-xp">+${s.xp}</span>
-                  </div>`).join('')}
-          </section>`).join('')}
+            ${lista.length ? lista.map((b, i) => rascunho ? `
+              <div class="bloco" style="--min:${b.minutos}">
+                <select data-dia="${d}" data-i="${i}" data-campo="materia" aria-label="Matéria">
+                  ${materias.map((m) => `<option value="${att(m.nome)}" ${m.nome === b.materia ? 'selected' : ''}>${esc(m.nome)}</option>`).join('')}
+                </select>
+                <select class="min" data-dia="${d}" data-i="${i}" data-campo="minutos" aria-label="Minutos">
+                  ${[...new Set([...MINUTOS, b.minutos])].sort((x, y) => x - y).map((v) => `<option value="${v}" ${v === b.minutos ? 'selected' : ''}>${v} min</option>`).join('')}
+                </select>
+                <button class="tirar" type="button" data-tirar="${d}" data-i="${i}" aria-label="Tirar este bloco">✕</button>
+              </div>` : `
+              <div class="bloco ${prioridade.has(b.materia) ? 'prioridade' : ''} ${b.feito ? 'feito' : ''}" style="--min:${b.minutos}">
+                <div class="bloco-materia">${esc(b.materia)}</div>
+                <div class="bloco-pe"><span class="bloco-tempo">${b.minutos} min</span>
+                  <span class="bloco-xp">${b.feito ? 'feito' : `+${b.xp}`}</span></div>
+              </div>`).join('')
+              : (rascunho ? '' : '<div class="folga">folga</div>')}
+            ${rascunho ? `<button class="por" type="button" data-por="${d}">+ bloco</button>` : ''}
+          </section>`;
+        }).join('')}
+      </div>
+
+      ${rascunho ? `
+        <div class="barra-edicao">
+          <span>Editando a semana. As mudanças valem até você ajustar a rotina de novo.</span>
+          <div class="painel-acoes">
+            <button class="acao perigo" id="automatico" type="button">Voltar ao automático</button>
+            <button class="acao" id="cancelar" type="button">Cancelar</button>
+            <button class="acao forte" id="salvar" type="button">Salvar semana</button>
+          </div>
+        </div>` : ''}
+
+      <div class="card porMateria">
+        <div class="section-title">Tempo por matéria na semana</div>
+        <p class="section-sub">Proporcional ao peso no edital e ao quanto ainda falta dominar. Toda matéria aparece pelo menos uma vez.</p>
+        ${pm.map(([m, v]) => `
+          <div class="pm-linha">
+            <span>${esc(m)}</span>
+            <span class="pm-barra"><span style="width:${Math.round(v / maiorPm * 100)}%"></span></span>
+            <span class="pm-min">${hm(v)}</span>
+          </div>`).join('')}
       </div>`;
+
+    ligar(semana);
+  }
+
+  function ligar(semana) {
+    const $ = (id) => document.getElementById(id);
+    $('ajustar')?.addEventListener('click', async () => {
+      const r = await perguntarRotina({ atual: rotina });
+      if (!r) return;
+      await gravar(r, 'Rotina ajustada. A semana foi montada de novo.');
+    });
+    $('editar')?.addEventListener('click', () => {
+      rascunho = semana.map((d) => d.blocos.map((b) => ({ materia: b.materia, minutos: b.minutos })));
+      render();
+    });
+    $('cancelar')?.addEventListener('click', () => { rascunho = null; render(); });
+    $('automatico')?.addEventListener('click', async () => {
+      rascunho = null;
+      await gravar({ ...normalizarRotina(rotina), semana: null }, 'De volta ao cronograma automático.');
+    });
+    $('salvar')?.addEventListener('click', async () => {
+      const semanaNova = rascunho;
+      rascunho = null;
+      await gravar({ ...normalizarRotina(rotina), semana: semanaNova }, 'Semana salva do seu jeito.');
+    });
+    document.querySelectorAll('.grade select').forEach((el) => el.addEventListener('change', () => {
+      const b = rascunho[Number(el.dataset.dia)][Number(el.dataset.i)];
+      b[el.dataset.campo] = el.dataset.campo === 'minutos' ? Number(el.value) : el.value;
+      render();
+    }));
+    document.querySelectorAll('[data-tirar]').forEach((el) => el.addEventListener('click', () => {
+      rascunho[Number(el.dataset.tirar)].splice(Number(el.dataset.i), 1);
+      render();
+    }));
+    document.querySelectorAll('[data-por]').forEach((el) => el.addEventListener('click', () => {
+      const d = Number(el.dataset.por);
+      const usadas = new Set(rascunho[d].map((b) => b.materia));
+      const proxima = [...materias].sort((a, b) => necessidadeDe(b) - necessidadeDe(a)).find((m) => !usadas.has(m.nome)) || materias[0];
+      rascunho[d].push({ materia: proxima.nome, minutos: normalizarRotina(rotina).bloco });
+      render();
+    }));
+  }
+
+  async function gravar(nova, mensagem) {
+    try {
+      await salvarRotina(uid, { ...nova, respondidoEm: nova.respondidoEm || rotina?.respondidoEm || new Date().toISOString() });
+      rotina = nova;
+      toast(mensagem);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+    render();
   }
 
   (async () => {
     const sessao = await exigirSessao();
     if (!sessao) return;
-    const uid = sessao.user.id;
-
-    /* nome: fonte unica em assets/js/divisa.js */
-    /* inicial: fonte unica em assets/js/divisa.js */
+    uid = sessao.user.id;
 
     const dados = await carregarProgresso(uid);
     const plano = dados?.perfil?.tipo_plano || 'free';
     { const _p = document.getElementById('user-plan'); if (_p) _p.textContent = nomeDoPlano(plano).toUpperCase(); }
 
-    render(montarSemana(dados?.materias));
+    materias = (dados?.materias || []).filter((m) => m && m.nome);
+    rotina = dados?.rotina || null;
+    hoje = await sessoesDeHoje(uid);
+    render();
   })();
 
   document.getElementById('btn-sair').addEventListener('click', fazerLogout);

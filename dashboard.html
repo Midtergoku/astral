@@ -1321,8 +1321,11 @@
     from './assets/js/astral.js?v=bfdb6e4b';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto } from './assets/js/plano.js?v=22c00529';
-  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=cddd9d5b';
-  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=cddd9d5b';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
+  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=87f966f4';
+  import { sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
+  import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=17358f63';
+  import { perguntarRotina } from './assets/js/rotina.js?v=7f7e6c15';
   import { aplicarGrafico } from './assets/js/grafico.js?v=770bee87';
   import { nivelDe } from './assets/js/divisa.js?v=01156cb1';
 
@@ -1550,6 +1553,13 @@ function mostrarLevelUp(nomeNivel) {
     estado.cronogramaHoje = dados.cronogramaHoje;
     estado.edital         = dados.edital;
     estado.badges         = dados.badges;
+    estado.rotina         = dados.rotina;
+    // As sessoes de HOJE dizem quais blocos do dia ja foram feitos -- o
+    // registro do servidor, nao uma marcacao guardada (ver cronograma.js).
+    estado.hoje           = await sessoesDeHoje(session.user.id);
+
+    // Primeira vez: o questionario de rotina, uma vez so (28/09/2026).
+    if (!estado.rotina) perguntarRotinaPrimeiraVez();
 
     /* O grafico busca sozinho e nao bloqueia a tela: se falhar, fica o esqueleto.
 
@@ -1927,8 +1937,39 @@ function verificarBalanco() {
     }
   }
 
+  /* 28/09/2026: a sessao de hoje sai da MESMA semana que a aba Cronograma
+     mostra (assets/js/cronograma.js), montada pela rotina da pessoa. Antes
+     era uma lista gravada no dia do edital, que nunca se renovava. */
+  function sessaoDeHoje() {
+    if (!estado.materias?.length) return [];
+    return blocosDeHoje(montarSemana(estado.materias, estado.rotina), estado.hoje || [])
+      .map((b) => ({ materia: b.materia, tempo: b.minutos, xp: b.xp, feito: b.feito }));
+  }
+
+  async function perguntarRotinaPrimeiraVez() {
+    const r = await perguntarRotina({ podePular: true });
+    const rotina = r?.pulou
+      ? { ...ROTINA_PADRAO, pulou: true, respondidoEm: new Date().toISOString() }
+      : r;
+    if (!rotina) return;
+    estado.rotina = rotina;
+    try { await salvarRotina(estado.usuario.id, rotina); }
+    catch (e) { toast(e.message, 'error'); }
+    renderCronograma();
+    if (!r?.pulou) toast('Cronograma montado na sua rotina. Veja a semana na aba Cronograma.');
+  }
+
   function renderCronograma() {
     const lista = document.getElementById('today-list');
+    estado.cronogramaHoje = sessaoDeHoje();
+
+    if (estado.materias?.length && !estado.cronogramaHoje.length) {
+      lista.innerHTML = `
+        <div class="empty-state" style="padding:1.25rem 0.5rem;text-align:center;">
+          Hoje é folga na sua rotina. <a href="cronograma.html" style="color:var(--latao-c)">Ver a semana →</a>
+        </div>`;
+      return;
+    }
     
     if (!estado.cronogramaHoje.length) {
       lista.innerHTML = `
@@ -2106,6 +2147,9 @@ function verificarBalanco() {
       xp: item.xp,
       modo: 'cronograma',
     }).catch(() => { /* ja logado dentro de registrarSessao */ });
+    // O bloco feito vem das sessoes de hoje: sem isto, o redesenho logo
+    // abaixo o mostraria desmarcado ate a proxima visita.
+    (estado.hoje ||= []).push({ modo: 'cronograma', materia: item.materia, segundos: item.tempo * 60 });
 
     // Detecta level up
     const nivelDepois = nivelDaConta().indice;

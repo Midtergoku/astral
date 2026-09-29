@@ -134,6 +134,15 @@ const MINUTOS = 45;
         p_badges: [], p_tag_escolhida: null,
       }),
     });
+    /* 28/09/2026: a sessao do dia deixou de ser a lista gravada acima e passou
+       a nascer da ROTINA (assets/js/cronograma.js). Uma rotina de 45 min por
+       dia, todo dia, da exatamente um bloco de 45 min hoje -- o mesmo que o
+       teste sempre exigiu. E, respondida, o questionario nao abre por cima. */
+    await req(`/rest/v1/progresso?usuario_id=eq.${usuario.id}`, {
+      method: "PATCH",
+      headers: { apikey: PUB, Authorization: `Bearer ${s.access_token}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ rotina: { dias: [0, 1, 2, 3, 4, 5, 6], minutosUtil: MINUTOS, minutosFds: MINUTOS, bloco: 50 } }),
+    });
     ok("cronograma do dia semeado", `${MATERIA}, ${MINUTOS} min`);
 
     // Quantas sessoes existem ANTES -- o controle.
