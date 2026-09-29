@@ -366,6 +366,89 @@
 @media (max-width: 768px) {
       .diario-topo { flex-direction: column; gap: 0.15rem; }
     }
+
+/* ── GRAFICOS EM PE (28/09/2026) ─────────────────────────────────────────────
+   Ele: "os graficos eu nao gostei, acho que eu queria um estilo de grafico
+   melhor e em pe". Eram barras deitadas, uma por linha, com etiqueta.
+   Agora sao colunas: uma serie so, uma cor so (latao), sem legenda -- o
+   titulo diz o que e. Valor no topo de cada coluna, grade recessiva, e o
+   detalhe aparece ao passar o mouse ou focar com o teclado. */
+.grafico { margin-bottom: var(--e4); }
+.grafico-topo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e3); flex-wrap: wrap; }
+.grafico-sub { font-size: .82rem; color: var(--texto-3); margin-top: .2rem; }
+/* padding em cima: a rolagem lateral CORTA o que passa do topo -- o rotulo
+   "100%" do eixo e o valor de uma coluna cheia sumiam. */
+.gb-rolagem { overflow-x: auto; margin-top: var(--e3); padding: 1.6rem 0 .25rem; }
+.gb { min-width: calc(var(--n) * 3.6rem + 2.6rem); }
+.gb-plano { position: relative; height: 15rem; margin-left: 2.6rem; border-bottom: 1px solid var(--linha); }
+.gb-grade {
+  position: absolute; left: 0; right: 0; height: 0;
+  border-top: 1px solid color-mix(in srgb, var(--linha) 55%, transparent);
+}
+.gb-grade span {
+  position: absolute; right: calc(100% + .5rem); top: -.5rem;
+  font-family: var(--dado); font-size: .66rem; color: var(--texto-3);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.gb-guia {
+  position: absolute; left: 0; right: 0; height: 0; z-index: 1;
+  border-top: 1px dashed color-mix(in srgb, var(--latao-c) 70%, transparent);
+}
+.gb-guia span {
+  position: absolute; right: 0; top: -1.15rem;
+  font-family: var(--dado); font-size: .66rem; color: var(--latao-c); white-space: nowrap;
+}
+.gb-colunas { position: absolute; inset: 0; display: flex; align-items: flex-end; }
+.gb-col {
+  position: relative; flex: 1; height: 100%;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  outline: none;
+}
+.gb-valor {
+  font-family: var(--dado); font-size: .72rem; color: var(--texto-2);
+  font-variant-numeric: tabular-nums; margin-bottom: .3rem;
+}
+.gb-barra {
+  width: min(2.6rem, 62%); height: var(--h); min-height: 2px;
+  background: var(--latao); border-radius: 4px 4px 0 0;
+  transform-origin: bottom;
+  animation: gb-sobe 460ms var(--saida) backwards;
+  animation-delay: calc(var(--i) * 40ms);
+  transition: background-color var(--d-dica) var(--saida);
+}
+.gb-barra.forte { background: var(--latao-c); }
+.gb-barra.fraca { background: color-mix(in srgb, var(--latao) 55%, var(--casco-2)); }
+@keyframes gb-sobe { from { transform: scaleY(.04); opacity: .4; } to { transform: none; opacity: 1; } }
+.gb-dica {
+  position: absolute; bottom: calc(var(--h) + 2.2rem); left: 50%; z-index: 3;
+  transform: translate(-50%, 4px); opacity: 0; pointer-events: none;
+  background: var(--casco-2); border: 1px solid var(--linha); border-radius: var(--r-p);
+  padding: .5rem .65rem; min-width: 9rem; text-align: left;
+  font-size: .76rem; line-height: 1.45; color: var(--texto-2);
+  box-shadow: 0 12px 28px -14px rgba(0,0,0,.9);
+  transition: opacity var(--d-dica) var(--saida), transform var(--d-dica) var(--saida);
+}
+.gb-dica b { display: block; font-family: var(--display); color: var(--papel); font-size: .82rem; margin-bottom: .15rem; }
+.gb-col:focus-visible .gb-dica { opacity: 1; transform: translate(-50%, 0); }
+.gb-col:focus-visible .gb-barra { background: var(--latao-c); }
+@media (hover: hover) and (pointer: fine) {
+  .gb-col:hover .gb-dica { opacity: 1; transform: translate(-50%, 0); }
+  .gb-col:hover .gb-barra { background: var(--latao-c); }
+}
+.gb-rotulos { display: flex; margin-left: 2.6rem; margin-top: .5rem; }
+.gb-rotulo { flex: 1; min-width: 0; text-align: center; padding: 0 .15rem; }
+.gb-rotulo span { display: block; font-size: .74rem; color: var(--texto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-rotulo small { display: block; font-family: var(--dado); font-size: .64rem; color: var(--texto-3); margin-top: .1rem; }
+.gb-tabela { margin-top: var(--e3); }
+.gb-tabela summary { cursor: pointer; font-size: .8rem; color: var(--texto-3); }
+.gb-tabela table { width: 100%; border-collapse: collapse; margin-top: var(--e2); font-size: .84rem; }
+.gb-tabela th { text-align: left; font-family: var(--dado); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-3); font-weight: 400; padding: .4rem .3rem; border-bottom: 1px solid var(--linha); }
+.gb-tabela td { padding: .5rem .3rem; border-bottom: 1px solid color-mix(in srgb, var(--linha) 55%, transparent); color: var(--texto-2); }
+.gb-tabela td.num { font-family: var(--dado); text-align: right; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  .gb-barra { animation: none; }
+  .gb-dica { transition: none; }
+}
 </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
@@ -591,6 +674,7 @@
       .order('criado_em', { ascending: true })
       .limit(500);
     if (error) { relatar(error, 'progresso/diario'); return; }
+    desenharSemanas(data || []);
     if (!data?.length) return;             // sem histórico, sem diário
 
     const { montarDiario, resumoDoDiario } = await import('./assets/js/diario.js?v=d3fadef5');
@@ -612,6 +696,81 @@
         ${d.marcos.map((m) => `<div class="diario-marco">${esc(m.texto)}</div>`).join('')}
       </div>`).join('');
 
+    caixa.hidden = false;
+  }
+
+
+  /* ── BARRAS EM PE ─────────────────────────────────────────────────────────
+     Uma peca so para os dois graficos da pagina. `itens`: { rotulo, sub,
+     valor (0..max), texto (o que vai no topo), dica (html ja escapado),
+     tom: 'forte' | 'fraca' | '' }. `guia`: linha tracejada de referencia. */
+  function barrasEmPe({ itens, max, marcas, formatoMarca, guia }) {
+    const pct = (v) => Math.max(0, Math.min(100, (v / (max || 1)) * 100));
+    return `
+      <div class="gb-rolagem">
+        <div class="gb" style="--n:${itens.length}">
+          <div class="gb-plano">
+            ${marcas.map((m) => `<div class="gb-grade" style="bottom:${pct(m)}%"><span>${formatoMarca(m)}</span></div>`).join('')}
+            ${guia ? `<div class="gb-guia" style="bottom:${pct(guia.valor)}%"><span>${esc(guia.texto)}</span></div>` : ''}
+            <div class="gb-colunas">
+              ${itens.map((it, i) => `
+                <div class="gb-col" tabindex="0" style="--h:${pct(it.valor)}%;--i:${i}" aria-label="${att(it.rotulo)}: ${att(it.texto)}">
+                  <div class="gb-dica" role="tooltip">${it.dica}</div>
+                  <div class="gb-valor">${esc(it.texto)}</div>
+                  <div class="gb-barra ${it.tom || ''}"></div>
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="gb-rotulos">
+            ${itens.map((it) => `<div class="gb-rotulo" title="${att(it.rotulo)}"><span>${esc(it.rotulo)}</span>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const SITUACAO = (p) => p >= 90 ? 'Dominado' : p >= 70 ? 'Quase lá' : p >= 30 ? 'Em progresso' : p > 0 ? 'Iniciado' : 'Não iniciado';
+  const hm = (seg) => { const m = Math.round(seg / 60); return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`; };
+
+  /* Horas por semana, das 8 ultimas -- das sessoes gravadas no servidor. */
+  function desenharSemanas(sessoes) {
+    const caixa = document.getElementById('g-semanas');
+    if (!caixa) return;
+    const hoje = new Date();
+    const segHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - ((hoje.getDay() + 6) % 7));
+    const semanas = Array.from({ length: 8 }, (_, k) => {
+      // k = 7 e a semana atual; k = 0, sete semanas antes.
+      const ini = new Date(segHoje.getFullYear(), segHoje.getMonth(), segHoje.getDate() - (7 - k) * 7);
+      return { ini, seg: 0, n: 0 };
+    });
+    for (const s of sessoes || []) {
+      const t = new Date(s.criado_em);
+      for (const w of semanas) {
+        const fim = new Date(w.ini.getFullYear(), w.ini.getMonth(), w.ini.getDate() + 7);
+        if (t >= w.ini && t < fim) { w.seg += Number(s.segundos) || 0; w.n++; break; }
+      }
+    }
+    if (!semanas.some((w) => w.seg > 0)) return;
+    const maxH = Math.max(1, Math.ceil(Math.max(...semanas.map((w) => w.seg / 3600)) / 2) * 2);
+    const marcas = [0, maxH / 2, maxH];
+    const ddmm = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const total = semanas.reduce((a, w) => a + w.seg, 0);
+    caixa.innerHTML = `
+      <div class="grafico-topo">
+        <div>
+          <div class="section-title">Horas por semana</div>
+          <div class="grafico-sub">As últimas 8 semanas · ${hm(total)} no total · a coluna clara é a semana atual</div>
+        </div>
+      </div>
+      ${barrasEmPe({
+        max: maxH, marcas, formatoMarca: (m) => `${m}h`,
+        itens: semanas.map((w, k) => ({
+          rotulo: k === 7 ? 'esta semana' : ddmm(w.ini),
+          valor: w.seg / 3600,
+          texto: w.seg ? hm(w.seg) : '—',
+          tom: k === 7 ? 'forte' : '',
+          dica: `<b>Semana de ${ddmm(w.ini)}</b>${hm(w.seg)} de estudo<br>${w.n} ${w.n === 1 ? 'sessão' : 'sessões'}`,
+        })),
+      })}`;
     caixa.hidden = false;
   }
 
@@ -697,26 +856,40 @@
         </div>
       </div>
 
-      <!-- LISTA DE MATÉRIAS -->
-      <div class="section-header">
-        <div class="section-title">Lista completa</div>
-      </div>
-      <div class="materia-list">
-        ${estado.materias.map(m => `
-          <div class="materia-row">
-            <div class="materia-label">
-              <span class="materia-nome">${esc(m.nome)}</span>
-              <span class="materia-pct">${m.progresso}%</span>
-            </div>
-            <div class="mat-bar">
-              <div class="mat-fill" style="width:${m.progresso}%"></div>
-            </div>
-            <div class="materia-footer">
-              ${getStatusTag(m.progresso)}
-            </div>
+      <!-- DOMINIO POR MATERIA -- em pe, pedido dele em 28/09/2026 -->
+      <section class="card grafico">
+        <div class="grafico-topo">
+          <div>
+            <div class="section-title">Domínio por matéria</div>
+            <div class="grafico-sub">Na ordem de peso no edital. Acima da linha de 70%, a matéria vira tag de especialista.</div>
           </div>
-        `).join('')}
-      </div>
+        </div>
+        ${barrasEmPe({
+          max: 100, marcas: [0, 25, 50, 75, 100], formatoMarca: (m) => `${m}%`,
+          guia: { valor: 70, texto: '70% · tag' },
+          itens: [...estado.materias].sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0)).map((m) => ({
+            rotulo: m.nome,
+            sub: m.peso ? `peso ${m.peso}%` : '',
+            valor: Number(m.progresso) || 0,
+            texto: `${Number(m.progresso) || 0}%`,
+            tom: (Number(m.progresso) || 0) >= 70 ? 'forte' : '',
+            dica: `<b>${esc(m.nome)}</b>Domínio ${Number(m.progresso) || 0}%<br>Peso no edital ${Number(m.peso) || 0}%<br>${SITUACAO(Number(m.progresso) || 0)}`,
+          })),
+        })}
+        <details class="gb-tabela">
+          <summary>Ver em tabela</summary>
+          <table>
+            <thead><tr><th>Matéria</th><th style="text-align:right">Peso</th><th style="text-align:right">Domínio</th><th>Situação</th></tr></thead>
+            <tbody>
+              ${[...estado.materias].sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0)).map((m) => `
+                <tr><td>${esc(m.nome)}</td><td class="num">${Number(m.peso) || 0}%</td><td class="num">${Number(m.progresso) || 0}%</td><td>${getStatusTag(Number(m.progresso) || 0)}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </details>
+      </section>
+
+      <!-- HORAS POR SEMANA -- preenchido quando as sessoes chegam -->
+      <section class="card grafico" id="g-semanas" hidden></section>
     `;
 
     // Animations after render
