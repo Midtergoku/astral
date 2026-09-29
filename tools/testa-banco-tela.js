@@ -181,14 +181,52 @@ const MARCA = `TELA-${Date.now()}`;
     const temFiltros = await pg.$("#f-materia");
     temFiltros ? ok("a tela de filtros apareceu") : falha("filtros nao apareceram");
 
-    // 🔴 O ASSUNTO SO ABRE DEPOIS DA MATERIA -- o pedido de 18/09.
+    // 🔴 O ASSUNTO SO APARECE DEPOIS DA MATERIA -- o pedido de 18/09.
+    // 29/09/2026: antes a caixa ficava fechada com um aviso; agora ela SOME ate
+    // haver materia com assunto (pedido dele: nada de "ainda nao tem assunto").
     const antes = await pg.evaluate(() => ({
+      escondido: !!document.getElementById('f-assunto')?.closest('.filtro')?.hidden,
       desabilitado: document.getElementById('f-assunto')?.disabled,
-      texto: document.getElementById('f-assunto')?.textContent || '',
     }));
-    antes.desabilitado && /matéria primeiro/i.test(antes.texto)
-      ? ok("🎯 o assunto começa fechado, e diz o porquê", "escolha a matéria primeiro")
+    antes.escondido && antes.desabilitado
+      ? ok("🎯 sem matéria, a caixa de assunto nem aparece")
       : falha("o assunto ja vem aberto", JSON.stringify(antes));
+
+    /* 🔴 FILTROS ENCADEADOS (29/09/2026). Pedido dele: "escolho biologia, que
+       tem 18 questoes, quero que os filtros subsequentes se adequem". Escolher
+       uma materia tem de estreitar banca, concurso e ano ao que EXISTE com ela,
+       e a soma das contagens tem de bater com a da materia. */
+    {
+      const opcoes = (id) => [...document.getElementById(id).options].filter((o) => o.value).map((o) => o.value);
+      const todasBancas = await pg.evaluate(() => [...document.getElementById('f-banca').options].filter((o) => o.value).length);
+      const mats = await pg.evaluate(() => [...document.getElementById('f-materia').options]
+        .filter((o) => o.value).map((o) => ({ v: o.value, n: +(o.textContent.match(/\((\d+)\)\s*$/) || [])[1] })));
+      // A materia com MENOS questoes e a que mais estreita.
+      const pequena = mats.sort((x, y) => x.n - y.n)[0];
+      await pg.selectOption("#f-materia", pequena.v);
+      await pg.waitForTimeout(300);
+      const depois = await pg.evaluate(() => {
+        const soma = (id) => [...document.getElementById(id).options].filter((o) => o.value)
+          .reduce((t, o) => t + +((o.textContent.match(/\((\d+)\)\s*$/) || [])[1] || 0), 0);
+        return { bancas: [...document.getElementById('f-banca').options].filter((o) => o.value).length,
+                 somaBancas: soma('f-banca'), assuntoEscondido: !!document.getElementById('f-assunto').closest('.filtro').hidden,
+                 temAssunto: document.getElementById('f-assunto').options.length > 1 };
+      });
+      depois.somaBancas === pequena.n
+        ? ok("🎯 escolher a matéria estreita as bancas ao que existe", `${pequena.v}: ${depois.bancas} de ${todasBancas} bancas, somam ${depois.somaBancas}`)
+        : falha("bancas não se adequaram à matéria", `${pequena.v} (${pequena.n}) -> soma ${depois.somaBancas}`);
+      depois.assuntoEscondido !== depois.temAssunto
+        ? ok("matéria sem assunto marcado: a caixa some, sem aviso", depois.temAssunto ? "(esta tem assunto)" : "")
+        : falha("assunto mostrado sem ter o que mostrar", JSON.stringify(depois));
+      // Volta para "Todas". (selectOption com "" nao acha a opcao vazia.)
+      await pg.evaluate(() => {
+        const el = document.getElementById('f-materia');
+        el.value = '';
+        el.dispatchEvent(new Event('change'));
+      });
+      await pg.waitForTimeout(300);
+      void opcoes;
+    }
 
     await pg.selectOption("#f-materia", "Matemática");
     await pg.waitForTimeout(400);
@@ -324,6 +362,10 @@ const MARCA = `TELA-${Date.now()}`;
     // e o texto de apoio -- sem ele o item nao se responde.
     console.log("\n== 3d. CERTO OU ERRADO ==");
     {
+      // Os filtros sao encadeados (29/09): o concurso escolhido em 3b esconderia
+      // Direito penal. "Limpar" volta tudo para Todos -- e prova o botao.
+      await pg.click("#btn-limpar");
+      await pg.waitForTimeout(200);
       await pg.selectOption("#f-materia", "Direito penal");
       await pg.waitForTimeout(300);
       await pg.click("#btn-sortear");

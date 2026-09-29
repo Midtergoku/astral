@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=ba2130d6"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Quadro de operações</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -24,7 +24,12 @@
     display: flex;
     gap: var(--e3);
     align-items: flex-end;        /* todas as frentes partem do chão */
-    overflow-x: auto;
+    /* 29/09/2026: sem rolagem lateral -- ele pediu "nao precisa da barrinha
+       para arrastar para o lado, apenas centralize". As 8 frentes cabem no
+       computador; no celular elas quebram em linhas (flex-wrap). */
+    justify-content: center;
+    flex-wrap: wrap;
+    row-gap: var(--e5);
     padding: var(--e4) var(--e2) var(--e5);
     /* A grade do mapa, fraca o bastante para não competir com os nós. */
     background-image:
@@ -40,8 +45,11 @@
     flex-direction: column-reverse;   /* o degrau 1 fica EMBAIXO */
     align-items: center;
     gap: 0;
-    min-width: 8.5rem;
-    flex: 1 0 auto;
+    min-width: 6.4rem;
+    /* base pequena e crescer: as 8 frentes cabem numa linha no computador.
+       Com base de 8,5rem a oitava (Comando) caia sozinha para a linha de baixo. */
+    flex: 1 1 6.4rem;
+    max-width: 10rem;
   }
 
   .frente-cabeca {
@@ -126,6 +134,12 @@
     .no.feito:hover { filter: drop-shadow(0 3px 5px rgba(0,0,0,.55)) brightness(1.12); }
   }
   .no:focus-visible .aro { stroke: var(--latao-c); stroke-width: 2; }
+
+  /* 🔴 29/09/2026: o balao ficava ATRAS da insignia de cima. A sombra (filter)
+     da insignia conquistada e a animacao do degrau atual criam uma camada
+     propria para cada no -- e o no seguinte no HTML e pintado por cima do
+     balao do anterior. O no em uso sobe para a camada mais alta. */
+  .no:hover, .no:focus, .no:focus-within { z-index: 50; }
 
   /* O emblema da frente, ao lado do nome, no topo da coluna. */
   .frente-emblema { width: 1.3rem; height: 1.3rem; margin: 0 auto .35rem; display: block;
@@ -337,7 +351,7 @@
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { carregarProgresso } from './assets/js/estado.js?v=87f966f4';
-  import { aplicarDivisa } from './assets/js/divisa.js?v=01156cb1';
+  import { aplicarDivisa } from './assets/js/divisa.js?v=0551225f';
 
   /* Cada metal: a cor base e a clara (brilho e emblema). O degradê de cada
      um e definido UMA vez, no <defs> do quadro. */

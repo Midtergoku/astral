@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=ba2130d6"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Banco de questões</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -492,7 +492,12 @@
           </div>
           <div class="filtro">
             <label for="btn-sortear">&nbsp;</label>
-            <button class="btn btn-roxo btn-primary" id="btn-sortear" style="min-height:44px">Começar</button>
+            <div style="display:flex;gap:.4rem">
+              <button class="btn btn-roxo btn-primary" id="btn-sortear" style="min-height:44px">Começar</button>
+              <!-- Com os filtros encadeados, uma escolha esconde opcoes das outras
+                   caixas: "Limpar" volta tudo para Todos de uma vez. -->
+              <button class="btn btn-fantasma" id="btn-limpar" type="button" style="min-height:44px">Limpar</button>
+            </div>
           </div>
         </div>
         <div class="cota" id="cota"></div>
@@ -526,24 +531,77 @@
       <div id="rodada"></div>`;
   }
 
-  // O assunto depende da matéria -- é o pedido dele de 18/09: "às vezes ela
-  // quer estudar matemática, mas ela quer estudar sobre funções ou porcentagem".
+  /* ── FILTROS ENCADEADOS (29/09/2026) ────────────────────────────────────
+     Pedido dele: "eu escolho a materia de biologia que tem apenas 18 questoes,
+     eu quero que os filtros subsequentes se adequem a ele". Antes cada caixa
+     listava o acervo inteiro, e dava para montar combinacao que nao existe.
+
+     Agora o servidor manda as COMBINACOES que existem (materia, assunto, banca,
+     prova, ano, quantas), e cada caixa oferece so o que casa com o que ja esta
+     escolhido nas OUTRAS -- com a contagem daquele cruzamento. Uma escolha que
+     deixou de existir volta para "Todos", em vez de ficar presa.
+
+     E o assunto: materia que ainda nao tem assunto marcado nao mostra mais
+     "esta materia ainda nao tem assunto" -- a caixa simplesmente some. */
+  const CAMPOS = [
+    ['f-materia', 'm', 'Todas'], ['f-assunto', 'a', 'Todos os assuntos'],
+    ['f-banca', 'b', 'Todas'], ['f-prova', 'p', 'Todos'], ['f-ano', 'y', 'Todos'],
+  ];
+
+  function escolhido(id) { return $(id)?.value || ''; }
+
+  function opcoesDe(chave, exceto) {
+    const conta = new Map();
+    const sel = Object.fromEntries(CAMPOS.map(([id, k]) => [k, escolhido(id)]));
+    for (const c of filtros.combinacoes || []) {
+      const casa = CAMPOS.every(([, k]) => k === exceto || !sel[k] || String(c[k] ?? '') === sel[k]);
+      if (!casa || c[chave] == null) continue;
+      const v = String(c[chave]);
+      conta.set(v, (conta.get(v) || 0) + c.n);
+    }
+    return conta;
+  }
+
+  function atualizarFiltros() {
+    if (!filtros.combinacoes) return atualizarAssuntos();   // servidor antigo: como antes
+    // Duas voltas: uma escolha desfeita pode liberar opcoes nas outras caixas.
+    for (let volta = 0; volta < 2; volta++) {
+      for (const [id, k, todos] of CAMPOS) {
+        const el = $(id);
+        if (!el) continue;
+        const atual = el.value;
+        const conta = opcoesDe(k, k);
+        let chaves = [...conta.keys()];
+        chaves = k === 'y' ? chaves.sort((x, z) => z - x) : chaves.sort((x, z) => x.localeCompare(z, 'pt-BR'));
+        if (k === 'a') {
+          // Sem materia escolhida, ou materia sem assunto marcado: a caixa some.
+          const bloco = el.closest('.filtro');
+          const mostrar = !!escolhido('f-materia') && chaves.length > 0;
+          if (bloco) bloco.hidden = !mostrar;
+          el.disabled = !mostrar;
+          if (!mostrar) { el.innerHTML = `<option value="">${todos}</option>`; continue; }
+        }
+        el.innerHTML = `<option value="">${todos}</option>` + chaves.map((v) =>
+          `<option value="${att(v)}"${v === atual ? ' selected' : ''}>${esc(v)} (${conta.get(v)})</option>`).join('');
+        if (atual && !conta.has(atual)) el.value = '';
+      }
+    }
+  }
+
+  // Mantida para o caso de a funcao do servidor ainda nao mandar `combinacoes`.
   function atualizarAssuntos() {
     const sel = $('f-assunto');
     const nome = $('f-materia').value;
     const mat = (filtros.materias || []).find((m) => m.nome === nome);
     const lista = mat?.assuntos || [];
-
-    if (!nome) {
-      sel.innerHTML = '<option value="">Escolha a matéria primeiro</option>';
+    const bloco = sel.closest('.filtro');
+    if (!nome || !lista.length) {
+      sel.innerHTML = '<option value="">Todos os assuntos</option>';
       sel.disabled = true;
+      if (bloco) bloco.hidden = true;
       return;
     }
-    if (!lista.length) {
-      sel.innerHTML = '<option value="">Esta matéria ainda não tem assunto marcado</option>';
-      sel.disabled = true;
-      return;
-    }
+    if (bloco) bloco.hidden = false;
     sel.disabled = false;
     sel.innerHTML = '<option value="">Todos os assuntos</option>'
       + lista.map((a) => `<option value="${att(a.nome)}">${esc(a.nome)} (${a.quantas})</option>`).join('');
@@ -1193,7 +1251,12 @@
       try { localStorage.setItem('astral_aba_questoes', aba); } catch { /* aba anonima */ }
       await desenhar();
     }));
-    $('f-materia').addEventListener('change', atualizarAssuntos);
+    for (const [id] of CAMPOS) $(id)?.addEventListener('change', atualizarFiltros);
+    $('btn-limpar')?.addEventListener('click', () => {
+      for (const [id] of CAMPOS) if ($(id)) $(id).value = '';
+      atualizarFiltros();
+    });
+    atualizarFiltros();
     $('btn-sortear').addEventListener('click', sortear);
     atualizarCota(null);
     $('cota').innerHTML = `<span><span class="cota-num">${filtros.total}</span> questões no acervo.

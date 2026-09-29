@@ -434,9 +434,16 @@ export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = 
 
 /* Preenche todo elemento marcado com data-divisa. */
 export function aplicarDivisa(dados, esc) {
-  const html = divisaHTML(dados, esc);
-  document.querySelectorAll('[data-divisa]').forEach((el) => { el.innerHTML = html; });
-  return html;
+  /* 29/09/2026: cada lugar escolhe a SUA forma. A curta ("Subten BM") nasceu
+     para o cartao estreito da barra lateral; esta funcao pintava a mesma em
+     todo [data-divisa] -- e o topo da pagina, que tem espaco de sobra, mostrava
+     "SUBTEN BM". O dono leu como nome cortado. Curta so dentro de .user-divisa. */
+  const cheia = divisaHTML({ ...dados, compacta: false }, esc);
+  const curta = divisaHTML({ ...dados, compacta: true }, esc);
+  document.querySelectorAll('[data-divisa]').forEach((el) => {
+    el.innerHTML = el.closest('.user-divisa') ? curta : cheia;
+  });
+  return dados.compacta ? curta : cheia;
 }
 
 /* ── LIGA SOZINHA ────────────────────────────────────────────────────────
@@ -508,7 +515,7 @@ export function aplicarDivisa(dados, esc) {
       edital: p?.edital?.nome || p?.edital || '',
       materias: p?.materias || [],
       tagEscolhida: p?.tagEscolhida || null,
-      compacta: true,   // e o cartao da barra lateral: espaco curto
+      // A forma (curta ou cheia) quem decide e aplicarDivisa, lugar por lugar.
       // Vem da IA que leu o edital (04/08/2026). Em edital antigo sao nulos e
       // a patente volta a ser adivinhada pelo nome -- o plano B de sempre.
       forca: p?.edital?.forca || null,

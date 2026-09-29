@@ -209,7 +209,11 @@
 
   --texto:     #DDE4EA;
   --texto-2:   #8FA0AE;
-  --texto-3:   #5F7183;
+  /* 29/09/2026: era #5F7183 -- contraste de 2,9 a 3,6 sobre os fundos, abaixo
+     dos 4,5 recomendados para letra pequena. O dono: "tem o tom quase igual ao
+     do fundo, algumas pessoas nao conseguem ver". #7A8C9F da 4,7 no casco e
+     5,3 no breu, e continua mais escuro que o --texto-2 (a hierarquia fica). */
+  --texto-3:   #7A8C9F;
 
   /* ── TIPO ── tres vozes, tres funcoes ─────────────────────────────────── */
   --display:   "Archivo", "Arial Narrow", Arial, sans-serif;   /* titulo, patente, botao */
