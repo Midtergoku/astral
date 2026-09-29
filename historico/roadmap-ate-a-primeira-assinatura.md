@@ -49,6 +49,10 @@ o edital."* Proposta completa, com o tamanho do buraco e a economia de cada opç
 1º paga) + **limite de troca** (grátis 1 a cada 30 dias, Pro 3). Custo de fazer: R$ 0. **Aguarda o
 sim dele** — é limite de plano (regra 8.1). **Tem de entrar antes de carregar crédito.**
 
+> ✅ **2.10 APLICADO no mesmo dia (29/09)**, com as decisões dele: Pro com **2** trocas (não 3),
+> guia compartilhado **só do mesmo arquivo de edital**, e a leitura com cara de feita na hora.
+> Detalhe em `valores.md` §11. Prova: `tools/testa-trava-creditos.js` (12 de 12).
+
 ### 🆕 3b — PROVAS E GABARITOS: trazer mais material para o banco
 
 O gargalo, medido desde 22/09, **não é ler a prova — é ter a resposta**. Só a Força Aérea põe o

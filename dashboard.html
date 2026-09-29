@@ -1381,7 +1381,7 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { icone } from './assets/js/icones.js?v=7c816270';
-  import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=22c00529';
+  import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=0000457d';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=87f966f4';
   import { sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
@@ -1670,6 +1670,7 @@ function mostrarLevelUp(nomeNivel) {
           ({ i, total, materia }) => {
             if (!guia.dados[materia]) guiaStatus(`montando: ${materia} (${i} de ${total})`);
           },
+          estado.edital?.hash || null,
         ).then((g) => {
           guia.falhou = g.falharam.length > 0 && !g.feitas.length;
           if (g.feitas.length) {
@@ -2286,6 +2287,28 @@ function verificarBalanco() {
     const proc = document.getElementById('ai-processing');
     proc.style.display = 'flex';
 
+    /* 29/09/2026 -- pedido dele: mesmo quando o edital ja foi lido para outro
+       aluno (mesmo PDF, resultado guardado), a experiencia tem de ser a de algo
+       feito PARA ELE, nao "ja estava pronto, so colamos". Entao a leitura tem
+       etapas e um tempo minimo, venha a resposta da IA ou do que ja estava
+       guardado. */
+    const ETAPAS = [
+      'Lendo o conteúdo programático do seu edital…',
+      'Identificando as matérias da prova…',
+      'Calculando o peso de cada matéria…',
+      'Conferindo a data da prova e a sua força…',
+      'Montando o seu cronograma…',
+    ];
+    const detalhe = proc.querySelector('[data-ai-detalhe]');
+    let etapa = 0;
+    if (detalhe) detalhe.textContent = ETAPAS[0];
+    const passo = setInterval(() => {
+      etapa = Math.min(etapa + 1, ETAPAS.length - 1);
+      if (detalhe) detalhe.textContent = ETAPAS[etapa];
+    }, 2600);
+    const inicio = Date.now();
+    const TEMPO_MINIMO = 12000;
+
     try {
       // Lê o PDF como base64
       const base64 = await new Promise((res, rej) => {
@@ -2299,6 +2322,9 @@ function verificarBalanco() {
       // validado pela edge function. O codigo anterior mandava a chave
       // publica e ainda fazia stringify + parse do que ja era objeto.
       const resultado = await chamarIA('processar-edital', { pdfBase64: base64 });
+      const falta = TEMPO_MINIMO - (Date.now() - inicio);
+      if (falta > 0) await new Promise((r) => setTimeout(r, falta));
+      clearInterval(passo);
 
       // Monta estado com os dados do edital
       estado.edital = {
@@ -2310,6 +2336,8 @@ function verificarBalanco() {
         // o divisa.js le. Ver o cabecalho de assets/js/divisa.js.
         forca: resultado.forca || null,
         patenteInicial: resultado.patenteInicial || null,
+        // A impressao digital do PDF: e o que liga o aluno ao guia do MESMO edital.
+        hash: typeof resultado.hash === 'string' ? resultado.hash : null,
       };
 
       estado.materias = (resultado.materias || []).map(m => ({
@@ -2344,6 +2372,7 @@ function verificarBalanco() {
       console.error(err);
       // chamarIA ja devolve mensagem pronta para o usuario (quota, PDF grande,
       // sessao expirada). Antes isso era um alert() com err.message cru.
+      clearInterval(passo);
       toast(err.message || 'Erro ao processar o edital. Tente novamente.', 'error');
       proc.style.display = 'none';
       // Falhou a troca: quem ja tinha edital volta para o que tinha.

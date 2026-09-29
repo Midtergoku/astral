@@ -20,6 +20,8 @@ import {
   LIMITE_DIARIO,
   FUNCOES,
   consumoDoDia,
+  admin,
+  EDITAIS_EM_30_DIAS,
 } from "../_shared/comum.ts";
 
 Deno.serve(async (req: Request): Promise<Response> => {
@@ -44,6 +46,23 @@ Deno.serve(async (req: Request): Promise<Response> => {
         restante: Math.max(0, limites[f] - usado[f]),
       };
     }
+
+    /* 29/09/2026: a leitura de edital passou a ser limitada por 30 dias (o 1o
+       edital + 1 troca no gratis, + 2 no Pro), nao por dia. Mostrar "2 de 2
+       hoje" seria mentir a regra. Conta so o que custou (unidades > 0): edital
+       ja guardado nao entra. */
+    const desde30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { count: editaisNoMes } = await admin().from("uso_ia")
+      .select("id", { count: "exact", head: true })
+      .eq("usuario_id", usuario.id).eq("funcao", "processar-edital")
+      .gt("unidades", 0).gte("criado_em", desde30);
+    const limiteMes = EDITAIS_EM_30_DIAS[usuario.plano] ?? 2;
+    funcoes["processar-edital"] = {
+      limite: limiteMes,
+      usado: editaisNoMes ?? 0,
+      restante: Math.max(0, limiteMes - (editaisNoMes ?? 0)),
+      janela: "30d",
+    } as typeof funcoes[string];
 
     // O envelope { success, data } e o contrato que chamarIA/buscarQuota
     // esperam, e que as outras 4 funcoes ja usam. Devolver o objeto cru aqui

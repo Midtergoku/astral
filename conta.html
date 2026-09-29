@@ -434,7 +434,10 @@
     for (const [chave, rotulo] of Object.entries(NOME_FUNCAO)) {
       const f = quota.funcoes[chave];
       if (!f) continue;
-      linhas.push([rotulo, `${f.restante} de ${f.limite} disponíveis hoje`]);
+      // Edital conta por 30 dias desde 29/09/2026 (o 1o + as trocas); o resto, por dia.
+      linhas.push([rotulo, f.janela === '30d'
+        ? `${f.restante} de ${f.limite} disponíveis nos próximos 30 dias`
+        : `${f.restante} de ${f.limite} disponíveis hoje`]);
     }
 
     grid.innerHTML = linhas.map(([r, v]) => `

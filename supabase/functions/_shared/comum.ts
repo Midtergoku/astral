@@ -238,6 +238,42 @@ export async function conferirQuota(
   }
 }
 
+/* ── A JANELA DE 30 DIAS DO EDITAL (29/09/2026) ────────────────────────────
+   Decisao dele: cada leitura de edital NOVA custa de verdade, entao limita-se
+   por mes -- gratis: o 1o edital + 1 troca; beta e pro: o 1o + 2 trocas.
+   Edital ja guardado (mesmo PDF) NAO conta: nao custa nada. Por isso so entra
+   aqui o uso registrado com unidades > 0 -- e o que vem do cache nem e
+   registrado (ver `semCusto` no servir). */
+export const EDITAIS_EM_30_DIAS: Record<Usuario["plano"], number> = { free: 2, beta: 3, pro: 3 };
+
+export async function conferirJanelaDeEditais(usuario: Usuario): Promise<void> {
+  const limite = EDITAIS_EM_30_DIAS[usuario.plano] ?? 2;
+  const desde = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await admin()
+    .from("uso_ia")
+    .select("criado_em, unidades")
+    .eq("usuario_id", usuario.id)
+    .eq("funcao", "processar-edital")
+    .gt("unidades", 0)
+    .gte("criado_em", desde)
+    .order("criado_em", { ascending: true });
+  if (error) { console.error("Falha ao conferir a janela de editais, liberando:", error); return; }
+  const usadas = data ?? [];
+  if (usadas.length >= limite) {
+    const libera = new Date(new Date(usadas[0].criado_em).getTime() + 30 * 24 * 60 * 60 * 1000);
+    const dia = libera.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    throw new FalhaHttp(429,
+      `Voce ja leu ${usadas.length} editais nos ultimos 30 dias, o limite do plano ${usuario.plano}. ` +
+      `A proxima troca fica liberada em ${dia}.`);
+  }
+}
+
+/** Impressao digital (SHA-256, em hexadecimal) de um arquivo. */
+export async function impressaoDigital(bytes: Uint8Array): Promise<string> {
+  const h = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export async function registrarUso(
   usuario: Usuario,
   funcao: Funcao,
@@ -306,6 +342,8 @@ export async function comSegundaChance<T>(operacao: (tentativa: number) => Promi
 export interface Contexto {
   /** Reserva `n` unidades da quota do dia. Estoura com 429 antes de gastar credito. */
   cobrar(n: number): Promise<void>;
+  /** Esta chamada nao custou nada (veio do que ja estava guardado): nao conta na quota. */
+  semCusto(): void;
 }
 
 /** Cuida de OPTIONS, metodo, autenticacao, quota, registro e erros. */
@@ -336,21 +374,28 @@ export function servir(
 
       // Porta de entrada: recusa quem ja esgotou a quota antes de o handler
       // sequer ler o corpo. O custo real e reservado depois, via ctx.cobrar().
-      await conferirQuota(usuario, funcao, 1);
+      // 29/09/2026: a leitura de edital sai daqui. Quem a limita agora e a
+      // janela de 30 dias (conferirJanelaDeEditais), que roda DEPOIS de procurar
+      // o edital ja guardado -- o pre-check diario barrava ate o que nao custa
+      // nada. O testa-trava-creditos pegou isso na primeira execucao.
+      if (funcao !== "processar-edital") await conferirQuota(usuario, funcao, 1);
 
       let unidades = 1;
+      let gratis = false;
       const ctx: Contexto = {
         async cobrar(n: number) {
           unidades = Math.max(1, Math.round(n));
           await conferirQuota(usuario, funcao, unidades);
         },
+        semCusto() { gratis = true; },
       };
 
       const resposta = await handler(req, usuario, ctx);
 
       // So conta o uso se a chamada deu certo. Cobrar quota por erro nosso
       // seria punir o usuario por um problema que nao e dele.
-      if (resposta.ok) await registrarUso(usuario, funcao, unidades);
+      // E o que veio do que ja estava guardado nao custou nada: nao conta.
+      if (resposta.ok && !gratis) await registrarUso(usuario, funcao, unidades);
 
       return resposta;
     } catch (e) {

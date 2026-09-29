@@ -262,3 +262,23 @@ desligada, não há motivo para tocar no banco. Verificado: devolve **503 até c
 > ⚠️ Ao religar, lembrar de **reavaliar o preço** — ver 10.4, "Quando as questões voltarem".
 
 ---
+
+---
+
+## 8.20. A trava de créditos — edital e guia guardados (29/09/2026) ✅
+
+**Leia antes de mexer em `processar-edital`, `buscar-recursos` ou `servir()`.**
+
+- `processar-edital` calcula a **impressão digital (SHA-256)** do PDF e procura em
+  `editais_lidos`. Achou → devolve com `ctx.semCusto()` (não registra uso, não conta na cota).
+  Não achou → `conferirJanelaDeEditais()` (**30 dias**: free 2, beta/pro 3 — o 1º edital + as
+  trocas) → IA → guarda.
+- 🔴 **`servir()` NÃO faz o pré-check diário para `processar-edital`.** O pré-check barrava até o
+  edital guardado, que não custa nada. Quem limita a leitura é a janela de 30 dias, que roda
+  DEPOIS de procurar o guardado. O `testa-trava-creditos` pegou isso na 1ª execução.
+- `buscar-recursos` recebe `edital` (a impressão digital). Só usa e só grava o guia compartilhado
+  (`guias_por_edital`) se a **matéria existe no edital guardado** — e troca o `concurso` do
+  navegador pelo do edital. **É a trava contra envenenar o guia dos outros; não afrouxar.**
+- As duas tabelas são **fechadas** (RLS, sem grant): só a chave de serviço lê.
+- A cara de "feito na hora" é da tela (`dashboard.html`: 12 s mínimos, 5 etapas) — decisão dele.
+- Regressão: `node tools/testa-trava-creditos.js` (não gasta crédito).

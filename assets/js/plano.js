@@ -115,7 +115,7 @@ export function montarCronograma(materias = [], { quantas = 3, minutos = 120 } =
    3. Pula o que já está salvo. `recursos_salvos` é permanente -- repetir
       gastaria crédito para reescrever a mesma coisa. */
 
-export async function gerarGuiaCompleto(uid, concurso, materias, aoAndar) {
+export async function gerarGuiaCompleto(uid, concurso, materias, aoAndar, editalHash = null) {
   const lista = (materias || []).map((m) => (typeof m === 'string' ? m : m?.nome)).filter(Boolean);
   const resultado = { feitas: [], puladas: [], falharam: [] };
   if (!uid || !concurso || !lista.length) return resultado;
@@ -150,7 +150,11 @@ export async function gerarGuiaCompleto(uid, concurso, materias, aoAndar) {
     if (resultado.feitas.length) await new Promise((r) => setTimeout(r, 2000));
 
     try {
-      const dados = await chamarIA('buscar-recursos', { materia, concurso });
+      /* 29/09/2026: a impressao digital do edital vai junto. Se outro aluno do
+         MESMO edital ja tem o guia desta materia, o servidor devolve o guardado
+         -- sem IA e sem gastar a cota. Sem ela, busca como sempre. */
+      const dados = await chamarIA('buscar-recursos',
+        { materia, concurso, ...(editalHash ? { edital: editalHash } : {}) });
       const { error } = await supabase.from('recursos_salvos').upsert({
         usuario_id: uid, materia, concurso, dados,
       }, { onConflict: 'usuario_id,materia' });

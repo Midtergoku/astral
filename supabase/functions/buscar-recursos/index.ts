@@ -1,5 +1,5 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.27.0";
-import { servir, json, FalhaHttp, extrairJson, comSegundaChance, type Usuario } from "../_shared/comum.ts";
+import { servir, json, FalhaHttp, extrairJson, comSegundaChance, admin, type Usuario, type Contexto } from "../_shared/comum.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 const MODELO = Deno.env.get("MODELO_IA") ?? "claude-sonnet-4-6";
@@ -44,13 +44,40 @@ function listaValidada(bruto: unknown, max: number, extras: string[]): Item[] {
     .slice(0, max);
 }
 
-Deno.serve(servir("buscar-recursos", async (req: Request, _usuario: Usuario) => {
+Deno.serve(servir("buscar-recursos", async (req: Request, _usuario: Usuario, ctx: Contexto) => {
   const corpo = await req.json().catch(() => ({}));
   const materia = texto(corpo.materia, 120);
-  const concurso = texto(corpo.concurso, 160);
+  let concurso = texto(corpo.concurso, 160);
 
   if (!materia || !concurso) {
     throw new FalhaHttp(400, "Informe a materia e o concurso.");
+  }
+
+  /* ── O GUIA DO MESMO EDITAL (29/09/2026) ────────────────────────────────
+     Decisao dele: "os mesmos professores (...) para todo mundo que subiu o
+     MESMO edital -- certifique que seja do mesmo edital". A chave e a
+     impressao digital do PDF.
+
+     🔴 CONTRA ENVENENAMENTO: o guia guardado serve a TODOS os alunos daquele
+     edital. Entao ele so e gravado quando a materia EXISTE no edital guardado,
+     e o concurso usado na pergunta vem do EDITAL, nunca do que o navegador
+     mandou. Assim ninguem planta texto seu no guia dos outros. */
+  const hash = typeof corpo.edital === "string" && /^[0-9a-f]{64}$/.test(corpo.edital) ? corpo.edital : null;
+  let podeGuardar = false;
+  if (hash) {
+    const { data: ed } = await admin().from("editais_lidos").select("resultado").eq("hash", hash).maybeSingle();
+    const doEdital = (ed?.resultado?.materias ?? []).some((m: { nome?: string }) => m?.nome === materia);
+    if (ed && doEdital) {
+      podeGuardar = true;
+      concurso = texto(ed.resultado.concurso, 160) || concurso;
+      const { data: g } = await admin().from("guias_por_edital")
+        .select("dados").eq("edital_hash", hash).eq("materia", materia).maybeSingle();
+      if (g?.dados) {
+        ctx.semCusto();
+        console.log("buscar-recursos guardado", JSON.stringify({ materia, custo_usd: 0 }));
+        return json(req, { success: true, data: g.dados });
+      }
+    }
   }
 
   return await comSegundaChance(async (tentativa) => {
@@ -162,15 +189,17 @@ Regras importantes:
     }
 
     const d = extrairJson<Record<string, unknown>>(bruto);
-
-    return json(req, {
-      success: true,
-      data: {
-        dica: texto(d.dica, 600),
-        professores: listaValidada(d.professores, 3, ["canal"]),
-        materiais_gratuitos: listaValidada(d.materiais_gratuitos, 3, ["tipo"]),
-        cursos_pagos: listaValidada(d.cursos_pagos, 2, ["plataforma"]),
-      },
-    });
+    const dados = {
+      dica: texto(d.dica, 600),
+      professores: listaValidada(d.professores, 3, ["canal"]),
+      materiais_gratuitos: listaValidada(d.materiais_gratuitos, 3, ["tipo"]),
+      cursos_pagos: listaValidada(d.cursos_pagos, 2, ["plataforma"]),
+    };
+    if (podeGuardar) {
+      const { error: erroGuardar } = await admin().from("guias_por_edital")
+        .upsert({ edital_hash: hash, materia, dados }, { onConflict: "edital_hash,materia" });
+      if (erroGuardar) console.error("Nao guardei o guia:", erroGuardar);
+    }
+    return json(req, { success: true, data: dados });
   });
 }));

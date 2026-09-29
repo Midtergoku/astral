@@ -305,6 +305,26 @@ IA, com 10 ou com 10 mil alunos.** O grátis passa a custar praticamente nada.
 > ⚠️ Mudar limite de plano é decisão dele (regra 8.1). **Nada disto foi aplicado.** Os três itens
 > são reversíveis e custam R$ 0 para fazer.
 
+### ✅ APLICADA em 29/09/2026 — com as decisões dele
+
+Ele respondeu à proposta: *"no Pro, duas trocas"*; o guia compartilhado *"certifique que seja do
+mesmo edital"*; o edital compartilhado *"quero que ele tenha a experiência de jogar o edital dele
+lá e aparecer que está sendo feito personalizado para ele"*.
+
+| O que ficou | Como |
+|---|---|
+| **Edital guardado** | pela impressão digital (SHA-256) do PDF, tabela `editais_lidos`. O mesmo arquivo de novo: resultado na hora, **sem IA e sem contar na cota** |
+| **Cara de feito na hora** | a tela segura o "lendo seu edital" por **12 s no mínimo**, com 5 etapas ("lendo o conteúdo programático… identificando as matérias… calculando o peso…"), venha da IA ou do guardado |
+| **Guia do MESMO edital** | tabela `guias_por_edital`, chave = impressão digital + matéria. Outro PDF do mesmo concurso (retificado, do DOU) **não** compartilha |
+| **Contra envenenamento** | o guia compartilhado só é gravado se a matéria **existe no edital guardado**, e o concurso da pergunta vem **do edital**, nunca do navegador |
+| **Janela de 30 dias** | grátis: o 1º edital + **1 troca**; beta e Pro: o 1º + **2 trocas**. Edital já guardado não conta. Recusa **antes** da IA, dizendo a data em que libera |
+| **Página Conta** | mostra "X de Y disponíveis nos próximos 30 dias" para editais |
+| **Prova** | `tools/testa-trava-creditos.js` — **12 checagens, sem gastar crédito** (cada caso para antes da IA ou usa o guardado) |
+
+**O efeito no custo:** o gasto de IA passa a crescer com o número de **editais diferentes**, não
+com o número de alunos. Pior caso de uma pessoa por mês: grátis ≈ 2 editais novos (~R$ 5 a 7 de
+edital + o guia deles), Pro ≈ 3 — e **só se forem editais que ninguém subiu antes**.
+
 ### Pergunta dele: o rebalanceamento de cronograma gasta dinheiro?
 
 **Não — R$ 0.** O botão "Rebalancear cronograma" do Progresso é conta feita no navegador
