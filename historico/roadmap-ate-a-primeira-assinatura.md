@@ -9,6 +9,82 @@
 
 ---
 
+## 🔖 ATUALIZAÇÃO DE 29/09/2026 — onde cada fase está, depois de dois meses
+
+> Pedido dele: *"pegue nosso roadmap e, baseado no que temos conversado, atualize ele e adicione
+> pegar as provas e os gabaritos"*. O texto de 04/08 continua inteiro abaixo (regra 3); este
+> bloco diz o que mudou. **Números medidos em 29/09** no banco de produção.
+
+### O número que reordena tudo — ainda vale
+
+| | 04/08 | **29/09** |
+|---|---|---|
+| Contas | 8 | **8** |
+| Chamadas de IA na história | 0 | **0** — a promessa central (ler o edital) **ainda nunca aconteceu** |
+| Questões no banco | — | **1.980**, de **68 provas** |
+| Lista de espera | — | 0 |
+
+**A Fase 1 continua sendo a mais importante e a mais barata.** Tudo o que foi feito nestes dois
+meses (banco de questões, RPG, cronograma) roda sem IA — e está pronto para receber o primeiro
+edital de verdade.
+
+### Fase por fase
+
+| Fase | Situação em 29/09 | O que mudou |
+|---|---|---|
+| **1 — A promessa acontecer uma vez** | 🔴 parada no crédito | Custo agora **calculado sobre 8 editais reais**: **R$ 4,00 a R$ 6,75 por aluno, uma vez** (`valores.md`). US$ 5 (~R$ 28) medem o custo de verdade |
+| **2 — Buracos conhecidos** | 🟡 | 2.1, 2.2, 2.3, 2.7 feitos em agosto. **Novo 2.10: a trava de créditos** (abaixo). 2.8 (cota mensal) entra nela. 2.4–2.6 (e-mail) sem mudança registrada |
+| **3 — Visual e gamificação** | ✅ quase fechada | **3.5 feito em 28/09:** XP, horas e sequência calculados pelo servidor — 11 fraudes barradas. Feitos em 27–29/09: cronograma nascido da rotina (com questionário), gráficos em pé, Meu edital e Recursos dentro do dashboard, Quadro com insígnias, calendário consertado, contraste das letras. O RPG tem painel próprio em `roadmap-rpg.md` |
+| **3b — Banco de questões** 🆕 | ✅ no ar, 🟡 crescendo | Frente nova, nascida em 17/09. Ver a tabela **"Provas e gabaritos"** logo abaixo |
+| **4 — Pagamento** | 🔴 não começou | **Novo 4.10:** os planos mensal / trimestral / anual (proposta em `valores.md` §9). **Novo 4.11 🔴:** passar a Vercel para o Pro **antes da 1ª cobrança** — o plano grátis proíbe uso comercial (US$ 20/mês) |
+| **5 — Antes de cobrar** | 🔴 | **Novo 5.6:** os Termos precisam falar do aluno que sobe a própria prova (Minhas questões, desde 23/09) |
+| **6 — Domínio** | 🔴 decisão dele: fazer junto | sem mudança |
+| **7 — Lançar** | 🔴 | sem mudança |
+
+### 🆕 2.10 — A trava de créditos (pedido dele, 29/09)
+
+*"Precisamos pensar em uma trava para a pessoa não comer nossos créditos todos porque quer trocar
+o edital."* Proposta completa, com o tamanho do buraco e a economia de cada opção, em
+**`valores.md` §11**. Resumo: **edital e guia compartilhados** entre alunos do mesmo concurso (só o
+1º paga) + **limite de troca** (grátis 1 a cada 30 dias, Pro 3). Custo de fazer: R$ 0. **Aguarda o
+sim dele** — é limite de plano (regra 8.1). **Tem de entrar antes de carregar crédito.**
+
+### 🆕 3b — PROVAS E GABARITOS: trazer mais material para o banco
+
+O gargalo, medido desde 22/09, **não é ler a prova — é ter a resposta**. Só a Força Aérea põe o
+gabarito dentro do caderno; o resto publica em arquivo separado, e muitos órgãos **apagam** o
+gabarito do site depois do concurso.
+
+| # | Item | Situação | O que destrava |
+|---|---|---|---|
+| 3b.1 | **EEAR** (CFS e EAGS, 2017–2026) | ✅ no banco — 1.755 questões | — |
+| 3b.2 | **CBMES** (bombeiro ES, 2022) | ✅ no banco — 96 | — |
+| 3b.3 | **PRF 2021** (Cebraspe, certo/errado) | ✅ no banco | — |
+| 3b.4 | **ESA 2023** (Geral, Saúde, Música) | ✅ no banco (27/09) — gabarito recuperado no **Internet Archive** | — |
+| 3b.5 | **ESA 2024** | 🟡 prova baixada; o gabarito oficial é **desenhado** (bolinhas pintadas, sem texto) | ler o desenho, ou achar o gabarito em texto |
+| 3b.6 | **ESA 2025 e 2026** | 🔴 prova no site; gabarito não achado ainda | procurar no Internet Archive e no Diário Oficial |
+| 3b.7 | **ESA 2006–2022** | 🔴 84 provas no site, sem gabarito | idem — o Archive tem cópias do site antigo |
+| 3b.8 | **CBMMG** (bombeiro MG) | 🟡 36 provas **já baixadas**; a busca achou **gabaritos oficiais** no site deles (`Gabaritos CFO_ publicar.pdf`, `ATO nº 16393` do CFSd 2022) | baixar, casar tipo com tipo, conferir por amostra |
+| 3b.9 | **CBMERJ 2024** | 🟡 o gabarito eu já leio inteiro (4 tipos, 100 de 100) | falta o **caderno de questões** com o TIPO anotado |
+| 3b.10 | **Marinha** (CN, EN, EAM) e **AFA/EPCAR** | 🔴 o site oficial põe um desafio anti-robô (Cloudflare) ou recusa o download (403) | ele baixa pelo navegador dele; eu leio e importo |
+| 3b.11 | **Mais bancas de polícia** (Cebraspe, FGV, Vunesp, AOCP) | 🔴 | os editais já foram medidos em `valores.md`; as provas estão nos sites das bancas |
+| 3b.12 | **Assunto em mais matérias** | 🟡 hoje só Matemática, Português, Física e Inglês têm assunto marcado | ensinar o classificador (`assets/js/assuntos.js`) as outras — Biologia, Química, Enfermagem, História, Geografia… (R$ 0, conta de palavra-chave) |
+
+**Método que funcionou (27/09), para repetir:** gabarito que sumiu do site → **Internet Archive**
+(`web.archive.org/cdx/search/cdx?url=<site>/*&filter=mimetype:application/pdf` lista todo PDF
+guardado) → casar com a prova pelo cabeçalho (ano, área, tipo) → **provar o casamento resolvendo
+questões na mão** antes de gravar. A lista de onde baixar, por força, está em
+`provas-para-baixar.md`.
+
+### O que eu faria a seguir, em ordem
+
+1. **2.10 — a trava de créditos** (assim que ele aprovar) — é pré-requisito do crédito.
+2. **1.1 — US$ 5 de crédito** e **um edital real** ponta a ponta, medindo o custo exato.
+3. **3b.8 — CBMMG**: é o maior lote parado com gabarito oficial já localizado.
+4. **4.x — pagamento**, com a Vercel no Pro antes da primeira cobrança.
+
+---
+
 ## O número que reordena tudo
 
 Antes de listar tarefas, o retrato do produto hoje — consultado no banco:

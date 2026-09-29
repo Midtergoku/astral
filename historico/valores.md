@@ -177,7 +177,7 @@ O número de páginas sozinho engana: o edital da **ESA tem 19 páginas mas 258 
 | Serviço | Plano | Custo hoje |
 |---|---|---|
 | Supabase (banco, login) | Free (500 MB) | **R$ 0** — o acervo de 1.980 questões ocupa ~2,4 MB |
-| Vercel (site) | Hobby | **R$ 0** |
+| Vercel (site) | Hobby | **R$ 0** — ✏️ **29/09: só enquanto não cobra.** Hobby proíbe uso comercial; no lançamento, Pro a US$ 20/mês (seção 10) |
 | Resend (e-mail) | Free | **R$ 0** — mas exige domínio próprio |
 | Domínio `.com.br` | — | **~R$ 40 por ano** ⚠️ preço do Registro.br de memória, conferir |
 | Anthropic (IA) | pré-pago | **R$ 0 enquanto não houver crédito** |
@@ -198,9 +198,125 @@ O número de páginas sozinho engana: o edital da **ESA tem 19 páginas mas 258 
 
 ---
 
+## 9. 🧾 Simulação dos planos — mensal, trimestral e anual (29/09/2026)
+
+Pedido dele: *"quero que você faça uma simulação de valores pros planos, pensei em mensal,
+trimestral e anual"*. **Proposta minha — a decisão de preço é dele.**
+
+### As taxas que entram na conta
+
+| Item | Valor | Fonte |
+|---|---|---|
+| Mercado Pago — assinatura, recebendo **na hora** | **4,49%** por cobrança | pesquisa de 29/09 (blog do Mercado Pago e guias de taxa) — ⚠️ **conferir no painel dele antes de lançar** |
+| Mercado Pago — assinatura, recebendo **em 30 dias** | **3,99%** | idem |
+| IA do aluno (edital + guia), **uma vez** | ~**R$ 5,50** (faixa R$ 4 a 6,75) | seção 5 |
+
+### A proposta
+
+| | **Mensal** | **Trimestral** | **Anual** |
+|---|---|---|---|
+| Preço | **R$ 19,90** / mês | **R$ 49,90** a cada 3 meses | **R$ 179,90** por ano |
+| Equivale a | R$ 19,90/mês | **R$ 16,63/mês** | **R$ 14,99/mês** |
+| Desconto sobre o mensal | — | **16%** (≈ "2 semanas grátis") | **25%** (≈ "3 meses grátis") |
+| Taxa do Mercado Pago (4,49%) | − R$ 0,89 | − R$ 2,24 | − R$ 8,08 |
+| **Fica para o Astral, por cobrança** | **R$ 19,01** | **R$ 47,66** | **R$ 171,82** |
+| Menos a IA do aluno (uma vez) | − R$ 5,50 no 1º mês | − R$ 5,50 | − R$ 5,50 |
+| **Sobra por mês no 1º período** | **R$ 13,51** no 1º mês, **R$ 19,01** nos seguintes | **R$ 14,05**/mês | **R$ 13,86**/mês |
+
+**Por que os três fazem sentido juntos:**
+- o **mensal** é o que mais rende **se o aluno ficar** — em 12 meses dá R$ 222 contra R$ 166 do anual;
+- o **anual** troca receita por **garantia**: o dinheiro entra de uma vez e o aluno não some no
+  3º mês — e concurso militar tem ciclo de ~1 ano entre edital e prova, o que casa com o anual;
+- o **trimestral** é a ponte para quem acha o anual caro mas não quer decidir todo mês.
+
+> 💡 **Variante de lançamento:** anual a **R$ 149,90** (R$ 12,49/mês, 37% de desconto) só para os
+> primeiros assinantes. Sobra R$ 137,67 no ano, ainda **~R$ 11/mês** depois da taxa e da IA.
+
+### Quanto sobra no mês, por número de assinantes (todos no mensal)
+
+| Assinantes | Receita | Taxa MP | Custo fixo (seção 10) | **Sobra no mês** |
+|---|---|---|---|---|
+| 10 | R$ 199 | − R$ 9 | − R$ 113 | **~R$ 77** |
+| 50 | R$ 995 | − R$ 45 | − R$ 251 | **~R$ 700** |
+| 100 | R$ 1.990 | − R$ 89 | − R$ 251 | **~R$ 1.650** |
+| 500 | R$ 9.950 | − R$ 447 | − R$ 251 | **~R$ 9.250** |
+
+⚠️ **Fora da conta, de propósito:** **imposto** (depende do enquadramento — pessoa física, MEI ou
+empresa; é conversa com contador, não estimativa minha) e a **IA dos alunos NOVOS de cada mês**
+(R$ 5,50 cada, uma vez — ver seção 11, que pode zerar isso).
+
+**Ponto de equilíbrio:** com o custo fixo mínimo de lançamento (R$ 113/mês), **6 assinantes mensais
+pagam a estrutura**. Com o banco no plano pago também (R$ 251/mês), **14**.
+
+---
+
+## 10. 🏗️ Custos fixos que aparecem NO DIA DE COBRAR (29/09/2026)
+
+> 🔴 **Achado desta pesquisa: a Vercel não permite uso comercial no plano grátis.** A página de
+> preços deles: *"Our Hobby plan is for personal, non-commercial use"*. No dia em que o Astral
+> cobrar a primeira assinatura, o site **tem de estar no plano Pro — US$ 20/mês (~R$ 110)**. Não
+> estava em nenhuma conta até hoje.
+
+| Serviço | Hoje | No lançamento | Quando |
+|---|---|---|---|
+| **Vercel** (site) | grátis | **US$ 20/mês ≈ R$ 110** | **obrigatório** a partir da 1ª cobrança |
+| **Supabase** (banco e login) | grátis | **US$ 25/mês ≈ R$ 138** | quando precisar: o grátis aguenta 500 MB e 50 mil usuários/mês, mas **pausa depois de 1 semana sem uso** e não faz backup (nós fazemos o nosso) |
+| **Domínio** `.com.br` | — | ~R$ 40/ano ≈ **R$ 3,33/mês** | fase 6 do roadmap |
+| **Resend** (e-mail) | — | grátis na faixa inicial | ⚠️ limite do plano grátis a conferir antes de ligar |
+| **Anthropic** (IA) | R$ 0 | **pré-pago** — só gasta o que ele carregar | o teto real de gasto é o crédito colocado |
+| **Mínimo para lançar** | | **≈ R$ 113/mês** (Vercel + domínio) | |
+| **Com o banco pago** | | **≈ R$ 251/mês** | |
+
+---
+
+## 11. 🔒 A trava da troca de edital — PROPOSTA, aguarda a decisão dele (29/09/2026)
+
+> Ele: *"na real precisamos pensar em uma trava para a pessoa não comer nossos créditos todos
+> porque quer trocar o edital, eu não tinha pensado nisso."*
+
+### O tamanho do buraco hoje (medido nas cotas do código)
+
+| Plano | Leituras de edital por dia | Buscas do guia por dia | Pior caso por mês, **por pessoa** |
+|---|---|---|---|
+| Grátis | 2 | 12 | 60 editais + 360 buscas ≈ **R$ 300 a 340** |
+| Pro | 10 | 60 | ≈ **R$ 1.500** |
+
+Cada troca de edital refaz o **guia inteiro** (o guia de um concurso não serve para outro). E o
+grátis — que não paga nada — é quem tem a porta mais larga em relação ao que rende.
+
+> ⚠️ **Hoje o risco é zero** porque não há crédito na Anthropic: nada é gasto. **Vira real no dia
+> de carregar crédito** — por isso a trava tem de entrar antes.
+
+### As opções, da mais forte para a mais simples
+
+| # | Trava | O que faz | Economia | Custo de fazer |
+|---|---|---|---|---|
+| 🥇 | **Edital compartilhado** | guarda o resultado da leitura pela "impressão digital" do PDF. O 2º aluno que subir **o mesmo edital** recebe na hora, sem IA | o edital da EsPCEx é o mesmo para milhares de alunos: **só o 1º paga** | R$ 0 · ~1 sessão |
+| 🥇 | **Guia compartilhado por concurso** | os professores de "Matemática da EEAR" servem a todos os alunos da EEAR: gera uma vez, reusa | o guia é a **maior parte** do custo nos concursos de muitas matérias | R$ 0 · junto com o de cima |
+| 🥈 | **Limite de troca** | grátis: a 1ª leitura + **1 troca a cada 30 dias**. Pro: **3 por 30 dias**. Troca para um edital já guardado **não conta** (não custa) | fecha o abuso de quem troca por trocar | R$ 0 · pequeno |
+| 🥉 | **Cota mensal no lugar de diária** | o item 2.8 do roadmap: ninguém lê 10 editais por dia | fecha o pior caso da tabela acima | R$ 0 · pequeno |
+| ➕ | **Alerta de gasto na Anthropic** | o painel deles avisa ao passar de um valor | rede de segurança | R$ 0 · 5 minutos **dele** no painel (item 2.9) |
+
+**O que eu recomendo: as duas 🥇 + a 🥈.** Com o edital e o guia compartilhados, o gasto total de IA
+deixa de crescer com o número de alunos e passa a crescer com o **número de editais diferentes** —
+algumas dezenas por ano. **Estimativa:** ~15 concursos militares × R$ 5 a 7 ≈ **R$ 100 por ano de
+IA, com 10 ou com 10 mil alunos.** O grátis passa a custar praticamente nada.
+
+> ⚠️ Mudar limite de plano é decisão dele (regra 8.1). **Nada disto foi aplicado.** Os três itens
+> são reversíveis e custam R$ 0 para fazer.
+
+### Pergunta dele: o rebalanceamento de cronograma gasta dinheiro?
+
+**Não — R$ 0.** O botão "Rebalancear cronograma" do Progresso é conta feita no navegador
+(`assets/js/plano.js`), sem IA. E desde 28/09 o cronograma já se rebalanceia sozinho a cada visita
+(`assets/js/cronograma.js` distribui o tempo pela necessidade de cada matéria).
+
+---
+
 ## 📒 Registro de mudanças deste arquivo
 
 | Data | O que mudou |
 |---|---|
 | 29/09/2026 | Criado. Estimativas pelos preços oficiais; correção dos "R$ 6 por aluno" (eram só o guia) |
+| 29/09/2026 | Seções 9 (planos mensal/trimestral/anual), 10 (custos fixos do lançamento — **Vercel obrigatória no Pro para cobrar**) e 11 (a trava da troca de edital, proposta) |
 | 29/09/2026 | **8 editais reais medidos** (páginas, texto, matérias lidas no edital). Custo por aluno calculado sobre eles: **R$ 4,00 a R$ 6,75** (ainda estimativa: a IA não rodou). Descoberta: o Bombeiro do Rio tem 11 disciplinas — o guia pesa mais que o edital |

@@ -1,3 +1,19 @@
+# 🔖 29/09/2026 (tarde) — dinheiro, roadmap e quatro consertos de tela
+
+| Pedido dele | O que ficou |
+|---|---|
+| Trava para não comerem os créditos trocando de edital | 🟡 **proposta, aguarda o sim dele** — `valores.md` §11: edital e guia compartilhados entre alunos do mesmo concurso + limite de troca. Custo de fazer: R$ 0 |
+| Simulação dos planos (mensal, trimestral, anual) | ✅ `valores.md` §9: R$ 19,90 · R$ 49,90 · R$ 179,90, com a taxa do Mercado Pago (4,49%) e a IA do aluno |
+| "Outras partes desse assunto" | ✅ `valores.md` §10: **a Vercel proíbe uso comercial no grátis** — Pro a US$ 20/mês é obrigatório na 1ª cobrança. Custo fixo de lançamento ≈ R$ 113/mês; 6 assinantes pagam |
+| Roadmap atualizado + provas e gabaritos | ✅ bloco de 29/09 no topo de `roadmap-ate-a-primeira-assinatura.md`, com a frente **3b — Provas e gabaritos** (12 itens) e o **2.10 — trava de créditos** |
+| Patente cortada no topo | ✅ era a forma curta ("Subten BM") pintada em todo lugar; agora só no cartão estreito |
+| Letras pequenas quase da cor do fundo | ✅ `--texto-3` de #5F7183 para #7A8C9F: contraste de 2,9–3,6 para 4,7–5,3 |
+| Rebalanceamento gasta dinheiro? | **Não** — conta no navegador, sem IA |
+| Filtro do Banco | ✅ **encadeado**: cada caixa só oferece o que existe com as outras (605 combinações); matéria sem assunto não mostra aviso; botão Limpar |
+| Quadro: texto por trás do hexágono + barra lateral | ✅ balão sempre por cima; 8 frentes centralizadas numa linha, sem rolagem |
+
+---
+
 # 🔖 Atualização de 28–29/09/2026 — oito pedidos de uma vez, e o dashboard que não mudava
 
 | Pedido dele | O que ficou |
