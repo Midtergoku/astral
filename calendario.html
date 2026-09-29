@@ -175,7 +175,14 @@
       border: 1px solid var(--border);
       color: var(--muted);
       border-radius: 3px;
-      padding: 0.35rem 0.6rem;
+      /* Quadrado fixo: editar (icone) e remover (✕) tinham larguras
+         diferentes, e o de editar chegou a aparecer vazio e estreito. */
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       font-size: 0.8rem;
       transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida);
@@ -515,12 +522,12 @@ select option { background: var(--surface); color: var(--text); }
     <div class="form-group">
       <label for="evento-categoria">Categoria</label>
       <select id="evento-categoria">
-        <option value="prova"><i data-icone="documento"></i> Prova</option>
+        <option value="prova">Prova</option>
         <option value="inscricao">Inscrição</option>
-        <option value="resultado"><i data-icone="grafico"></i> Resultado</option>
-        <option value="taf"><i data-icone="corrida"></i> TAF</option>
-        <option value="documentacao"><i data-icone="prancheta"></i> Documentação</option>
-        <option value="personalizado"><i data-icone="marcador"></i> Personalizado</option>
+        <option value="resultado">Resultado</option>
+        <option value="taf">TAF</option>
+        <option value="documentacao">Documentação</option>
+        <option value="personalizado">Personalizado</option>
       </select>
     </div>
     <div class="form-group">
@@ -542,7 +549,8 @@ select option { background: var(--surface); color: var(--text); }
   import { carregarProgresso,
            carregarEventos as buscarEventos,
            criarEvento, atualizarEvento,
-           removerEvento as removerEventoDoBanco } from './assets/js/estado.js?v=5dab0815';
+           removerEvento as removerEventoDoBanco } from './assets/js/estado.js?v=cddd9d5b';
+  import { icone } from './assets/js/icones.js?v=7c816270';
 
   let usuario = null;
   let eventos = [];
@@ -598,7 +606,9 @@ select option { background: var(--surface); color: var(--text); }
     // Importa a data da prova do edital, uma vez só. O índice único em
     // (usuario_id, origem) garante isso mesmo se duas abas tentarem juntas.
     const dados = await carregarProgresso(usuario.id);
-    if (dados.edital?.dataProva && !eventos.some(e => e.origem === 'edital_prova')) {
+    const jaImportada = (e) => e.origem === 'edital_prova'
+      || (e.categoria === 'prova' && e.obs === 'Importado automaticamente do edital');
+    if (dados.edital?.dataProva && !eventos.some(jaImportada)) {
       try {
         const novo = await criarEvento(usuario.id, {
           nome: 'Prova — ' + (dados.edital.nome || 'Concurso'),
@@ -638,7 +648,7 @@ select option { background: var(--surface); color: var(--text); }
         diasProvaSub.textContent = dias === 1 ? 'amanhã é o dia!' : 'dias restantes';
       } else if (dias === 0) {
         diasProvaEl.textContent = 'Hoje!';
-        diasProvaSub.textContent = 'boa sorte! <i data-icone="trevo"></i>';
+        diasProvaSub.innerHTML = 'boa sorte! ' + icone('trevo', 14);
       } else {
         diasProvaEl.textContent = 'Realizada';
         diasProvaSub.textContent = formatarData(prova.data);
@@ -653,7 +663,8 @@ select option { background: var(--surface); color: var(--text); }
     if (proximo && proximoEl) {
       const cat = CATEGORIAS[proximo.categoria] || CATEGORIAS.personalizado;
       const dias = calcularDias(proximo.data);
-      proximoEl.textContent = `${cat.icone} ${proximo.nome}`;
+      // So o nome: `cat.icone` e o NOME do icone, e saia escrito ("corrida TAF").
+      proximoEl.textContent = proximo.nome;
       proximoSub.textContent = dias === 0 ? 'hoje!' : dias === 1 ? 'amanhã' : `em ${dias} dias`;
     }
 
@@ -680,7 +691,7 @@ select option { background: var(--surface); color: var(--text); }
 
       return `
         <div class="evento-item ${passou ? 'evento-passou' : ''}">
-          <div class="evento-icone" style="background:${cat.bg};">${cat.icone}</div>
+          <div class="evento-icone" style="background:${cat.bg};color:${cat.cor};">${icone(cat.icone, 18)}</div>
 
           <div class="evento-info">
             <div class="evento-nome">${esc(evento.nome)}</div>
@@ -691,7 +702,7 @@ select option { background: var(--surface); color: var(--text); }
           <span class="evento-tag" style="background:${cat.bg};color:${cat.cor};">${cat.label}</span>
 
           <div class="evento-acoes">
-            <button class="btn-acao" onclick="editarEvento(${indexOriginal})" title="Editar"><i data-icone="lapis"></i></button>
+            <button class="btn-acao" onclick="editarEvento(${indexOriginal})" title="Editar">${icone('lapis', 15)}</button>
             <button class="btn-acao danger" onclick="removerEvento(${indexOriginal})" title="Remover">✕</button>
           </div>
         </div>

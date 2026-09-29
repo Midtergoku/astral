@@ -297,6 +297,12 @@ export async function criarEvento(uid, evento) {
     data: evento.data,
     categoria: String(evento.categoria || 'personalizado').slice(0, 40),
     obs: evento.obs ? String(evento.obs).slice(0, 1000) : null,
+    /* 28/09/2026: a origem era descartada aqui. O calendario marca a prova
+       importada do edital com origem 'edital_prova' e confere essa marca
+       antes de importar -- sem ela, CADA visita importava a prova de novo,
+       e o indice unico (usuario_id, origem) nunca agia. So essa origem
+       existe; qualquer outra coisa vira evento comum. */
+    origem: evento.origem === 'edital_prova' ? 'edital_prova' : null,
   }).select().single();
   if (error) throw new Error('Não consegui salvar o evento. Tente de novo.');
   return data;
