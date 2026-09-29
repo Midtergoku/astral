@@ -566,6 +566,20 @@ for (const p of paginas) {
   }
 }
 
+/* ── 20. TODA PAGINA COM BARRA LATERAL CARREGA O menu.js ─────────────────────
+   29/09/2026. Ele: "em algumas abas nao tem a opcao de retornar a aba lateral".
+   O botao de recolher a barra e criado pelo assets/js/menu.js -- e 4 paginas
+   (Quadro, Questoes, Instrucao, Importar) nasceram por copia de outra e nao o
+   carregavam. Quarto defeito de barra lateral com a mesma raiz: pagina copiada
+   sem conferir o que a copia deixou de fora. */
+for (const p of paginas) {
+  const html = ler(p);
+  if (!/class\s*=\s*["'][^"']*\bsidebar\b/.test(html)) continue;
+  if (!/assets\/js\/menu\.js/.test(html)) {
+    anota('recolher', p, 'tem barra lateral mas nao carrega assets/js/menu.js -- fica sem o botao de recolher');
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -587,6 +601,7 @@ const GRUPOS = {
   caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
   controle: 'Caractere de controle gravado dentro do codigo',
   ordem:    'Menu lateral em ordem diferente entre paginas',
+  recolher: 'Pagina com barra lateral sem o botao de recolher (menu.js)',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');
