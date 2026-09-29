@@ -43,6 +43,12 @@ código e mais suporte no WhatsApp do Lucas**. Reavaliar a Stripe se e quando ho
 
 ## 10.4. Custo da Anthropic — medido em 30/07/2026
 
+> ✏️ **Correção em 29/09/2026: "medido" não é verdade.** A IA nunca rodou com crédito antes de
+> 04/08, e em 04/08 o `roadmap-ate-a-primeira-assinatura.md` (Anexo B) já dizia *"é aritmética,
+> não medição"*. Os números abaixo são **conta pelos preços oficiais**. O título e a tabela ficam
+> como estavam (regra 3: acrescentar, não sobrescrever). **Tudo que é dinheiro passou a morar em
+> `historico/valores.md`**, com a conta refeita e a fórmula aberta.
+
 Preço oficial `claude-sonnet-4-6` (US$ 3/1M entrada, US$ 15/1M saída), busca web a
 **US$ 10 por 1.000 buscas**, dólar a **R$ 5,07**.
 

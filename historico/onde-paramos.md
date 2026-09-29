@@ -1,3 +1,28 @@
+# 🔖 Atualização de 28–29/09/2026 — oito pedidos de uma vez, e o dashboard que não mudava
+
+| Pedido dele | O que ficou |
+|---|---|
+| "Só nós podemos dar acesso a tudo" | ✅ **XP, horas e sequência calculados pelo servidor** (migration `20260928100000`). Sessão ganha data de agora e XP pela regra da tela; cronômetro não pode durar mais que o tempo real; cronograma até 4 h e 12 h/dia. `testa-xp-forjado`: 11 ataques barrados, estudo honesto continua valendo |
+| PRECISÃO na ficha | ✅ acertou de primeira, só acervo, mínimo de 20 respostas |
+| Calendário bugado | ✅ a prova era importada a cada visita (`criarEvento` jogava fora a `origem`); ícone saía como a palavra "documento". `testa-calendario.js` |
+| Meu edital → dashboard | ✅ faixa "Edital ativo" no topo; aba saiu da barra (edital.html redireciona). Patente do cartão = a do topo; cartão da prova lê a data do edital |
+| Cronograma refeito + questionário de rotina | ✅ `assets/js/cronograma.js` (UMA conta para a semana, usada pela aba e pela "Sessão de hoje") e `assets/js/rotina.js` (4 perguntas, aparece uma vez). Coluna `progresso.rotina` (migration `20260928140000`). `testa-cronograma.js`, 23 checagens |
+| Gráficos do Progresso em pé | ✅ "Domínio por matéria" e "Horas por semana"; o diário ficou intacto |
+| Recursos → dashboard | ✅ cartão "Guia de estudo"; aba saiu (recursos.html redireciona). `testa-guia.js` com XSS plantado |
+| Quadro com símbolos melhores | ✅ insígnias em SVG: aro de metal, esmalte, emblema por frente |
+| **"O dashboard está idêntico"** | 🔴 **defeito real:** conta **Pro/Beta** quebrava o dashboard (selo de plano que não existe mais) — a conta dele virou Pro em 27/09 e todos os testes usavam conta grátis. 38 erros em `erros_cliente`. Consertado; `testa-simulacao-tela` agora roda com conta Pro |
+| Simulação dos professores | ✅ `simula-edital.js --guia`: guia de demonstração nas 9 matérias da conta dele (nomes de EXEMPLO, materiais grátis reais), sai no `--reverter` |
+| Arquivo de valores | ✅ **`historico/valores.md`** — tudo que é dinheiro mora lá daqui em diante. **Nenhum custo foi medido ainda**; tudo é estimativa pelos preços oficiais |
+
+✏️ **29/09 — o bloco abaixo dizia "Conserto proposto a ele, aguardando o sim".** Ele disse sim em
+28/09 e o conserto está no ar (primeira linha da tabela acima).
+
+**Pendente:** medir o número de páginas dos editais militares para trocar o "a medir" de
+`valores.md` (as ferramentas de busca travaram no dia 29). Ele avisou que vai pedir um `.md` de
+**marketing** no mesmo estilo.
+
+---
+
 # 🧪 ATENÇÃO — A CONTA DO DONO ESTÁ COM UM EDITAL SIMULADO (desde 27/09/2026)
 
 > Pedido dele: *"simule como se eu tivesse colocado um edital dos bombeiros e me dê acesso a tudo
