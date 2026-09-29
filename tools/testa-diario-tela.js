@@ -67,7 +67,11 @@ const servidor = http.createServer((q, r) => {
 const quando = (diasAtras, hora) => {
   const b = new Date(Date.now() - diasAtras * 86400000);
   const p = (n) => String(n).padStart(2, "0");
-  return `${b.getUTCFullYear()}-${p(b.getUTCMonth() + 1)}-${p(b.getUTCDate())}T${p(hora)}:30:00-03:00`;
+  /* 28/09/2026: era getUTCDate(). Entre 21h e meia-noite de Brasilia, UTC ja
+     esta no dia seguinte -- a sessao nascia um dia a frente do que o teste
+     esperava (que usa o dia LOCAL), e o teste falhava so nessas 3 horas.
+     Data e hora aqui sao de Sao Paulo, entao o dia tambem tem de ser. */
+  return `${b.getFullYear()}-${p(b.getMonth() + 1)}-${p(b.getDate())}T${p(hora)}:30:00-03:00`;
 };
 
 (async () => {
