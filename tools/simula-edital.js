@@ -60,7 +60,44 @@ async function req(c, o = {}) {
 }
 
 // As tabelas que a simulacao pode tocar, e a coluna que diz de quem e a linha.
-const TABELAS = ["progresso", "sessoes_estudo", "eventos", "conquistas", "habilidades_escolhidas"];
+const TABELAS = ["progresso", "sessoes_estudo", "eventos", "conquistas", "habilidades_escolhidas", "recursos_salvos"];
+const GUIA = process.argv.includes("--guia");
+
+/* ── O GUIA DE ESTUDO SIMULADO (29/09/2026) ─────────────────────────────────
+   Pedido dele: "gostaria de saber como vai ser uma simulacao dos professores
+   (...) mesmo que a gente nao tenha a IA". Sem credito, o guia de verdade nao
+   e gerado. Isto poe no lugar dele um guia de DEMONSTRACAO:
+   - professores com nome de EXEMPLO, de proposito -- inventar indicacao de
+     professor real seria por palavras na boca de gente que existe;
+   - dicas de estudo verdadeiras, e materiais gratis REAIS (Khan Academy,
+     Brasil Escola, Planalto), que existem e sao abertos;
+   - tudo marcado "[Simulação]", e apagado pelo --reverter. */
+const MATERIAL = {
+  "Português":   [["Gramática — Brasil Escola", "https://brasilescola.uol.com.br/gramatica", "Site", "Teoria de gramática por tópico, com exemplos."]],
+  "Matemática":  [["Matemática — Khan Academy", "https://pt.khanacademy.org/math", "Site", "Aulas em vídeo e exercícios, do básico ao ensino médio."]],
+  "Física":      [["Física — Khan Academy", "https://pt.khanacademy.org/science/physics", "Site", "Mecânica, eletricidade e ondas, com exercícios."]],
+  "Química":     [["Química — Khan Academy", "https://pt.khanacademy.org/science/chemistry", "Site", "Química geral em vídeo e exercício."]],
+  "Biologia":    [["Biologia — Khan Academy", "https://pt.khanacademy.org/science/biology", "Site", "Citologia, genética, ecologia e fisiologia."]],
+  "Legislação":  [["Legislação federal — Planalto", "https://www.planalto.gov.br/ccivil_03/", "Site", "O texto oficial das leis. É daqui que a prova cobra."]],
+  "História":    [["História do Brasil — Brasil Escola", "https://brasilescola.uol.com.br/historiab", "Site", "Da colônia à república, por período."]],
+  "Geografia":   [["Geografia — Brasil Escola", "https://brasilescola.uol.com.br/geografia", "Site", "Geografia física e humana do Brasil."]],
+  "Informática": [["Computação — Khan Academy", "https://pt.khanacademy.org/computing", "Site", "Fundamentos de computação e internet."]],
+};
+function guiaDemo(materia) {
+  return {
+    dica: `[Simulação] Em ${materia}, alterne teoria curta com questões de provas anteriores da mesma banca — é o que mostra o que ela costuma cobrar.`,
+    professores: ["A", "B", "C"].map((l, i) => ({
+      nome: `Professor(a) de ${materia} — exemplo ${l}`,
+      canal: "Canal de demonstração",
+      url: "https://www.youtube.com/",
+      descricao: i === 0
+        ? `Aqui entra um professor real de ${materia}, pesquisado pela IA para o seu edital, e por que ele é bom nesta matéria.`
+        : "Exemplo de indicação. Com a IA ligada, o nome, o canal e o motivo são de verdade.",
+    })),
+    materiais_gratuitos: (MATERIAL[materia] || []).map(([nome, url, tipo, descricao]) => ({ nome, url, tipo, descricao })),
+    cursos_pagos: [],
+  };
+}
 
 // ── O edital simulado ─────────────────────────────────────────────────────
 // Materias com os nomes que o banco de questoes usa, para o filtro do Banco
@@ -154,6 +191,22 @@ function montarSessoes(uid) {
     }
     fs.renameSync(arqCopia, arqCopia.replace(/\.json$/, `.revertida-${Date.now()}.json`));
     console.log("\n✔ conta de volta ao que era. A copia foi mantida, renomeada como revertida.");
+    return;
+  }
+
+  // ── GUIA DE DEMONSTRACAO (so em conta com a simulacao ativa) ───────────
+  if (GUIA) {
+    // Sem a copia, o --reverter nao saberia apagar o guia: recusa.
+    if (!fs.existsSync(arqCopia)) { console.log("🔴 Aplique a simulacao antes (--aplicar): sem copia, o guia nao teria como ser desfeito."); process.exitCode = 1; return; }
+    const prog = (await req(`/rest/v1/progresso?usuario_id=eq.${uid}&select=edital,materias`))[0] || {};
+    const concurso = prog.edital?.nome;
+    const nomes = (prog.materias || []).map((m) => m.nome).filter(Boolean);
+    if (!concurso || !nomes.length) { console.log("A conta nao tem edital com materias."); process.exitCode = 1; return; }
+    await req("/rest/v1/recursos_salvos?on_conflict=usuario_id,materia", { method: "POST",
+      headers: { ...admin, Prefer: "return=minimal,resolution=merge-duplicates" },
+      body: JSON.stringify(nomes.map((materia) => ({ usuario_id: uid, materia, concurso, dados: guiaDemo(materia) }))) });
+    const n = (await req(`/rest/v1/recursos_salvos?usuario_id=eq.${uid}&select=materia`)).length;
+    console.log(`✔ guia de demonstracao em ${n} materia(s). Sai junto no --reverter.`);
     return;
   }
 
