@@ -87,6 +87,12 @@ const PAGINAS = [
   try {
     console.log("\nTESTA-SIMULACAO-TELA -- uma conta adiantada de bombeiro, pagina por pagina\n");
     ferramenta("--aplicar");
+    /* 🔴 29/09/2026: a conta de teste e PRO, de proposito. Todos os testes de
+       tela usavam conta gratis, e o dashboard quebrava so para Pro/Beta (o selo
+       de plano que nao existe mais) -- o dono viu o dashboard "identico" e
+       nenhum teste viu nada. Gratis ja e coberto pelos outros testes. */
+    await req(`/rest/v1/perfis?id=eq.${uid}`, { method: "PATCH",
+      headers: { ...admin, Prefer: "return=minimal" }, body: JSON.stringify({ tipo_plano: "pro" }) });
     const link = await req("/auth/v1/admin/generate_link", { method: "POST", headers: admin, body: JSON.stringify({ type: "magiclink", email }) });
     const s = await req("/auth/v1/verify", { method: "POST", headers: { apikey: PUB, "Content-Type": "application/json" },
       body: JSON.stringify({ type: "magiclink", token_hash: link.hashed_token }) });

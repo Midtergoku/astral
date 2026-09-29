@@ -64,60 +64,73 @@
 
   .frente.completa .frente-nome { color: var(--latao-c); }
 
-  /* ── O NÓ ─────────────────────────────────────────────────────────────── */
+  /* ── O NÓ: uma insígnia (28/09/2026) ─────────────────────────────────────
+     Ele: "achei muito simples os simbolos, parece que foi feito no paint".
+     Tinha razao, e a causa era tecnica: o hexagono era um QUADRADO recortado
+     por clip-path, e o recorte come a borda -- so sobravam os tracos de cima e
+     de baixo. E o centro era um losango de texto, igual para tudo.
+
+     Agora cada no e um SVG: aro de metal com brilho (degradê do metal claro ao
+     escuro), centro esmaltado escuro e o EMBLEMA DA FRENTE -- como as
+     insignias de verdade, que sao metal e esmalte. Nao conquistado: aro
+     apagado e o numero do degrau. O proximo degrau: aro tracejado de latao
+     e o numero em latao. */
   .no {
     position: relative;
-    width: 3rem; height: 3.4rem;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--casco);
-    border: 1px solid var(--linha);
-    /* Hexágono: grade de mapa tático. */
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    cursor: help;
-    flex-shrink: 0;
+    width: 3.3rem; height: 3.7rem;
+    display: grid; place-items: center;
+    cursor: help; flex-shrink: 0; outline: none;
   }
-
-  /* A ligação com o degrau de baixo. Fica acesa só quando OS DOIS estão
-     conquistados -- é o que transforma pontos soltos em caminho percorrido. */
-  .elo {
-    width: 2px; height: 1.15rem;
-    background: var(--linha);
-    flex-shrink: 0;
-  }
-
-  .elo.aceso { background: var(--latao); }
+  .no svg.insignia { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .insignia .aro   { fill: var(--casco); stroke: var(--linha); stroke-width: 1.5; }
+  .insignia .face  { fill: var(--breu); stroke: none; }
+  .insignia .brilho { fill: none; stroke: none; }
+  .insignia .emblema { fill: none; stroke: var(--texto-3); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
 
   .no-grau {
+    position: relative;
     font-family: var(--dado); font-weight: 700;
     font-size: .8rem; color: var(--texto-3);
     font-variant-numeric: tabular-nums;
   }
 
-  /* Conquistado: ganha a cor do metal na borda e um fundo fraco dela. */
-  .no.feito {
-    background: color-mix(in srgb, var(--metal) 16%, var(--casco));
-    border-color: var(--metal);
+  /* Conquistado: metal e esmalte. */
+  .no.feito .aro { fill: var(--grad); stroke: color-mix(in srgb, var(--metal) 55%, var(--breu)); stroke-width: 1; }
+  .no.feito .face { fill: color-mix(in srgb, var(--metal) 10%, var(--breu)); stroke: color-mix(in srgb, var(--metal) 45%, var(--breu)); stroke-width: .8; }
+  .no.feito .brilho { stroke: color-mix(in srgb, var(--papel) 50%, transparent); stroke-width: .9; }
+  .no.feito .emblema { stroke: var(--metal-c); opacity: 1; }
+  .no.feito .no-grau { display: none; }
+  .no.feito { filter: drop-shadow(0 3px 5px rgba(0,0,0,.55)); }
+
+  /* A ligação com o degrau de baixo. Fica acesa só quando OS DOIS estão
+     conquistados -- é o que transforma pontos soltos em caminho percorrido. */
+  .elo {
+    width: 2px; height: 1rem;
+    background: var(--linha);
+    flex-shrink: 0;
   }
+  .elo.aceso { background: linear-gradient(var(--latao-c), var(--latao)); }
 
-  .no.feito .no-grau { color: var(--metal); }
+  /* O degrau ATUAL -- onde a frente parou. O unico com movimento, discreto. */
+  .no.atual .aro { stroke: var(--latao-c); stroke-dasharray: 3 2.4; stroke-width: 1.4; }
+  /* Sem o emblema por baixo: numero sobre emblema apagado ficava embolado. */
+  .no.atual .emblema { opacity: 0; }
+  .no.atual .no-grau { color: var(--latao-c); }
+  .no.atual svg { animation: pulsarNo 2.4s ease-in-out infinite; }
+  @keyframes pulsarNo { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
 
-  /* O degrau ATUAL -- onde a frente parou. É o único com movimento, e é
-     discreto de propósito: é sinalização, não festa. */
-  .no.atual {
-    border-color: var(--latao-c);
-    animation: pulsarNo 2.4s ease-in-out infinite;
-  }
-
-  @keyframes pulsarNo {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: .55; }
-  }
-
-  .no.oculta .no-grau { color: var(--texto-3); }
+  .no.oculta:not(.feito) .no-grau { color: var(--texto-3); }
 
   @media (hover: hover) and (pointer: fine) {
-    .no:hover { border-color: var(--latao-c); }
+    .no:not(.feito):hover .aro { stroke: var(--latao-c); }
+    .no.feito:hover { filter: drop-shadow(0 3px 5px rgba(0,0,0,.55)) brightness(1.12); }
   }
+  .no:focus-visible .aro { stroke: var(--latao-c); stroke-width: 2; }
+
+  /* O emblema da frente, ao lado do nome, no topo da coluna. */
+  .frente-emblema { width: 1.3rem; height: 1.3rem; margin: 0 auto .35rem; display: block;
+    fill: none; stroke: var(--texto-3); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .frente.completa .frente-emblema { stroke: var(--latao-c); }
 
   /* ── A LEGENDA DO NÓ, ao passar o mouse ou tocar ──────────────────────── */
   .no-info {
@@ -179,13 +192,10 @@
 
   .legenda span { display: inline-flex; align-items: center; gap: .35rem; }
 
-  .legenda i {
-    width: .6rem; height: .7rem; display: inline-block;
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  }
+  .legenda svg { width: .8rem; height: .9rem; }
 
   @media (prefers-reduced-motion: reduce) {
-    .no.atual { animation: none; }
+    .no.atual svg { animation: none; }
   }
 
   @media (max-width: 768px) {
@@ -329,13 +339,46 @@
   import { carregarProgresso } from './assets/js/estado.js?v=87f966f4';
   import { aplicarDivisa } from './assets/js/divisa.js?v=01156cb1';
 
-  const METAL_COR = {
-    bronze: 'var(--brasa)', prata: 'var(--texto-2)',
-    ouro: 'var(--latao)', platina: 'var(--papel)',
+  /* Cada metal: a cor base e a clara (brilho e emblema). O degradê de cada
+     um e definido UMA vez, no <defs> do quadro. */
+  const METAL = {
+    bronze:  { cor: 'var(--brasa)',   clara: 'var(--brasa-c)' },
+    prata:   { cor: 'var(--texto-2)', clara: 'var(--texto)' },
+    ouro:    { cor: 'var(--latao)',   clara: 'var(--latao-c)' },
+    platina: { cor: 'color-mix(in srgb, var(--papel) 78%, var(--texto-2))', clara: 'var(--papel)' },
   };
 
-  function noHTML(no, ehAtual) {
-    const cor = METAL_COR[no.metal] || 'var(--linha)';
+  /* O emblema de cada frente, em traco (24 x 24). */
+  const EMBLEMA = {
+    tempo:    '<path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/>',
+    marcha:   '<path d="M6 10l6-5 6 5M6 15l6-5 6 5M6 20l6-5 6 5"/>',
+    presenca: '<path d="M6 21V3M6 4h11l-2.5 4L17 12H6"/>',
+    folego:   '<path d="M2.5 12h4.5l2-5 4 10 2.2-5H21.5"/>',
+    volume:   '<circle cx="12" cy="12" r="6.5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+    terreno:  '<path d="M2.5 19.5 9 9l4 6 3-4 5.5 8.5z"/><path d="M9 9l1.4 2.2"/>',
+    vigilia:  '<path d="M15.5 3.5a8 8 0 1 0 5 12.4 6.5 6.5 0 0 1-5-12.4z"/><path d="M19 4.5v3M17.5 6h3"/>',
+    comando:  '<path d="M12 2.8l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6-4.5-4.2 6.1-.8z"/>',
+  };
+
+  // Hexagono de ponta para cima, 48 x 54: o aro e a face (esmalte) por dentro.
+  const ARO  = '24,1.5 46.5,14.25 46.5,39.75 24,52.5 1.5,39.75 1.5,14.25';
+  const FACE = '24,7 41.5,17 41.5,37 24,47 6.5,37 6.5,17';
+  const BRILHO = 'M8.5 16.2 24 7.3 39.5 16.2';
+
+  function defsDosMetais() {
+    return `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      ${Object.entries(METAL).map(([k, m]) => `
+        <linearGradient id="metal-${k}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" style="stop-color:${m.clara}"/>
+          <stop offset=".5" style="stop-color:${m.cor}"/>
+          <stop offset="1" style="stop-color:color-mix(in srgb, ${m.cor} 55%, var(--breu))"/>
+        </linearGradient>`).join('')}
+    </defs></svg>`;
+  }
+
+  function noHTML(no, ehAtual, frente) {
+    const m = METAL[no.metal] || { cor: 'var(--linha)', clara: 'var(--texto-2)' };
+    const cor = m.cor;
     const nome = no.oculta ? '???' : no.nome;
     const desc = no.oculta ? 'Condecoração secreta.' : no.descricao;
     const classes = ['no'];
@@ -343,9 +386,15 @@
     if (ehAtual) classes.push('atual');
     if (no.oculta) classes.push('oculta');
     return `
-      <div class="${classes.join(' ')}" style="--metal:${att(cor)}" tabindex="0"
+      <div class="${classes.join(' ')}" style="--metal:${att(cor)};--metal-c:${att(m.clara)};--grad:url(#metal-${att(no.metal || 'ouro')})" tabindex="0"
            aria-label="${att(nome)} — ${no.conquistada ? 'conquistada' : 'não conquistada'}">
-        <span class="no-grau">${no.conquistada ? '◆' : no.degrau}</span>
+        <svg class="insignia" viewBox="0 0 48 54" aria-hidden="true">
+          <polygon class="aro" points="${ARO}"/>
+          <polygon class="face" points="${FACE}"/>
+          <path class="brilho" d="${BRILHO}"/>
+          <g class="emblema" transform="translate(13.2 15.8) scale(.9)">${no.oculta && !no.conquistada ? '' : (EMBLEMA[frente] || EMBLEMA.comando)}</g>
+        </svg>
+        <span class="no-grau">${no.oculta && !no.conquistada ? '?' : no.degrau}</span>
         <span class="no-info">
           <span class="no-info-metal">${esc(no.metalInfo?.nome || '')}</span>
           <span class="no-info-nome">${esc(nome)}</span>
@@ -374,25 +423,27 @@
         </div>
       </div>
 
+      ${defsDosMetais()}
       <div class="quadro">
         ${quadro.frentes.map((f) => `
           <div class="frente${f.completa ? ' completa' : ''}">
             <div class="frente-cabeca">
+              <svg class="frente-emblema" viewBox="0 0 24 24" aria-hidden="true">${EMBLEMA[f.id] || EMBLEMA.comando}</svg>
               <div class="frente-nome">${esc(f.nome)}</div>
               <div class="frente-conta">${f.feitos} / ${f.total}</div>
             </div>
             ${f.nós.map((no, i) => (i > 0
               ? `<div class="elo${no.conquistada && f.nós[i - 1].conquistada ? ' aceso' : ''}"></div>`
-              : '') + noHTML(no, f.atual?.id === no.id)).join('')}
+              : '') + noHTML(no, f.atual?.id === no.id, f.id)).join('')}
           </div>`).join('')}
       </div>
 
       <div class="legenda">
-        <span><i style="background:var(--brasa)"></i> Bronze</span>
-        <span><i style="background:var(--texto-2)"></i> Prata</span>
-        <span><i style="background:var(--latao)"></i> Ouro</span>
-        <span><i style="background:var(--papel)"></i> Platina</span>
-        <span><i style="background:var(--casco);border:1px solid var(--latao-c)"></i> Próximo degrau</span>
+        <span><svg viewBox="0 0 48 54" aria-hidden="true"><polygon points="24,1.5 46.5,14.25 46.5,39.75 24,52.5 1.5,39.75 1.5,14.25" style="fill:url(#metal-bronze);stroke:none;stroke-width:3"/></svg> Bronze</span>
+        <span><svg viewBox="0 0 48 54" aria-hidden="true"><polygon points="24,1.5 46.5,14.25 46.5,39.75 24,52.5 1.5,39.75 1.5,14.25" style="fill:url(#metal-prata);stroke:none;stroke-width:3"/></svg> Prata</span>
+        <span><svg viewBox="0 0 48 54" aria-hidden="true"><polygon points="24,1.5 46.5,14.25 46.5,39.75 24,52.5 1.5,39.75 1.5,14.25" style="fill:url(#metal-ouro);stroke:none;stroke-width:3"/></svg> Ouro</span>
+        <span><svg viewBox="0 0 48 54" aria-hidden="true"><polygon points="24,1.5 46.5,14.25 46.5,39.75 24,52.5 1.5,39.75 1.5,14.25" style="fill:url(#metal-platina);stroke:none;stroke-width:3"/></svg> Platina</span>
+        <span><svg viewBox="0 0 48 54" aria-hidden="true"><polygon points="24,1.5 46.5,14.25 46.5,39.75 24,52.5 1.5,39.75 1.5,14.25" style="fill:var(--casco);stroke:var(--latao-c);stroke-width:3;stroke-dasharray:5 4"/></svg> Próximo degrau</span>
         <span>??? Secreta</span>
       </div>`;
   }

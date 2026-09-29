@@ -141,7 +141,10 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(48)} ${d}`); fal
   else falha("palavra de fantasia na página", (pagina.match(FANTASIA) || [])[0]);
 
   // A forma tem de ser hexagonal -- grade de mapa tático, não círculo de jogo.
-  if (/clip-path:\s*polygon/.test(pagina)) ok("os nós são hexágonos", "forma de mapa tático, não círculo");
+  /* 28/09/2026: o hexagono deixou de ser recorte (clip-path comia a borda dos
+     lados) e virou SVG. Vale o poligono de 6 pontas do aro da insignia. */
+  const aro = (pagina.match(/const ARO\s*=\s*'([^']+)'/) || [])[1] || "";
+  if (aro.trim().split(/\s+/).length === 6) ok("os nós são hexágonos", "insígnia em SVG, 6 pontas");
   else falha("os nós não são hexagonais");
 
   // E o nome das frentes tem de ser do nosso mundo.

@@ -1934,8 +1934,13 @@ function mostrarLevelUp(nomeNivel) {
     const planoEl = document.getElementById('user-plan');
     const plano = estado.perfil?.tipo_plano || 'free';
     if (planoEl) planoEl.textContent = plano.toUpperCase();
-    if (plano === 'beta') planoEl.classList.add('plan-beta');
-    if (plano === 'pro')  planoEl.classList.add('plan-pro');
+    /* 🔴 29/09/2026: sem o `planoEl &&`, conta PRO ou BETA quebrava o dashboard
+       inteiro aqui -- o selo #user-plan nao existe mais na barra lateral, e o
+       erro abortava o resto do desenho (faixa do edital, guia, sessao de hoje).
+       Conta gratis passava direto, e todos os testes usavam conta gratis.
+       Apareceu quando a conta do dono virou Pro: 38 erros em erros_cliente. */
+    if (plano === 'beta') planoEl?.classList.add('plan-beta');
+    if (plano === 'pro')  planoEl?.classList.add('plan-pro');
 
     // Streak
     document.getElementById('streak-count').textContent = estado.streak;

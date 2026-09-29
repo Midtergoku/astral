@@ -360,8 +360,9 @@
     const plano = perfil?.tipo_plano || 'free';
     const planoEl = el('user-plan');
     if (planoEl) planoEl.textContent = plano.toUpperCase();
-    if (plano === 'beta') planoEl.classList.add('plan-beta');
-    if (plano === 'pro')  planoEl.classList.add('plan-pro');
+    // 29/09/2026: sem o `?.`, conta Pro/Beta quebrava aqui -- ver dashboard.html.
+    if (plano === 'beta') planoEl?.classList.add('plan-beta');
+    if (plano === 'pro')  planoEl?.classList.add('plan-pro');
 
     const comoEntrou = usuario.app_metadata?.provider === 'google'
       ? 'Conta Google'
