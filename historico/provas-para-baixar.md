@@ -1,5 +1,51 @@
 # 📥 Provas para você baixar — lista organizada, testada uma por uma
 
+## 🆕 29/09/2026 — o jeito novo: você só baixa, eu organizo
+
+> Proposta dele: *"eu baixo, coloco numa outra pasta tudo, e você entra nos arquivos, vê,
+> renomeia da maneira certa e joga na pasta certa"*. Melhor mesmo — nome de download é
+> "prova (3).pdf", e errar o nome era o maior risco de casar prova com o gabarito errado.
+
+**Onde jogar, sem renomear nada:**
+
+```
+C:\Users\Lucas\Documents\ASTRAL-provas\_chegada\
+```
+
+**O que eu faço com o que chegar:** `node tools/tria-provas.js` abre cada PDF e diz se é
+**caderno** ou **gabarito**, de qual órgão, ano e tipo → eu renomeio no padrão, caso a prova com o
+gabarito do mesmo tipo, **resolvo algumas questões na mão para provar o casamento** e só então
+importo. Você não precisa acertar nome, pasta nem tipo.
+
+**A única coisa que ajuda muito:** sempre que achar uma prova, **procure o gabarito na mesma
+página** e baixe os dois. O gabarito é o gargalo — sem ele a prova não entra.
+
+### A tabela de links — por força, com o que falta de cada uma
+
+| Força | Concurso | Onde baixar | O que falta | Situação |
+|---|---|---|---|---|
+| ✈️ Aeronáutica | **EEAR** (CFS, EAGS) | já no banco | — | ✅ 1.755 questões |
+| ✈️ Aeronáutica | **AFA · EPCAR** | <https://ingresso.afaepcar.fab.mil.br/> | prova **e** gabarito | 🔴 o site bloqueia robô — pelo seu navegador abre |
+| ✈️ Aeronáutica | **CIAAR** | <https://www2.fab.mil.br/ciaar/index.php/ingresse-na-fab> | prova e gabarito | 🔴 idem |
+| 🎖️ Exército | **ESA** | [provas anteriores](https://esa.eb.mil.br/index.php/pt/concurso?view=article&id=830:provas-anteriores&catid=45) · [portal do candidato](https://concursocfgs-esa.eb.mil.br/) | **gabaritos de 2024, 2025, 2026 e 2006–2022** | 🟡 2023 já no banco; as provas eu mesmo baixo |
+| 🎖️ Exército | **EsPCEx** | <https://www.espcex.eb.mil.br/index.php/provas-anteriores> · [Vunesp](https://www.vunesp.com.br/EPCE2601) | prova e gabarito | 🔴 a página monta por JavaScript — pelo seu navegador aparece |
+| 🚢 Marinha | **Colégio Naval · Escola Naval · EAM** | <https://www.marinha.mil.br/sspm/provasegabaritos/provag_princ> | prova e gabarito (ficam **na mesma página**) | 🔴 o site bloqueia robô |
+| 🚒 Bombeiro | **CBMMG** (Minas) | [provas antigas](https://www.bombeiros.mg.gov.br/provas-antigas-cfo) · [gabaritos CFO](https://www.bombeiros.mg.gov.br/storage/files/303/Gabaritos%20CFO_%20publicar.pdf) · [gabarito CFSd 2022](https://www.bombeiros.mg.gov.br/storage/files/303/ATO%20N%C2%BA%2016393%20gabarito%20cfsd%202022%20(1).pdf) | nada — **isso eu mesmo baixo** | 🟡 36 provas já baixadas; próximo lote |
+| 🚒 Bombeiro | **CBMERJ** (Rio) | [concursos FGV](https://conhecimento.fgv.br/concursos/cbmerj23) | o **caderno de questões** de 2024 (o gabarito eu já tenho) | 🟡 a um passo |
+| 🚒 Bombeiro | **CBMES** (ES) | já no banco | — | ✅ 96 questões |
+| 🚒 Bombeiro | **CBMDF · CBMSP** | <https://www.cbm.df.gov.br/> · <https://www.policiamilitar.sp.gov.br/> | prova e gabarito | 🔴 não testado |
+| 👮 Polícia | **PRF · PF** (Cebraspe) | <https://www.cebraspe.org.br/concursos/> | provas de outros anos | 🟡 PRF 2021 já no banco |
+| 👮 Polícia | **PM-SP** (Vunesp) | [Vunesp](https://www.vunesp.com.br/PMES2502) · [PCI Concursos](https://www.pciconcursos.com.br/provas/download/soldado-pm-de-2-classe-policia-militar-sp-vunesp-2025) | prova e gabarito | 🔴 |
+| 👮 Polícia | **Outras PMs e Polícias Penais** | [FGV](https://conhecimento.fgv.br/concursos) · [AOCP](https://www.institutoaocp.org.br/) | prova e gabarito | 🔴 |
+| 🗂️ Qualquer uma | **Agregadores** (quando o órgão tirou do ar) | [PCI Concursos](https://www.pciconcursos.com.br/provas/) · [Qconcursos](https://www.qconcursos.com/) · [Eixo Expert](https://eixoexpert.com/) | — | se achar o **link direto do PDF**, me manda: eu baixo sozinho |
+
+> 💡 **Gabarito sumido do site do órgão?** Eu procuro no **Internet Archive** — foi assim que o da
+> ESA 2023 apareceu. Traga a prova mesmo sem o gabarito: eu tento achar.
+
+---
+
+## O jeito de 23/09 (mantido para registro)
+
 > 23/09/2026. Ele pediu: *"me mande os links de onde baixar as provas (...) organize para mim os
 > links com os nomes tudo bonitinho para eu poder baixar e me direcionar aonde que eu tenho que
 > jogar isso manualmente."*

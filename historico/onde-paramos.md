@@ -1,3 +1,17 @@
+# 🔴 NO DIA DO CRÉDITO NA ANTHROPIC — ordem dele, 29/09/2026
+
+> *"Quando eu conseguir colocar os créditos, eu vou pedir para você retornar essa conta que eu
+> tenho aqui para a original (...) porque eu mesmo quero subir o edital e testar. Pelo menos o
+> primeiro. Antes de você fazer os outros testes. Porque eu quero ter experiência como um usuário."*
+
+1. `node tools/simula-edital.js --email <o e-mail dele> --reverter` — a conta volta ao original
+   (edital simulado, sessões, conquistas e guia de demonstração saem; **o Pro fica**)
+2. Conferir a conta limpa e avisar que está pronto
+3. **ELE sobe o primeiro edital.** Nenhum teste meu com IA antes disso
+4. Só então: medir o custo real no log (`custo_usd`) e atualizar `valores.md`
+
+---
+
 # 🔖 29/09/2026 (tarde) — dinheiro, roadmap e quatro consertos de tela
 
 | Pedido dele | O que ficou |
