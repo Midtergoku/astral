@@ -17,8 +17,10 @@
 ✏️ **29/09 — o bloco abaixo dizia "Conserto proposto a ele, aguardando o sim".** Ele disse sim em
 28/09 e o conserto está no ar (primeira linha da tabela acima).
 
-**Pendente:** medir o número de páginas dos editais militares para trocar o "a medir" de
-`valores.md` (as ferramentas de busca travaram no dia 29). Ele avisou que vai pedir um `.md` de
+**Feito no fim do dia 29:** 8 editais militares reais medidos (páginas, texto e matérias lidas no
+PDF) — custo por aluno calculado sobre eles: **R$ 4,00 a R$ 6,75**, uma vez só. **Pendente:**
+AFA, EPCAR e EEAR 2027 (o site da FAB recusou o download, erro 403) e os que não procurei
+(ITA, IME, Escola Naval, CFN, EFOMM, EAGS, CIAAR). Ele avisou que vai pedir um `.md` de
 **marketing** no mesmo estilo.
 
 ---

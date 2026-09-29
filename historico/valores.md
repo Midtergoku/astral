@@ -65,8 +65,9 @@ gravava o custo de cada chamada. Então:
 | 100 páginas | 150 mil a 300 mil | 0,47 a 0,92 | **R$ 2,60 a 5,10** |
 | 150 páginas (o teto do Astral) | 225 mil a 450 mil | 0,70 a 1,37 | **R$ 3,80 a 7,50** |
 
-> O que manda é o **número de páginas**, não o concurso. Um PDF escaneado (imagem) fica no topo da
-> faixa; um PDF de texto, na parte de baixo.
+> O que manda é o **tamanho do PDF**, não o concurso. ✏️ **29/09, depois de medir:** conta o
+> número de páginas **e** a quantidade de texto — a ESA tem 19 páginas densas de Diário Oficial e
+> lê como um edital de ~50 páginas comuns. A fórmula exata está na seção 5.
 
 ---
 
@@ -82,44 +83,76 @@ Por matéria: até 2 buscas (US$ 0,02) + o que a busca traz entra como entrada (
 
 ---
 
-## 5. 🎖️ A tabela por concurso militar
+## 5. 🎖️ A tabela por concurso militar — com os editais REAIS medidos (29/09/2026)
 
-**Leitura do edital** calculada com **60 páginas** (o meio da faixa — ⚠️ o tamanho real de cada
-edital **ainda não foi medido**; a coluna "Páginas" fica "a medir" até eu baixar cada um).
-**Guia** = matérias × R$ 0,45 (normal) — o pior caso está na última coluna.
+Baixei os editais oficiais e **medi** o número de páginas, a quantidade de texto e as matérias
+da prova, lendo o próprio edital (não de memória). O que ainda é estimativa está marcado.
 
-| Força | Concurso | Matérias da prova (típico) | Páginas | Leitura do edital | Guia de estudo | **Total por aluno** | Pior caso |
-|---|---|---|---|---|---|---|---|
-| Aeronáutica | **EEAR — CFS** (sargento) | 4 — Português, Inglês, Matemática, Física | a medir | R$ 1,60–3,10 | R$ 1,80 | **R$ 3,40–4,90** | R$ 10,70 |
-| Aeronáutica | **EEAR — EAGS** (sargento, áreas técnicas/saúde) | 2–3 — Português + conhecimentos da área | a medir | R$ 1,60–3,10 | R$ 0,90–1,35 | **R$ 2,50–4,45** | R$ 8,80 |
-| Aeronáutica | **EPCAR** (preparatória de cadetes) | 3 — Português, Matemática, Inglês | a medir | R$ 1,60–3,10 | R$ 1,35 | **R$ 2,95–4,45** | R$ 8,80 |
-| Aeronáutica | **AFA** (oficial aviador) | 4–5 — Português, Matemática, Física, Inglês (+ redação) | a medir | R$ 1,60–3,10 | R$ 1,80–2,25 | **R$ 3,40–5,35** | R$ 12,60 |
-| Aeronáutica | **CIAAR** (oficiais de apoio/saúde) | 2–3 — Português + área | a medir | R$ 1,60–3,10 | R$ 0,90–1,35 | **R$ 2,50–4,45** | R$ 8,80 |
-| Aeronáutica | **ITA** | 5 — Matemática, Física, Química, Português, Inglês | a medir | R$ 1,60–3,10 | R$ 2,25 | **R$ 3,85–5,35** | R$ 12,60 |
-| Exército | **ESA** (sargento — CFGS) | 5 — Matemática, Português, História, Geografia, Inglês | a medir | R$ 1,60–3,10 | R$ 2,25 | **R$ 3,85–5,35** | R$ 12,60 |
-| Exército | **EsPCEx** (cadetes) | 7 — Português, Matemática, Física, Química, História, Geografia, Inglês | a medir | R$ 1,60–3,10 | R$ 3,15 | **R$ 4,75–6,25** | R$ 16,40 |
-| Exército | **IME** | 5 — Matemática, Física, Química, Português, Inglês | a medir | R$ 1,60–3,10 | R$ 2,25 | **R$ 3,85–5,35** | R$ 12,60 |
-| Marinha | **EAM** (aprendiz-marinheiro) | 4 — Matemática, Português, Ciências, Inglês | a medir | R$ 1,60–3,10 | R$ 1,80 | **R$ 3,40–4,90** | R$ 10,70 |
-| Marinha | **Colégio Naval** | 5 — Matemática, Português, Inglês, Ciências, Estudos Sociais | a medir | R$ 1,60–3,10 | R$ 2,25 | **R$ 3,85–5,35** | R$ 12,60 |
-| Marinha | **Escola Naval** | 4–5 — Matemática, Física, Português, Inglês (+ redação) | a medir | R$ 1,60–3,10 | R$ 1,80–2,25 | **R$ 3,40–5,35** | R$ 12,60 |
-| Marinha | **CFN** (soldado fuzileiro naval) | 4 — Matemática, Português, Ciências, Estudos Sociais | a medir | R$ 1,60–3,10 | R$ 1,80 | **R$ 3,40–4,90** | R$ 10,70 |
-| Marinha Mercante | **EFOMM** | 4 — Matemática, Física, Português, Inglês | a medir | R$ 1,60–3,10 | R$ 1,80 | **R$ 3,40–4,90** | R$ 10,70 |
-| Estadual | **Polícia Militar** (soldado) | 6–9 — Português, Matemática, Informática, Legislação, Direitos Humanos, Conhecimentos gerais… | a medir | R$ 1,60–3,10 | R$ 2,70–4,05 | **R$ 4,30–7,15** | R$ 20,20 |
-| Estadual | **Bombeiro Militar** (soldado) | 7–9 — Português, Matemática, Física, Química, Biologia, História, Geografia… | a medir | R$ 1,60–3,10 | R$ 3,15–4,05 | **R$ 4,75–7,15** | R$ 20,20 |
+### Como se calcula a leitura de um edital
 
-> ⚠️ **As matérias acima são a estrutura TÍPICA da prova, de memória — não foram conferidas no
-> edital de cada ano.** A banca muda de um ano para o outro. Para o custo o que importa é a
-> quantidade, e ela está numa faixa estreita (2 a 9); mesmo errando por 2 matérias, a diferença é
-> de ~R$ 1 por aluno.
+A IA recebe cada página duas vezes: o **texto** e a **imagem** da página. Então:
+
+> tokens de entrada ≈ **caracteres ÷ 3,8** (o texto) **+ páginas × 1.600** (as imagens)
+> custo = tokens × US$ 3/milhão **+** US$ 0,02 (instrução e resposta) → × R$ 5,50
+
+O número de páginas sozinho engana: o edital da **ESA tem 19 páginas mas 258 mil caracteres**
+(página de Diário Oficial, densa) — lê mais caro que um de 40 páginas espaçado.
+⚠️ Os dois fatores (3,8 e 1.600) são a média da documentação; o custo real pode variar **±30%**.
+**O primeiro edital lido de verdade confirma ou corrige isto** (o log grava o `custo_usd` exato).
+
+### ✅ Edital medido — páginas, texto e matérias lidos no PDF oficial (o custo é calculado sobre eles)
+
+| Força | Concurso (edital medido) | Páginas | Texto | Matérias da prova **(lidas no edital)** | Leitura do edital | Guia (normal) | **Total por aluno** | Pior caso |
+|---|---|---|---|---|---|---|---|---|
+| Aeronáutica | **EEAR — CFS 1/2026** | 79 | 172 mil car. | **4** — Português, Inglês, Matemática, Física | R$ 2,95 | R$ 1,80 | **R$ 4,75** | R$ 11,40 |
+| Exército | **ESA** — edital no DOU | 19 | 258 mil car. | **5** — Matemática, Português (+ redação), História, Geografia, Inglês · Saúde e Música: **6** | R$ 1,75 | R$ 2,25 | **R$ 4,00** | R$ 11,75 |
+| Exército | **ESA** — manual do candidato 2026 | 59 | 123 mil car. | (o mesmo concurso, se o aluno subir este PDF) | R$ 2,20 | R$ 2,25 | **R$ 4,45** | R$ 12,35 |
+| Exército | **EsPCEx 2026** | 49 | 158 mil car. | **8** — Português, Redação, Física, Química, Matemática, Geografia, História, Inglês | R$ 2,10 | R$ 3,60 | **R$ 5,70** | R$ 17,90 |
+| Marinha | **Colégio Naval 2026** | 49 | 153 mil car. | **6** — Matemática, Inglês, Estudos Sociais, Ciências, Português, Redação | R$ 2,05 | R$ 2,70 | **R$ 4,75** | R$ 14,10 |
+| Marinha | **EAM 2026** | 65 | 189 mil car. | **4** — Matemática, Português, Ciências (Física e Química), Inglês | R$ 2,65 | R$ 1,80 | **R$ 4,45** | R$ 11,00 |
+| Bombeiro | **CBMERJ 2024 — soldado (FGV)** | 43 | 128 mil car. | **11** — Português, Inglês, Literatura, Matemática, História, Geografia, Filosofia, Sociologia, Química, Física, Biologia | R$ 1,80 | R$ 4,95 | **R$ 6,75** | R$ 23,25 |
+| Polícia | **PM-SP 2025 — soldado (Vunesp)** | 58 | 163 mil car. | **6** — Português, Matemática, Conhecimentos Gerais, Informática, Administração Pública, Redação | R$ 2,35 | R$ 2,70 | **R$ 5,05** | R$ 14,45 |
+
+*Guia normal = matérias × R$ 0,45. Pior caso = leitura +30% e guia × R$ 1,90 por matéria.*
+
+### ⏳ Ainda não medidos — estimados com um edital de 60 páginas
+
+| Força | Concurso | Por que não medi | Matérias (típico, de memória) | **Total por aluno** | Pior caso |
+|---|---|---|---|---|---|
+| Aeronáutica | EEAR — CFS 1/2027 | o site da FAB recusou o download (erro 403) | 4 | ~R$ 4,75 (igual ao de 2026) | ~R$ 11,40 |
+| Aeronáutica | **AFA 2027** | erro 403 no site da FAB | 4 + redação | ~R$ 4,50–5,50 | ~R$ 13 |
+| Aeronáutica | **EPCAR / CPCAR 2027** | erro 403 no site da FAB | 3 + redação | ~R$ 4–5 | ~R$ 11 |
+| Aeronáutica | EEAR — EAGS · CIAAR | não procurei ainda | 2–3 | ~R$ 3,50–4,50 | ~R$ 9 |
+| Aeronáutica | ITA | não procurei ainda | 5 | ~R$ 5 | ~R$ 13 |
+| Exército | IME | não procurei ainda | 5 | ~R$ 5 | ~R$ 13 |
+| Marinha | Escola Naval · CFN · EFOMM | não procurei ainda | 4–5 | ~R$ 4,50–5 | ~R$ 13 |
+| Estadual | outras PMs e Bombeiros | variam por estado e banca | 6–11 | **~R$ 5–7** | ~R$ 23 |
 
 ### O resumo da tabela
 
-- **Um aluno custa, uma vez só, entre ~R$ 2,50 e ~R$ 7** — conforme o tamanho do edital e o
-  número de matérias. O maior custo é de **Polícia e Bombeiro** (muitas matérias).
+- **Calculado sobre o tamanho REAL dos editais: um aluno custa, uma vez só, entre R$ 4,00 e
+  R$ 6,75** (caso normal). O tamanho e as matérias foram medidos; o custo ainda é conta — a IA
+  nunca rodou com crédito.
+- **Quem mais pesa é quem tem mais matérias**, não quem tem o edital maior: o **Bombeiro do Rio**
+  (11 disciplinas) custa mais que a EEAR com 79 páginas. **O guia de estudo é a maior parte da
+  conta** nos concursos de muitas matérias.
 - **Depois disso, ~R$ 0 por mês.** Tudo que ele usa no dia a dia é gratuito para o Astral.
 - **Contra R$ 19,90 por mês**, o assinante se paga **no primeiro mês** no caso normal. No pior caso
-  (R$ 20) ele **empata** com a primeira mensalidade — e ainda falta descontar a taxa do Mercado
-  Pago, que não está medida aqui.
+  (até R$ 23) ele **empata ou passa um pouco** da primeira mensalidade — e ainda falta descontar a
+  taxa do Mercado Pago, que não está medida aqui.
+
+### Os editais medidos (para conferir)
+
+| Concurso | Endereço do PDF |
+|---|---|
+| EEAR CFS 1/2026 | https://ingresso.eear.fab.mil.br/SOO/editais/CFS%201%202026/ie.pdf |
+| ESA (DOU) | https://cdn.direcaoconcursos.com.br/uploads/2025/03/edital-ESA.pdf |
+| ESA (manual 2026) | https://esa.eb.mil.br/Manual_Do_Candidato_CA_2026_aos_CFGS_2027-2028.pdf |
+| EsPCEx 2026 | https://arquivos.qconcursos.com/regulamento/arquivo/98581/espcex-2026-edital-n-2-edital.pdf |
+| Colégio Naval 2026 | https://cdn.blog.estrategiavestibulares.com.br/vestibulares/wp-content/uploads/2026/04/Edital-CPACN-2026.pdf |
+| EAM 2026 | https://cdn.blog.estrategiavestibulares.com.br/vestibulares/wp-content/uploads/2025/12/Edital-CPAEAM-2026.pdf |
+| CBMERJ 2024 soldado | https://conhecimento.fgv.br/sites/default/files/concursos/edital-cbmerj-retificado-23.01.pdf |
+| PM-SP 2025 soldado | https://cdn.direcaoconcursos.com.br/uploads/2025/09/edital-PMSP-Soldado.pdf |
 
 ---
 
@@ -169,4 +202,5 @@ edital **ainda não foi medido**; a coluna "Páginas" fica "a medir" até eu bai
 
 | Data | O que mudou |
 |---|---|
-| 29/09/2026 | Criado. Estimativas pelos preços oficiais; páginas dos editais "a medir"; correção dos "R$ 6 por aluno" (eram só o guia) |
+| 29/09/2026 | Criado. Estimativas pelos preços oficiais; correção dos "R$ 6 por aluno" (eram só o guia) |
+| 29/09/2026 | **8 editais reais medidos** (páginas, texto, matérias lidas no edital). Custo por aluno calculado sobre eles: **R$ 4,00 a R$ 6,75** (ainda estimativa: a IA não rodou). Descoberta: o Bombeiro do Rio tem 11 disciplinas — o guia pesa mais que o edital |
