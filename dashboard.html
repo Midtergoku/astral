@@ -955,6 +955,61 @@
   .edital-pesos { animation: none; }
   .edital-btn svg { transition: none; }
 }
+
+/* ── GUIA DE ESTUDO (era a aba Recursos) -- 28/09/2026 ───────────────────────
+   Ele: "ao inves de apertar na materia, ja sera gerado e ficara a mostra os
+   professores e os links para os videos (...) e que nao polua o dashboard".
+   Um cartao so: uma fileira de materias, e o painel da materia escolhida.
+   A materia de HOJE ja vem escolhida -- "o que estudar" e "com quem" juntos. */
+.guia-status { font-family: var(--dado); font-size: var(--t-xs); color: var(--texto-3); }
+.guia-chips {
+  display: flex; gap: .35rem; overflow-x: auto; padding-bottom: .5rem;
+  border-bottom: 1px solid var(--linha); margin-bottom: var(--e3);
+  scrollbar-width: thin;
+}
+.guia-chip {
+  flex-shrink: 0; background: transparent; border: 1px solid var(--linha);
+  color: var(--texto-2); border-radius: var(--r-p); padding: .4rem .7rem; cursor: pointer;
+  font-family: var(--corpo); font-size: .82rem;
+  transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida), background-color var(--d-dica) var(--saida);
+}
+.guia-chip[aria-selected="true"] { border-color: var(--latao); color: var(--papel); background: color-mix(in srgb, var(--latao) 14%, transparent); }
+.guia-chip:disabled { opacity: .45; cursor: default; }
+.guia-chip small { font-family: var(--dado); font-size: .62rem; color: var(--latao-c); margin-left: .3rem; }
+@media (hover: hover) and (pointer: fine) {
+  .guia-chip:not(:disabled):hover { border-color: var(--latao); color: var(--texto); }
+}
+.guia-dica { font-size: .88rem; line-height: 1.55; color: var(--texto-2); margin-bottom: var(--e3); }
+.guia-dica b { font-family: var(--display); color: var(--latao-c); font-weight: 700; margin-right: .35rem; }
+.guia-colunas { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--e4); }
+.guia-rotulo {
+  font-family: var(--dado); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--texto-3); margin-bottom: .5rem;
+}
+.guia-prof { padding: .6rem 0; border-bottom: 1px solid color-mix(in srgb, var(--linha) 55%, transparent); }
+.guia-prof:last-child { border-bottom: none; }
+.guia-prof-nome { font-family: var(--display); font-weight: 700; font-size: .9rem; color: var(--papel); }
+.guia-prof-canal { font-size: .76rem; color: var(--texto-3); }
+.guia-prof-desc { font-size: .8rem; color: var(--texto-2); line-height: 1.45; margin: .25rem 0 .35rem; }
+.guia-links { display: flex; gap: .9rem; flex-wrap: wrap; }
+.guia-links a, .guia-mat a {
+  font-family: var(--display); font-weight: 600; font-size: .76rem; color: var(--latao-c);
+  text-decoration: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .guia-links a:hover, .guia-mat a:hover { text-decoration: underline; }
+}
+.guia-mat { padding: .45rem 0; border-bottom: 1px solid color-mix(in srgb, var(--linha) 55%, transparent); font-size: .8rem; color: var(--texto-2); }
+.guia-mat:last-child { border-bottom: none; }
+.guia-mat small { display: block; color: var(--texto-3); font-size: .72rem; margin-top: .1rem; }
+.guia-mais { margin-top: var(--e3); font-size: .8rem; color: var(--texto-3); }
+.guia-mais summary { cursor: pointer; }
+.guia-mais .ressalva-professores { margin-top: .5rem; }
+.guia-vazio { font-size: .86rem; color: var(--texto-2); line-height: 1.55; padding: .25rem 0; }
+.guia-vazio b { color: var(--papel); font-family: var(--display); }
+@media (max-width: 720px) {
+  .guia-colunas { grid-template-columns: 1fr; gap: var(--e3); }
+}
 </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
@@ -1012,12 +1067,6 @@
     <a class="nav-link" href="progresso.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Progresso
-    </a>
-    <a class="nav-link" href="recursos.html">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-      Recursos
     </a>
     <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
          apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
@@ -1204,6 +1253,18 @@
       </div>
     </div>
 
+    <!-- ── GUIA DE ESTUDO (era a aba Recursos, 28/09/2026) ─────────────── -->
+    <div id="guia" style="margin-bottom:1.5rem" hidden>
+      <div class="section-header">
+        <div class="section-title">Guia de estudo</div>
+        <span class="guia-status" id="guia-status"></span>
+      </div>
+      <div class="card">
+        <div class="guia-chips" id="guia-chips" role="tablist" aria-label="Matérias"></div>
+        <div id="guia-painel" role="tabpanel"></div>
+      </div>
+    </div>
+
     <!-- ── O CHEFE (R3) ──────────────────────────────────────────────────
          A prova como chefe da campanha. Fica no ALTO porque é o contexto de
          tudo o que vem abaixo: as missões e a ficha só fazem sentido contra
@@ -1320,7 +1381,7 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { icone } from './assets/js/icones.js?v=7c816270';
-  import { montarCronograma, gerarGuiaCompleto } from './assets/js/plano.js?v=22c00529';
+  import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=22c00529';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=87f966f4';
   import { sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
@@ -1590,6 +1651,7 @@ function mostrarLevelUp(nomeNivel) {
     carregarRPG(session.user.id).catch((e) => relatar(e, 'dashboard/rpg'));
 
     renderUI();
+    carregarGuia().catch((e) => relatar(e, 'dashboard/guia'));
 
     /* ── O GUIA DE PROFESSORES, POR TRAS (04/08/2026) ────────────────────────
        Comeca DEPOIS de a tela estar desenhada e nao segura nada. Se falhar,
@@ -1605,10 +1667,15 @@ function mostrarLevelUp(nomeNivel) {
           session.user.id,
           estado.edital?.nome || estado.edital,
           estado.materias,
+          ({ i, total, materia }) => {
+            if (!guia.dados[materia]) guiaStatus(`montando: ${materia} (${i} de ${total})`);
+          },
         ).then((g) => {
+          guia.falhou = g.falharam.length > 0 && !g.feitas.length;
           if (g.feitas.length) {
             toast(`Seu guia de professores ficou pronto para ${g.feitas.length} matéria(s).`);
           }
+          return carregarGuia();
         }).catch(() => { /* o guia e extra: nunca atrapalha o plano */ });
       }, 2000);
     }
@@ -2280,6 +2347,102 @@ function verificarBalanco() {
     }
   }
 
+
+
+  // ── GUIA DE ESTUDO (era a aba Recursos) ────────────────────────────────────
+  /* O guia e gerado UMA vez por materia (gerarGuiaCompleto, plano.js) e fica
+     em `recursos_salvos` para sempre. Aqui so se le e desenha. Tudo que vem
+     da IA passa por esc(); todo link, por urlSegura(). */
+  const guia = { dados: {}, escolhida: null, falhou: false };
+
+  const guiaStatus = (t) => { const el = document.getElementById('guia-status'); if (el) el.textContent = t || ''; };
+
+  async function carregarGuia() {
+    const caixa = document.getElementById('guia');
+    if (!caixa) return;
+    if (!estado.edital || !estado.materias?.length) { caixa.hidden = true; return; }
+    const concurso = estado.edital?.nome || estado.edital;
+    const { data, error } = await supabase.from('recursos_salvos')
+      .select('materia, concurso, dados').eq('usuario_id', estado.usuario.id);
+    if (error) { relatar(error, 'dashboard/guia'); return; }
+    guia.dados = {};
+    // So vale o guia do edital ATUAL: trocou de concurso, os professores podem ser outros.
+    for (const r of data || []) if (r.concurso === concurso && r.dados) guia.dados[r.materia] = r.dados;
+    caixa.hidden = false;
+    renderGuia();
+  }
+
+  function renderGuia() {
+    const chips = document.getElementById('guia-chips');
+    const painel = document.getElementById('guia-painel');
+    const nomes = estado.materias.map((m) => m.nome);
+    const prontas = nomes.filter((n) => guia.dados[n]);
+    guiaStatus(prontas.length ? `${prontas.length} de ${nomes.length} matérias` : '');
+
+    if (!prontas.length) {
+      chips.innerHTML = '';
+      painel.innerHTML = `<div class="guia-vazio">
+        <b>Seu guia de professores ainda não foi montado.</b><br>
+        Ele é feito uma vez só, pela IA, para as ${nomes.length} matérias do seu edital: professores,
+        canais com aulas e materiais grátis de cada uma. ${guia.falhou
+          ? 'A busca não está disponível agora — o guia aparece aqui sozinho assim que ela voltar.'
+          : 'Ele aparece aqui sozinho quando ficar pronto.'}
+      </div>`;
+      return;
+    }
+
+    // A materia de hoje vem escolhida: o que estudar e com quem, juntos.
+    const deHoje = (estado.cronogramaHoje || []).map((b) => b.materia).find((m) => guia.dados[m]);
+    if (!guia.escolhida || !guia.dados[guia.escolhida]) guia.escolhida = deHoje || prontas[0];
+
+    chips.innerHTML = nomes.map((n) => `
+      <button type="button" class="guia-chip" role="tab" data-materia="${att(n)}"
+        aria-selected="${n === guia.escolhida}" ${guia.dados[n] ? '' : 'disabled title="em preparo"'}>
+        ${esc(n)}${n === deHoje ? '<small>hoje</small>' : ''}
+      </button>`).join('');
+    chips.querySelectorAll('[data-materia]').forEach((b) => b.addEventListener('click', () => {
+      guia.escolhida = b.dataset.materia;
+      renderGuia();
+    }));
+
+    const d = guia.dados[guia.escolhida] || {};
+    const materia = guia.escolhida;
+    const yt = (nome) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${nome} ${materia} concurso`)}`;
+    const link = (u, texto) => { const ok = urlSegura(u); return ok ? `<a href="${att(ok)}" target="_blank" rel="noopener noreferrer">${texto} ↗</a>` : ''; };
+
+    painel.innerHTML = `
+      ${d.dica ? `<div class="guia-dica"><b>Dica</b>${esc(d.dica)}</div>` : ''}
+      <div class="guia-colunas">
+        <div>
+          <div class="guia-rotulo">Professores</div>
+          ${(d.professores || []).map((p) => `
+            <div class="guia-prof">
+              <div class="guia-prof-nome">${esc(p.nome)}</div>
+              ${p.canal ? `<div class="guia-prof-canal">${esc(p.canal)}</div>` : ''}
+              ${p.descricao ? `<div class="guia-prof-desc">${esc(p.descricao)}</div>` : ''}
+              <div class="guia-links">
+                ${link(p.url, 'Abrir canal')}
+                ${link(yt(p.nome), 'Aulas no YouTube')}
+              </div>
+            </div>`).join('') || '<div class="guia-mat">Nenhum professor encontrado.</div>'}
+        </div>
+        <div>
+          <div class="guia-rotulo">Materiais grátis</div>
+          ${(d.materiais_gratuitos || []).map((m) => `
+            <div class="guia-mat">${link(m.url, esc(m.nome))}${m.tipo || m.descricao ? `<small>${esc([m.tipo, m.descricao].filter(Boolean).join(' · '))}</small>` : ''}</div>`).join('')
+            || '<div class="guia-mat">Nenhum material grátis encontrado.</div>'}
+        </div>
+      </div>
+      ${(d.cursos_pagos || []).length ? `
+        <details class="guia-mais">
+          <summary>Cursos pagos (${d.cursos_pagos.length})</summary>
+          ${d.cursos_pagos.map((c) => `<div class="guia-mat">${link(c.url, esc(c.nome))}<small>${esc([c.plataforma, c.descricao].filter(Boolean).join(' · '))}</small></div>`).join('')}
+        </details>` : ''}
+      <details class="guia-mais">
+        <summary>Como montamos esta lista</summary>
+        ${ressalvaHTML()}
+      </details>`;
+  }
 
   // ── O EDITAL (era a aba "Meu edital") ──────────────────────────────────────
   const NOME_DA_FORCA = { bombeiros: 'Bombeiros', marinha: 'Marinha', aeronautica: 'Aeronáutica',
