@@ -281,4 +281,9 @@ desligada, não há motivo para tocar no banco. Verificado: devolve **503 até c
   navegador pelo do edital. **É a trava contra envenenar o guia dos outros; não afrouxar.**
 - As duas tabelas são **fechadas** (RLS, sem grant): só a chave de serviço lê.
 - A cara de "feito na hora" é da tela (`dashboard.html`: 12 s mínimos, 5 etapas) — decisão dele.
+  - ✏️ **30/09/2026 — ele mudou a decisão: SAIU.** Nada de etapas fingidas nem de tempo mínimo.
+    Enquanto a leitura corre, uma frase honesta; quando o resultado chega, `revelarResultado()`
+    mostra em ~3,5 s cinco linhas com dado **real** (concurso, data e dias, nº de matérias,
+    sessões e horas da semana, patente). **Nunca "Edital verificado"** — não há revisão humana.
+    Regressão: `node tools/testa-revelacao-tela.js`.
 - Regressão: `node tools/testa-trava-creditos.js` (não gasta crédito).

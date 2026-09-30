@@ -632,6 +632,41 @@
 
 .ai-processing p { color: var(--muted); font-size: 0.88rem; }
 
+/* 30/09/2026: a revelacao do resultado. Cada linha e um dado REAL do edital
+   da pessoa -- nenhuma etapa fingida. Ver processarEdital. */
+.ai-revela {
+      list-style: none;
+      margin: 1.1rem 0 0;
+      padding: 0;
+      text-align: left;
+      display: grid;
+      gap: var(--e2);
+      max-width: 32rem;
+      width: 100%;
+    }
+.ai-revela[hidden] { display: none; }
+.ai-revela li {
+      display: flex;
+      gap: var(--e2);
+      align-items: baseline;
+      font-size: var(--t-sm);
+      color: var(--texto-2);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity var(--d-painel) var(--saida), transform var(--d-painel) var(--saida);
+    }
+.ai-revela li.visivel { opacity: 1; transform: none; }
+.ai-revela li b { color: var(--texto); font-weight: 600; }
+.ai-revela .marca {
+      flex: 0 0 1.1rem;
+      font-family: var(--dado);
+      color: var(--oliva-c);
+    }
+.ai-revela .marca.andando { color: var(--latao-c); }
+@media (prefers-reduced-motion: reduce) {
+  .ai-revela li { transition: none; transform: none; }
+}
+
 /* ── TOAST ── */
     .toast {
       position: fixed;
@@ -1200,7 +1235,8 @@
     <div class="card ai-processing" id="ai-processing">
       <div class="ai-icon"><i data-icone="ia"></i></div>
       <h3 data-ai-titulo>Lendo seu edital.</h3>
-      <p data-ai-detalhe>Extraindo matérias, calculando pesos e montando seu cronograma. Isso leva alguns segundos.</p>
+      <p data-ai-detalhe>Extraindo matérias, calculando pesos e montando seu cronograma. Não feche esta página.</p>
+      <ol class="ai-revela" data-ai-lista hidden aria-live="polite"></ol>
     </div>
   </div>
 
@@ -1661,25 +1697,84 @@ function mostrarLevelUp(nomeNivel) {
        Nao repete o que ja existe: gerarGuiaCompleto pula materia ja salva
        (ver assets/js/plano.js), entao entrar no dashboard dez vezes nao gera
        dez buscas. */
-    if (estado.edital && estado.materias?.length) {
-      setTimeout(() => {
-        gerarGuiaCompleto(
-          session.user.id,
-          estado.edital?.nome || estado.edital,
-          estado.materias,
-          ({ i, total, materia }) => {
-            if (!guia.dados[materia]) guiaStatus(`montando: ${materia} (${i} de ${total})`);
-          },
-          estado.edital?.hash || null,
-        ).then((g) => {
-          guia.falhou = g.falharam.length > 0 && !g.feitas.length;
-          if (g.feitas.length) {
-            toast(`Seu guia de professores ficou pronto para ${g.feitas.length} matéria(s).`);
-          }
-          return carregarGuia();
-        }).catch(() => { /* o guia e extra: nunca atrapalha o plano */ });
-      }, 2000);
+    montarGuiaPorTras(session.user.id);
+  }
+
+  function montarGuiaPorTras(uid) {
+    if (!estado.edital || !estado.materias?.length) return;
+    setTimeout(() => {
+      gerarGuiaCompleto(
+        uid,
+        estado.edital?.nome || estado.edital,
+        estado.materias,
+        ({ i, total, materia }) => {
+          if (!guia.dados[materia]) guiaStatus(`montando: ${materia} (${i} de ${total})`);
+        },
+        estado.edital?.hash || null,
+      ).then((g) => {
+        guia.falhou = g.falharam.length > 0 && !g.feitas.length;
+        if (g.feitas.length) {
+          toast(`Seu guia de professores ficou pronto para ${g.feitas.length} matéria(s).`);
+        }
+        return carregarGuia();
+      }).catch(() => { /* o guia e extra: nunca atrapalha o plano */ });
+    }, 2000);
+  }
+
+  /* ── A REVELACAO DO EDITAL LIDO (30/09/2026) ────────────────────────────
+     Pedido dele: 2 a 4 s, e cada linha um dado REAL do edital da pessoa --
+     o concurso, a data da prova com os dias que faltam, o numero de materias,
+     as sessoes e horas da semana dela, a patente. Nada de "Edital verificado":
+     nao existe revisao humana, e escrever isso seria mentir. O guia aparece
+     como "sendo montado", porque e o que ele esta. */
+  function revelarResultado(proc) {
+    const titulo = proc.querySelector('[data-ai-titulo]');
+    const detalhe = proc.querySelector('[data-ai-detalhe]');
+    const lista = proc.querySelector('[data-ai-lista]');
+    if (!lista) return Promise.resolve();
+
+    const e = estado.edital || {};
+    const linhas = [];
+
+    const partes = [`<b>${esc(e.nome || 'Edital')}</b>`];
+    const m = String(e.dataProva || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) {
+      const dias = Math.round((new Date(+m[3], +m[2] - 1, +m[1]) - new Date(new Date().toDateString())) / 86400000);
+      partes.push(`prova em <b>${esc(e.dataProva)}</b>` + (dias >= 0 ? ` (${dias} dia${dias === 1 ? '' : 's'})` : ''));
+    } else {
+      partes.push('data da prova não encontrada no edital');
     }
+    linhas.push({ texto: `Edital identificado: ${partes.join(' · ')}` });
+
+    const n = estado.materias.length;
+    linhas.push({ texto: `<b>${n}</b> matéria${n === 1 ? '' : 's'} e ${n === 1 ? 'seu peso carregados' : 'seus pesos carregados'}` });
+
+    const semana = montarSemana(estado.materias, estado.rotina);
+    const blocos = semana.flatMap((d) => d.blocos || []);
+    const minutos = blocos.reduce((s, b) => s + (Number(b.minutos) || 0), 0);
+    const horas = minutos % 60 ? `${Math.floor(minutos / 60)}h${String(minutos % 60).padStart(2, '0')}` : `${minutos / 60}h`;
+    const naRotina = estado.rotina && !estado.rotina.pulou ? 'na sua rotina' : 'numa rotina padrão (ajuste em Cronograma)';
+    linhas.push({ texto: `Cronograma montado ${naRotina}: <b>${blocos.length}</b> sess${blocos.length === 1 ? 'ão' : 'ões'} · <b>${horas}</b> por semana` });
+
+    linhas.push({ texto: 'Guia de professores: sendo montado agora, aparece aqui no painel', andando: true });
+
+    const nivel = nivelDaConta();
+    linhas.push({ texto: `${estado.xp > 0 ? 'Sua patente' : 'Sua patente inicial'}: <b>${esc(nivel.nome)}</b>` });
+
+    if (titulo) titulo.textContent = 'Seu plano está pronto.';
+    if (detalhe) detalhe.hidden = true;
+    lista.innerHTML = linhas.map((l) => `
+      <li><span class="marca${l.andando ? ' andando' : ''}" aria-hidden="true">${l.andando ? '…' : '✓'}</span><span>${l.texto}</span></li>`).join('');
+    lista.hidden = false;
+
+    // 5 linhas a cada 450 ms e 1,2 s parado no fim: ~3,2 s ao todo.
+    const itens = [...lista.children];
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const PASSO = quieto ? 0 : 450;
+    return new Promise((fim) => {
+      itens.forEach((li, i) => setTimeout(() => li.classList.add('visivel'), 60 + i * PASSO));
+      setTimeout(fim, 60 + itens.length * PASSO + 1200);
+    });
   }
 
   // ── RENDER ──
@@ -1855,12 +1950,47 @@ function mostrarLevelUp(nomeNivel) {
      Duas chamadas: `fatos_de_hoje` para as diárias e `fatos_do_usuario` para
      a campanha. São consultas diferentes porque respondem perguntas
      diferentes — hoje versus a vida inteira. */
+  /* 30/09/2026 -- pedido dele: "as missoes diarias deveriam ser marcadas
+     automaticamente quando cumpridas". Elas JA eram calculadas pelo servidor
+     (fatos_de_hoje), mas so no carregamento da pagina: a pessoa marcava a
+     sessao, cumpria a missao e a tela so contava na proxima visita. Agora
+     redesenha depois de registrar a sessao, de subir o edital, e ao voltar
+     para a aba (estudou pelo cronometro em outra aba, por exemplo). */
+  let missoesCumpridas = null;               // null = primeiro desenho, sem aviso
+  let ultimaAtualizacao = 0;
+  async function atualizarMissoes() {
+    const uid = estado.usuario?.id;
+    if (!uid) return;
+    ultimaAtualizacao = Date.now();
+    const [hoje, vida] = await Promise.all([
+      supabase.rpc('fatos_de_hoje'),
+      supabase.rpc('fatos_do_usuario'),
+    ]);
+    if (hoje.error || !hoje.data) return;
+    await desenharMissoes(uid, hoje.data, vida.error ? null : vida.data);
+  }
+  document.addEventListener('visibilitychange', () => {
+    // No maximo uma vez a cada 30 s: trocar de aba nao pode virar rajada de consulta.
+    if (document.visibilityState === 'visible' && Date.now() - ultimaAtualizacao > 30000) {
+      atualizarMissoes().catch((e) => relatar(e, 'dashboard/missoes'));
+    }
+  });
+
   async function desenharMissoes(uid, hoje, vida) {
     const caixa = document.getElementById('missoes');
     if (!caixa || !hoje) return;               // some, em vez de ficar vazia
 
     const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=bdc5216c');
     const lista = missoesDeHoje(uid, hoje);
+
+    // Missao que acabou de ser cumprida ganha aviso -- so depois do 1o desenho.
+    const agora = new Set(lista.filter((m) => m.cumprida).map((m) => m.id));
+    if (missoesCumpridas) {
+      for (const m of lista) {
+        if (agora.has(m.id) && !missoesCumpridas.has(m.id)) toast(`Missão cumprida: ${m.nome}.`);
+      }
+    }
+    missoesCumpridas = agora;
 
     document.getElementById('missoes-placar').textContent =
       `${lista.filter((m) => m.cumprida).length} / ${lista.length}`;
@@ -2219,7 +2349,8 @@ function verificarBalanco() {
       segundos: Math.round((Number(item.tempo) || 0) * 60),
       xp: item.xp,
       modo: 'cronograma',
-    }).catch(() => { /* ja logado dentro de registrarSessao */ });
+    }).then(() => atualizarMissoes())
+      .catch(() => { /* ja logado dentro de registrarSessao */ });
     // O bloco feito vem das sessoes de hoje: sem isto, o redesenho logo
     // abaixo o mostraria desmarcado ate a proxima visita.
     (estado.hoje ||= []).push({ modo: 'cronograma', materia: item.materia, segundos: item.tempo * 60 });
@@ -2287,27 +2418,22 @@ function verificarBalanco() {
     const proc = document.getElementById('ai-processing');
     proc.style.display = 'flex';
 
-    /* 29/09/2026 -- pedido dele: mesmo quando o edital ja foi lido para outro
-       aluno (mesmo PDF, resultado guardado), a experiencia tem de ser a de algo
-       feito PARA ELE, nao "ja estava pronto, so colamos". Entao a leitura tem
-       etapas e um tempo minimo, venha a resposta da IA ou do que ja estava
-       guardado. */
-    const ETAPAS = [
-      'Lendo o conteúdo programático do seu edital…',
-      'Identificando as matérias da prova…',
-      'Calculando o peso de cada matéria…',
-      'Conferindo a data da prova e a sua força…',
-      'Montando o seu cronograma…',
-    ];
+    /* 30/09/2026 -- decisao dele, que SUBSTITUI a de 29/09: nada de etapas
+       fingidas ("lendo o conteudo programatico...") nem de tempo minimo de 12 s
+       para parecer feito na hora. Enquanto a leitura corre de verdade, uma
+       frase honesta. Quando o resultado chega (da IA ou do guardado), uma
+       revelacao curta em que cada linha e um dado REAL do edital dele --
+       ver revelarResultado(). Resultado guardado aparece rapido e so parece
+       rapido, que e verdade. */
+    const titulo = proc.querySelector('[data-ai-titulo]');
     const detalhe = proc.querySelector('[data-ai-detalhe]');
-    let etapa = 0;
-    if (detalhe) detalhe.textContent = ETAPAS[0];
-    const passo = setInterval(() => {
-      etapa = Math.min(etapa + 1, ETAPAS.length - 1);
-      if (detalhe) detalhe.textContent = ETAPAS[etapa];
-    }, 2600);
-    const inicio = Date.now();
-    const TEMPO_MINIMO = 12000;
+    const lista = proc.querySelector('[data-ai-lista]');
+    if (titulo) titulo.textContent = 'Lendo seu edital.';
+    if (detalhe) { detalhe.hidden = false; detalhe.textContent = 'Extraindo matérias, calculando pesos e montando seu cronograma. Não feche esta página.'; }
+    if (lista) { lista.hidden = true; lista.innerHTML = ''; }
+    // No celular os cartoes de nivel vem antes: sem isto a revelacao passava fora da tela.
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    proc.scrollIntoView({ block: 'center', behavior: quieto ? 'auto' : 'smooth' });
 
     try {
       // Lê o PDF como base64
@@ -2322,9 +2448,6 @@ function verificarBalanco() {
       // validado pela edge function. O codigo anterior mandava a chave
       // publica e ainda fazia stringify + parse do que ja era objeto.
       const resultado = await chamarIA('processar-edital', { pdfBase64: base64 });
-      const falta = TEMPO_MINIMO - (Date.now() - inicio);
-      if (falta > 0) await new Promise((r) => setTimeout(r, falta));
-      clearInterval(passo);
 
       // Monta estado com os dados do edital
       estado.edital = {
@@ -2363,16 +2486,21 @@ function verificarBalanco() {
 
       // Imediato: processar o edital muda tudo de uma vez, e o usuario
       // costuma sair da tela logo em seguida.
-      salvarDados({ imediato: true });
+      // Depois de gravado, a campanha ("Suba seu edital") ja conta.
+      Promise.resolve(salvarDados({ imediato: true }))
+        .then(() => atualizarMissoes())
+        .catch((e) => relatar(e, 'dashboard/missoes'));
 
+      // O "N materias extraidas" que vinha num toast agora e a 2a linha da revelacao.
+      await revelarResultado(proc);
       renderUI();
-      toast(`${resultado.materias?.length || 0} matérias extraídas com sucesso!`);
+      // Antes o guia so comecava no proximo carregamento da pagina.
+      montarGuiaPorTras(estado.usuario.id);
 
     } catch(err) {
       console.error(err);
       // chamarIA ja devolve mensagem pronta para o usuario (quota, PDF grande,
       // sessao expirada). Antes isso era um alert() com err.message cru.
-      clearInterval(passo);
       toast(err.message || 'Erro ao processar o edital. Tente novamente.', 'error');
       proc.style.display = 'none';
       // Falhou a troca: quem ja tinha edital volta para o que tinha.

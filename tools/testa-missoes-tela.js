@@ -153,6 +153,38 @@ const servidor = http.createServer((q, r) => {
     if (/registre a primeira sess/i.test(antes.campanha || "")) ok("a campanha aponta o próximo passo", antes.campanha.trim());
     else falha("etapa atual errada", String(antes.campanha).slice(0, 60));
 
+    // ── 3b. Marcar a sessão atualiza as missões SEM recarregar (30/09/2026) ──
+    // Pedido dele: "as missões deveriam ser marcadas automaticamente quando
+    // cumpridas". Antes o servidor já contava, mas a tela só na próxima visita.
+    // Rotina de 7 dias, para hoje nunca ser folga e haver sessão para marcar.
+    await req(`/rest/v1/progresso?usuario_id=eq.${usuario.id}`, {
+      method: "PATCH", headers: { ...admin, Prefer: "return=minimal" },
+      body: JSON.stringify({ rotina: { dias: [0, 1, 2, 3, 4, 5, 6], minutosUtil: 60, minutosFds: 60, bloco: 30, respondidoEm: new Date().toISOString() } }),
+    });
+    {
+      const pg = await ctx.newPage();
+      const erros = [];
+      pg.on("pageerror", (e) => erros.push(String(e.message)));
+      await pg.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
+      await pg.waitForSelector(".missao", { timeout: 20000 }).catch(() => {});
+      await pg.waitForSelector(".today-check", { timeout: 10000 }).catch(() => {});
+      const lerAqui = () => pg.evaluate(() => ({
+        contas: [...document.querySelectorAll(".missao-conta")].map((e) => e.textContent.trim()),
+        passosFeitos: document.querySelectorAll(".campanha-passo.feito").length,
+        campanha: (document.getElementById("campanha-etapa") || {}).textContent,
+      }));
+      const a = await lerAqui();
+      await pg.click(".today-check");
+      await pg.waitForTimeout(4000);                     // grava a sessao e rele o servidor
+      const b = await lerAqui();
+      if (b.passosFeitos > a.passosFeitos) ok("🎯 marcar a sessão avança a campanha na hora", `${a.passosFeitos} -> ${b.passosFeitos} etapas, sem recarregar`);
+      else falha("a campanha só avançou recarregando", `${a.passosFeitos} -> ${b.passosFeitos} · ${String(b.campanha).slice(0, 40)}`);
+      if (b.contas.some((c, i) => c !== a.contas[i])) ok("as contagens das missões mudam na hora", `${a.contas.join(" · ")}  ->  ${b.contas.join(" · ")}`);
+      else falha("as contagens não mudaram sem recarregar", b.contas.join(" · "));
+      if (erros.length) falha("erro de JavaScript ao marcar", erros[0].slice(0, 60));
+      await pg.close();
+    }
+
     // ── 4. 🔴 Estudar de verdade move a barra ──────────────────────────────
     // Duas sessões AGORA, de 30 min cada, em matérias diferentes: cobre
     // minutos, número de sessões e matérias distintas de uma vez.

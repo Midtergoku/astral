@@ -315,6 +315,7 @@ lá e aparecer que está sendo feito personalizado para ele"*.
 |---|---|
 | **Edital guardado** | pela impressão digital (SHA-256) do PDF, tabela `editais_lidos`. O mesmo arquivo de novo: resultado na hora, **sem IA e sem contar na cota** |
 | **Cara de feito na hora** | a tela segura o "lendo seu edital" por **12 s no mínimo**, com 5 etapas ("lendo o conteúdo programático… identificando as matérias… calculando o peso…"), venha da IA ou do guardado |
+| ✏️ **30/09 — substituído** | decisão nova dele: **não simular a IA trabalhando**. O guardado aparece rápido (medido: 0,8 s) e seguem ~3,5 s de revelação com dados reais do edital. Custo: igual, R$ 0 — só muda a tela |
 | **Guia do MESMO edital** | tabela `guias_por_edital`, chave = impressão digital + matéria. Outro PDF do mesmo concurso (retificado, do DOU) **não** compartilha |
 | **Contra envenenamento** | o guia compartilhado só é gravado se a matéria **existe no edital guardado**, e o concurso da pergunta vem **do edital**, nunca do navegador |
 | **Janela de 30 dias** | grátis: o 1º edital + **1 troca**; beta e Pro: o 1º + **2 trocas**. Edital já guardado não conta. Recusa **antes** da IA, dizendo a data em que libera |
