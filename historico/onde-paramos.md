@@ -241,3 +241,33 @@ node tools/testa-minhas-tela.js   a aba particular, com PDF de verdade fabricado
 O `verifica.js` está com **18 checagens** — as duas últimas nasceram nesta sequência: barra lateral
 acendendo a página errada, caminho desta máquina dentro de ferramenta, e caractere de controle
 gravado dentro do código.
+
+---
+
+## 30/09/2026 — a lista de 11 itens dele
+
+**Publicado (3 commits: b496251, e48be23, 639867e):**
+
+| Item | O que ficou | Prova |
+|---|---|---|
+| 11 · revelação honesta | sai a animação de 12 s com etapas fingidas; ~3,5 s com dados reais do edital (concurso, data e dias, matérias, sessões e horas, patente); nada de "edital verificado". O guia de professores começa logo após o edital | `testa-revelacao-tela.js` 30/30 (1280 e 390 px) |
+| 1 · missões se marcam sozinhas | redesenham após marcar a sessão, subir o edital e voltar à aba; aviso "Missão cumprida" | `testa-missoes-tela.js`: 0/25 → cumprida **sem recarregar** |
+| 7 · professor e link inventados | `_shared/links.ts` no `buscar-recursos`; medido DE DENTRO do servidor 12/12 | `testa-links.js` 12/12 · backend.md 8.21 |
+| 9 · celular | painel sem pisca de conta vazia; cronograma sem os ~19 vãos por dia; evento do calendário legível | fotos 390 px de 12 páginas, `testa-celular` verde |
+| 3 · login | Google e e-mail funcionam (config certa, captcha nas 2 páginas, botão do Google leva ao Google, cadastro sem captcha recusado). **E-mail de confirmação: travado no SMTP** — precisa da senha de app do Gmail dele | `confere-auth.ps1`, `smtp-configura.ps1` |
+
+**Achado grande, esperando decisão dele — itens 2, 6 e 8:** o **domínio de cada matéria nunca é
+calculado**. Nasce 0 quando o edital é lido e nenhum código o atualiza (só é lido). Por isso, para
+quem não é a conta simulada: tag nunca chega (≥70%), Doutrina fica 0, condecorações de domínio
+morrem, o aviso de rebalancear nunca dispara e o cronograma não se adapta. E o navegador pode
+gravar qualquer valor (`salvar_progresso` guarda o maior). Proposta: domínio calculado **no
+servidor** a partir do banco de questões (acerto de primeira por matéria, peso crescendo com o
+número de respostas) + tempo de estudo com teto. R$ 0, sem IA.
+
+**Esperando decisão dele também:** fundir as 8 "distintivas" antigas nas condecorações (item 5 —
+há repetição medida: "1h Estudada" × "Primeira Hora", "Edital Lido" × "Ordem de Serviço"); TAF,
+cartão para compartilhar e revisão espaçada (item 10).
+
+**Notado e deixado:** nome muito longo sem espaço vaza da barra lateral escondida no celular — vem
+da decisão "nome de pessoa não se corta" (app.css). O gráfico da Progresso rola para o lado no
+celular de propósito.
