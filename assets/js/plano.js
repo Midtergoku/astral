@@ -195,7 +195,9 @@ export async function gerarGuiaCompleto(uid, concurso, materias, aoAndar, edital
 export const RESSALVA_PROFESSORES =
   'Como montamos esta lista: a IA pesquisou na internet professores e materiais '
   + 'de cada matéria do seu edital, priorizando conteúdo gratuito e canais com boa '
-  + 'reputação entre concurseiros. É uma sugestão de ponto de partida, não uma '
+  + 'reputação entre concurseiros. Antes de aparecer aqui, cada link é conferido '
+  + 'automaticamente: professor cujo canal não existe e link fora do ar saem da lista. '
+  + 'É uma sugestão de ponto de partida, não uma '
   + 'classificação oficial — o Astral não recebe nada de nenhum professor, canal ou '
   + 'curso para indicá-los. Se você já estuda com outro professor e se dá bem, '
   + 'continue: o que funciona para você vale mais que qualquer lista.';

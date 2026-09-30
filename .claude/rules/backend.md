@@ -287,3 +287,37 @@ desligada, não há motivo para tocar no banco. Verificado: devolve **503 até c
     sessões e horas da semana, patente). **Nunca "Edital verificado"** — não há revisão humana.
     Regressão: `node tools/testa-revelacao-tela.js`.
 - Regressão: `node tools/testa-trava-creditos.js` (não gasta crédito).
+
+---
+
+## 8.21. O conferidor de links do guia (30/09/2026) ✅
+
+**Pedido dele:** *"o risco da IA inventar professores e links — valide cada link antes de exibir"*.
+`_shared/links.ts` → `conferirLinks(dados, listas)`, chamado no `buscar-recursos` **depois** da IA
+e **antes** de guardar (`guias_por_edital`) e de devolver. Sem chave de API, R$ 0, ~2 s.
+
+| Link | Como se confere (medido em 30/09) | Inventado dá |
+|---|---|---|
+| canal `@nome`, `/c/`, `/user/` | página: 404, ou 200 com `<link rel="canonical" …/channel/UC…>` | 404 |
+| canal `/channel/UC…` | feed oficial `feeds/videos.xml?channel_id=` | 404 (a página dá 200!) |
+| vídeo, playlist, shorts | `youtube.com/oembed` | 404 (a página dá 200!) |
+| `youtube.com` puro | não é professor nenhum | corta |
+| busca do YouTube | sempre vale | — |
+| outro site | 404/410 ou domínio inexistente | corta |
+
+**Só sai o MORTO COM CERTEZA.** 403 de site que barra robô, 429, 5xx e demora ficam: não
+conferido não é falso. **Canal de controle** (`@YouTube`): se nem ele passa, o conferidor está cego
+(YouTube barrando o servidor) e ninguém é cortado — vai para o log como incerto.
+
+🔴 **Duas armadilhas achadas medindo, não supondo:**
+1. A página de canal tem **~1,7 MB** e a marca de canal fica **depois do caractere 400 mil**.
+   Eu cortava a leitura em 400 mil: do servidor, TODO canal real dava "incerto". Lê a página inteira.
+2. O Node embrulha "domínio não existe" em `e.cause.code === "ENOTFOUND"`; o Deno põe "dns error"
+   na mensagem. O conferidor aceita os dois.
+
+**Medir no servidor, não só em casa** — o YouTube responde diferente para IP de nuvem. Em 30/09 foi
+com uma função temporária (`diag-links`, lista fixa, senha de uso único), **apagada** depois: 12/12.
+Regressão local: `node tools/testa-links.js`. Cada guia gerado grava no log
+`buscar-recursos links {ok, morto, incerto, cortados}`.
+
+⚠️ **O caminho com IA nunca rodou** (sem crédito). No dia do crédito, olhar esse log no 1º guia.

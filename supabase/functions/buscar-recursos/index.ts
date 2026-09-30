@@ -1,5 +1,6 @@
 import Anthropic from "npm:@anthropic-ai/sdk@0.27.0";
 import { servir, json, FalhaHttp, extrairJson, comSegundaChance, admin, type Usuario, type Contexto } from "../_shared/comum.ts";
+import { conferirLinks } from "../_shared/links.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 const MODELO = Deno.env.get("MODELO_IA") ?? "claude-sonnet-4-6";
@@ -131,6 +132,8 @@ Regras importantes:
 - Máximo 3 professores, 3 materiais gratuitos e 2 cursos pagos
 - Priorize sempre o conteúdo gratuito
 - Use apenas URLs reais e verificadas, sempre começando com https://
+- Para professores, use o endereço do canal no YouTube no formato https://www.youtube.com/@nomedocanal
+- Cada link será conferido automaticamente; link que não abrir será descartado, e o item junto
 - Escreva texto puro: nada de HTML, script ou markdown dentro dos campos
 - Retorne SOMENTE o JSON, nada mais${reforco}`,
     }];
@@ -189,12 +192,17 @@ Regras importantes:
     }
 
     const d = extrairJson<Record<string, unknown>>(bruto);
-    const dados = {
+    const bruta = {
       dica: texto(d.dica, 600),
       professores: listaValidada(d.professores, 3, ["canal"]),
       materiais_gratuitos: listaValidada(d.materiais_gratuitos, 3, ["tipo"]),
       cursos_pagos: listaValidada(d.cursos_pagos, 2, ["plataforma"]),
     };
+    /* 30/09/2026: cada link e conferido ANTES de guardar e de mostrar --
+       professor com canal que nao existe e link morto saem. Ver _shared/links.ts.
+       Custa R$ 0 (sem chave de API) e ~2 s, com a tela ja desenhada. */
+    const { dados, conta } = await conferirLinks(bruta, ["professores", "materiais_gratuitos", "cursos_pagos"]);
+    console.log("buscar-recursos links", JSON.stringify({ materia, ...conta }));
     if (podeGuardar) {
       const { error: erroGuardar } = await admin().from("guias_por_edital")
         .upsert({ edital_hash: hash, materia, dados }, { onConflict: "edital_hash,materia" });
