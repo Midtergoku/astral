@@ -321,6 +321,15 @@ select option { background: var(--surface); color: var(--text); }
       .grid-3 { grid-template-columns: 1fr; }
     }
 
+/* 30/09/2026: no celular, icone + selo + dois botoes deixavam ~90px para o
+   nome do evento -- uma palavra por linha. O selo e os botoes descem. */
+@media (max-width: 520px) {
+      .evento-item { flex-wrap: wrap; row-gap: .6rem; padding: .9rem 1rem; }
+      .evento-info { flex: 1 1 calc(100% - 42px - 1rem); }
+      .evento-tag { margin-left: calc(42px + 1rem); }
+      .evento-acoes { margin-left: auto; }
+    }
+
 /* animacao de entrada do .main removida: o elemento tem
      view-transition-name e quem o anima e o navegador. Ter as duas fazia
      a tela piscar na troca de pagina. */

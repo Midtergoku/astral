@@ -1205,7 +1205,9 @@
   </div>
 
   <!-- UPLOAD ou CONTEÚDO -->
-  <div id="upload-section">
+  <!-- Nasce escondida (30/09/2026): antes de os dados chegarem, quem ja tinha
+       edital via "suba seu edital" piscar por ~0,3 s. renderUI decide. -->
+  <div id="upload-section" style="display:none">
     <div class="card upload-card" id="upload-area"
          ondragover="dragOver(event)"
          ondragleave="dragLeave(event)"
@@ -2085,8 +2087,11 @@ function mostrarLevelUp(nomeNivel) {
     document.getElementById('materias-cobertas').textContent = `${cobertas}/${estado.materias.length}`;
 
     // Conteúdo
-    if (estado.edital && estado.materias.length > 0) {
-      document.getElementById('upload-section').style.display = 'none';
+    // Durante a leitura do edital a secao fica aberta (e processarEdital quem a abre).
+    const lendo = document.getElementById('ai-processing')?.style.display === 'flex';
+    if (!lendo) {
+      document.getElementById('upload-section').style.display =
+        estado.edital && estado.materias.length > 0 ? 'none' : 'block';
     }
     renderEdital();
     document.getElementById('main-content').style.display = 'block';
@@ -2493,6 +2498,7 @@ function verificarBalanco() {
 
       // O "N materias extraidas" que vinha num toast agora e a 2a linha da revelacao.
       await revelarResultado(proc);
+      proc.style.display = 'none';
       renderUI();
       // Antes o guia so comecava no proximo carregamento da pagina.
       montarGuiaPorTras(estado.usuario.id);

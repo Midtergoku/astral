@@ -169,6 +169,11 @@
     .grade { grid-template-columns: 1fr; }
     .dia { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); column-gap: .6rem; align-items: start; }
     .dia-cabeca { grid-row: span 20; border-bottom: none; border-right: 1px solid var(--linha); padding-right: .4rem; }
+    /* 30/09/2026: as 20 linhas do span acima sao quase todas vazias, mas cada
+       uma levava o espaco entre linhas -- ~19 vaos de .4rem sob cada dia no
+       celular. Sem espaco de grade; o respiro vai no proprio bloco. */
+    .dia { row-gap: 0; }
+    .dia > :not(.dia-cabeca):not(:last-child) { margin-bottom: .4rem; }
     .dia-nome { flex-direction: column; }
     .bloco { min-height: 0; }
     .folga { min-height: 2.6rem; }
