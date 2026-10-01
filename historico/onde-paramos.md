@@ -309,3 +309,12 @@ passou a ser derivada do catálogo — havia 4 cópias).
 **Não feito (proposta):** a camada única `user_stats` que a auditoria recomenda. Hoje as telas já
 leem das mesmas funções (`conferir` com gravadas, `pontoFraco`, `dominio_calculado`), mas não de um
 objeto só.
+
+### 01/10/2026 — a especificação de planos (Free/Pro/trial), só comparada
+
+Ele mandou a especificação "Planos Free/Pro, Onboarding e Cache de Edital v2.0" com a ordem de **não
+implementar**: só comparar. O resultado está em `historico/gap-analysis-planos.md`: 69 itens
+classificados, **14 perguntas para ele** e a ordem sugerida. Os pontos que travam tudo:
+o beta tem **promessa pública de "acesso gratuito e vitalício"** na página inicial (0 contas beta hoje),
+e 5 itens da especificação contrariam decisões dele já registradas (caderno no grátis, Pro com 2 trocas,
+habilidades secretas, rebalanceamento e guia para todos). **Nada foi alterado no produto.**
