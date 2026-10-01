@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Calendário</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -660,11 +660,12 @@ select option { background: var(--surface); color: var(--text); }
       }
     }
 
-    // Card próximo evento (excluindo prova)
-    const proximo = ordenados.find(e => {
-      const d = calcularDias(e.data);
-      return d !== null && d >= 0 && e.categoria !== 'prova';
-    });
+    /* Card próximo evento. 30/09/2026 (auditoria, item 4): excluia a prova --
+       e quem so tinha a prova cadastrada via "sem eventos futuros" com a prova
+       daqui a 67 dias na mesma tela. Prefere outro evento; se nao houver, a
+       prova e o proximo evento, porque e. */
+    const futuros = ordenados.filter(e => { const d = calcularDias(e.data); return d !== null && d >= 0; });
+    const proximo = futuros.find(e => e.categoria !== 'prova') || futuros[0];
     if (proximo && proximoEl) {
       const cat = CATEGORIAS[proximo.categoria] || CATEGORIAS.personalizado;
       const dias = calcularDias(proximo.data);
@@ -811,7 +812,7 @@ select option { background: var(--surface); color: var(--text); }
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=0551225f"></script>
+<script type="module" src="/assets/js/divisa.js?v=7fbaaf3f"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

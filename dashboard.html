@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Dashboard</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -1243,7 +1243,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     <div class="card stat-gold">
       <div class="card-label">Domínio do edital</div>
       <div class="card-value" id="materias-cobertas">0/0</div>
-      <div class="card-sub">matérias acima de 80% · <a href="progresso.html" class="card-link">medido pelo Banco</a></div>
+      <div class="card-sub">matérias com 70% ou mais · <a href="progresso.html" class="card-link">medido pelo Banco</a></div>
     </div>
   </div>
 
@@ -1481,8 +1481,10 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=17358f63';
   import { perguntarRotina } from './assets/js/rotina.js?v=7f7e6c15';
-  import { aplicarGrafico } from './assets/js/grafico.js?v=770bee87';
-  import { nivelDe } from './assets/js/divisa.js?v=0551225f';
+  import { aplicarGrafico } from './assets/js/grafico.js?v=69e227f7';
+  import { nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
+  // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
+  import { pontoFraco } from './assets/js/chefe.js?v=87797754';
 
   /* 28/09/2026: o cartao "Nivel atual" usava a tabela TABELAS_NIVEIS daqui,
      e o topo da pagina usa a do divisa.js -- com a conta simulada, o topo
@@ -1844,6 +1846,18 @@ function mostrarLevelUp(nomeNivel) {
     ['precisao',    'Precisão'],
   ];
 
+  /* 30/09/2026 (auditoria, item 3): "29 dias nos ultimos 30" com DISCIPLINA 76
+     parecia erro -- e a regra (ficha_do_usuario): 66% vem dos dias (20 em 30
+     ja e o maximo) e 34% da sequencia (7 dias). Cada atributo diz o que leva
+     a 100, para o numero nao parecer arbitrario. */
+  const COMO_CHEGA_A_100 = {
+    disciplina:  '100 = 20 dias de estudo nos últimos 30 e uma sequência de 7',
+    resistencia: '100 = uma sessão de 1h30 nos últimos 90 dias',
+    amplitude:   '100 = todas as matérias do edital estudadas nos últimos 30 dias',
+    doutrina:    '100 = domínio médio de 100% no edital',
+    precisao:    '100 = todas as questões do Banco acertadas de primeira',
+  };
+
   /* Recebe os fatos prontos -- `fatos_do_usuario` já traz `atributos` dentro,
      porque chama a ficha por dentro. Buscar de novo aqui era a terceira
      varredura da mesma tabela na mesma tela. */
@@ -1882,12 +1896,17 @@ function mostrarLevelUp(nomeNivel) {
             <div class="atributo-preenche" data-ate="${temValor ? valor / 100 : 1}"></div>
           </div>
           <div class="atributo-porque">${esc(a.porque || '')}</div>
+          <div class="atributo-porque" style="opacity:.75">${esc(COMO_CHEGA_A_100[chave] || '')}</div>
         </div>`;
     }).join('');
 
     if (resumo && data.sessoes) {
       const s = data.sessoes;
-      resumo.textContent = `${s.total} sessão(ões) · ${s.horas}h · ${s.dias_no_mes} dia(s) no mês`;
+      /* 30/09/2026 (auditoria, item 2): os tres numeros sao TOTAIS. O ultimo
+         era o total de dias estudados com o rotulo "no mes" -- dava "58 dias
+         no mes". Agora a linha diz o que mede. */
+      const horas = Number(s.horas || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+      resumo.textContent = `${s.total} ${s.total === 1 ? 'sessão' : 'sessões'} · ${horas} h · ${s.dias_no_mes} ${s.dias_no_mes === 1 ? 'dia' : 'dias'} de estudo, desde o início`;
     }
 
     /* As reguas crescem DEPOIS de estarem na tela -- se o transform final ja
@@ -1972,7 +1991,7 @@ function mostrarLevelUp(nomeNivel) {
     }
     if (error || !prova) return;      // sem prova marcada, sem chefe
 
-    const { chefeDe } = await import('./assets/js/chefe.js?v=76f7fa60');
+    const { chefeDe } = await import('./assets/js/chefe.js?v=87797754');
     const c = chefeDe(prova, fatos);
     if (!c) return;                            // prova já passou
 
@@ -2016,13 +2035,13 @@ function mostrarLevelUp(nomeNivel) {
     try {
       const [{ abrirCartao }, { tagVestida }] = await Promise.all([
         import('./assets/js/cartao.js?v=5d0e29cc'),
-        import('./assets/js/divisa.js?v=0551225f'),
+        import('./assets/js/divisa.js?v=7fbaaf3f'),
       ]);
       const n = nivelDaConta();
       const t = tagVestida(estado.materias, estado.tagEscolhida);
       let condecoracoes = null, total = null;
       if (resumoRPG) {
-        const { conferir } = await import('./assets/js/condecoracoes.js?v=2bfaf79d');
+        const { conferir } = await import('./assets/js/condecoracoes.js?v=ca3738be');
         const r = conferir(resumoRPG.fatos, resumoRPG.gravadas).resumo;
         condecoracoes = r.conquistadas; total = r.total;
       }
@@ -2111,7 +2130,7 @@ function mostrarLevelUp(nomeNivel) {
     const caixa = document.getElementById('missoes');
     if (!caixa || !hoje) return;               // some, em vez de ficar vazia
 
-    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=bdc5216c');
+    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=3c8e7f8b');
     const lista = missoesDeHoje(uid, hoje);
 
     // Missao que acabou de ser cumprida ganha aviso -- so depois do 1o desenho.
@@ -2147,8 +2166,11 @@ function mostrarLevelUp(nomeNivel) {
 
       if (emAndamento) {
         document.getElementById('campanha-nome').textContent = emAndamento.nome;
+        // 30/09/2026 (auditoria, item 10): a trilha tem um degrau por ETAPA (4), nao
+        // por dia -- "2 de 7" com 4 segmentos confundia. O texto diz a etapa.
+        const nEtapa = emAndamento.etapas.findIndex((e) => e.id === emAndamento.atual.id) + 1;
         document.getElementById('campanha-etapa').textContent =
-          `${emAndamento.atual.texto} — ${emAndamento.atual.feito} de ${emAndamento.atual.alvo}`;
+          `Etapa ${nEtapa} de ${emAndamento.etapas.length} · ${emAndamento.atual.texto} — ${emAndamento.atual.feito} de ${emAndamento.atual.alvo}`;
         document.getElementById('campanha-trilha').innerHTML = emAndamento.etapas.map((e) => {
           const classe = e.cumprida ? ' feito' : (e.id === emAndamento.atual.id ? ' agora' : '');
           return `<div class="campanha-passo${classe}" title="${att(e.texto)}"></div>`;
@@ -2169,7 +2191,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       if (!fatos) return;                             // sem fatos, sem anúncio
       const [{ conferir }, { anunciarNovidades }] = await Promise.all([
-        import('./assets/js/condecoracoes.js?v=2bfaf79d'),
+        import('./assets/js/condecoracoes.js?v=ca3738be'),
         import('./assets/js/anuncio.js?v=dd704853'),
       ]);
       await anunciarNovidades(uid, conferir(fatos, gravadas));
@@ -2212,7 +2234,8 @@ function mostrarLevelUp(nomeNivel) {
 
     // Stats
     document.getElementById('horas-total').textContent = `${estado.horas}h`;
-    const cobertas = estado.materias.filter(m => m.progresso >= 80).length;
+    // 30/09/2026 (auditoria, item 7): "dominada" e 70%, a linha da tag -- era 80 so aqui.
+    const cobertas = estado.materias.filter(m => (Number(m.progresso) || 0) >= 70).length;
     document.getElementById('materias-cobertas').textContent = `${cobertas}/${estado.materias.length}`;
 
     // Conteúdo
@@ -2267,11 +2290,18 @@ function verificarBalanco() {
   const diferenca = maximo - minimo;
 
   if (diferenca >= 40) {
+    /* 30/09/2026 (auditoria, item 13): o desequilibrio e de DOMINIO, nao de
+       cronograma (o cronograma ja compensa), e a materia a treinar e a MESMA
+       que o chefe manda atacar -- maior peso x o que falta (chefe.js). Antes o
+       aviso dizia "Informatica" e o chefe "Fisica". */
     const maisAvancada = estado.materias.find(m => (Number(m.progresso) || 0) === maximo);
     const maisAtrasada = estado.materias.find(m => (Number(m.progresso) || 0) === minimo);
-    titulo.textContent = `${maisAtrasada?.nome} está ${diferenca} pontos atrás de ${maisAvancada?.nome}`;
-    sub.textContent = `Medido pelas suas questões e pelo seu estudo. A semana do cronograma já dá mais sessões a ${maisAtrasada?.nome}.`;
-    treinar(maisAtrasada);
+    const fraco = pontoFraco(estado.materias);
+    const alvo = estado.materias.find((m) => m.nome === fraco?.nome) || maisAtrasada;
+    titulo.textContent = 'Domínio desequilibrado';
+    sub.textContent = `${maisAtrasada?.nome} está ${diferenca} pontos percentuais atrás de ${maisAvancada?.nome}. `
+      + `Pelo peso no edital, a que mais rende agora é ${alvo?.nome} — e o cronograma desta semana já dá mais tempo a ela.`;
+    treinar(alvo);
     banner.classList.add('show');
   } else {
     banner.classList.remove('show');
@@ -2289,8 +2319,13 @@ function verificarBalanco() {
 
     if (n.proximo) {
       const pct = Math.min(100, Math.round(n.fracao * 100));
-      document.getElementById('xp-atual').textContent = `${xp} XP`;
-      document.getElementById('xp-proximo').textContent = `${n.proximo.xp} XP`;
+      /* 30/09/2026 (auditoria, item 8): a barra mede o caminho DENTRO do posto
+         (do piso dele ao proximo), e os numeros mostravam o XP total -- "11386
+         -> 14000" com a barra em 35%. Agora os dois falam da mesma coisa. */
+      const fmt = (v) => Number(v).toLocaleString('pt-BR');
+      const base = Number(n.piso) || 0;          // o XP em que este posto comeca (divisa.js)
+      document.getElementById('xp-atual').textContent = `${fmt(xp - base)} / ${fmt(n.proximo.xp - base)} XP neste posto`;
+      document.getElementById('xp-proximo').textContent = `${fmt(xp)} no total`;
       document.getElementById('xp-fill').style.width = `${pct}%`;
       if (proximoRankEl) proximoRankEl.textContent = n.proximo.nome;
     } else {
@@ -2443,7 +2478,7 @@ function verificarBalanco() {
     }
     // So o condecoracoes.js: importar o catalogo.js com carimbo criaria uma
     // SEGUNDA copia do modulo (ver o cabecalho do condecoracoes.js).
-    const { conferir, quaseLa } = await import('./assets/js/condecoracoes.js?v=2bfaf79d');
+    const { conferir, quaseLa } = await import('./assets/js/condecoracoes.js?v=ca3738be');
     const { condecoracoes, resumo } = conferir(resumoRPG.fatos, resumoRPG.gravadas);
     const proxima = quaseLa(condecoracoes, 1)[0];
     const metais = new Map();
@@ -2725,7 +2760,13 @@ function verificarBalanco() {
     const yt = (nome) => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${nome} ${materia} concurso`)}`;
     const link = (u, texto) => { const ok = urlSegura(u); return ok ? `<a href="${att(ok)}" target="_blank" rel="noopener noreferrer">${texto} ↗</a>` : ''; };
 
+    /* 30/09/2026 (auditoria, item 26): o guia de demonstracao (professores
+       "exemplo A/B/C") so existe na conta simulada -- e o selo abaixo garante
+       que, se um dia aparecer em outra conta, ele se anuncia como demonstracao.
+       Marca: a dica comeca com "[Simulação]" (tools/simula-edital.js). */
+    const demo = /^\[Simula[çc][ãa]o\]/.test(d.dica || '');
     painel.innerHTML = `
+      ${demo ? '<div class="guia-dica" style="border-color:var(--brasa)"><b>Demonstração</b>Este guia é um exemplo da conta de teste. Com a IA ligada, os professores, canais e materiais são pesquisados de verdade para o seu edital.</div>' : ''}
       ${d.dica ? `<div class="guia-dica"><b>Dica</b>${esc(d.dica)}</div>` : ''}
       <div class="guia-colunas">
         <div>
@@ -2896,7 +2937,7 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=0551225f"></script>
+<script type="module" src="/assets/js/divisa.js?v=7fbaaf3f"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

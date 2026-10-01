@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Quadro de operações</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -357,7 +357,7 @@
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { carregarProgresso } from './assets/js/estado.js?v=87f966f4';
-  import { aplicarDivisa } from './assets/js/divisa.js?v=0551225f';
+  import { aplicarDivisa } from './assets/js/divisa.js?v=7fbaaf3f';
 
   /* Cada metal: a cor base e a clara (brilho e emblema). O degradê de cada
      um e definido UMA vez, no <defs> do quadro. */
@@ -491,10 +491,14 @@
     }
 
     const [{ conferir }, { montarQuadro }] = await Promise.all([
-      import('./assets/js/condecoracoes.js?v=2bfaf79d'),
+      import('./assets/js/condecoracoes.js?v=ca3738be'),
       import('./assets/js/arvore.js?v=0b7c685b'),
     ]);
-    render(montarQuadro(conferir(fatos).condecoracoes));
+    /* 30/09/2026 (auditoria, item 11): o Quadro contava SEM as conquistas ja
+       gravadas -- 39 aqui, 42 no painel. Conquista nao se desconquista: as
+       gravadas entram, como no painel (carregarRPG). */
+    const { data: gravadas } = await supabase.rpc('sincronizar_conquistas');
+    render(montarQuadro(conferir(fatos, gravadas || null).condecoracoes));
   })();
 
   window.fazerLogout = fazerLogout;

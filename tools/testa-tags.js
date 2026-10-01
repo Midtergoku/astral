@@ -147,14 +147,21 @@ const instante = (d, h) => {
         return t && getComputedStyle(t).color !== getComputedStyle(document.body).color;
       }).length,
       nomes: [...document.querySelectorAll(".peca:not(.trancada) .divisa .tag")].map((e) => e.textContent.trim()),
+      nomesTodos: [...document.querySelectorAll(".peca .divisa .tag")].map((e) => e.textContent.trim()),
       html: document.documentElement.innerHTML,
     }));
 
     if (erros.length) falha("erro de JavaScript na tela", erros[0].slice(0, 60));
     else ok("nenhum erro de JavaScript na tela");
 
-    if (m.total > 15) ok("a vitrine mostra o catálogo", `${m.total} divisas (${m.abertas} abertas, ${m.trancadas} trancadas)`);
+    /* 30/09/2026 (auditoria, item 16): tags de materia que NAO esta no edital
+       (aqui: Portugues e Matematica) sairam da vitrine -- eram metas impossiveis.
+       O catalogo continua la (habito, condecoracao), so sem as 11 impossiveis. */
+    if (m.total > 10) ok("a vitrine mostra o catálogo", `${m.total} divisas (${m.abertas} abertas, ${m.trancadas} trancadas)`);
     else falha("a vitrine ficou só com as de matéria", `${m.total} divisas`);
+    const impossiveis = ["Intérprete", "Alquimista", "Navegador", "Médico de Combate"].filter((n) => (m.nomesTodos || []).includes(n));
+    if (!impossiveis.length) ok("🎯 nenhuma tag de matéria fora do edital", "Inglês, Química... não estão no edital");
+    else falha("tag impossível na vitrine", impossiveis.join(", "));
 
     if (m.raridades.length >= 2) ok("a raridade aparece", m.raridades.join(" · "));
     else falha("raridade não apareceu", JSON.stringify(m.raridades));
@@ -170,17 +177,17 @@ const instante = (d, h) => {
 
     // ── Ganhou as duas famílias? ──────────────────────────────────────────
     const temMateria = m.nomes.includes("Orador de Guerra");
-    const temHabito = m.nomes.some((n) => ["Sentinela", "Sapador", "Batedor"].includes(n));
+    const temHabito = m.nomes.some((n) => ["Atalaia", "Sapador", "Batedor"].includes(n));
     if (temMateria) ok("a divisa de MATÉRIA está lá", "Orador de Guerra");
     else falha("faltou a divisa de matéria", m.nomes.join(", "));
-    if (temHabito) ok("a divisa de HÁBITO está lá", m.nomes.filter((n) => ["Sentinela", "Sapador", "Batedor"].includes(n)).join(", "));
+    if (temHabito) ok("a divisa de HÁBITO está lá", m.nomes.filter((n) => ["Atalaia", "Sapador", "Batedor"].includes(n)).join(", "));
     else falha("faltou a divisa de hábito", m.nomes.join(", "));
 
     // ── 🔴 Vestir uma de HÁBITO e conferir a barra superior ────────────────
     // Era exatamente aqui que o sistema parecia quebrado: escolher "Sentinela"
     // e a divisa mostrar "Orador de Guerra", porque a validação só conhecia
     // tags derivadas de matéria.
-    const alvo = m.nomes.find((n) => ["Sentinela", "Sapador", "Batedor"].includes(n));
+    const alvo = m.nomes.find((n) => ["Atalaia", "Sapador", "Batedor"].includes(n));
     if (alvo) {
       await pg.evaluate((nome) => {
         const b = [...document.querySelectorAll(".peca:not(.trancada)")]

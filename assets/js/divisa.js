@@ -33,6 +33,8 @@
    nada -- e o vazio ao lado do nivel e, ele proprio, um convite.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+import { DIVISAS } from './catalogo.js';
+
 /* ═══ AS CARREIRAS ═════════════════════════════════════════════════════════
 
    PEDIDO DO LUCAS em 04/08/2026, e a razao de ser disto:
@@ -134,7 +136,11 @@ function detectarTipoConcurso(nomeEdital) {
     return 'default';
   }
 
-/* Nome que a materia recebe quando passa de 70% de dominio.
+/* 30/09/2026: os nomes agora SAO os do catalogo (catalogo.js), com acento.
+   Antes esta lista tinha "Memoria da Nacao" e o catalogo a mesma, acentuada:
+   o topo do site e o cartao mostravam sem acento. Pedido dele.
+
+   Nome que a materia recebe quando passa de 70% de dominio.
    Espelha HABILIDADES_MILITARES de conquistas.html. Chave em minuscula e sem
    acento, porque o nome vem do edital e chega de qualquer jeito. */
 const TAGS_POR_MATERIA = {
@@ -143,19 +149,19 @@ const TAGS_POR_MATERIA = {
   'matematica': 'Calculista',                'raciocinio logico': 'Estrategista',
   'raciocinio logico matematico': 'Estrategista',
   'fisica': 'Engenheiro de Campo',           'quimica': 'Alquimista',
-  'biologia': 'Medico de Combate',           'historia': 'Memoria da Nacao',
-  'historia do brasil': 'Memoria da Nacao',  'geografia': 'Navegador',
+  'biologia': 'Médico de Combate',           'historia': 'Memória da Nação',
+  'historia do brasil': 'Memória da Nação',  'geografia': 'Navegador',
   'geografia do brasil': 'Navegador',
-  'ingles': 'Interprete',                    'espanhol': 'Interprete',
-  'lingua estrangeira': 'Interprete',
-  'direito constitucional': 'Guardiao da Lei',
+  'ingles': 'Intérprete',                    'espanhol': 'Intérprete',
+  'lingua estrangeira': 'Intérprete',
+  'direito constitucional': 'Guardião da Lei',
   'direito administrativo': 'Administrador de Elite',
-  'direito penal': 'Guardiao da Lei',        'direito penal militar': 'Guardiao da Lei',
+  'direito penal': 'Guardião da Lei',        'direito penal militar': 'Guardião da Lei',
   'legislacao': 'Legislador',                'legislacao militar': 'Legislador',
   'legislacao especial': 'Legislador',
   'informatica': 'Operador Cyber',           'nocoes de informatica': 'Operador Cyber',
-  'atualidades': 'Analista de Inteligencia',
-  'etica': 'Guardiao da Lei',                'administracao': 'Administrador de Elite',
+  'atualidades': 'Analista de Inteligência',
+  'etica': 'Guardião da Lei',                'administracao': 'Administrador de Elite',
   'contabilidade': 'Calculista',             'estatistica': 'Calculista',
 };
 
@@ -259,7 +265,9 @@ export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = 
     ? (xp - atual.xp) / (proximo.xp - atual.xp)
     : 1;
 
-  return { nome: atual.nome, indice, proximo, faltam, fracao, tipo, total: tabela.length };
+  // `piso` (30/09/2026): o XP em que o posto atual comeca -- a barra do painel
+  // mede do piso ao proximo, e os numeros dela precisam da mesma base.
+  return { nome: atual.nome, indice, proximo, faltam, fracao, tipo, total: tabela.length, piso: atual.xp };
 }
 
 /* A tag: a materia mais dominada que ja passou de 70%.
@@ -322,16 +330,12 @@ export function tagsConquistadas(materias = []) {
    mora nos fatos do servidor, nao na lista de materias. Sem este
    reconhecimento, quem vestisse uma tag de habito veria a barra superior
    mostrar outra coisa em todas as paginas. */
-const NOMES_DO_CATALOGO = new Set([
-  'Orador de Guerra', 'Calculista', 'Engenheiro de Campo', 'Intérprete',
-  'Guardião da Lei', 'Navegador', 'Memória da Nação', 'Operador Cyber',
-  'Alquimista', 'Médico de Combate', 'Estrategista', 'Administrador de Elite',
-  'Legislador', 'Sentinela', 'Inabalável', 'Sapador', 'Incansável', 'Batedor',
-  'Instrutor', 'Veterano', 'Inquebrantável', 'Reintegrado', 'Vigília',
-  'Turno da Noite', 'Marcha Forçada', 'Ferro em Brasa', 'Obstinado',
-  'Especialista', 'Travessia', 'Método', 'Sem Brecha', 'Um Ano de Farda',
-  'Condecorado',
-]);
+/* 30/09/2026: era uma lista ESCRITA A MAO dos 33 nomes -- uma copia do
+   catalogo. Quando a divisa "Sentinela" virou "Atalaia" (auditoria, item 21),
+   a copia ficou para tras e vestir "Atalaia" nao pegava. Agora deriva do
+   catalogo: uma fonte so. Import SEM carimbo, pela convencao de modulo ->
+   modulo (ver o cabecalho do condecoracoes.js). */
+const NOMES_DO_CATALOGO = new Set(DIVISAS.map((d) => d.nome));
 
 /* A tag que vai na divisa.
    A ESCOLHA DELE GANHA, e nao se perde.

@@ -1174,9 +1174,12 @@ input:focus, textarea:focus, select:focus {
   display: grid; grid-template-columns: repeat(7, 1fr);
   gap: .4rem; align-items: end; height: 6.5rem;
 }
-.gsemana-col { display: grid; align-content: end; gap: .4rem; height: 100%; }
+/* 30/09/2026: coluna em flex com um TRILHO que ocupa a altura que sobra; a
+   barra fica presa ao fundo dele, e o % da altura passa a valer de verdade. */
+.gsemana-col { display: flex; flex-direction: column; gap: .4rem; height: 100%; min-height: 0; }
+.gsemana-trilho { flex: 1; position: relative; min-height: 0; }
 .gsemana-barra {
-  position: relative;
+  position: absolute; left: 0; right: 0; bottom: 0;
   background: linear-gradient(180deg, var(--latao-c), var(--latao));
   border-radius: 2px 2px 0 0;
   min-height: 3px;
@@ -1186,7 +1189,9 @@ input:focus, textarea:focus, select:focus {
   transform: scaleY(0);
   animation: gsemana-sobe 520ms var(--saida) forwards;
 }
-.gsemana-barra.vazio { background: var(--casco-2); }
+/* 30/09/2026: era ".vazio" -- o mesmo nome do componente de estado vazio
+   (min-height 16rem, logo acima): o dia sem estudo saia com 80px, o MAIOR. */
+.gsemana-barra.sem-estudo { background: var(--casco-2); }
 .gsemana-barra.hoje { box-shadow: 0 0 0 1px var(--latao-c); }
 .gsemana-col:nth-child(1) .gsemana-barra { animation-delay:  40ms; }
 .gsemana-col:nth-child(2) .gsemana-barra { animation-delay:  90ms; }

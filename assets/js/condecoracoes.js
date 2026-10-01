@@ -39,7 +39,8 @@ function progressoDe(cond, f, jaTem) {
     case 'sessoes':        return frac(f.sessoes, cond.min);
     case 'horas':          return frac(f.horas, cond.min);
     case 'xp':             return frac(f.xp, cond.min);
-    case 'streak':         return frac(f.streak, cond.min);
+    // 30/09/2026: a MELHOR sequencia -- conquista de sequencia e permanente.
+    case 'streak':         return frac(Math.max(Number(f.streak) || 0, Number(f.melhorSequencia) || 0), cond.min);
     case 'sessaoUnica':    return frac(f.maiorSessaoMin, cond.minutosMin);
     case 'sessoesNoDia':   return frac(f.sessoesNoDiaMax, cond.quantas);
     case 'horasNoDia':     return frac(f.horasNoDiaMax, cond.min);

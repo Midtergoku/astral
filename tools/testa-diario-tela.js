@@ -161,7 +161,8 @@ const quando = (diasAtras, hora) => {
     if (m.dias === 7) ok("os 7 dias aparecem", m.datas.join(" · "));
     else falha("quantidade de dias", `${m.dias} (esperado 7)`);
 
-    if (m.sub && /7 dias registrados/.test(m.sub)) ok("o resumo aparece", m.sub.trim());
+    // 30/09/2026: o texto passou a dizer que sao os dias de ESTUDO mais recentes (auditoria, item 15).
+    if (m.sub && /7 dias de estudo/.test(m.sub)) ok("o resumo aparece", m.sub.trim());
     else falha("resumo errado", String(m.sub));
 
     // ── Os marcos plantados ────────────────────────────────────────────────

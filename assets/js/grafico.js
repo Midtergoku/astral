@@ -31,10 +31,14 @@ export function graficoSemanaHTML(semana = [], titulo = 'Sua semana') {
     const pct = Math.round(((d.segundos || 0) / teto) * 100);
     const alt = d.segundos ? Math.max(6, pct) : 3;
     const dia = DIAS[d.data.getDay()];
+    /* 30/09/2026: a barra mora num TRILHO de altura definida. Sem ele, o % da
+       altura se referia a uma linha de grade sem altura e era descartado: o
+       dia de 2h saia com 3px e o dia vazio, esticado, com 80px (auditoria
+       dele, item 9). */
     return `<div class="gsemana-col${d.hoje ? ' hoje' : ''}">
-      <div class="gsemana-barra${d.segundos ? '' : ' vazio'}${d.hoje ? ' hoje' : ''}"
+      <div class="gsemana-trilho"><div class="gsemana-barra${d.segundos ? '' : ' sem-estudo'}${d.hoje ? ' hoje' : ''}"
            style="height:${alt}%"
-           title="${dia} · ${formatar(d.segundos)}"></div>
+           title="${dia} · ${formatar(d.segundos)}"></div></div>
       <span class="gsemana-dia">${dia}</span>
     </div>`;
   }).join('');

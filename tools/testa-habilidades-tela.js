@@ -206,7 +206,8 @@ const haDias = (n) => new Date(Date.now() - n * 86400000).toISOString();
     // "os ramos mudam COMO se joga, nunca O QUE se aprende" -- quem abre a
     // tela precisa saber que nenhuma escolha o prejudica, senão hesita.
     const html = fs.readFileSync(path.join(RAIZ, "habilidades.html"), "utf8");
-    if (/Nenhuma habilidade tira nada/i.test(html)) ok("a página diz que nada é tirado", "quem lê não hesita em escolher");
+    // 30/09/2026: na Instrucao a palavra virou "especializacao" (auditoria, item 20).
+    if (/Nenhuma especializa[çc][ãa]o tira nada/i.test(html)) ok("a página diz que nada é tirado", "quem lê não hesita em escolher");
     else falha("a página não explica a trava");
 
     const hexes = (html.match(/#[0-9a-fA-F]{3,8}\b/g) || []);

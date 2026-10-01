@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Cronômetro</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -428,6 +428,7 @@ select.materia-select:focus { border-color:var(--purple); }
   import { carregarProgresso, salvarProgresso,
            registrarSessao as registrarSessaoNoBanco,
            sessoesDeHoje } from './assets/js/estado.js?v=87f966f4';
+  import { montarSemana, blocosDeHoje } from './assets/js/cronograma.js?v=17358f63';
 
   const CIRCUNFERENCIA = 2 * Math.PI * 120;
   let usuario=null, progresso=null, modo='livre', rodando=false, intervalo=null;
@@ -453,6 +454,16 @@ select.materia-select:focus { border-color:var(--purple); }
     // Historico agora vem do banco: o cronometro de ontem no computador
     // aparece hoje no celular. Antes era uma chave por dia, so no navegador.
     const doBanco = await sessoesDeHoje(usuario.id);
+
+    /* 30/09/2026 (auditoria, item 24): o padrao era "Geral" -- e tempo em
+       "Geral" nao conta para o dominio nem para o tempo por materia. Agora vem
+       escolhida a PROXIMA sessao do cronograma de hoje (a mesma conta da aba
+       Cronograma); "Geral" continua na lista para quem quiser. */
+    try {
+      const pendente = blocosDeHoje(montarSemana(progresso.materias, progresso.rotina), doBanco || [])
+        .find((b) => !b.feito);
+      if (pendente && [...select.options].some((o) => o.value === pendente.materia)) select.value = pendente.materia;
+    } catch { /* sem cronograma: fica "Geral" */ }
     historico = doBanco.map(s => ({
       materia: s.materia || 'Geral',
       segundos: s.segundos,
@@ -735,7 +746,7 @@ select.materia-select:focus { border-color:var(--purple); }
 </script>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=0551225f"></script>
+<script type="module" src="/assets/js/divisa.js?v=7fbaaf3f"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

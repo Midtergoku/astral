@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Progresso</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -416,6 +416,9 @@
 .gb-valor {
   font-family: var(--dado); font-size: .72rem; color: var(--texto-2);
   font-variant-numeric: tabular-nums; margin-bottom: .3rem;
+  /* 30/09/2026 (auditoria, item 25): o "64%" de uma barra perto de 70 ficava
+     embaixo da linha tracejada. O rotulo passa por cima dela, com fundo. */
+  position: relative; z-index: 2; background: var(--casco); padding: 0 .25rem; border-radius: var(--r-p);
 }
 .gb-barra {
   width: min(2.6rem, 62%); height: var(--h); min-height: 2px;
@@ -709,7 +712,9 @@
 
     const r = resumoDoDiario(dias);
     document.getElementById('diario-sub').textContent =
-      `${r.dias} ${r.dias === 1 ? 'dia registrado' : 'dias registrados'} · ${r.horas}h`
+      // 30/09/2026 (auditoria, item 15): sao os ULTIMOS 30 DIAS DE ESTUDO, nao os
+      // ultimos 30 dias do calendario -- a Disciplina usa a outra janela.
+      `${r.dias} ${r.dias === 1 ? 'dia de estudo' : 'dias de estudo'} (os mais recentes) · ${r.horas}h`
       + (r.marcos ? ` · ${r.marcos} ${r.marcos === 1 ? 'marco' : 'marcos'}` : '')
       + (revisoes.length ? ` · ${revisoes.filter((x) => !x.feita).length} ${revisoes.filter((x) => !x.feita).length === 1 ? 'revisão' : 'revisões'} para hoje` : '');
 
@@ -873,9 +878,18 @@
     }
 
     const totalMaterias = estado.materias.length;
-    const matMais50 = estado.materias.filter(m => m.progresso >= 50).length;
-    const somaProgresso = estado.materias.reduce((acc, m) => acc + m.progresso, 0);
+    /* 30/09/2026 (auditoria, itens 6 e 23): o cartao dizia "Mais de 50%" e
+       contava >= 50 (Legislacao em 50 entrava). Agora o texto diz o que conta.
+       E a media ganha a versao PONDERADA pelo peso do edital -- o produto
+       inteiro gira em torno de peso, e a media simples trata 5% e 20% igual. */
+    const dom = (m) => Number(m.progresso) || 0;
+    const matMais50 = estado.materias.filter(m => dom(m) >= 50).length;
+    const somaProgresso = estado.materias.reduce((acc, m) => acc + dom(m), 0);
     const media = totalMaterias > 0 ? Math.round(somaProgresso / totalMaterias) : 0;
+    const somaPeso = estado.materias.reduce((acc, m) => acc + (Number(m.peso) || 0), 0);
+    const ponderada = somaPeso > 0
+      ? Math.round(estado.materias.reduce((acc, m) => acc + dom(m) * (Number(m.peso) || 0), 0) / somaPeso)
+      : media;
 
     contentArea.innerHTML = `
       <!-- STATS -->
@@ -886,14 +900,14 @@
           <div class="card-sub">do seu edital</div>
         </div>
         <div class="card stat-gold">
-          <div class="card-label">Mais de 50%</div>
+          <div class="card-label">50% ou mais</div>
           <div class="card-value">${matMais50}</div>
           <div class="card-sub">matérias avançadas</div>
         </div>
         <div class="card stat-green">
-          <div class="card-label">Média geral</div>
-          <div class="card-value">${media}%</div>
-          <div class="card-sub">progresso total</div>
+          <div class="card-label">Domínio pelo peso</div>
+          <div class="card-value">${ponderada}%</div>
+          <div class="card-sub">média ponderada pelo edital · simples ${media}%</div>
         </div>
       </div>
 
@@ -1077,7 +1091,7 @@ window.aplicarBalanco = function() {
 </div>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=0551225f"></script>
+<script type="module" src="/assets/js/divisa.js?v=7fbaaf3f"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

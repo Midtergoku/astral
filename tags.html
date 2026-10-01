@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=86fadaee"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Minhas tags</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -236,8 +236,9 @@
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
-  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=0551225f';
+  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
   import { icone } from './assets/js/icones.js?v=7c816270';
+  import { arrumarNome } from './assets/js/prova.js?v=eb5c7443';
 
   let estado = null;
   let uid = null;
@@ -246,6 +247,27 @@
      anterior: ela vira a cor do nome e um rótulo, que é o sinal mais barato e
      mais viciante de um sistema de coleção — dá para ler a vitrine inteira de
      relance e ver onde estão as raras. */
+  /* 30/09/2026 (auditoria, item 18): a divisa secreta dizia "secreta" mesmo
+     ja conquistada -- e a condecoracao de mesmo nome aparecia aberta na outra
+     tela. Conquistada, ela conta de onde veio. Trancada, segue secreta. */
+  function origemDe(t, conquistada) {
+    if (conquistada && t.comoGanha === 'secreta' && t.condicao?.tipo === 'condecoracao') {
+      const c = (estado.condecoracoes || []).find((x) => x.id === t.condicao.id);
+      return c ? `condecoração ${c.nome}` : 'condecoração';
+    }
+    return t.comoGanha || t.materia || '';
+  }
+
+  /* 30/09/2026 (auditoria, item 16): tag de materia que NAO esta no edital
+     (Interprete sem Ingles) aparecia como "ainda por conquistar" -- uma meta
+     impossivel. Casa os nomes pela MESMA lista que da nome as materias do
+     Banco (arrumarNome), dos dois lados. */
+  function materiaDoEdital(d) {
+    if (d.condicao?.tipo !== 'materiaDominada') return true;
+    const doEdital = new Set((estado.materias || []).map((m) => arrumarNome(m.nome) || String(m.nome || '').toLowerCase()));
+    return (d.condicao.materias || []).some((n) => doEdital.has(arrumarNome(n) || String(n).toLowerCase()));
+  }
+
   function pecaHTML(t, n, vestida, conquistada) {
     const cor = t.cor || 'var(--latao-c)';
     const rar = { comum: 'Comum', incomum: 'Incomum', rara: 'Rara', lendaria: 'Lendária' }[t.raridade] || '';
@@ -259,7 +281,7 @@
           <span class="divisa"><span class="nivel">${esc(n.nome)}</span><span class="tag">${esc(t.nome)}</span></span>
         </div>
         <div class="peca-topo">
-          <span class="peca-origem">${esc(t.comoGanha || t.materia || '')}</span>
+          <span class="peca-origem">${esc(origemDe(t, conquistada))}</span>
           ${t.dominio != null ? `<span class="peca-dominio">${t.dominio}%</span>` : ''}
         </div>
         <div class="peca-topo">
@@ -311,7 +333,7 @@
 
     /* As trancadas aparecem apagadas — ver o que falta é o que faz voltar.
        Menos as SECRETAS: essas nem entram na lista, senão deixam de ser. */
-    const trancadas = doCatalogo.filter((d) => !d.conquistada && !d.secreta);
+    const trancadas = doCatalogo.filter((d) => !d.conquistada && !d.secreta && materiaDoEdital(d));
 
     alvo.innerHTML = `
       <div class="vitrine-atual">
@@ -386,15 +408,19 @@
     try {
       const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
       if (error || !fatos) return;
-      const { conferir } = await import('./assets/js/condecoracoes.js?v=2bfaf79d');
-      estado.divisas = conferir(fatos).divisas;
+      const { conferir } = await import('./assets/js/condecoracoes.js?v=ca3738be');
+      // 30/09/2026 (auditoria, item 12): com as GRAVADAS, como o painel -- eram 7 aqui e 8 la.
+      const { data: gravadas } = await supabase.rpc('sincronizar_conquistas');
+      const r = conferir(fatos, gravadas || null);
+      estado.divisas = r.divisas;
+      estado.condecoracoes = r.condecoracoes;
       render();
     } catch { /* fica a vitrine simples */ }
   })();
 
   document.getElementById('btn-sair').addEventListener('click', fazerLogout);
 </script>
-<script type="module" src="/assets/js/divisa.js?v=0551225f"></script>
+<script type="module" src="/assets/js/divisa.js?v=7fbaaf3f"></script>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>

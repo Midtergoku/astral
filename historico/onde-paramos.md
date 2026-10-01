@@ -292,3 +292,20 @@ caderno de erros dele. **Tudo sai no `simula-edital.js --reverter`** (ids guarda
 
 **Pendente de decisão/ação dele:** senha de app do Gmail (lembrete automático no checa-saude);
 nomes das tags sem acento ("Memoria da Nacao") — proposta no relatório.
+
+### 30/09/2026 (noite) — a auditoria de 28 itens dele, e os acentos das tags
+
+Todos os 28 itens tratados; medido na conta dele antes e depois. Os principais:
+condecorações de sequência pela **melhor** sequência (não a atual) · gráfico da semana que estava
+**invertido** (classe `.vazio` colidindo com o estado vazio do site) · Quadro e tags contando as
+conquistas **gravadas**, como o painel (44 em todo lugar) · "dominada" = 70% em todo o produto ·
+barra de XP na mesma base dos números · aviso de rebalanceamento recomenda a mesma matéria que o chefe ·
+calendário mostra a prova como próximo evento · cronômetro já vem na próxima sessão do cronograma ·
+tags impossíveis (matéria fora do edital) fora da vitrine · divisa "Sentinela" → "Atalaia" ·
+"Fôlego de Combate" agora pede 2 h (repetia a "Guarda Estendida") · Instrução fala em
+"especialização" e mostra o XP sem bônus · nomes das tags **com acento** (a lista do `divisa.js`
+passou a ser derivada do catálogo — havia 4 cópias).
+
+**Não feito (proposta):** a camada única `user_stats` que a auditoria recomenda. Hoje as telas já
+leem das mesmas funções (`conferir` com gravadas, `pontoFraco`, `dominio_calculado`), mas não de um
+objeto só.

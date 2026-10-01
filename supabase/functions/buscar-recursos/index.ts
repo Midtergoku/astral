@@ -133,6 +133,7 @@ Regras importantes:
 - Priorize sempre o conteúdo gratuito
 - Use apenas URLs reais e verificadas, sempre começando com https://
 - Para professores, use o endereço do canal no YouTube no formato https://www.youtube.com/@nomedocanal
+- Se a matéria for LEGISLAÇÃO (estatuto, lei de organização, regulamento disciplinar), priorize nos materiais a legislação ESPECÍFICA da corporação e do estado do concurso, com link para o texto oficial — não a legislação federal genérica
 - Cada link será conferido automaticamente; link que não abrir será descartado, e o item junto
 - Escreva texto puro: nada de HTML, script ou markdown dentro dos campos
 - Retorne SOMENTE o JSON, nada mais${reforco}`,

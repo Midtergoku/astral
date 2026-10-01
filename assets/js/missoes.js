@@ -139,7 +139,8 @@ export const CAMPANHAS = [
     nome: 'Operação Constância',
     texto: 'A campanha que separa quem passa de quem desiste.',
     etapas: [
-      { id: 'e_7dias',   texto: '7 dias seguidos',              alvo: 7,  de: (f) => f.streak },
+      // 30/09/2026: campanha nunca expira -- vale a melhor sequencia, nao a de hoje.
+      { id: 'e_7dias',   texto: '7 dias seguidos',              alvo: 7,  de: (f) => Math.max(Number(f.streak) || 0, Number(f.melhorSequencia) || 0) },
       { id: 'e_20dias',  texto: '20 dias estudados',            alvo: 20, de: (f) => f.diasEstudados },
       { id: 'e_disc',    texto: 'DISCIPLINA acima de 80',       alvo: 80, de: (f) => f.atributos?.disciplina?.valor || 0 },
       { id: 'e_semana',  texto: 'Uma semana com os 7 dias',     alvo: 1,  de: (f) => f.semanasPerfeitas },

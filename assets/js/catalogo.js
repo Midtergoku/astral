@@ -220,7 +220,7 @@ export const CONDECORACOES = [
     condicao: { tipo: 'materias', dominioMin: 70, quantas: 2 } },
 
   { id: 'meio_caminho',     metal: 'prata', nome: 'Meio do Caminho',
-    descricao: 'Domínio médio de 50% em todas as matérias.',
+    descricao: 'Média de domínio de 50% no edital.',
     condicao: { tipo: 'atributo', chave: 'doutrina', min: 50 } },
 
   { id: 'trinta_sessoes',   metal: 'prata', nome: 'Veterano de Campo',
@@ -268,12 +268,14 @@ export const CONDECORACOES = [
   // gatilho. Chegar a 100 em DISCIPLINA significa 20 dias de estudo em 30 --
   // nao e numero bonito, e um mes de vida organizada.
   { id: 'disciplina_total', metal: 'ouro', nome: 'Disciplina de Ferro',
-    descricao: 'DISCIPLINA no máximo: vinte dias de estudo em trinta.',
+    descricao: 'DISCIPLINA no máximo: vinte dias de estudo nos últimos trinta e uma sequência de sete.',
     condicao: { tipo: 'atributo', chave: 'disciplina', min: 100 } },
 
+  // 30/09/2026: era RESISTENCIA 100 = uma sessao de 90 min -- o MESMO criterio da
+  // Guarda Estendida (prata). Ouro pede mais: duas horas seguidas.
   { id: 'resistencia_total', metal: 'ouro', nome: 'Fôlego de Combate',
-    descricao: 'RESISTÊNCIA no máximo: uma sessão de hora e meia.',
-    condicao: { tipo: 'atributo', chave: 'resistencia', min: 100 } },
+    descricao: 'Uma sessão de duas horas seguidas.',
+    condicao: { tipo: 'sessaoUnica', minutosMin: 120 } },
 
   { id: 'doutrina_total',   metal: 'ouro', nome: 'Doutrina Consolidada',
     descricao: 'DOUTRINA no máximo: domínio pleno de todas as matérias.',
@@ -511,7 +513,8 @@ export const DIVISAS = [
     condicao: { tipo: 'materiaDominada', materias: ['legislação', 'legislação especial'], dominioMin: 70 } },
 
   // ── Por hábito — vêm dos atributos da ficha ────────────────────────────
-  { id: 'sentinela',    nome: 'Sentinela',         raridade: 'comum',   cor: 'var(--oliva-c)',
+  // 30/09/2026: era "Sentinela", o mesmo nome da condecoracao de bronze (meia_hora).
+  { id: 'sentinela',    nome: 'Atalaia',           raridade: 'comum',   cor: 'var(--oliva-c)',
     comoGanha: 'DISCIPLINA acima de 60',
     condicao: { tipo: 'atributo', chave: 'disciplina', min: 60 } },
 

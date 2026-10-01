@@ -45,7 +45,9 @@ const FASES = [
   { ate: 0,   nome: 'O dia chegou',   tom: 'agora',  frase: 'É hoje. Você se preparou para isto.' },
   { ate: 7,   nome: 'Reta final',     tom: 'urgente', frase: 'Última semana. Reforce o que você já domina — não abra frente nova.' },
   { ate: 30,  nome: 'Aproximação',    tom: 'urgente', frase: 'Menos de um mês. É hora de revisar mais do que aprender.' },
-  { ate: 90,  nome: 'Preparação',     tom: 'medio',   frase: 'Três meses é tempo de consolidar. Ataque as matérias mais fracas agora.' },
+  // 30/09/2026 (auditoria, item 14): a frase dizia "Tres meses" para a faixa
+  // inteira de 31 a 90 dias -- com 67 dias, nao sao tres meses.
+  { ate: 90,  nome: 'Preparação',     tom: 'medio',   frase: 'Menos de três meses: tempo de consolidar. Ataque as matérias mais fracas agora.' },
   { ate: 999, nome: 'Campanha longa', tom: 'calmo',   frase: 'Tempo de sobra para construir base. Constância vale mais que intensidade.' },
 ];
 
