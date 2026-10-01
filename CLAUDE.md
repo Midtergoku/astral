@@ -148,6 +148,10 @@ powershell -File tools\confere-auth.ps1
                                 🔴 checa-saude NAO pega isto: ele testa a IDA ao Google, nao a VOLTA
 powershell -File tools\smtp-configura.ps1
                                 entrega de e-mail (por que ninguem recebe). So leitura por padrao
+node tools/roda-testes.js       a BATERIA INTEIRA (56 testes, ~30 min), um por vez; pula o que gasta
+                                credito. Com nomes: so os que casam (roda-testes dominio taf)
+node tools/testa-dominio.js     o dominio e medido pelo servidor? (desde 30/09 -- banco.md 8.22)
+node tools/sincroniza-materias.js  OBRIGATORIO ao mudar MATERIAS_CONHECIDAS no prova.js
 git push origin main            publica o site (Vercel republica em ~1 min). NUNCA dois em paralelo
 supabase functions deploy       edge functions NAO passam pelo git, entram no ar na hora
 ```

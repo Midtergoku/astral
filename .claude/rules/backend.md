@@ -321,3 +321,21 @@ Regressão local: `node tools/testa-links.js`. Cada guia gerado grava no log
 `buscar-recursos links {ok, morto, incerto, cortados}`.
 
 ⚠️ **O caminho com IA nunca rodou** (sem crédito). No dia do crédito, olhar esse log no 1º guia.
+
+---
+
+## 8.22. O TAF lido do edital (30/09/2026)
+
+`processar-edital` passou a pedir também o TAF: `taf: { existe: true|false|null, provas: [{ prova,
+nome, masculino, feminino }] }`. `existe: null` = o edital não fala do assunto (diferente de `false`,
+"não tem TAF"). `validarTaf()` aceita só as 6 provas que o app sabe treinar (`assets/js/taf.js`);
+outra vira `"outra"` e a tela ignora. Índice fora de 0–10000 vira `null`. **O prompt manda não
+inventar índice.** `max_tokens` 1000 → 1500 (teto não cobra; ver valores.md §12).
+
+⚠️ **Nunca rodou com a IA de verdade** (sem crédito). Editais já guardados (`editais_lidos`) não têm
+`taf` — a página mostra "o edital não informou o TAF" e pede o índice. No 1º edital real, conferir
+se o TAF veio.
+
+A página `taf.html`, a tabela `taf_registros` (marca + gatilho de sanidade, 30/dia) e `meu_taf()`
+(XP de preparo físico: 10 por prova por dia, separado do XP de estudo) — migration `20260930140000`.
+Regressão: `node tools/testa-taf.js` (19 checagens).

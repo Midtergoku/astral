@@ -25,7 +25,9 @@ const path = require("path");
 const args = process.argv.slice(2);
 const iSalvar = args.indexOf("--salvar");
 const salvarEm = iSalvar >= 0 ? args[iSalvar + 1] : null;
-const filtros = args.filter((a, i) => !a.startsWith("--") && i !== iSalvar + 1);
+// 🔴 Sem --salvar, iSalvar e -1 e "i !== iSalvar + 1" descartava o PRIMEIRO
+// filtro (indice 0). Rodei "roda-testes chefe ..." e o chefe nao rodou.
+const filtros = args.filter((a, i) => !a.startsWith("--") && !(iSalvar >= 0 && i === iSalvar + 1));
 
 /* 🔴 Teste que GASTA CREDITO nunca entra na bateria. Na 1a execucao (30/09)
    o testa-edital-real entrou -- e so nao gastou porque saiu na hora, sem o

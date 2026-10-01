@@ -271,3 +271,24 @@ cartão para compartilhar e revisão espaçada (item 10).
 **Notado e deixado:** nome muito longo sem espaço vaza da barra lateral escondida no celular — vem
 da decisão "nome de pessoa não se corta" (app.css). O gráfico da Progresso rola para o lado no
 celular de propósito.
+
+### 30/09/2026 (tarde) — ele aprovou A, B e C: "pode mexer na economia inteira"
+
+| Item | O que ficou | Prova |
+|---|---|---|
+| **A · domínio** | medido pelo SERVIDOR: 60% acertos de primeira no Banco (com confiança) + 40% tempo; matéria sem Banco = só estudo, até 70. O navegador não manda mais. O cronograma usa o domínio do **início da semana** (rebalanceia toda segunda, nunca no meio do dia). Aviso do painel leva ao Banco filtrado na matéria fraca | `testa-dominio` 10/10 · bateria inteira |
+| **B · distintivos** | os 8 antigos saíram da página Conquistas; o cartão do painel mostra as condecorações por metal + a próxima | tela |
+| **C1 · revisão espaçada** | 1, 7 e 30 dias, no painel ("Revisão de hoje" + caderno de erros) e no diário ("revisar X hoje") | `testa-revisao` 7/7 |
+| **C2 · cartão da divisa** | imagem 1080×1920 desenhada no navegador, prévia antes de compartilhar | `testa-cartao` 10/10 |
+| **C3 · TAF** | página nova (menu em 14 páginas), XP de preparo físico SEPARADO do XP de estudo (10 por prova por dia), índice por sexo vindo do edital (a IA passa a ler o TAF) ou digitado, aviso de "concurso sem TAF" | `testa-taf` 19/19 |
+
+**🚨 Achado no caminho:** o backup não guardava **12 tabelas** desde 19/09 (as 1.989 questões, respostas,
+conquistas…). Consertado: o backup agora pergunta ao servidor quais tabelas existem e pagina.
+
+**A conta dele (simulada) ganhou respostas simuladas do Banco** para o domínio medido continuar
+parecido com o de antes (Português 73, História 81…). Efeito: ~100 questões "erradas" simuladas no
+caderno de erros dele. **Tudo sai no `simula-edital.js --reverter`** (ids guardados em
+`ASTRAL-BACKUPS/simulacao/<uid>.respostas.json`).
+
+**Pendente de decisão/ação dele:** senha de app do Gmail (lembrete automático no checa-saude);
+nomes das tags sem acento ("Memoria da Nacao") — proposta no relatório.

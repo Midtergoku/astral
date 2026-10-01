@@ -847,6 +847,10 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 .cond-proxima { font-size: var(--t-xs); color: var(--texto-2); margin-bottom: .5rem; text-align: center; }
 .cond-proxima b { color: var(--latao-c); font-weight: 600; }
 .card-link { color: var(--latao-c); text-decoration: none; }
+.btn-cartao { margin-top: .75rem; width: 100%; min-height: 40px; background: transparent; color: var(--latao-c);
+  border: 1px solid color-mix(in srgb, var(--latao) 40%, transparent); border-radius: var(--r-p);
+  font-family: var(--display); font-weight: 700; font-size: var(--t-xs); letter-spacing: .04em; cursor: pointer; }
+@media (hover: hover) { .btn-cartao:hover { background: color-mix(in srgb, var(--latao) 12%, transparent); } }
 @media (hover: hover) { .card-link:hover { text-decoration: underline; } }
 @media (max-width: 520px) {
   .balanco-banner { flex-wrap: wrap; }
@@ -1152,6 +1156,12 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
       </svg>
       Questões
     </a>
+    <a class="nav-link" href="taf.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="13" cy="4" r="2"/><path d="M7 21l3-7 3 2v5M10 14l-2-4 4-3 3 3 3 1"/>
+      </svg>
+      TAF
+    </a>
     <a class="nav-link" href="conquistas.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
       Conquistas
@@ -1220,6 +1230,8 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
         </div>
         <div style="font-size:0.72rem;color:var(--muted);margin-top:0.4rem;text-align:right;">próximo rank: <span id="proximo-rank" style="color:var(--purple-lt);font-weight:600;">Soldado</span></div>
       </div>
+      <!-- 30/09/2026 (item 10): o cartao para os stories. assets/js/cartao.js -->
+      <button type="button" class="btn-cartao" id="btn-cartao">Compartilhar minha divisa</button>
     </div>
 
     <div class="card stat-green">
@@ -1687,6 +1699,7 @@ function mostrarLevelUp(nomeNivel) {
     estado.edital         = dados.edital;
     estado.badges         = dados.badges;
     estado.rotina         = dados.rotina;
+    estado.tagEscolhida   = dados.tagEscolhida || null;
     // As sessoes de HOJE dizem quais blocos do dia ja foram feitos -- o
     // registro do servidor, nao uma marcacao guardada (ver cronograma.js).
     estado.hoje           = await sessoesDeHoje(session.user.id);
@@ -1995,6 +2008,34 @@ function mostrarLevelUp(nomeNivel) {
      sessao, cumpria a missao e a tela so contava na proxima visita. Agora
      redesenha depois de registrar a sessao, de subir o edital, e ao voltar
      para a aba (estudou pelo cronometro em outra aba, por exemplo). */
+  /* ── O CARTAO DA DIVISA (30/09/2026, item 10) ───────────────────────────
+     Os dados sao os MESMOS da divisa do topo (nivelDe + tagVestida) e das
+     condecoracoes do cartao do painel. Nada sai do aparelho antes de a pessoa
+     ver a imagem e apertar Compartilhar. */
+  document.getElementById('btn-cartao')?.addEventListener('click', async () => {
+    try {
+      const [{ abrirCartao }, { tagVestida }] = await Promise.all([
+        import('./assets/js/cartao.js?v=5d0e29cc'),
+        import('./assets/js/divisa.js?v=0551225f'),
+      ]);
+      const n = nivelDaConta();
+      const t = tagVestida(estado.materias, estado.tagEscolhida);
+      let condecoracoes = null, total = null;
+      if (resumoRPG) {
+        const { conferir } = await import('./assets/js/condecoracoes.js?v=2bfaf79d');
+        const r = conferir(resumoRPG.fatos, resumoRPG.gravadas).resumo;
+        condecoracoes = r.conquistadas; total = r.total;
+      }
+      const FORCAS = { bombeiros: 'Corpo de Bombeiros', marinha: 'Marinha', aeronautica: 'Aeronáutica', exercito: 'Exército', pm: 'Polícia Militar' };
+      const nome = (document.getElementById('user-name')?.textContent || '').trim();
+      await abrirCartao({ patente: n.nome, tag: t?.nome || null, forca: FORCAS[n.tipo] || null, nome,
+                          xp: estado.xp, sequencia: estado.streak, condecoracoes, totalCondecoracoes: total });
+    } catch (e) {
+      relatar(e, 'dashboard/cartao');
+      toast('Não consegui montar a imagem agora. Tente de novo.', 'error');
+    }
+  });
+
   /* ── A REVISAO DE HOJE (30/09/2026) ─────────────────────────────────────
      Quem decide o que revisar e o assets/js/revisao.js (funcao pura, curva
      de 1, 7 e 30 dias); aqui so se busca as sessoes e se desenha. */
@@ -2569,6 +2610,9 @@ function verificarBalanco() {
         patenteInicial: resultado.patenteInicial || null,
         // A impressao digital do PDF: e o que liga o aluno ao guia do MESMO edital.
         hash: typeof resultado.hash === 'string' ? resultado.hash : null,
+        // 30/09/2026 (item 10): o TAF que a IA leu do edital -- provas e indices
+        // por sexo, ou { existe: false }. A pagina taf.html le daqui.
+        taf: resultado.taf && typeof resultado.taf === 'object' ? resultado.taf : null,
       };
 
       estado.materias = (resultado.materias || []).map(m => ({

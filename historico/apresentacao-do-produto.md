@@ -30,7 +30,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 |---|---|
 | **Patentes que mudam conforme o seu concurso** | 11 níveis, de 0 a 35.000 XP. Quem sobe um edital dos bombeiros ganha as patentes **dos bombeiros**; de PM, as da PM. São **6 tabelas** — bombeiros, marinha, aeronáutica, exército, PM e padrão — escolhidas pelo nome do edital |
 | **XP que vem do trabalho** | sessão de estudo marcada = peso da matéria × 5 · cronômetro = 2 XP por minuto |
-| **8 conquistas** | acendem sozinhas ao cruzar o número: primeiro XP, 1 hora estudada, 3 e 7 dias de sequência, níveis 3 e 5, primeiro edital, 5.000 XP |
+| ~~**8 conquistas**~~ | ✏️ **saíram em 30/09/2026, decisão dele:** repetiam condecorações que já existem ("1h Estudada" = "Primeira Hora"). A coleção agora é uma só — as 74 condecorações, logo abaixo |
 | **15 habilidades secretas** | Orador de Guerra, Calculista, Alquimista, Médico de Combate, Navegador, Operador Cyber, Estrategista, Guardião da Lei… Destrancam com **70% de domínio na matéria** — e são secretas **de propósito**: o valor está em descobrir sem esperar |
 | **Elas enferrujam** | 7 dias sem estudar a matéria = enferrujada · 14 dias = **fora de serviço**. A habilidade acompanha o seu estado atual, não o seu recorde — e o cartão diz há quanto tempo e o que fazer: **uma sessão** traz ela de volta |
 | **A tag na barra superior** | `NÍVEL · TAG` — o lugar mais nobre da tela mostra **quem você é**, não qual plano você paga |
@@ -47,6 +47,10 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **Árvore de habilidades** | Um ponto a cada faixa de XP, gasto em **Infantaria** (constância), **Artilharia** (volume) ou **Inteligência** (mirar a matéria fraca). São 12 habilidades em 3 ramos de 4 degraus, e o bônus vai de +5% a +20% de XP na sessão que cumprir a condição. **Nenhuma tira nada** — os ramos mudam *como* você joga, nunca *o que* você aprende. Dá para recomeçar e redistribuir quando quiser |
 | **Diário de campanha** | Os últimos 30 dias em linha do tempo: quanto tempo, quais matérias, a sequência — e os **marcos**, que aparecem no dia exato em que aconteceram. Quem abre no mês seguinte vê uma campanha, não uma planilha |
 | **Trocar de concurso não apaga nada** | Mudou de edital, ou passou? As condecorações ficam. **Conquista não se desconquista** — antes, trocar de edital apagava 4 medalhas e 3 divisas em silêncio |
+| **O domínio é medido, não declarado** (30/09) | O quanto você domina cada matéria sai das **questões do Banco que você acerta de primeira** (60%) e do seu tempo de estudo (40%) — calculado pelo servidor. Só estudar leva até 40; a tag (70%) exige acertar questão. A página Progresso mostra **como cada número foi medido** |
+| **Revisão espaçada** (30/09) | O que você estudou volta **1, 7 e 30 dias depois** — no painel ("Revisão de hoje", com o caderno de erros) e no diário, no dia em que você estudou |
+| **Cartão da divisa** (30/09) | Sua patente, tag, XP, sequência e condecorações numa imagem do tamanho de um story. Você vê a imagem antes de qualquer coisa sair do celular |
+| **TAF** (30/09) | Registre corrida, barra, flexão, abdominal (e 50 m, natação): melhor marca contra o **índice do seu edital, do seu sexo**. XP de **preparo físico** próprio, que não mexe na patente de estudo. Concurso sem TAF? A tela diz — e deixa treinar mesmo assim |
 
 ### O que vem
 
@@ -127,7 +131,8 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **Cronômetro por matéria** | livre ou pomodoro; cada sessão fica registrada com matéria, duração e horário |
 | **Calendário** | seus eventos e prazos |
 | **Cronograma da semana** | o que estudar em cada dia |
-| **Progresso por matéria** | quanto você domina de cada uma |
+| **Progresso por matéria** | quanto você domina de cada uma — e, desde 30/09, **como foi medido** (questões de primeira no Banco + horas) |
+| **O cronograma se rebalanceia sozinho** (30/09) | toda segunda, pelo domínio medido: a matéria fraca ganha mais sessões. O plano de hoje não muda no meio do dia |
 | **Minha conta** | seu plano e seus limites, num lugar só |
 
 ---

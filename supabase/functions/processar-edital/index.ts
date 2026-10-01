@@ -62,12 +62,45 @@ function paginasAproximadas(bytes: Uint8Array): number | null {
 }
 
 interface Materia { nome: string; questoes: number; peso: number }
+/* 30/09/2026 (item 10, o TAF): o edital tambem diz se ha teste fisico, quais
+   provas e o indice minimo de cada sexo. `existe` e null quando o edital nao
+   fala do assunto -- diferente de false ("este concurso nao tem TAF"). */
+interface ProvaTaf { prova: string; nome: string; masculino: number | null; feminino: number | null }
+interface Taf { existe: boolean | null; provas: ProvaTaf[] }
 interface Edital {
   concurso: string;
   dataProva: string | null;
   forca: Forca;
   patenteInicial: string | null;
   materias: Materia[];
+  taf: Taf | null;
+}
+
+// As provas que o app sabe treinar (assets/js/taf.js). Outra prova vira "outra"
+// e a tela a ignora -- melhor nao mostrar do que mostrar com unidade errada.
+const PROVAS_TAF = ["corrida_12min", "barra", "flexao", "abdominal", "corrida_50m", "natacao_50m"];
+function validarTaf(v: unknown): Taf | null {
+  const t = v as { existe?: unknown; provas?: unknown } | null;
+  if (!t || typeof t !== "object") return null;
+  const existe = t.existe === true ? true : t.existe === false ? false : null;
+  const indice = (x: unknown) => {
+    const n = Number(x);
+    return Number.isFinite(n) && n > 0 && n <= 10000 ? n : null;
+  };
+  const provas = (Array.isArray(t.provas) ? t.provas : [])
+    .filter((p) => p && typeof p === "object")
+    .slice(0, 8)
+    .map((p) => {
+      const o = p as Record<string, unknown>;
+      const prova = String(o.prova ?? "").trim().toLowerCase();
+      return {
+        prova: PROVAS_TAF.includes(prova) ? prova : "outra",
+        nome: String(o.nome ?? "").trim().slice(0, 80),
+        masculino: indice(o.masculino),
+        feminino: indice(o.feminino),
+      };
+    });
+  return { existe, provas: existe === false ? [] : provas };
 }
 
 /* As 6 famílias de patente que o app conhece (assets/js/divisa.js).
@@ -129,6 +162,7 @@ function validar(d: unknown): Edital {
       ? e.patenteInicial.trim().slice(0, 60)
       : null,
     materias,
+    taf: validarTaf((e as { taf?: unknown }).taf),
   };
 }
 
@@ -194,7 +228,10 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
 
     const resposta = await anthropic.messages.create({
     model: MODELO,
-    max_tokens: 1000,
+    // 30/09/2026: 1000 -> 1500. O TAF acrescenta ~100-150 tokens de saida; com
+    // 30+ materias o JSON encostava em 1000 e cortaria no meio. O teto nao cobra
+    // nada por si: paga-se so o que a resposta usa (ver historico/valores.md).
+    max_tokens: 1500,
     messages: [{
       role: "user",
       content: [
@@ -209,7 +246,13 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
   "patenteInicial": "Soldado",
   "materias": [
     { "nome": "Nome da Matéria", "questoes": 10, "peso": 12.5 }
-  ]
+  ],
+  "taf": {
+    "existe": true,
+    "provas": [
+      { "prova": "corrida_12min", "nome": "Corrida de 12 minutos", "masculino": 2400, "feminino": 2000 }
+    ]
+  }
 }
 
 Regras:
@@ -250,6 +293,16 @@ Regras:
   Exemplos: "Soldado", "Grumete", "Aluno-Sargento", "Cadete", "Aspirante a Oficial",
   "Soldado PM 2ª Classe", "Bombeiro Militar de 3ª Classe".
   Se o edital não deixar claro, retorne null. NÃO invente.
+
+- "taf" é o teste de aptidão física (TAF, TFM, TAF-1, exame físico).
+  "existe": true se o edital prevê o teste; false se diz que NÃO há; null se não fala do assunto.
+  "provas": cada prova com o ÍNDICE MÍNIMO para aprovação, por sexo, como número:
+    "prova" é EXATAMENTE um destes: "corrida_12min" (índice em metros),
+    "barra" (repetições), "flexao" (repetições), "abdominal" (repetições),
+    "corrida_50m" (segundos), "natacao_50m" (segundos), ou "outra".
+  Se o índice varia por idade, use o da faixa mais jovem. Se o edital não der o
+  número de um sexo, use null naquele campo. NÃO invente índice: é melhor null
+  do que um número que não está no edital.
 
 - Retorne SOMENTE o JSON, nada mais
 
