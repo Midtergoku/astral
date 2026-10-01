@@ -357,6 +357,15 @@
       flex-shrink: 0;
     }
 
+/* 30/09/2026: a revisao espacada no dia em que a materia foi estudada. */
+.diario-revisao {
+      display: flex; align-items: baseline; gap: 0.45rem;
+      margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.35;
+      color: var(--brasa-c);
+    }
+.diario-revisao::before { content: '↻'; font-size: 0.8rem; flex-shrink: 0; }
+.diario-revisao.feita { color: var(--oliva-c); }
+
 .diario-vazio {
       color: var(--muted);
       font-size: 0.86rem;
@@ -444,6 +453,10 @@
 .gb-tabela table { width: 100%; border-collapse: collapse; margin-top: var(--e2); font-size: .84rem; }
 .gb-tabela th { text-align: left; font-family: var(--dado); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-3); font-weight: 400; padding: .4rem .3rem; border-bottom: 1px solid var(--linha); }
 .gb-tabela td { padding: .5rem .3rem; border-bottom: 1px solid color-mix(in srgb, var(--linha) 55%, transparent); color: var(--texto-2); }
+.gb-tabela td.medida { font-size: var(--t-xs); color: var(--texto-3); line-height: 1.35; }
+/* A tabela ganhou a coluna "como foi medido": no celular ela rola, nao espreme. */
+.gb-tabela { overflow-x: auto; }
+.gb-tabela table { min-width: 34rem; }
 .gb-tabela td.num { font-family: var(--dado); text-align: right; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) {
   .gb-barra { animation: none; }
@@ -598,7 +611,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
-  import { montarCronograma, necessidadeDe } from './assets/js/plano.js?v=ecd3765b';
+  import { montarCronograma, necessidadeDe } from './assets/js/plano.js?v=b8fa3798';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
 
   let estado = {
@@ -671,14 +684,28 @@
     desenharSemanas(data || []);
     if (!data?.length) return;             // sem histórico, sem diário
 
-    const { montarDiario, resumoDoDiario } = await import('./assets/js/diario.js?v=d3fadef5');
+    const [{ montarDiario, resumoDoDiario }, { revisoesDeHoje }] = await Promise.all([
+      import('./assets/js/diario.js?v=d3fadef5'),
+      import('./assets/js/revisao.js?v=7195f2ea'),
+    ]);
     const dias = montarDiario(data, 30);
     if (!dias.length) return;
+
+    /* 30/09/2026 -- a revisao espacada, ligada ao diario como ele pediu: o dia
+       em que a materia foi estudada ganha a linha "revisar hoje" (1, 7 e 30
+       dias depois). Mesma regra do cartao do painel: assets/js/revisao.js. */
+    const revisoes = revisoesDeHoje(data);
+    const revisaoNoDia = new Map();
+    for (const rv of revisoes) {
+      if (!revisaoNoDia.has(rv.estudadaEm)) revisaoNoDia.set(rv.estudadaEm, []);
+      revisaoNoDia.get(rv.estudadaEm).push(rv);
+    }
 
     const r = resumoDoDiario(dias);
     document.getElementById('diario-sub').textContent =
       `${r.dias} ${r.dias === 1 ? 'dia registrado' : 'dias registrados'} · ${r.horas}h`
-      + (r.marcos ? ` · ${r.marcos} ${r.marcos === 1 ? 'marco' : 'marcos'}` : '');
+      + (r.marcos ? ` · ${r.marcos} ${r.marcos === 1 ? 'marco' : 'marcos'}` : '')
+      + (revisoes.length ? ` · ${revisoes.filter((x) => !x.feita).length} ${revisoes.filter((x) => !x.feita).length === 1 ? 'revisão' : 'revisões'} para hoje` : '');
 
     document.getElementById('diario-lista').innerHTML = dias.map((d) => `
       <div class="diario-dia${d.marcos.length ? ' marcado' : ''}">
@@ -688,6 +715,7 @@
         </div>
         <div class="diario-resumo">${esc(d.resumo)}</div>
         ${d.marcos.map((m) => `<div class="diario-marco">${esc(m.texto)}</div>`).join('')}
+        ${(revisaoNoDia.get(d.dia) || []).map((rv) => `<div class="diario-revisao${rv.feita ? ' feita' : ''}">${rv.feita ? `${esc(rv.materia)}: revisada hoje ✓` : `Revisar ${esc(rv.materia)} hoje — ${rv.haDias === 1 ? 'foi ontem' : `faz ${rv.haDias} dias`}`}</div>`).join('')}
       </div>`).join('');
 
     caixa.hidden = false;
@@ -723,6 +751,19 @@
   }
 
   const SITUACAO = (p) => p >= 90 ? 'Dominado' : p >= 70 ? 'Quase lá' : p >= 30 ? 'Em progresso' : p > 0 ? 'Iniciado' : 'Não iniciado';
+
+  /* 30/09/2026: o dominio e MEDIDO pelo servidor (migration 20260930120000).
+     A pessoa tem de poder ver de onde saiu cada numero -- senao ele e so mais
+     uma barra. Devolve texto puro; quem chama escapa. */
+  const horasTxt = (min) => { const m = Math.round(Number(min) || 0); return m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? String(m % 60).padStart(2, '0') : ''}` : `${m} min`; };
+  function comoMedido(m) {
+    const d = m?.medida;
+    if (!d) return '';
+    if (d.fonte === 'estudo') return `Só pelo estudo, até 70% (o Banco ainda não tem questões desta matéria) · ${horasTxt(d.minutos)} estudadas`;
+    const partes = [`${d.de_primeira} de ${d.respondidas} acertadas de primeira no Banco`, `${horasTxt(d.minutos)} de estudo`];
+    if (d.alvo && d.respondidas < d.alvo) partes.push(`responda mais ${d.alvo - d.respondidas} para a medida valer inteira`);
+    return partes.join(' · ');
+  }
   const hm = (seg) => { const m = Math.round(seg / 60); return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`; };
 
   /* Horas por semana, das 8 ultimas -- das sessoes gravadas no servidor. */
@@ -855,7 +896,7 @@
         <div class="grafico-topo">
           <div>
             <div class="section-title">Domínio por matéria</div>
-            <div class="grafico-sub">Na ordem de peso no edital. Acima da linha de 70%, a matéria vira tag de especialista.</div>
+            <div class="grafico-sub">Medido pelas questões do Banco que você acerta de primeira (60%) e pelo seu tempo de estudo (40%). Na ordem de peso no edital; acima de 70%, a matéria vira tag de especialista.</div>
           </div>
         </div>
         ${barrasEmPe({
@@ -867,16 +908,16 @@
             valor: Number(m.progresso) || 0,
             texto: `${Number(m.progresso) || 0}%`,
             tom: (Number(m.progresso) || 0) >= 70 ? 'forte' : '',
-            dica: `<b>${esc(m.nome)}</b>Domínio ${Number(m.progresso) || 0}%<br>Peso no edital ${Number(m.peso) || 0}%<br>${SITUACAO(Number(m.progresso) || 0)}`,
+            dica: `<b>${esc(m.nome)}</b>Domínio ${Number(m.progresso) || 0}%<br>Peso no edital ${Number(m.peso) || 0}%<br>${SITUACAO(Number(m.progresso) || 0)}${comoMedido(m) ? `<br>${esc(comoMedido(m))}` : ''}`,
           })),
         })}
         <details class="gb-tabela">
           <summary>Ver em tabela</summary>
           <table>
-            <thead><tr><th>Matéria</th><th style="text-align:right">Peso</th><th style="text-align:right">Domínio</th><th>Situação</th></tr></thead>
+            <thead><tr><th>Matéria</th><th style="text-align:right">Peso</th><th style="text-align:right">Domínio</th><th>Situação</th><th>Como foi medido</th></tr></thead>
             <tbody>
               ${[...estado.materias].sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0)).map((m) => `
-                <tr><td>${esc(m.nome)}</td><td class="num">${Number(m.peso) || 0}%</td><td class="num">${Number(m.progresso) || 0}%</td><td>${getStatusTag(Number(m.progresso) || 0)}</td></tr>`).join('')}
+                <tr><td>${esc(m.nome)}</td><td class="num">${Number(m.peso) || 0}%</td><td class="num">${Number(m.progresso) || 0}%</td><td>${getStatusTag(Number(m.progresso) || 0)}</td><td class="medida">${esc(comoMedido(m))}</td></tr>`).join('')}
             </tbody>
           </table>
         </details>

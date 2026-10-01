@@ -89,3 +89,35 @@ Descoberta durante o trabalho: `anon` tinha privilégio **total** nas duas tabel
   que só o `service_role` escreve. O grant de coluna resolve o furo imediato, não a modelagem.
 
 ---
+
+---
+
+## 8.22. O DOMÍNIO É DO SERVIDOR (30/09/2026) ✅
+
+**Leia antes de mexer em `progresso.materias`, `respostas`, `sessoes_estudo` ou na lista de matérias.**
+
+Até 30/09 o domínio de cada matéria (`materias[].progresso`) **nunca era calculado**: nascia 0 e o
+navegador podia gravar qualquer valor. Toda a economia (tag ≥70, Doutrina, condecorações de
+domínio, chefe, aviso de rebalancear, cronograma) dependia de um número que não existia.
+
+| Peça | Onde |
+|---|---|
+| A regra | `dominio_formula()`: com Banco (≥10 questões no acervo) = 100 × (0,6 Q + 0,4 S); sem Banco = 70 × min/900 |
+| Q | acertos **de primeira** / respondidas × confiança (respondidas / 30, ou o acervo se menor) |
+| S | minutos estudados na matéria / 600 (10 h) |
+| Casar nomes | `materia_do_banco()` sobre a tabela `materias_conhecidas` — **espelho** de `MATERIAS_CONHECIDAS` (assets/js/prova.js), escrito por `node tools/sincroniza-materias.js` |
+| Quando recalcula | gatilho `progresso_do_servidor` (toda gravação do SITE) + `dominio_apos_sessao` + `dominio_apos_resposta` |
+| `medida` | cada matéria leva `{fonte, banco, respondidas, de_primeira, alvo, minutos, semana}` — a tela mostra "como foi medido" |
+| `medida.semana` | o domínio no **início da semana** (segunda 0h SP). **É ele que o cronograma usa** (`plano.js necessidadeDe`): o plano fica parado a semana e se rebalanceia toda segunda |
+
+- 🔑 **A chave de serviço fica de fora** (`gravacao_pelo_site`), como no XP. Testes e a simulação
+  fixam domínio por ela — ver `tools/testes/dominio-plantado.js` (`fixarDominio`, `plantarAcertos`).
+- 🔴 **Teste que planta domínio pelo `salvar_progresso` não funciona mais** — o servidor recalcula.
+  Se a TELA grava o progresso ao abrir (o painel grava), nem a chave de serviço segura: plante
+  **evidência** (`plantarAcertos`). Foi isso que derrubou 6 testes em 30/09 (consertados no dia).
+- Mudou `MATERIAS_CONHECIDAS` no prova.js? `node tools/sincroniza-materias.js`. O `testa-dominio`
+  falha se as duas listas divergirem.
+- Ajuste no mesmo dia (migration `..130000`): matéria **sem** Banco ia a 100 só com estudo —
+  "Legislação" chegou a 90% em 13,5 h, acima de quem prova domínio respondendo. Teto de 70.
+
+Regressão: `node tools/testa-dominio.js` (10 checagens, sem crédito).

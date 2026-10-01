@@ -18,6 +18,8 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
+const { fixarDominio } = require("./testes/dominio-plantado.js");
+
 const REF = "jjogmcacbdefwiwcyjxp";
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, "..");
@@ -126,6 +128,13 @@ function instante(diasAtras, hora) {
         p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null,
       }),
     });
+    // 30/09/2026: o dominio e do servidor; o teste o fixa pela chave de servico.
+    await fixarDominio(BASE, SERVICE, usuario.id, [
+      { nome: "Matematica", peso: 3, progresso: 80 },
+      { nome: "Portugues", peso: 3, progresso: 60 },
+      { nome: "Fisica", peso: 2, progresso: 55 },
+      { nome: "Ingles", peso: 1, progresso: 52 },
+    ]);
 
     const r = await req("/rest/v1/rpc/fatos_do_usuario", {
       method: "POST",

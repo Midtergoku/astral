@@ -154,10 +154,15 @@ const questao = (origem, texto) => ({
 
       const filtros = await req("/rest/v1/rpc/filtros_de_questoes",
         { method: "POST", headers: ana.cab, body: "{}" });
-      const temPenal = (filtros.corpo?.materias || []).some((m) => m.nome === "Direito penal");
-      !temPenal
-        ? ok("e nem entra na contagem dos filtros", "o acervo publico nao sabe que ela existe")
-        : falha("o filtro publico contou a questao particular");
+      /* 30/09/2026: este teste supunha que o acervo PUBLICO nao tinha nenhuma
+         questao de Direito penal -- verdade quando foi escrito, falso desde
+         27/09 (entraram 8 da PRF). A pergunta certa nao e "a materia aparece?",
+         e "a contagem e so a do acervo publico?". */
+      const publicas = (await req("/rest/v1/questoes?materia=eq.Direito%20penal&publicada=eq.true&select=id", { headers: admin })).corpo?.length ?? -1;
+      const noFiltro = (filtros.corpo?.materias || []).find((m) => m.nome === "Direito penal")?.quantas ?? 0;
+      Number(noFiltro) === publicas
+        ? ok("e nem entra na contagem dos filtros", `Direito penal: ${noFiltro} = as ${publicas} públicas, a dela não soma`)
+        : falha("o filtro publico contou a questao particular", `filtro ${noFiltro}, públicas ${publicas}`);
     }
 
     // ── 5. Gabarito pode faltar -- aqui, e so aqui ────────────────────────

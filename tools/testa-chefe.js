@@ -201,6 +201,11 @@ const emDias = (n) => {
           p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null,
         }),
       });
+      /* 30/09/2026: o dominio e do servidor, e o painel grava o progresso ao
+         abrir -- um numero plantado seria recalculado na hora. Entao planta-se
+         EVIDENCIA: 30 acertos de primeira em Matematica (dominio 60) e nada em
+         Fisica (0). Fisica continua sendo o ponto fraco, agora por merito. */
+      await require("./testes/dominio-plantado.js").plantarAcertos(BASE, SERVICE, usuario.id, "Matemática", 30);
 
       const ctx = await nav.newContext({ viewport: { width: 1280, height: 1000 } });
       await ctx.addInitScript(`(() => {

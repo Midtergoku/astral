@@ -59,7 +59,11 @@ async function sql(query) {
 let pasta = process.argv[2];
 if (!pasta) {
   if (!fs.existsSync(BACKUPS)) { console.log('Nao ha backups em ' + BACKUPS); process.exit(1); }
-  const dirs = fs.readdirSync(BACKUPS).filter((d) => fs.statSync(path.join(BACKUPS, d)).isDirectory()).sort();
+  // 🔴 30/09/2026: so pastas com DATA no nome. A pasta `simulacao/` (copias do
+  // simula-edital.js, desde 27/09) vem depois das datas na ordem alfabetica, e o
+  // teste passou a "restaurar" um arquivo com id de usuario como se fosse tabela.
+  const dirs = fs.readdirSync(BACKUPS)
+    .filter((d) => /^\d{4}-\d{2}-\d{2}/.test(d) && fs.statSync(path.join(BACKUPS, d)).isDirectory()).sort();
   if (!dirs.length) { console.log('Nao ha backups em ' + BACKUPS); process.exit(1); }
   pasta = path.join(BACKUPS, dirs[dirs.length - 1]);
 }
@@ -129,15 +133,33 @@ const nok = (t, extra) => { console.log('  FALHA ' + t.padEnd(46) + (extra ?? ''
         continue;
       }
 
-      /* Comparacao de conteudo: cada linha do restaurado tem de existir
-         igualzinha no vivo. `except` devolve o que sobrou de um lado. */
-      const [{ n: diferentes }] = await sql(
+      /* Comparacao de conteudo, em DUAS perguntas diferentes.
+
+         🔴 30/09/2026: ate aqui so havia a segunda, e ela dava FALHA sempre
+         que alguem estudava depois do backup -- o backup e de um dia, o banco
+         vivo e de hoje, e `progresso` muda toda vez que alguem estuda. Era
+         alarme falso, e alarme falso ensina a ignorar o alarme.
+
+         1. O que o teste promete -- O BACKUP VOLTA IGUAL? -- se responde
+            comparando o restaurado com o PROPRIO ARQUIVO, nos dois sentidos.
+            Isto e falha de verdade: o backup perdeu ou trocou algo.
+         2. Restaurado x banco de hoje: so informa quanto mudou desde a foto. */
+      const fonte = `json_populate_recordset(null::"${ESQUEMA}"."${tabela}", '${JSON.stringify(linhas).replace(/'/g, "''")}'::json)`;
+      const [{ n: perdidas }] = await sql(
+        `select count(*)::int as n from (select * from ${fonte} except select * from "${ESQUEMA}"."${tabela}") d;`);
+      const [{ n: trocadas }] = await sql(
+        `select count(*)::int as n from (select * from "${ESQUEMA}"."${tabela}" except select * from ${fonte}) d;`);
+      if (perdidas > 0 || trocadas > 0) {
+        nok(tabela, `o backup NAO voltou igual: ${perdidas} linha(s) do arquivo sumiram, ${trocadas} voltaram trocadas`);
+        continue;
+      }
+      const [{ n: mudouDepois }] = await sql(
         `select count(*)::int as n from (` +
         `  select * from "${ESQUEMA}"."${tabela}" except select * from public."${tabela}"` +
         `) d;`,
       );
-      if (diferentes > 0) nok(tabela, diferentes + ' linha(s) voltaram DIFERENTES do original');
-      else ok(tabela, nRest + ' linha(s), conteudo idêntico ao original');
+      ok(tabela, nRest + ' linha(s), voltaram iguais ao arquivo'
+        + (mudouDepois ? `  (${mudouDepois} mudaram no banco depois do backup -- esperado)` : ', e iguais ao banco de hoje'));
     }
 
     /* ── as contas: nao dá para recriar aqui, mas dá para conferir ── */

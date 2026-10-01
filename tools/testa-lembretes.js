@@ -8,6 +8,11 @@ const r14 = LEMBRETES.find((l) => l.id === "R14");
 const medirOriginal = r14.medir;
 let falhas = 0;
 
+/* 30/09/2026: com mais de um lembrete, cada caso isola o seu -- os outros
+   ficam calados (abaixo do gatilho), senao um disparo alheio passa por este. */
+const originais = new Map(LEMBRETES.map((l) => [l, l.medir]));
+for (const l of LEMBRETES) if (l !== r14) l.medir = async () => l.gatilho - 1;
+
 function capturar(fn) {
   const linhas = [];
   const antigo = console.log;
@@ -46,6 +51,20 @@ function capturar(fn) {
   } else { console.log("  FALHA  inventou algo sem medir:", r.linhas); falhas++; }
 
   r14.medir = medirOriginal;
+
+  // 5. O do SMTP (30/09): pendente dispara toda sessao; configurado se cala.
+  const smtp = LEMBRETES.find((l) => l.id === "SMTP");
+  r14.medir = async () => r14.gatilho - 1;
+  smtp.medir = async () => 1;
+  r = await capturar(() => rodar({ silencioseLonge: true }));
+  if (r.disparou && /Gmail/.test(r.linhas) && /AVISAR O LUCAS/.test(r.linhas)) console.log("  OK     SMTP pendente: dispara e manda avisar da senha de app");
+  else { console.log("  FALHA  SMTP pendente nao avisou"); falhas++; }
+  smtp.medir = async () => 0;
+  r = await capturar(() => rodar({ silencioseLonge: true }));
+  if (!r.disparou) console.log("  OK     SMTP configurado: o lembrete se cala sozinho");
+  else { console.log("  FALHA  SMTP configurado continuou avisando"); falhas++; }
+
+  for (const [l, m] of originais) l.medir = m;
   console.log(falhas === 0 ? "\n  O LEMBRETE TOCA NA HORA CERTA." : `\n  🔴 ${falhas} FALHA(S).`);
   process.exit(falhas === 0 ? 0 : 1);
 })();

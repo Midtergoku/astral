@@ -65,7 +65,11 @@ export function limparPagina(texto) {
 // A lista cresceu em 22/09/2026 a pedido dele: "a pessoa que vai fazer prova
 // de oficial dos bombeiros tem quimica", "policial penal, policial rodoviario
 // federal -- nao tem essas materias aqui".
-const MATERIAS_CONHECIDAS = [
+// 🔴 30/09/2026: o SERVIDOR usa esta mesma lista para casar a materia do
+// edital com a do Banco (dominio). Ela e espelhada na tabela
+// `materias_conhecidas` por `node tools/sincroniza-materias.js`. Mudou aqui?
+// Rodar a sincronizacao -- o `testa-dominio.js` falha se as duas divergirem.
+export const MATERIAS_CONHECIDAS = [
   [/portugu[êe]s/i,                          "Português"],
   [/\bingl[êe]s/i,                           "Inglês"],
   [/\bespanhol/i,                            "Espanhol"],

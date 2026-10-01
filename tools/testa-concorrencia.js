@@ -154,8 +154,12 @@ let uid = null;
   const checagens = [
     ['o XP é o das sessões, não o da última tela', d.xp === 1500,              'xp = ' + d.xp + ' (A mandou 1500, B mandou 1200)'],
     ['as horas são as das sessões',          Number(d.horas) === 12,          'horas = ' + d.horas],
-    ['o progresso de Português (tela A)',    prog('Português') === 70,        prog('Português') + '%'],
-    ['o progresso de Matemática (tela B)',   prog('Matemática') === 60,       prog('Matemática') + '%'],
+    /* 30/09/2026: o DOMINIO tambem passou a ser do servidor (migration
+       20260930120000) -- o mesmo caminho que o XP fez em 28/09. As telas
+       mandam 70 e 40, 20 e 60; fica o que as sessoes dizem: 6 h em cada,
+       sem questao respondida -> 0,4 x 360/600 = 24. */
+    ['o domínio de Português é o medido, não o de uma tela',  prog('Português') === 24,  prog('Português') + '% (A mandou 70, B mandou 40)'],
+    ['o domínio de Matemática é o medido, não o de uma tela', prog('Matemática') === 24, prog('Matemática') + '% (A mandou 20, B mandou 60)'],
     ['a conquista da tela A não se perdeu',  temBadge('maratonista'),         JSON.stringify(d.badges)],
     ['a conquista da tela B também está lá', temBadge('madrugador'),          ''],
     ['nenhuma conquista duplicada',          new Set(d.badges).size === (d.badges || []).length, (d.badges || []).length + ' badge(s)'],

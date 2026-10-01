@@ -46,9 +46,16 @@
    Não é IA -- é conta. E é de propósito: instantânea, de graça, e a IA não
    saberia o progresso da pessoa melhor que os números dela. */
 
+/* 30/09/2026: o dominio passou a ser medido pelo servidor e muda a cada
+   questao respondida. Se o plano usasse o valor AO VIVO, as sessoes de hoje
+   trocariam de materia no meio do dia. Por isso a conta usa o dominio do
+   INICIO DA SEMANA (`medida.semana`, migration 20260930120000): o plano fica
+   parado a semana toda e se rebalanceia toda segunda, pelo desempenho. */
 export function necessidadeDe(materia) {
   const peso = Number(materia?.peso) || 0;
-  const progresso = Math.min(100, Math.max(0, Number(materia?.progresso) || 0));
+  const daSemana = materia?.medida?.semana;
+  const base = daSemana != null ? daSemana : materia?.progresso;
+  const progresso = Math.min(100, Math.max(0, Number(base) || 0));
   return peso * (100 - progresso);
 }
 

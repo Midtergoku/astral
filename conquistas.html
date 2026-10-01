@@ -821,16 +821,6 @@
     ],
   };
 
-  const BADGES_DEF = [
-    { id: 'primeiro_dia',   icon: 'medalha',  nome: 'Primeiro Dia',    req: 'Acumule seu primeiro XP',         xp_req: 1    },
-    { id: 'primeira_hora',  icon: 'relogio',  nome: '1h Estudada',     req: 'Estude por 1 hora no total',      xp_req: 50   },
-    { id: 'sequencia_3',    icon: 'chama',  nome: 'Streak 3 dias',   req: 'Mantenha 3 dias de streak',       streak_req: 3 },
-    { id: 'sequencia_7',    icon: 'subindo',  nome: 'Semana Completa', req: 'Mantenha 7 dias de streak',       streak_req: 7 },
-    { id: 'nivel_3',        icon: 'estrela',  nome: 'Nível 3',         req: 'Alcance o Nível 3',               nivel_req: 3  },
-    { id: 'nivel_5',        icon: 'estrela',  nome: 'Nível 5',         req: 'Alcance o Nível 5',               nivel_req: 5  },
-    { id: 'primeiro_edital',icon: 'prancheta',  nome: 'Edital Lido',     req: 'Suba seu primeiro edital',        edital_req: true },
-    { id: 'maratonista',    icon: 'medalha',  nome: 'Maratonista',     req: 'Acumule 5.000 XP',                xp_req: 5000 },
-  ];
 
   function detectarTipoConcurso(nomeEdital) {
     if (!nomeEdital) return 'default';
@@ -913,102 +903,13 @@
       if (plano === 'pro') { if (planoEl) planoEl.className = 'user-plan plan-pro'; }
     }
 
-    const xp = estado.xp;
-    const streak = estado.streak;
-    const temEdital = estado.edital !== null;
-    const tipoEdital = estado.edital ? detectarTipoConcurso(estado.edital.nome) : 'default';
-    const NIVEIS_ATUAL = TABELAS_NIVEIS[tipoEdital] || TABELAS_NIVEIS.default;
-    const nivelIndex = NIVEIS_ATUAL.findLastIndex(n => xp >= n.xp);
-
-    const desbloqueadas = [];
-    const bloqueadas = [];
-
-    BADGES_DEF.forEach(b => {
-      let isUnlocked = false;
-      if (b.xp_req     && xp >= b.xp_req)                isUnlocked = true;
-      if (b.streak_req && streak >= b.streak_req)         isUnlocked = true;
-      if (b.nivel_req  && nivelIndex + 1 >= b.nivel_req)  isUnlocked = true;
-      if (b.edital_req && temEdital)                      isUnlocked = true;
-
-      if (isUnlocked) desbloqueadas.push(b);
-      else bloqueadas.push(b);
-    });
-
-    const total = BADGES_DEF.length;
-    const concluidas = desbloqueadas.length;
-    const pct = Math.round((concluidas / total) * 100) || 0;
-
-    const contentArea = document.getElementById('content-area');
-
-    let html = `
-      <!-- CARD RESUMO -->
-      <div class="card">
-        <div style="font-weight:600;color:var(--white);margin-bottom:0.25rem;">Progresso geral</div>
-        <div class="progresso-bar-wrap">
-          <div class="progresso-bar">
-            <div class="progresso-fill" style="width:${pct}%"></div>
-          </div>
-          <div class="progresso-labels">
-            <span>${concluidas} concluídas · ${total - concluidas} restantes</span>
-            <span style="color:var(--purple-lt);">${pct}%</span>
-          </div>
-        </div>
-      </div>
-    `;
-
-    if (concluidas > 0) {
-      html += `
-        <div class="section-header">
-          <div class="section-title">Desbloqueadas</div>
-        </div>
-        <div class="badges-grid" style="margin-bottom: 2rem;">
-          ${desbloqueadas.map(b => `
-            <div class="badge-card unlocked">
-              <div class="badge-icon">${icone(b.icon)}</div>
-              <div class="badge-name">${b.nome}</div>
-              <div class="badge-req" style="color:var(--purple-lt); font-weight:500;">Concluída!</div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    } else {
-      html += `
-        <div class="empty-state" style="margin-bottom: 2rem;">
-          <div class="empty-state-icon"><i data-icone="foguete"></i></div>
-          <div style="font-family:var(--display);font-weight:700;font-size:1.15rem;color:var(--white);margin-bottom:0.5rem;">Sua jornada começa agora.</div>
-          <div style="font-size:0.9rem;">Complete sessões de estudo para desbloquear suas primeiras missões.</div>
-        </div>
-      `;
-    }
-
-    if (bloqueadas.length > 0) {
-      html += `
-        <div class="section-header">
-          <div class="section-title" style="color:var(--muted);">Próximas missões</div>
-        </div>
-        <div class="badges-grid">
-          ${bloqueadas.map(b => `
-            <div class="badge-card locked">
-              <div class="badge-icon">${icone(b.icon)}</div>
-              <div class="badge-name">${b.nome}</div>
-              <div class="badge-req">${b.req}</div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    contentArea.innerHTML = html;
-
-    // Animations
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.Motion) {
-      const { animate, stagger } = window.Motion;
-      const cards = document.querySelectorAll('.badge-card');
-      if (cards.length) {
-        cards.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(12px)'; });
-        animate(cards, { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0)'] }, { duration: 0.4, delay: stagger(0.04) });
-      }
-    }
+    /* 30/09/2026 -- decisao dele (item 5): os 8 "distintivos" antigos
+       (Primeiro Dia, 1h Estudada, Streak 3 dias, Nivel 3...) SAIRAM. Eram
+       calculados no navegador e repetiam condecoracoes que ja existem
+       ("1h Estudada" = "Primeira Hora", "Edital Lido" = "Ordem de Servico").
+       A colecao agora e uma so: as condecoracoes, logo abaixo. O dado
+       `progresso.badges` continua gravado -- nada foi apagado do banco. */
+    document.getElementById('content-area').innerHTML = '';
 
     renderHabilidades();
   }

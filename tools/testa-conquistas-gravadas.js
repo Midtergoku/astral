@@ -98,6 +98,11 @@ async function criar(prefixo) {
         p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null,
       }),
     });
+    /* 30/09/2026: o dominio e do servidor -- os 85/80/75 acima sao recalculados.
+       Planta-se EVIDENCIA: 30 acertos de primeira em cada materia. Com as ~7 h
+       de cada uma (as 20 sessoes acima), o dominio medido fica em ~88. */
+    const { plantarAcertos } = require("./testes/dominio-plantado.js");
+    for (const m of ["Matemática", "Física", "Português"]) await plantarAcertos(BASE, SERVICE, a.id, m, 30);
 
     const cheio = (await sinc()).corpo;
     const antes = cheio.condecoracoes.length;

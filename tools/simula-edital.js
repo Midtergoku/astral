@@ -62,6 +62,56 @@ async function req(c, o = {}) {
 // As tabelas que a simulacao pode tocar, e a coluna que diz de quem e a linha.
 const TABELAS = ["progresso", "sessoes_estudo", "eventos", "conquistas", "habilidades_escolhidas", "recursos_salvos"];
 const GUIA = process.argv.includes("--guia");
+const RESPOSTAS = process.argv.includes("--respostas");
+
+/* ── AS RESPOSTAS DO BANCO SIMULADAS (30/09/2026) ───────────────────────────
+   Desde 30/09 o DOMINIO de cada materia e medido pelo servidor: acertos de
+   primeira no Banco (60%) + tempo de estudo (40%). O `progresso` que esta
+   ferramenta escrevia a mao deixou de valer -- o servidor recalcula. Para a
+   conta simulada continuar "avancada", ela ganha respostas de verdade a
+   questoes de verdade do acervo, na proporcao que leva cada materia perto do
+   dominio que a simulacao tinha (MATERIAS[].progresso).
+
+   🔴 Os ids das respostas plantadas vao para um arquivo AO LADO da copia
+   (`<uid>.respostas.json`), e o --reverter apaga SO ELAS. Assim uma resposta
+   que o dono deu de verdade no Banco nunca e apagada por engano. */
+async function plantarRespostas(uid) {
+  const arq = path.join(PASTA, `${uid}.respostas.json`);
+  if (fs.existsSync(arq)) { console.log("  respostas              ja plantadas antes -- nada a fazer"); return; }
+  const minutos = {};
+  for (const s of await req(`/rest/v1/sessoes_estudo?usuario_id=eq.${uid}&select=materia,segundos`)) {
+    minutos[s.materia] = (minutos[s.materia] || 0) + s.segundos / 60;
+  }
+  const ids = [];
+  // Questao que ele ja respondeu de verdade fica de fora: a dele vale, nao a simulada.
+  const jaRespondidas = new Set((await req(`/rest/v1/respostas?usuario_id=eq.${uid}&questao_id=not.is.null&select=questao_id`)).map((x) => x.questao_id));
+  for (const m of MATERIAS) {
+    const banco = (await req(`/rest/v1/rpc/materia_do_banco`, { method: "POST", body: JSON.stringify({ p_nome: m.nome }) }));
+    if (!banco) continue;
+    const acervo = (await req(`/rest/v1/questoes?materia=eq.${encodeURIComponent(banco)}&publicada=eq.true&select=id&order=id&limit=60`))
+      .filter((x) => !jaRespondidas.has(x.id)).slice(0, 30);
+    if (acervo.length < 10) continue;                       // sem Banco: o servidor mede so o estudo
+    const s = Math.min(1, (minutos[m.nome] || 0) / 600);
+    const q = Math.max(0, Math.min(1, (m.progresso - 40 * s) / 60));
+    const certas = Math.round(q * acervo.length);
+    const linhas = acervo.map((x, i) => ({
+      usuario_id: uid, questao_id: x.id, letra: "a", acertou: i < certas,
+      vezes_errou: i < certas ? 0 : 1, vezes_acertou: i < certas ? 1 : 0,
+    }));
+    const feitas = await req("/rest/v1/respostas?select=id", { method: "POST",
+      headers: { ...admin, Prefer: "return=representation" }, body: JSON.stringify(linhas) });
+    ids.push(...feitas.map((x) => x.id));
+    console.log(`  respostas              ${m.nome.padEnd(12)} ${certas} de ${acervo.length} de primeira`);
+  }
+  fs.writeFileSync(arq, JSON.stringify({ quando: new Date().toISOString(), ids }));
+  // Pela chave de servico o gatilho nao recalcula (de proposito); recalcula aqui.
+  const prog = (await req(`/rest/v1/progresso?usuario_id=eq.${uid}&select=materias`))[0];
+  const medidas = await req("/rest/v1/rpc/dominio_calculado", { method: "POST",
+    body: JSON.stringify({ p_uid: uid, p_materias: prog?.materias || [] }) });
+  await req(`/rest/v1/progresso?usuario_id=eq.${uid}`, { method: "PATCH",
+    headers: { ...admin, Prefer: "return=minimal" }, body: JSON.stringify({ materias: medidas }) });
+  console.log(`  dominio medido         ${medidas.map((x) => `${x.nome} ${x.progresso}`).join(", ")}`);
+}
 
 /* ── O GUIA DE ESTUDO SIMULADO (29/09/2026) ─────────────────────────────────
    Pedido dele: "gostaria de saber como vai ser uma simulacao dos professores
@@ -168,6 +218,16 @@ function montarSessoes(uid) {
   if (REVERTER) {
     if (!fs.existsSync(arqCopia)) { console.log("Nao ha copia desta conta -- nada a reverter."); process.exitCode = 1; return; }
     const copia = JSON.parse(fs.readFileSync(arqCopia, "utf8"));
+    // As respostas plantadas saem pelo id guardado -- nunca as que ele deu de verdade.
+    const arqResp = path.join(PASTA, `${uid}.respostas.json`);
+    if (fs.existsSync(arqResp)) {
+      const { ids } = JSON.parse(fs.readFileSync(arqResp, "utf8"));
+      for (let i = 0; i < ids.length; i += 100) {
+        await req(`/rest/v1/respostas?id=in.(${ids.slice(i, i + 100).join(",")})`, { method: "DELETE", headers: { ...admin, Prefer: "return=minimal" } });
+      }
+      fs.renameSync(arqResp, arqResp.replace(/\.json$/, `.revertida-${Date.now()}.json`));
+      console.log(`  respostas                ${ids.length} resposta(s) da simulacao removidas`);
+    }
     for (const t of TABELAS.filter((t) => t !== "progresso")) {
       const antes = new Set((copia.linhas[t] || []).map((l) => String(l.id ?? JSON.stringify(l))));
       const agora = await req(`/rest/v1/${t}?usuario_id=eq.${uid}&select=*`);
@@ -207,6 +267,13 @@ function montarSessoes(uid) {
       body: JSON.stringify(nomes.map((materia) => ({ usuario_id: uid, materia, concurso, dados: guiaDemo(materia) }))) });
     const n = (await req(`/rest/v1/recursos_salvos?usuario_id=eq.${uid}&select=materia`)).length;
     console.log(`✔ guia de demonstracao em ${n} materia(s). Sai junto no --reverter.`);
+    return;
+  }
+
+  // ── RESPOSTAS DO BANCO (so em conta com a simulacao ativa) ─────────────
+  if (RESPOSTAS) {
+    if (!fs.existsSync(arqCopia)) { console.log("🔴 Aplique a simulacao antes (--aplicar)."); process.exitCode = 1; return; }
+    await plantarRespostas(uid);
     return;
   }
 
@@ -250,6 +317,7 @@ function montarSessoes(uid) {
   await req("/rest/v1/progresso?on_conflict=usuario_id", { method: "POST",
     headers: { ...admin, Prefer: "return=minimal,resolution=merge-duplicates" }, body: JSON.stringify(progresso) });
 
+  await plantarRespostas(uid);
   const conf = await req(`/rest/v1/sessoes_estudo?usuario_id=eq.${uid}&select=xp`);
   console.log(`\n✔ aplicado: ${conf.length} sessoes na conta, edital "${EDITAL.nome}".`);
   console.log("  Para desfazer: node tools/simula-edital.js --email X --reverter");

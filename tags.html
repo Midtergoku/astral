@@ -269,7 +269,12 @@
     const minhas = tagsConquistadas(estado.materias);
     const vestida = tagVestida(estado.materias, estado.tagEscolhida);
 
-    if (!minhas.length) {
+    /* 30/09/2026: o vazio so quando NAO ha nada -- nem tag de materia, nem
+       divisa do catalogo (habito, condecoracao). Antes bastava nao ter materia
+       acima de 70% para a pessoa ver "sua primeira tag ainda esta por vir" com
+       "7 dias seguidos" conquistada e escondida. Ninguem notou porque o
+       dominio nunca era medido; com ele medido, isto passaria a acontecer. */
+    if (!minhas.length && !(estado.divisas || []).some((d) => d.conquistada)) {
       alvo.innerHTML = `
         <div class="card">
           <div class="vazio">

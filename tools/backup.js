@@ -38,11 +38,52 @@ const DESTINO = path.resolve(RAIZ, '..', 'ASTRAL-BACKUPS');
 
 /* As tabelas do schema public. Lista explicita de proposito: assim uma tabela
    nova nao entra no backup em silencio -- ela aparece como falta na conferencia
-   do fim, e alguem precisa decidir se ela vai ou nao. */
+   do fim, e alguem precisa decidir se ela vai ou nao.
+
+   🔴 30/09/2026 -- A CONFERENCIA PROMETIDA ACIMA NUNCA TINHA SIDO ESCRITA.
+   Desde 19/09 nasceram 12 tabelas e NENHUMA entrava no backup: as 1.980
+   questoes do Banco, as respostas e o caderno de erros dos alunos, as
+   conquistas gravadas, as habilidades escolhidas, os editais e guias
+   guardados. O comentario dizia "aparece como falta" e nada aparecia --
+   comentario nao e codigo. Agora ha `tabelasDoBanco()`, que pergunta ao
+   proprio servidor quais tabelas existem, e o backup FALHA se alguma ficar
+   de fora sem estar em IGNORADAS com o motivo escrito. */
 const TABELAS = [
   'perfis', 'progresso', 'eventos', 'sessoes_estudo',
   'recursos_salvos', 'uso_ia', 'lista_espera', 'auditoria', 'erros_cliente',
+  // acrescentadas em 30/09/2026 (existiam desde 19-29/09 sem backup):
+  'conquistas', 'habilidades_escolhidas',
+  'questoes', 'questoes_minhas', 'questoes_servidas', 'respostas',
+  'editais_lidos', 'guias_por_edital',
+  'catalogo_condecoracoes', 'catalogo_divisas', 'catalogo_habilidades',
+  'administradores', 'materias_conhecidas',
+  'taf_registros',                                    // 30/09/2026, o TAF
 ];
+// Tabela que existe e NAO vai para o backup, com o porque. Hoje: nenhuma.
+const IGNORADAS = {};
+
+/* O PostgREST so entrega ate 1.000 linhas por pedido (max-rows do Supabase).
+   Sem paginar, `questoes` (1.980) sairia CORTADA, e o arquivo pareceria
+   completo. Pagina de 1.000 em 1.000 ate vir menos que isso. */
+async function todasAsLinhas(t) {
+  const todas = [];
+  for (let de = 0; ; de += 1000) {
+    const r = await fetch(`${BASE}/rest/v1/${t}?select=*`, { headers: { ...cab, Range: `${de}-${de + 999}`, 'Range-Unit': 'items' } });
+    if (!r.ok && r.status !== 206) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 120));
+    const pagina = await r.json();
+    todas.push(...pagina);
+    if (pagina.length < 1000) return todas;
+  }
+}
+
+/* Quais tabelas o servidor tem de verdade: o mapa que o proprio PostgREST
+   publica (OpenAPI), lido com a chave de servico. */
+async function tabelasDoBanco() {
+  const r = await fetch(`${BASE}/rest/v1/`, { headers: cab });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const api = await r.json();
+  return Object.keys(api.definitions || {}).sort();
+}
 
 const chaves = JSON.parse(execSync(
   `supabase projects api-keys --project-ref ${REF} -o json`,
@@ -69,9 +110,7 @@ const kb = (n) => (n / 1024).toFixed(1) + ' KB';
   /* ── 1. as tabelas ─────────────────────────────────────────────────────── */
   for (const t of TABELAS) {
     try {
-      const r = await fetch(`${BASE}/rest/v1/${t}?select=*`, { headers: cab });
-      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 120));
-      const linhas = await r.json();
+      const linhas = await todasAsLinhas(t);
       const texto = JSON.stringify(linhas, null, 2);
       fs.writeFileSync(path.join(pasta, t + '.json'), texto, 'utf8');
       bytes += Buffer.byteLength(texto);
@@ -155,6 +194,21 @@ COMO RESTAURAR, se um dia precisar
 `, 'utf8');
 
   /* ── conferencia ───────────────────────────────────────────────────────── */
+  // A que faltava desde agosto: alguma tabela do servidor ficou de fora?
+  try {
+    const noBanco = await tabelasDoBanco();
+    const fora = noBanco.filter((t) => !TABELAS.includes(t) && !(t in IGNORADAS));
+    if (fora.length) {
+      for (const t of fora) resumo.push({ t, n: 0, ok: false, erro: 'tabela do banco FORA do backup' });
+      console.log('\n  ❌ tabela(s) do banco fora do backup: ' + fora.join(', '));
+      console.log('     Acrescentar em TABELAS (ou em IGNORADAS, com o motivo).');
+    } else {
+      console.log(`\n  ✅ as ${noBanco.length} tabelas do banco estao no backup`);
+    }
+  } catch (e) {
+    resumo.push({ t: '_conferencia', n: 0, ok: false, erro: e.message });
+    console.log('\n  ❌ nao consegui conferir a lista de tabelas: ' + e.message);
+  }
   const falhas = resumo.filter((x) => !x.ok);
   const linhas = resumo.reduce((s, x) => s + x.n, 0);
   console.log('\n  ' + linhas + ' linha(s) no total · ' + kb(bytes));

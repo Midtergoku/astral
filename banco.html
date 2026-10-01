@@ -893,7 +893,7 @@
     const estado = $('m-gab-estado');
     estado.textContent = 'lendo o gabarito…';
     try {
-      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=afc67e01');
+      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=eb5c7443');
       const texto = (await pdfParaLeituras(arquivo)).join('\n');
       let g = gabaritoDeTabela(texto);
 
@@ -948,7 +948,7 @@
 
     $('m-lote').innerHTML = '<div class="esqueleto-bloco" style="height:6rem"></div>';
     try {
-      const { montarQuestoes } = await import('./assets/js/prova.js?v=afc67e01');
+      const { montarQuestoes } = await import('./assets/js/prova.js?v=eb5c7443');
       const { classificarLista } = await import('./assets/js/assuntos.js?v=78708ba1');
       const leituras = await pdfParaLeituras(arquivo);
       // 🔴 `incluirSemGabarito: true` aqui, e NUNCA no acervo público. Muita
@@ -1257,17 +1257,31 @@
       atualizarFiltros();
     });
     atualizarFiltros();
+    /* 30/09/2026: o painel manda treinar a materia fraca ("?materia=Quimica").
+       Vale uma vez: depois a pessoa filtra como quiser. So aplica se a materia
+       existe no acervo -- valor de fora nunca vira opcao. */
+    if (materiaPedida) {
+      const sel = $('f-materia');
+      if (sel && [...sel.options].some((o) => o.value === materiaPedida)) { sel.value = materiaPedida; atualizarFiltros(); }
+      materiaPedida = null;
+    }
     $('btn-sortear').addEventListener('click', sortear);
     atualizarCota(null);
     $('cota').innerHTML = `<span><span class="cota-num">${filtros.total}</span> questões no acervo.
       Escolha o terreno e comece.</span>`;
   }
 
+  let materiaPedida = new URLSearchParams(location.search).get('materia');
+  // A revisao do painel abre direto o caderno de erros (30/09/2026). So as 3 abas que existem.
+  const abaPedida = new URLSearchParams(location.search).get('aba');
+  if (['acervo', 'minhas', 'caderno'].includes(abaPedida)) aba = abaPedida;
+
   (async () => {
     const sessao = await exigirSessao();
     if (!sessao) return;
     await nomeDoUsuario(sessao);
     await carregarMinhas();
+    if (materiaPedida) aba = 'acervo';
     await desenhar();
   })();
 

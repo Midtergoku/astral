@@ -114,6 +114,10 @@ const instante = (d, h) => {
         p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null,
       }),
     });
+    // 30/09/2026: o dominio e do servidor; o teste o fixa pela chave de servico
+    // (a pagina Minhas tags le o progresso; so grava a tag escolhida).
+    await require("./testes/dominio-plantado.js").fixarDominio(BASE, SERVICE, usuario.id,
+      [{ nome: "Portugues", peso: 3, progresso: 75 }, { nome: "Matematica", peso: 3, progresso: 30 }]);
 
     ctx = await nav.newContext({ viewport: { width: 1280, height: 1100 } });
     await ctx.addInitScript(`(() => {

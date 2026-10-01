@@ -44,7 +44,36 @@ async function usuariosAtivos30Dias(chave) {
     (u) => u.last_sign_in_at && new Date(u.last_sign_in_at).getTime() > limite).length;
 }
 
+/* O SMTP proprio esta configurado? Le a config de autenticacao da producao pela
+   API de gerenciamento (token pelo script isolado; nunca vai para arquivo).
+   Devolve 1 enquanto PENDENTE -- e o lembrete dispara toda sessao ate resolver. */
+async function smtpPendente() {
+  const { execFileSync } = require("child_process");
+  const path = require("path");
+  const token = execFileSync("powershell", ["-NoProfile", "-File", path.join(__dirname, "token-supabase.ps1")],
+    { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  const r = await fetch(`https://api.supabase.com/v1/projects/${REF}/config/auth`,
+    { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const c = await r.json();
+  return c.smtp_host ? 0 : 1;
+}
+
 const LEMBRETES = [
+  {
+    id: "SMTP",
+    titulo: "Senha de app do Gmail para o e-mail de confirmacao (item 3)",
+    combinado: 'Pedido dele em 30/09/2026: "depois me lembre de verificar o item 3, que e '
+             + 'criar uma senha de app do Gmail, me lembre depois". Sem ela ninguem de fora '
+             + 'recebe confirmacao nem "esqueci a senha". Ele cria em '
+             + 'myaccount.google.com/apppasswords (precisa da verificacao em 2 etapas ligada), '
+             + 'me passa, e eu rodo tools/smtp-configura.ps1 -Aplicar, provo a entrega e so '
+             + 'entao -ExigirConfirmacao. Custo: R$ 0.',
+    gatilho: 1,
+    unidade: "(1 = ainda pendente, 0 = SMTP configurado)",
+    porque: "dispara toda sessao enquanto o SMTP for o padrao do Supabase",
+    medir: smtpPendente,
+  },
   {
     id: "R14",
     titulo: "Porcentagem de raridade das medalhas",

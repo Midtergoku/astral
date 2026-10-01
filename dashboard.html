@@ -836,6 +836,23 @@
 .balanco-banner-btn { background: color-mix(in srgb, var(--latao-c) 15%, transparent); border: 1px solid color-mix(in srgb, var(--latao-c) 30%, transparent); color: var(--gold); padding: 0.5rem 1rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--corpo); transition: background-color var(--d-dica) var(--saida); }
 
 .balanco-banner-btn:hover { background: color-mix(in srgb, var(--latao-c) 25%, transparent); }
+/* 30/09/2026: virou link (leva ao Banco filtrado). No celular o botao desce
+   para baixo do texto, em vez de espremer a frase numa coluna estreita. */
+a.balanco-banner-btn { text-decoration: none; display: inline-block; }
+.cond-metais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e2); margin-bottom: .75rem; }
+.cond-metal { display: flex; align-items: center; gap: .4rem; font-size: var(--t-sm); color: var(--texto-2); }
+.cond-ponto { width: .6rem; height: .6rem; border-radius: 50%; flex: 0 0 auto; }
+.cond-nome { flex: 1; }
+.cond-conta { font-family: var(--dado); color: var(--texto); font-variant-numeric: tabular-nums; }
+.cond-proxima { font-size: var(--t-xs); color: var(--texto-2); margin-bottom: .5rem; text-align: center; }
+.cond-proxima b { color: var(--latao-c); font-weight: 600; }
+.card-link { color: var(--latao-c); text-decoration: none; }
+@media (hover: hover) { .card-link:hover { text-decoration: underline; } }
+@media (max-width: 520px) {
+  .balanco-banner { flex-wrap: wrap; }
+  .balanco-banner-info { flex: 1 1 calc(100% - 3rem); }
+  a.balanco-banner-btn { white-space: normal; text-align: center; flex: 1 1 100%; }
+}
 
 /* animacao de entrada do .main removida: o elemento tem
      view-transition-name e quem o anima e o navegador. Ter as duas fazia
@@ -997,6 +1014,20 @@
    Um cartao so: uma fileira de materias, e o painel da materia escolhida.
    A materia de HOJE ja vem escolhida -- "o que estudar" e "com quem" juntos. */
 .guia-status { font-family: var(--dado); font-size: var(--t-xs); color: var(--texto-3); }
+
+/* ── REVISAO DE HOJE (30/09/2026) ── */
+.revisao-lista { display: grid; gap: var(--e2); }
+.revisao-item {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e3);
+  padding: .55rem .2rem; border-bottom: 1px solid color-mix(in srgb, var(--linha) 55%, transparent);
+}
+.revisao-item:last-child { border-bottom: none; }
+.revisao-materia { font-family: var(--display); font-weight: 600; font-size: var(--t-sm); color: var(--texto); }
+.revisao-quando { font-size: var(--t-xs); color: var(--texto-3); }
+.revisao-item.feita .revisao-materia { color: var(--texto-2); }
+.revisao-ir { font-size: var(--t-xs); color: var(--latao-c); text-decoration: none; white-space: nowrap; font-weight: 600; }
+@media (hover: hover) { .revisao-ir:hover { text-decoration: underline; } }
+.revisao-feita { font-size: var(--t-xs); color: var(--oliva-c); white-space: nowrap; font-family: var(--dado); }
 .guia-chips {
   display: flex; gap: .35rem; overflow-x: auto; padding-bottom: .5rem;
   border-bottom: 1px solid var(--linha); margin-bottom: var(--e3);
@@ -1200,7 +1231,7 @@
     <div class="card stat-gold">
       <div class="card-label">Domínio do edital</div>
       <div class="card-value" id="materias-cobertas">0/0</div>
-      <div class="card-sub">do seu edital</div>
+      <div class="card-sub">matérias acima de 80% · <a href="progresso.html" class="card-link">medido pelo Banco</a></div>
     </div>
   </div>
 
@@ -1276,7 +1307,7 @@
     <div class="balanco-banner-titulo" id="balanco-titulo">Desequilíbrio detectado</div>
     <div class="balanco-banner-sub" id="balanco-sub">Algumas matérias estão muito à frente de outras.</div>
   </div>
-  <button class="balanco-banner-btn" onclick="window.location.href='progresso.html'">Ver sugestão →</button>
+  <a class="balanco-banner-btn" id="balanco-btn" href="progresso.html">Ver sugestão →</a>
 </div>
 
     <!-- HOJE -->
@@ -1288,6 +1319,19 @@
         <div class="today-list" id="today-list">
           <div class="empty-state">Carregando seu cronograma...</div>
         </div>
+      </div>
+    </div>
+
+    <!-- ── REVISAO DE HOJE (30/09/2026, item 10) ───────────────────────────
+         A curva do esquecimento: o que foi estudado ha 1, 7 e 30 dias volta
+         hoje. Conta tambem o caderno de erros. Some quando nao ha nada. -->
+    <div id="revisao" style="margin-bottom:1.5rem" hidden>
+      <div class="section-header">
+        <div class="section-title">Revisão de hoje</div>
+        <span class="guia-status" id="revisao-status"></span>
+      </div>
+      <div class="card">
+        <div class="revisao-lista" id="revisao-lista"></div>
       </div>
     </div>
 
@@ -1396,7 +1440,7 @@
       <!-- Card resumo conquistas -->
       <div class="card bento" style="cursor:pointer;" onclick="window.location.href='conquistas.html'">
         <div class="section-header" style="margin-bottom:0.75rem;">
-          <div class="section-title">Missões</div>
+          <div class="section-title">Condecorações</div>
           <span style="font-size:0.78rem;color:var(--purple-lt);font-weight:500;">Ver tudo →</span>
         </div>
         <div id="conquistas-resumo">
@@ -1419,7 +1463,7 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
     from './assets/js/astral.js?v=bfdb6e4b';
   import { icone } from './assets/js/icones.js?v=7c816270';
-  import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=ecd3765b';
+  import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
   import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=87f966f4';
   import { sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
@@ -1530,16 +1574,6 @@
   }
 
   // ── BADGES ──
-  const BADGES_DEF = [
-    { id: 'primeiro_dia',   icon: 'medalha',  nome: 'Primeiro Dia',    xp_req: 1    },
-    { id: 'primeira_hora',  icon: 'relogio',  nome: '1h Estudada',     xp_req: 50   },
-    { id: 'sequencia_3',    icon: 'chama',  nome: 'Streak 3 dias',   streak_req: 3 },
-    { id: 'sequencia_7',    icon: 'subindo',  nome: 'Semana Completa', streak_req: 7 },
-    { id: 'nivel_3',        icon: 'estrela',  nome: 'Nível 3',         nivel_req: 3  },
-    { id: 'nivel_5',        icon: 'estrela',  nome: 'Nível 5',         nivel_req: 5  },
-    { id: 'primeiro_edital',icon: 'prancheta',  nome: 'Edital Lido',     edital_req: true },
-    { id: 'maratonista',    icon: 'medalha',  nome: 'Maratonista',     xp_req: 5000 },
-  ];
 
 // XP flutuante — aparece onde o usuário clicou
 function animarXP(quantidade, elemento) {
@@ -1690,6 +1724,7 @@ function mostrarLevelUp(nomeNivel) {
 
     renderUI();
     carregarGuia().catch((e) => relatar(e, 'dashboard/guia'));
+    desenharRevisao(session.user.id).catch((e) => relatar(e, 'dashboard/revisao'));
 
     /* ── O GUIA DE PROFESSORES, POR TRAS (04/08/2026) ────────────────────────
        Comeca DEPOIS de a tela estar desenhada e nao segura nada. Se falhar,
@@ -1887,6 +1922,8 @@ function mostrarLevelUp(nomeNivel) {
 
     if (fatos) {
       try { await conferirCondecoracoes(uid, fatos, gravadas); } catch (e) { relatar(e, 'dashboard/condecoracoes'); }
+      resumoRPG = { fatos, gravadas };
+      renderConquistasResumo().catch((e) => relatar(e, 'dashboard/resumo-condecoracoes'));
     }
   }
 
@@ -1958,6 +1995,45 @@ function mostrarLevelUp(nomeNivel) {
      sessao, cumpria a missao e a tela so contava na proxima visita. Agora
      redesenha depois de registrar a sessao, de subir o edital, e ao voltar
      para a aba (estudou pelo cronometro em outra aba, por exemplo). */
+  /* ── A REVISAO DE HOJE (30/09/2026) ─────────────────────────────────────
+     Quem decide o que revisar e o assets/js/revisao.js (funcao pura, curva
+     de 1, 7 e 30 dias); aqui so se busca as sessoes e se desenha. */
+  async function desenharRevisao(uid) {
+    const caixa = document.getElementById('revisao');
+    if (!caixa) return;
+    const desde = new Date(Date.now() - 32 * 86400000).toISOString();
+    const [sess, cad, { revisoesDeHoje, quando }] = await Promise.all([
+      supabase.from('sessoes_estudo').select('materia, criado_em').eq('usuario_id', uid).gte('criado_em', desde).limit(1000),
+      supabase.rpc('caderno_de_erros', { p_materia: null, p_limite: 1 }),
+      import('./assets/js/revisao.js?v=7195f2ea'),
+    ]);
+    if (sess.error) { relatar(sess.error, 'dashboard/revisao'); return; }
+    const revisoes = revisoesDeHoje(sess.data || []).slice(0, 5);
+    const noCaderno = cad.error ? 0 : Number(cad.data?.total) || 0;
+    if (!revisoes.length && !noCaderno) { caixa.hidden = true; return; }
+
+    const bancoDe = (nome) => estado.materias.find((m) => m.nome === nome)?.medida;
+    const acao = (r) => {
+      if (r.feita) return '<span class="revisao-feita">✓ revisada hoje</span>';
+      const med = bancoDe(r.materia);
+      return med?.fonte === 'banco' && med.banco
+        ? `<a class="revisao-ir" href="banco.html?materia=${encodeURIComponent(med.banco)}">Questões →</a>`
+        : '<a class="revisao-ir" href="cronometro.html">Cronômetro →</a>';
+    };
+    const feitas = revisoes.filter((r) => r.feita).length;
+    document.getElementById('revisao-status').textContent = revisoes.length ? `${feitas} de ${revisoes.length}` : '';
+    document.getElementById('revisao-lista').innerHTML = revisoes.map((r) => `
+      <div class="revisao-item${r.feita ? ' feita' : ''}">
+        <div><div class="revisao-materia">${esc(r.materia)}</div><div class="revisao-quando">${esc(quando(r.haDias))}</div></div>
+        ${acao(r)}
+      </div>`).join('') + (noCaderno ? `
+      <div class="revisao-item caderno">
+        <div><div class="revisao-materia">Caderno de erros</div><div class="revisao-quando">${noCaderno} ${noCaderno === 1 ? 'questão esperando' : 'questões esperando'} você acertar</div></div>
+        <a class="revisao-ir" href="banco.html?aba=caderno">Revisar →</a>
+      </div>` : '');
+    caixa.hidden = false;
+  }
+
   let missoesCumpridas = null;               // null = primeiro desenho, sem aviso
   let ultimaAtualizacao = 0;
   async function atualizarMissoes() {
@@ -1970,6 +2046,18 @@ function mostrarLevelUp(nomeNivel) {
     ]);
     if (hoje.error || !hoje.data) return;
     await desenharMissoes(uid, hoje.data, vida.error ? null : vida.data);
+
+    /* 30/09/2026: o dominio agora anda no servidor a cada sessao (migration
+       20260930120000). Rele as materias para o resumo e o aviso de
+       rebalanceamento acompanharem -- o cronograma de HOJE nao muda, porque
+       ele usa o dominio do inicio da semana (plano.js, necessidadeDe). */
+    const { data: p } = await supabase.from('progresso').select('materias').eq('usuario_id', uid).maybeSingle();
+    if (Array.isArray(p?.materias) && p.materias.length) {
+      estado.materias = p.materias;
+      renderProgressoResumo();
+      verificarBalanco();
+    }
+    await desenharRevisao(uid);
   }
   document.addEventListener('visibilitychange', () => {
     // No maximo uma vez a cada 30 s: trocar de aba nao pode virar rajada de consulta.
@@ -2106,16 +2194,43 @@ function verificarBalanco() {
   if (!banner) return;
   if (!estado.materias || estado.materias.length < 2) { banner.classList.remove('show'); return; }
 
-  const progressos = estado.materias.map(m => m.progresso || 0);
+  /* 30/09/2026: o dominio passou a ser MEDIDO pelo servidor (questoes do
+     Banco + tempo de estudo -- migration 20260930120000), e o cronograma ja
+     redistribui as sessoes por ele toda semana (cronograma.js). Entao o aviso
+     nao pede para "rebalancear": diz o que o desempenho mostrou, que a semana
+     ja se ajustou, e leva direto ao treino da materia fraca. */
+  const titulo = document.getElementById('balanco-titulo');
+  const sub = document.getElementById('balanco-sub');
+  const botao = document.getElementById('balanco-btn');
+  const noBanco = (m) => m?.medida?.fonte === 'banco' && m.medida.banco;
+  const treinar = (m) => {
+    if (noBanco(m)) { botao.href = `banco.html?materia=${encodeURIComponent(m.medida.banco)}`; botao.textContent = `Treinar ${m.nome} no Banco →`; }
+    else { botao.href = 'cronograma.html'; botao.textContent = 'Ver a semana →'; }
+  };
+
+  // Nada medido ainda: o aviso vira o convite para comecar a medir.
+  const respondidas = estado.materias.reduce((s, m) => s + (Number(m.medida?.respondidas) || 0), 0);
+  if (!respondidas && estado.materias.every((m) => !(Number(m.progresso) > 0))) {
+    const primeira = [...estado.materias].filter(noBanco).sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0))[0];
+    if (!primeira) { banner.classList.remove('show'); return; }
+    titulo.textContent = 'Seu domínio ainda não foi medido';
+    sub.textContent = `O Astral mede o quanto você domina cada matéria pelas questões do Banco que você acerta de primeira. Comece por ${primeira.nome}, a de maior peso no seu edital.`;
+    treinar(primeira);
+    banner.classList.add('show');
+    return;
+  }
+
+  const progressos = estado.materias.map(m => Number(m.progresso) || 0);
   const maximo = Math.max(...progressos);
   const minimo = Math.min(...progressos);
   const diferenca = maximo - minimo;
 
   if (diferenca >= 40) {
-    const maisAvancada = estado.materias.find(m => m.progresso === maximo);
-    const maisAtrasada = estado.materias.find(m => m.progresso === minimo);
-    document.getElementById('balanco-titulo').textContent = 'Cronograma desequilibrado detectado';
-    document.getElementById('balanco-sub').textContent = `${maisAvancada?.nome} está ${diferenca}% à frente de ${maisAtrasada?.nome}. Rebalancear pode melhorar seu desempenho geral.`;
+    const maisAvancada = estado.materias.find(m => (Number(m.progresso) || 0) === maximo);
+    const maisAtrasada = estado.materias.find(m => (Number(m.progresso) || 0) === minimo);
+    titulo.textContent = `${maisAtrasada?.nome} está ${diferenca} pontos atrás de ${maisAvancada?.nome}`;
+    sub.textContent = `Medido pelas suas questões e pelo seu estudo. A semana do cronograma já dá mais sessões a ${maisAtrasada?.nome}.`;
+    treinar(maisAtrasada);
     banner.classList.add('show');
   } else {
     banner.classList.remove('show');
@@ -2273,49 +2388,37 @@ function verificarBalanco() {
     `).join('') + `<div style="font-size:var(--t-xs);color:var(--muted);margin-top:0.5rem;text-align:right;">${estado.materias.length} matérias no total</div>`;
   }
 
-  function renderConquistasResumo() {
+  /* 30/09/2026 -- decisao dele (item 5): os 8 distintivos antigos sairam; o
+     cartao mostra as CONDECORACOES de verdade, as mesmas da pagina
+     Conquistas. Os dados vem do carregarRPG (fatos + gravadas), que ja busca
+     tudo numa carga so -- este cartao nao faz consulta propria. */
+  let resumoRPG = null;
+  async function renderConquistasResumo() {
     const el = document.getElementById('conquistas-resumo');
     if (!el) return;
-
-    const xp = estado.xp;
-    const streak = estado.streak;
-    const temEdital = estado.edital !== null;
-    const nivelIndex = nivelDaConta().indice;
-
-    const desbloqueados = BADGES_DEF.filter(b => {
-      if (b.xp_req     && xp >= b.xp_req)               return true;
-      if (b.streak_req && streak >= b.streak_req)        return true;
-      if (b.nivel_req  && nivelIndex + 1 >= b.nivel_req) return true;
-      if (b.edital_req && temEdital)                     return true;
-      return false;
-    });
-
-    if (!desbloqueados.length) {
-      el.innerHTML = `
-        <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
-          ${BADGES_DEF.slice(0, 3).map(b => `
-            <div class="badge-item locked" style="flex:1;opacity:0.3;">
-              <div class="badge-icon">${icone(b.icon)}</div>
-              <div class="badge-name">${b.nome}</div>
-            </div>
-          `).join('')}
-        </div>
-        <div style="font-size:var(--t-xs);color:var(--muted);text-align:center;">Comece a estudar para desbloquear missões</div>
-      `;
+    if (!resumoRPG) {
+      el.innerHTML = '<div style="font-size:var(--t-xs);color:var(--muted);text-align:center;">Carregando condecorações…</div>';
       return;
     }
-
-    const ultimos3 = desbloqueados.slice(-3);
+    // So o condecoracoes.js: importar o catalogo.js com carimbo criaria uma
+    // SEGUNDA copia do modulo (ver o cabecalho do condecoracoes.js).
+    const { conferir, quaseLa } = await import('./assets/js/condecoracoes.js?v=2bfaf79d');
+    const { condecoracoes, resumo } = conferir(resumoRPG.fatos, resumoRPG.gravadas);
+    const proxima = quaseLa(condecoracoes, 1)[0];
+    const metais = new Map();
+    for (const c of condecoracoes) if (c.metalInfo && !metais.has(c.metal)) metais.set(c.metal, c.metalInfo);
+    const ordem = [...metais.entries()].sort((x, y) => (x[1].ordem || 0) - (y[1].ordem || 0));
     el.innerHTML = `
-      <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
-        ${ultimos3.map(b => `
-          <div class="badge-item" style="flex:1;">
-            <div class="badge-icon">${icone(b.icon)}</div>
-            <div class="badge-name">${b.nome}</div>
-          </div>
-        `).join('')}
+      <div class="cond-metais">
+        ${ordem.map(([id, m]) => `
+          <div class="cond-metal">
+            <span class="cond-ponto" style="background:${m.cor}"></span>
+            <span class="cond-nome">${esc(m.nome)}</span>
+            <span class="cond-conta">${resumo.porMetal[id]?.conquistadas || 0}/${resumo.porMetal[id]?.total || 0}</span>
+          </div>`).join('')}
       </div>
-      <div style="font-size:var(--t-xs);color:var(--muted);text-align:center;">${desbloqueados.length} de ${BADGES_DEF.length} missões concluídas</div>
+      ${proxima ? `<div class="cond-proxima">Falta pouco: <b>${esc(proxima.nome)}</b> · ${Math.round(proxima.progresso * 100)}%</div>` : ''}
+      <div style="font-size:var(--t-xs);color:var(--muted);text-align:center;">${resumo.conquistadas} de ${resumo.total} condecorações</div>
     `;
   }
 

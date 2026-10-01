@@ -175,6 +175,13 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
         p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null,
       }),
     });
+    // 30/09/2026: o dominio e do servidor; o teste o fixa pela chave de servico.
+    await require("./testes/dominio-plantado.js").fixarDominio(BASE, SERVICE, a.id, [
+      { nome: "Matematica", peso: 3, progresso: 60 },
+      { nome: "Portugues", peso: 3, progresso: 40 },
+      { nome: "Fisica", peso: 2, progresso: 20 },
+      { nome: "Ingles", peso: 1, progresso: 0 },
+    ]);
 
     const f = await ficha(tA);
     const at = f?.atributos || {};

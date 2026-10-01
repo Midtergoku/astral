@@ -332,6 +332,23 @@ edital + o guia deles), Pro ≈ 3 — e **só se forem editais que ninguém subi
 (`assets/js/plano.js`), sem IA. E desde 28/09 o cronograma já se rebalanceia sozinho a cada visita
 (`assets/js/cronograma.js` distribui o tempo pela necessidade de cada matéria).
 
+> ✏️ **30/09/2026:** continua **R$ 0**. O domínio passou a ser medido no servidor (questões do
+> Banco + tempo de estudo, SQL puro, sem IA), e o cronograma se rebalanceia **toda segunda** pelo
+> domínio do início da semana.
+
+---
+
+## 12. O que custa o que entrou em 30/09/2026
+
+| Peça | Custo | Medido? |
+|---|---|---|
+| Domínio medido pelo servidor | **R$ 0** — SQL, sem IA | sim: não chama IA nenhuma |
+| Revisão espaçada (1, 7 e 30 dias) | **R$ 0** — conta no navegador sobre as sessões | sim |
+| Cartão da divisa para stories | **R$ 0** — desenhado no navegador | sim |
+| Conferidor de links do guia | **R$ 0** — sem chave de API; ~2 s a mais por guia | sim (12/12 no servidor) |
+| TAF: registro de marcas e XP físico | **R$ 0** — banco | sim |
+| **TAF lido do edital pela IA** | **+~100 a 150 tokens de saída por edital ≈ US$ 0,002 (R$ 0,01)** | ⚠️ **estimativa**: a IA nunca rodou. O teto da resposta subiu de 1.000 para 1.500 tokens, mas teto não cobra — paga-se só o usado |
+
 ---
 
 ## 📒 Registro de mudanças deste arquivo
@@ -341,3 +358,4 @@ edital + o guia deles), Pro ≈ 3 — e **só se forem editais que ninguém subi
 | 29/09/2026 | Criado. Estimativas pelos preços oficiais; correção dos "R$ 6 por aluno" (eram só o guia) |
 | 29/09/2026 | Seções 9 (planos mensal/trimestral/anual), 10 (custos fixos do lançamento — **Vercel obrigatória no Pro para cobrar**) e 11 (a trava da troca de edital, proposta) |
 | 29/09/2026 | **8 editais reais medidos** (páginas, texto, matérias lidas no edital). Custo por aluno calculado sobre eles: **R$ 4,00 a R$ 6,75** (ainda estimativa: a IA não rodou). Descoberta: o Bombeiro do Rio tem 11 disciplinas — o guia pesa mais que o edital |
+| 30/09/2026 | §11: a "cara de feito na hora" (12 s) saiu, decisão dele. §12 novo: o custo das peças de 30/09 — tudo R$ 0, exceto o TAF lido do edital (~R$ 0,01 por edital, estimado) |

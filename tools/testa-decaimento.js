@@ -119,6 +119,14 @@ const haDias = (n) => new Date(Date.now() - n * 86400000).toISOString();
         p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null,
       }),
     });
+    // 30/09/2026: o dominio e do servidor; o teste o fixa pela chave de servico
+    // (a pagina Conquistas so le o progresso, nao grava -- o valor fica).
+    await require("./testes/dominio-plantado.js").fixarDominio(BASE, SERVICE, usuario.id, [
+      { nome: "Português",  peso: 3, progresso: 80 },
+      { nome: "Matemática", peso: 3, progresso: 85 },
+      { nome: "Física",     peso: 2, progresso: 75 },
+      { nome: "Inglês",     peso: 1, progresso: 40 },
+    ]);
 
     // ── O servidor devolve a última vez de cada matéria? ────────────────────
     const fatos = (await req("/rest/v1/rpc/fatos_do_usuario", {

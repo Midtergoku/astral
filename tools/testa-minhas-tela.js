@@ -160,7 +160,9 @@ const servidor = http.createServer((q, r) => {
       temCampo: !!document.getElementById("m-pdf"),
       texto: document.getElementById("painel")?.textContent || "",
     }));
-    inicio.abas === 2 ? ok("as duas abas aparecem", "Acervo · Minhas questões")
+    // 30/09/2026: eram 2 abas quando este teste nasceu; desde 27/09 o Caderno
+    // de erros e a terceira. O teste esperava 2 e falhava sem nada estar errado.
+    inicio.abas === 3 ? ok("as tres abas aparecem", "Acervo · Minhas questões · Caderno de erros")
                       : falha("abas na tela", String(inicio.abas));
     inicio.temCampo ? ok("a area de subir PDF esta la") : falha("sem area de subir PDF");
     /só você vê/i.test(inicio.texto)
