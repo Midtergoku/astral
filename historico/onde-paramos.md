@@ -327,3 +327,11 @@ produto (seção 3), sem auditar nem implementar. Feito em `docs/auditoria/00-ma
 serviços externos, todos os números da tela com a fonte, 17 sistemas de recompensa e as promessas
 (página inicial com número de linha). **Próximo: Fase 2 (segurança e LGPD), quando ele mandar.**
 
+### 01/10/2026 — Auditoria, Fase 2 (segurança e LGPD)
+
+Arquivos movidos para `docs/auditoria/` a pedido dele. Criado o projeto **`astral-dev`**
+(`vtluuezwfpqgryixaaea`, grátis) para os testes entre usuários — ordem dele: *"nunca em produção"*.
+Relatório em `docs/auditoria/01-seguranca-legal.md`: 69 ataques entre usuários (68 protegidos),
+**3 S0** (consentimento não registrado e Google sem aceite · pagamento inexistente · migrations não
+sobem do zero), **7 S1**, 6 S2, 1 S3. Nada corrigido. **Próximo: Fase 3, quando ele mandar.**
+
