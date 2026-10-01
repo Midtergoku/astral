@@ -335,3 +335,15 @@ Relatório em `docs/auditoria/01-seguranca-legal.md`: 69 ataques entre usuários
 **3 S0** (consentimento não registrado e Google sem aceite · pagamento inexistente · migrations não
 sobem do zero), **7 S1**, 6 S2, 1 S3. Nada corrigido. **Próximo: Fase 3, quando ele mandar.**
 
+### 01/10/2026 — Auditoria, Fase 3 (números e gamificação)
+
+No `astral-dev`, com o acervo público copiado da produção (1.980 questões, só conteúdo de prova).
+10 usuários de teste (`f3-*@astral-teste.local`, **ficam no dev para a Fase 4**): os 8 da seção 13
+mais `folga` e `farm`. Valor esperado calculado por um script que não usa função do servidor,
+comparado com o servidor e com 72 páginas abertas no navegador. Relatório em
+`docs/auditoria/02-numeros-gamificacao.md`: **0 S0, 10 S1, 11 S2, 5 S3**, 7 redundâncias,
+9 colisões de nome, 6 perguntas para ele. XP, horas, sequência e domínio **bateram nos 7**; os
+defeitos estão nas **regras** (5 condecorações contra a descrição, bônus retroativo, tempo
+declarado valendo como estudo, gabarito antes da resposta, folga quebrando a sequência, platina
+impossível). Nada corrigido. **Próximo: Fase 4, quando ele mandar.**
+
