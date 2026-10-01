@@ -347,3 +347,15 @@ defeitos estão nas **regras** (5 condecorações contra a descrição, bônus r
 declarado valendo como estudo, gabarito antes da resposta, folga quebrando a sequência, platina
 impossível). Nada corrigido. **Próximo: Fase 4, quando ele mandar.**
 
+### 01/10/2026 — Auditoria, Fase 4 (núcleo de estudo e promessas)
+
+No dev, com os usuários da Fase 3. **A leitura real de edital NÃO foi testada**: sem crédito, e
+o 1º edital é dele. Os 9 editais reais passaram pelas travas (custo zero). Relatório em
+`docs/auditoria/03-nucleo-promessas.md`: **0 S0 (mas PRO-01 bloqueia o lançamento na prática),
+9 S1, 7 S2, 5 S3**, 5 perguntas. Os mais pesados: **o acervo publicado tem 113 questões com
+símbolo perdido e ao menos 21 com alternativas de outra questão** (todas marcadas "revisão ok");
+o cronômetro perde tempo (recarregar, fechar, tela bloqueada); o botão "Rebalancear" não faz
+nada; rotina curta tira matérias do cronograma por meses; trocar de edital deixa a prova antiga;
+leitura de edital que falha não conta na janela (custo sem teto quando houver crédito); 5
+promessas da página inicial não existem. Nada corrigido. **Próximo: Fase 5, quando ele mandar.**
+
