@@ -313,7 +313,7 @@ objeto só.
 ### 01/10/2026 — a especificação de planos (Free/Pro/trial), só comparada
 
 Ele mandou a especificação "Planos Free/Pro, Onboarding e Cache de Edital v2.0" com a ordem de **não
-implementar**: só comparar. O resultado está em `historico/gap-analysis-planos.md`: 69 itens
+implementar**: só comparar. O resultado está em `historico/gap-analysis-planos.md`: 63 itens
 classificados, **14 perguntas para ele** e a ordem sugerida. Os pontos que travam tudo:
 o beta tem **promessa pública de "acesso gratuito e vitalício"** na página inicial (0 contas beta hoje),
 e 5 itens da especificação contrariam decisões dele já registradas (caderno no grátis, Pro com 2 trocas,
