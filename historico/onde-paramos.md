@@ -321,8 +321,8 @@ habilidades secretas, rebalanceamento e guia para todos). **Nada foi alterado no
 
 ### 01/10/2026 — Auditoria pré-lançamento, Fase 1 (o mapa)
 
-Ele pôs o `PROMPT-auditoria.md` em `historico/docs/auditoria/` e pediu **só a Fase 1**: o mapa do
-produto (seção 3), sem auditar nem implementar. Feito em `historico/docs/auditoria/00-mapa.md`:
+Ele pôs o `PROMPT-auditoria.md` em `historico/docs/auditoria/` (por engano; em 01/10 movido para `docs/auditoria/`) e pediu **só a Fase 1**: o mapa do
+produto (seção 3), sem auditar nem implementar. Feito em `docs/auditoria/00-mapa.md`:
 24 páginas, 23 tabelas (contadas na produção), 37 funções do banco, 8 funções do servidor, os
 serviços externos, todos os números da tela com a fonte, 17 sistemas de recompensa e as promessas
 (página inicial com número de linha). **Próximo: Fase 2 (segurança e LGPD), quando ele mandar.**

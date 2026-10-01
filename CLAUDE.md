@@ -252,6 +252,7 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 |---|---|---|
 | **`onde-paramos.md`** | **o ponto de retomada: o que esta no ar, o que falta, e as DUAS coisas a um passo** | **PRIMEIRA COISA ao voltar depois de um tempo fora** |
 | **`valores.md`** | **💰 TUDO que é dinheiro: custo por aluno, por concurso, preços, câmbio, crédito** — ordem dele em 29/09: *"tudo relacionado a dinheiro daqui para frente você vai colocar nessa .md"* | **antes de falar qualquer valor, e depois de medir qualquer custo (atualizar lá)** |
+| **`../docs/auditoria/`** | **a auditoria pré-lançamento: o prompt dele e um relatório por fase (00-mapa, 01-seguranca-legal…)** | **antes de corrigir qualquer achado da auditoria — e ao seguir para a próxima fase** |
 | **`gap-analysis-planos.md`** | **01/10: a especificação de planos Free/Pro/trial comparada com o código, item por item, + 14 perguntas para ele** | **antes de mexer em plano, trava do grátis, trial, beta ou cache de edital** |
 | **`provas-para-baixar.md`** | os links de prova por forca, com o que eu medi em cada uma | ao trazer material novo para o banco de questoes |
 | `CLAUDE-original-2989.md` | o caderno inteiro antes desta reorganização | algo parecer que sumiu |

@@ -5,8 +5,8 @@
 > API de gerenciamento (tabelas, colunas, relações, RLS, policies, grants, funções, gatilhos e
 > contagem **exata** de linhas).
 >
-> 📁 Este arquivo está em `historico/docs/auditoria/`, ao lado do `PROMPT-auditoria.md` — foi lá que
-> o prompt estava. Não existe `docs/` na raiz do projeto.
+> 📁 Movido em 01/10/2026 para `docs/auditoria/`, a pedido dele (*"coloque o arquivo no lugar certo,
+> eu botei no histórico sem querer"*). A pasta `docs/` passa a existir só para a auditoria.
 
 ---
 
