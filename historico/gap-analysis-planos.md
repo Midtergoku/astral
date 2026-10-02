@@ -247,3 +247,19 @@ inicial e dos termos só muda com a sua decisão** (é o que a página promete).
 
 > ⚠️ Os itens 5 a 8 mudam o que pessoas reais têm hoje. Pela regra 8.1, mudança que tira algo de
 > quem já usa é **pergunta antes**, mesmo depois de aprovada a especificação.
+
+---
+
+## 5. ✅ Respostas dele — 01/10/2026 (por voz, depois do relatório final da auditoria)
+
+| Pergunta | Resposta dele | O que fica valendo |
+|---|---|---|
+| **14 — o beta** | *"o beta é uma promessa pública (...) essa ideia dos beta testers eu deixei ela um pouco de lado no momento. Mas se futuramente eu for utilizar, eu mando a mensagem. Deixo isso gravado também."* | Beta **parado**, não removido. Nada muda no plano `beta` nem nos textos públicos até ele mandar. ⚠️ A página inicial **continua prometendo** "acesso gratuito e vitalício" — mudar o texto é decisão dele (regra 8.1): perguntado de novo no relatório de 01/10 |
+| **1 — caderno de erros** | *"O caderno de erros fica só para todos, ok?"* | **Para todos** (grátis incluído) — confirma a decisão de 27/09 |
+| **2 — trocas de edital no Pro** | *"Se nós conseguirmos implementar aquele sistema de reutilizar os editais, talvez a gente possa manter ilimitado para os PROs. Mas (...) nós queremos passar uma credibilidade, talvez só duas trocas sejam interessantes no mês"* | **Pro: 2 trocas por 30 dias** (o 1º edital + 2) — como já está desde 29/09. Ilimitado fica como possibilidade futura, se o reaproveitamento de editais (cache) se provar |
+| **4 — rebalanceamento** | *"o rebalanceamento é para todos, toda segunda"* | **Para todos**, toda segunda — como está desde 30/09 |
+| **Ordem sugerida, item 1 — `pode(recurso)`** | *"O primeiro passo é a função única (...) para cada trava não virar um if espalhado, custa zero reais e leva uma sessão. Pode fazer essa parte também"* | **Autorizado e feito em 01/10** (ver abaixo) |
+| 3, 5, 6 a 13 | não respondidas | continuam abertas |
+
+Junto, ele autorizou a **camada única de estatísticas** (`user_stats`), a recomendação estrutural da
+auditoria de 30/09 que estava pendente: *"faço quando você mandar — então pode fazer agora"*.

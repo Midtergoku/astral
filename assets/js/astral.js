@@ -168,20 +168,45 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
 }
 
 // ── Plano e quota ───────────────────────────────────────────────────────────
-/**
- * `beta` e acesso pro VITALICIO, prometido a pessoas reais que entraram pelo
- * grupo de WhatsApp em troca de feedback. Os dois andam sempre juntos e nenhuma
- * mudanca futura pode rebaixar essas contas. Toda checagem de "tem acesso
- * completo?" no app passa por aqui -- justamente para essa regra existir num
- * lugar so e nao divergir entre paginas.
- */
-export function ehCompleto(perfil) {
-  const plano = perfil?.tipo_plano || 'free';
-  return plano === 'pro' || plano === 'beta';
+/* 01/10/2026 -- AS REGRAS DE PLANO NUM LUGAR SO. Pedido dele: "para cada trava
+   nao virar um if espalhado". A tabela de regras mora no banco,
+   `public.regras_do_plano()` (migration 20261001100000), e e a mesma que o
+   servidor das funcoes de IA e o sorteio de questoes usam. O navegador NAO tem
+   copia dela: pergunta com `meuPlano()` / `pode()`.
+
+   `beta` continua igual ao pro (promessa publica de acesso vitalicio) -- a
+   regra esta na tabela, nao aqui. Antes havia `ehCompleto()` e `nomeDoPlano()`
+   aqui e cinco paginas com `if (plano === 'pro')` soltos para pintar um selo
+   que nao existe mais; tudo isso virou `pintarSeloDoPlano()`. */
+let _meuPlano = null;
+
+/** O plano de quem esta logado, com limites e recursos. Uma chamada por pagina. */
+export function meuPlano({ fresco = false } = {}) {
+  if (!_meuPlano || fresco) {
+    _meuPlano = supabase.rpc('meu_plano').then(({ data, error }) => {
+      if (error) { _meuPlano = null; throw error; }
+      return data;
+    });
+  }
+  return _meuPlano;
 }
 
-export function nomeDoPlano(perfil) {
-  return (perfil?.tipo_plano || 'free').toUpperCase();
+/** "Posso usar este recurso?" Recurso desconhecido ou erro = nao. */
+export async function pode(recurso) {
+  try { return (await meuPlano())?.recursos?.[recurso] === true; }
+  catch { return false; }
+}
+
+/** Pinta o selo do plano, se a pagina tiver um (`#user-plan`). Hoje nenhuma tem:
+ *  o selo saiu da barra lateral em setembro. Fica aqui, num lugar so, para o dia
+ *  em que voltar -- sem `if` de plano espalhado pelas paginas. */
+export function pintarSeloDoPlano(perfil) {
+  const el = document.getElementById('user-plan');
+  if (!el) return;
+  const plano = perfil?.tipo_plano || 'free';
+  el.textContent = plano.toUpperCase();
+  el.classList.toggle('plan-pro', plano === 'pro');
+  el.classList.toggle('plan-beta', plano === 'beta');
 }
 
 /**

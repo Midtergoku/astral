@@ -11,15 +11,12 @@
    tirar do projeto no V3. Altura em porcentagem resolve.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+import { duracaoSeg } from './formato.js';
+
 const DIAS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
-function formatar(seg) {
-  const h = Math.floor(seg / 3600);
-  const m = Math.round((seg % 3600) / 60);
-  if (!h && !m) return '0min';
-  if (!h) return `${m}min`;
-  return m ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`;
-}
+// 01/10/2026: o formato de tempo e um so, para o site inteiro (formato.js).
+const formatar = duracaoSeg;
 
 /** Devolve o HTML do cartao. `semana` vem de sessoesDaSemana(). */
 export function graficoSemanaHTML(semana = [], titulo = 'Sua semana') {

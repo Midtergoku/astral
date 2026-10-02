@@ -34,6 +34,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 import { necessidadeDe } from './plano.js';
+import { duracao } from './formato.js';
 
 export const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 export const DIAS_CURTOS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -178,7 +179,7 @@ export function blocosDeHoje(semana, sessoesDeHoje = [], agora = new Date()) {
 export function resumoDaRotina(rotinaBruta) {
   const r = normalizarRotina(rotinaBruta);
   if (r.semana) return 'semana ajustada à mão';
-  const horas = (m) => (m % 60 ? `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}` : `${m / 60}h`);
+  const horas = duracao;                     // 01/10/2026: formato unico (formato.js)
   const d = r.dias;
   const seguidos = d.length > 2 && d.every((x, i) => i === 0 || x === d[i - 1] + 1);
   const dias = seguidos ? `${DIAS_CURTOS[d[0]]} a ${DIAS_CURTOS[d[d.length - 1]]}` : d.map((x) => DIAS_CURTOS[x]).join(', ');

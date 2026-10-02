@@ -314,12 +314,13 @@
 </main>
 
 <script type="module">
-  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, nomeDoPlano, toast }
-    from './assets/js/astral.js?v=bfdb6e4b';
-  import { carregarProgresso, sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, pintarSeloDoPlano, toast }
+    from './assets/js/astral.js?v=18f8a06a';
+  import { carregarProgresso, sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=7f17c492';
+  import { duracao } from './assets/js/formato.js?v=8300466c';
   import { montarSemana, blocosDeHoje, resumoDaRotina, normalizarRotina, xpDoBloco, DIAS, DIAS_CURTOS }
-    from './assets/js/cronograma.js?v=17358f63';
-  import { perguntarRotina } from './assets/js/rotina.js?v=7f7e6c15';
+    from './assets/js/cronograma.js?v=bd45888d';
+  import { perguntarRotina } from './assets/js/rotina.js?v=d098b18a';
   import { necessidadeDe } from './assets/js/plano.js?v=b8fa3798';
 
   // Segunda primeiro: e assim que se planeja uma semana de estudo.
@@ -329,7 +330,7 @@
   let uid = null, materias = [], rotina = null, hoje = [];
   let rascunho = null;          // a semana sendo editada; null = fora da edicao
 
-  const hm = (m) => `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`;
+  const hm = duracao;                        // 01/10/2026: formato unico (era "2h00")
 
   function datasDaSemana() {
     const agora = new Date();
@@ -508,8 +509,8 @@
     uid = sessao.user.id;
 
     const dados = await carregarProgresso(uid);
-    const plano = dados?.perfil?.tipo_plano || 'free';
-    { const _p = document.getElementById('user-plan'); if (_p) _p.textContent = nomeDoPlano(plano).toUpperCase(); }
+    // Plano: num lugar so (assets/js/astral.js, 01/10/2026).
+    pintarSeloDoPlano(dados?.perfil);
 
     materias = (dados?.materias || []).filter((m) => m && m.nome);
     rotina = dados?.rotina || null;

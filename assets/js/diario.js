@@ -33,6 +33,8 @@
    o número de hoje.
 */
 
+import { duracao as duracaoUnica } from './formato.js';
+
 const MS_DIA = 86400000;
 
 /* A data no fuso de quem estuda, no formato AAAA-MM-DD.
@@ -63,12 +65,8 @@ function humano(dia) {
   return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
 }
 
-function duracao(min) {
-  if (min < 60) return `${min}min`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`;
-}
+// 01/10/2026: o formato de tempo e um so, para o site inteiro (formato.js).
+const duracao = duracaoUnica;
 
 /**
  * Transforma a lista crua de sessões em dias narrados, do mais recente para o
@@ -83,7 +81,9 @@ export function montarDiario(sessoes = [], limite = 30) {
   // ── Agrupa por dia ────────────────────────────────────────────────────────
   const porDia = new Map();
   for (const s of sessoes) {
-    const dia = diaDe(s.criado_em);
+    // 01/10/2026: o dia vem PRONTO do servidor (fonte unica de estatisticas,
+    // fuso de Sao Paulo). O calculo daqui so vale para sessao sem `dia` (testes).
+    const dia = (typeof s.dia === 'string' && s.dia) || diaDe(s.criado_em);
     if (!dia) continue;                       // data ilegível: fora, em silêncio
     if (!porDia.has(dia)) porDia.set(dia, { dia, minutos: 0, sessoes: 0, materias: new Map(), modos: new Set() });
     const d = porDia.get(dia);

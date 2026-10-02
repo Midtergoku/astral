@@ -548,13 +548,13 @@ select option { background: var(--surface); color: var(--text); }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
-    from './assets/js/astral.js?v=bfdb6e4b';
+    from './assets/js/astral.js?v=18f8a06a';
   // A pagina ja tem uma funcao chamada carregarEventos, entao a do modulo
   // entra com outro nome para nao haver colisao.
   import { carregarProgresso,
            carregarEventos as buscarEventos,
            criarEvento, atualizarEvento,
-           removerEvento as removerEventoDoBanco } from './assets/js/estado.js?v=87f966f4';
+           removerEvento as removerEventoDoBanco } from './assets/js/estado.js?v=7f17c492';
   import { icone } from './assets/js/icones.js?v=7c816270';
 
   let usuario = null;

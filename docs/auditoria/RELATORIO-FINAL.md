@@ -295,3 +295,25 @@ o exemplo literal da seção 2).
 - O **sequestro prévio** de conta via Google (SEG-03) — exigiria uma conta Google real controlada.
 
 Esses cinco são, por definição, onde o próximo problema que ninguém registrou vai aparecer.
+
+---
+
+## 10. Acréscimo de 02/10/2026 — depois do relatório
+
+**Achado novo, S2 (INCONSISTÊNCIA), da comparação antes × depois da fonte única de estatísticas:**
+
+### [NUM-14] A sequência mostrada é a guardada, e fica velha até a página salvar
+- **Onde:** `progresso.streak` é recalculado pelo gatilho `progresso_do_servidor` **só quando o
+  progresso é gravado**; o topo do painel e a ficha (`ficha_do_usuario`) leem o valor guardado.
+- **O que acontece:** o usuário `quebrou` (última sessão em 30/09) abriu o painel em 02/10 às 00h33 e
+  viu **"2 dias"** e Disciplina **76**; o painel salvou ao abrir, e na abertura seguinte mostrou
+  **0** e **66** — os números certos. Medido: `sequencia_do_usuario()` = 0 e o guardado era 2.
+- **Correção sugerida:** a ficha e o topo lerem `sequencia_do_usuario()` na hora (a fonte única
+  de estatísticas já é o lugar), ou o painel desenhar só depois de salvar. Esforço P.
+
+**Achados que a fonte única e a função única de plano já resolvem** (no `astral-dev`; vão para a
+produção junto com elas): NUM-09 (nove formatos de hora → um), COD-04 ("premium" e os 5 selos de
+plano), BAN-03 (a mensagem do fim da amostra sem acento), parte de COD-03 (`ehCompleto`,
+`nomeDoPlano`) e **parte** de NUM-05 — painel, cronômetro, cronograma, gráficos, diário e revisão
+passaram a usar o dia de São Paulo; **ainda usam o relógio do aparelho** o dia da semana do
+cronograma (`cronograma.js` `blocosDeHoje`) e os dias até a prova (`chefe.js` `diasAte`).

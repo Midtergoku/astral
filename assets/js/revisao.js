@@ -49,7 +49,9 @@ const distancia = (de, ate) => Math.round((new Date(`${ate}T12:00:00Z`) - new Da
 export function revisoesDeHoje(sessoes = [], hoje = diaDe(new Date().toISOString())) {
   const diasPorMateria = new Map();
   for (const s of sessoes || []) {
-    const dia = diaDe(s?.criado_em);
+    // 01/10/2026: o dia vem PRONTO do servidor (fonte unica de estatisticas);
+    // o calculo daqui so vale para sessao sem `dia` (testes).
+    const dia = (typeof s?.dia === 'string' && s.dia) || diaDe(s?.criado_em);
     const m = typeof s?.materia === 'string' ? s.materia.trim() : '';
     if (!dia || !m) continue;
     if (!diasPorMateria.has(m)) diasPorMateria.set(m, new Set());

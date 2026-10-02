@@ -234,8 +234,8 @@
 
 <script type="module">
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
-    from './assets/js/astral.js?v=bfdb6e4b';
-  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
+    from './assets/js/astral.js?v=18f8a06a';
+  import { carregarProgresso, salvarProgresso, carregarEstatisticas } from './assets/js/estado.js?v=7f17c492';
   import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { arrumarNome } from './assets/js/prova.js?v=eb5c7443';
@@ -406,7 +406,8 @@
        Se a chamada falhar, a tela fica como sempre foi — as tags de matéria.
        Degradar para a versão anterior é melhor que degradar para o vazio. */
     try {
-      const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+      // 01/10/2026: os fatos vem da fonte unica de estatisticas (assets/js/estatisticas.js).
+      const { data: fatos, error } = await carregarEstatisticas().then((d) => ({ data: d?.fatos ?? null }), (e) => ({ error: e }));
       if (error || !fatos) return;
       const { conferir } = await import('./assets/js/condecoracoes.js?v=ca3738be');
       // 30/09/2026 (auditoria, item 12): com as GRAVADAS, como o painel -- eram 7 aqui e 8 la.

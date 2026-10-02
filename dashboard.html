@@ -1472,16 +1472,17 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 </div>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
-    from './assets/js/astral.js?v=bfdb6e4b';
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
+    from './assets/js/astral.js?v=18f8a06a';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
-  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
-  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=87f966f4';
-  import { sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=87f966f4';
-  import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=17358f63';
-  import { perguntarRotina } from './assets/js/rotina.js?v=7f7e6c15';
-  import { aplicarGrafico } from './assets/js/grafico.js?v=69e227f7';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=7f17c492';
+  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=7f17c492';
+  import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=7f17c492';
+  import { duracao, duracaoHoras } from './assets/js/formato.js?v=8300466c';
+  import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=bd45888d';
+  import { perguntarRotina } from './assets/js/rotina.js?v=d098b18a';
+  import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
   import { nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
   import { pontoFraco } from './assets/js/chefe.js?v=87797754';
@@ -1804,7 +1805,7 @@ function mostrarLevelUp(nomeNivel) {
     const semana = montarSemana(estado.materias, estado.rotina);
     const blocos = semana.flatMap((d) => d.blocos || []);
     const minutos = blocos.reduce((s, b) => s + (Number(b.minutos) || 0), 0);
-    const horas = minutos % 60 ? `${Math.floor(minutos / 60)}h${String(minutos % 60).padStart(2, '0')}` : `${minutos / 60}h`;
+    const horas = duracao(minutos);          // 01/10/2026: formato unico (formato.js)
     const naRotina = estado.rotina && !estado.rotina.pulou ? 'na sua rotina' : 'numa rotina padrão (ajuste em Cronograma)';
     linhas.push({ texto: `Cronograma montado ${naRotina}: <b>${blocos.length}</b> sess${blocos.length === 1 ? 'ão' : 'ões'} · <b>${horas}</b> por semana` });
 
@@ -1905,8 +1906,9 @@ function mostrarLevelUp(nomeNivel) {
       /* 30/09/2026 (auditoria, item 2): os tres numeros sao TOTAIS. O ultimo
          era o total de dias estudados com o rotulo "no mes" -- dava "58 dias
          no mes". Agora a linha diz o que mede. */
-      const horas = Number(s.horas || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
-      resumo.textContent = `${s.total} ${s.total === 1 ? 'sessão' : 'sessões'} · ${horas} h · ${s.dias_no_mes} ${s.dias_no_mes === 1 ? 'dia' : 'dias'} de estudo, desde o início`;
+      // 01/10/2026: formato unico -- era "0,5 h" aqui e "0.5h" no cartao ao lado.
+      const horas = duracaoHoras(s.horas);
+      resumo.textContent = `${s.total} ${s.total === 1 ? 'sessão' : 'sessões'} · ${horas} · ${s.dias_no_mes} ${s.dias_no_mes === 1 ? 'dia' : 'dias'} de estudo, desde o início`;
     }
 
     /* As reguas crescem DEPOIS de estarem na tela -- se o transform final ja
@@ -1933,11 +1935,15 @@ function mostrarLevelUp(nomeNivel) {
        gravar, a conquista de dominio se desfaz quando a pessoa troca de
        concurso (medido em 19/09). Ela devolve o que ja esta registrado, e e
        essa lista que manda na tela. */
-    const [vida, hoje, sinc] = await Promise.all([
-      supabase.rpc('fatos_do_usuario'),
-      supabase.rpc('fatos_de_hoje'),
+    /* 01/10/2026: a vida e o dia vem da FONTE UNICA de estatisticas
+       (assets/js/estatisticas.js) -- a mesma chamada que alimenta o grafico,
+       a revisao e a sessao de hoje. */
+    const [est, sinc] = await Promise.all([
+      carregarEstatisticas().then((data) => ({ data }), (error) => ({ error })),
       supabase.rpc('sincronizar_conquistas'),
     ]);
+    const vida = { data: est.data?.fatos ?? null, error: est.error ?? null };
+    const hoje = { data: est.data?.hoje ?? null, error: est.error ?? null };
     const gravadas = sinc.error ? null : sinc.data;
 
     if (vida.error) relatar(vida.error, 'dashboard/fatos');
@@ -2061,14 +2067,15 @@ function mostrarLevelUp(nomeNivel) {
   async function desenharRevisao(uid) {
     const caixa = document.getElementById('revisao');
     if (!caixa) return;
-    const desde = new Date(Date.now() - 32 * 86400000).toISOString();
-    const [sess, cad, { revisoesDeHoje, quando }] = await Promise.all([
-      supabase.from('sessoes_estudo').select('materia, criado_em').eq('usuario_id', uid).gte('criado_em', desde).limit(1000),
+    // 01/10/2026: as sessoes e o "hoje" vem da fonte unica de estatisticas,
+    // com o dia de cada sessao calculado no servidor (fuso de Sao Paulo).
+    const [est, cad, { revisoesDeHoje, quando }] = await Promise.all([
+      carregarEstatisticas().then((data) => ({ data }), (error) => ({ error })),
       supabase.rpc('caderno_de_erros', { p_materia: null, p_limite: 1 }),
-      import('./assets/js/revisao.js?v=7195f2ea'),
+      import('./assets/js/revisao.js?v=5a41bea3'),
     ]);
-    if (sess.error) { relatar(sess.error, 'dashboard/revisao'); return; }
-    const revisoes = revisoesDeHoje(sess.data || []).slice(0, 5);
+    if (est.error) { relatar(est.error, 'dashboard/revisao'); return; }
+    const revisoes = revisoesDeHoje(est.data?.sessoes || [], est.data?.hoje?.dia).slice(0, 5);
     const noCaderno = cad.error ? 0 : Number(cad.data?.total) || 0;
     if (!revisoes.length && !noCaderno) { caixa.hidden = true; return; }
 
@@ -2100,10 +2107,10 @@ function mostrarLevelUp(nomeNivel) {
     const uid = estado.usuario?.id;
     if (!uid) return;
     ultimaAtualizacao = Date.now();
-    const [hoje, vida] = await Promise.all([
-      supabase.rpc('fatos_de_hoje'),
-      supabase.rpc('fatos_do_usuario'),
-    ]);
+    // 01/10/2026: da fonte unica, FRESCA -- acabou de entrar uma sessao.
+    const est = await carregarEstatisticas({ fresco: true }).then((data) => ({ data }), (error) => ({ error }));
+    const hoje = { data: est.data?.hoje ?? null, error: est.error ?? null };
+    const vida = { data: est.data?.fatos ?? null, error: est.error ?? null };
     if (hoje.error || !hoje.data) return;
     await desenharMissoes(uid, hoje.data, vida.error ? null : vida.data);
 
@@ -2214,17 +2221,12 @@ function mostrarLevelUp(nomeNivel) {
     /* nome: fonte unica em assets/js/divisa.js */
     /* inicial: fonte unica em assets/js/divisa.js */
 
-    // Plano
-    const planoEl = document.getElementById('user-plan');
-    const plano = estado.perfil?.tipo_plano || 'free';
-    if (planoEl) planoEl.textContent = plano.toUpperCase();
-    /* 🔴 29/09/2026: sem o `planoEl &&`, conta PRO ou BETA quebrava o dashboard
-       inteiro aqui -- o selo #user-plan nao existe mais na barra lateral, e o
-       erro abortava o resto do desenho (faixa do edital, guia, sessao de hoje).
-       Conta gratis passava direto, e todos os testes usavam conta gratis.
-       Apareceu quando a conta do dono virou Pro: 38 erros em erros_cliente. */
-    if (plano === 'beta') planoEl?.classList.add('plan-beta');
-    if (plano === 'pro')  planoEl?.classList.add('plan-pro');
+    // Plano: num lugar so (assets/js/astral.js, 01/10/2026).
+    /* 🔴 29/09/2026: conta PRO ou BETA quebrava o dashboard inteiro aqui -- o
+       selo #user-plan nao existe mais na barra lateral, e o erro abortava o
+       resto do desenho. Apareceu quando a conta do dono virou Pro: 38 erros em
+       erros_cliente. pintarSeloDoPlano() ja nao faz nada sem o elemento. */
+    pintarSeloDoPlano(estado.perfil);
 
     // Streak
     document.getElementById('streak-count').textContent = estado.streak;
@@ -2233,7 +2235,8 @@ function mostrarLevelUp(nomeNivel) {
     renderXP();
 
     // Stats
-    document.getElementById('horas-total').textContent = `${estado.horas}h`;
+    // 01/10/2026: formato unico (assets/js/formato.js) -- era "0.5h", com ponto.
+    document.getElementById('horas-total').textContent = duracaoHoras(estado.horas);
     // 30/09/2026 (auditoria, item 7): "dominada" e 70%, a linha da tag -- era 80 so aqui.
     const cobertas = estado.materias.filter(m => (Number(m.progresso) || 0) >= 70).length;
     document.getElementById('materias-cobertas').textContent = `${cobertas}/${estado.materias.length}`;

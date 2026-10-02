@@ -17,11 +17,12 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 import { DIAS, DIAS_CURTOS, normalizarRotina } from './cronograma.js';
+import { duracao } from './formato.js';
 
 const TEMPOS = [60, 90, 120, 180, 240, 300];
 const BLOCOS = [[25, '25 min', 'pomodoro'], [40, '40 min', ''], [50, '50 min', '']];
 
-const horas = (m) => (m % 60 ? `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}` : `${m / 60}h`);
+const horas = duracao;                       // 01/10/2026: formato unico (formato.js)
 
 const CSS = `
 .rotina-fundo {

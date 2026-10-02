@@ -618,10 +618,11 @@
 </main>
 
 <script type="module">
-  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar }
-    from './assets/js/astral.js?v=bfdb6e4b';
+  import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
+    from './assets/js/astral.js?v=18f8a06a';
   import { montarCronograma, necessidadeDe } from './assets/js/plano.js?v=b8fa3798';
-  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=87f966f4';
+  import { carregarProgresso, salvarProgresso, carregarEstatisticas, ultimasSemanas } from './assets/js/estado.js?v=7f17c492';
+  import { duracao, duracaoSeg, duracaoHoras } from './assets/js/formato.js?v=8300466c';
 
   let estado = {
     usuario: null,
@@ -677,25 +678,22 @@
     const caixa = document.getElementById('diario');
     if (!caixa) return;
 
-    /* 120 dias e no máximo 500 sessões: um teto generoso para quem estuda
-       muito, e curto o bastante para a página não travar com um histórico
-       longo. Quem passar disso vê os 120 dias mais recentes, que é o que
-       alguém lê de qualquer forma. */
-    const desde = new Date(Date.now() - 120 * 86400000).toISOString();
-    const { data, error } = await supabase
-      .from('sessoes_estudo')
-      .select('materia, segundos, modo, criado_em')
-      .eq('usuario_id', uid)
-      .gte('criado_em', desde)
-      .order('criado_em', { ascending: true })
-      .limit(500);
-    if (error) { relatar(error, 'progresso/diario'); return; }
-    desenharSemanas(data || []);
-    if (!data?.length) return;             // sem histórico, sem diário
+    /* 01/10/2026: da FONTE UNICA de estatisticas (assets/js/estatisticas.js):
+       as sessoes dos ultimos 400 dias, cada uma com o dia ja calculado no
+       servidor. Antes era uma consulta propria de 120 dias / 500 sessoes -- e
+       os marcos ("primeira vez em...", recordes) eram recontados so dentro
+       dessa janela. O diario continua mostrando os 30 dias de estudo mais
+       recentes. */
+    let est;
+    try { est = await carregarEstatisticas(); }
+    catch (error) { relatar(error, 'progresso/diario'); return; }
+    const data = est?.sessoes || [];
+    desenharSemanas(est);
+    if (!data.length) return;              // sem histórico, sem diário
 
     const [{ montarDiario, resumoDoDiario }, { revisoesDeHoje }] = await Promise.all([
-      import('./assets/js/diario.js?v=d3fadef5'),
-      import('./assets/js/revisao.js?v=7195f2ea'),
+      import('./assets/js/diario.js?v=6dda6bba'),
+      import('./assets/js/revisao.js?v=5a41bea3'),
     ]);
     const dias = montarDiario(data, 30);
     if (!dias.length) return;
@@ -703,7 +701,7 @@
     /* 30/09/2026 -- a revisao espacada, ligada ao diario como ele pediu: o dia
        em que a materia foi estudada ganha a linha "revisar hoje" (1, 7 e 30
        dias depois). Mesma regra do cartao do painel: assets/js/revisao.js. */
-    const revisoes = revisoesDeHoje(data);
+    const revisoes = revisoesDeHoje(data, est?.hoje?.dia);
     const revisaoNoDia = new Map();
     for (const rv of revisoes) {
       if (!revisaoNoDia.has(rv.estudadaEm)) revisaoNoDia.set(rv.estudadaEm, []);
@@ -714,7 +712,7 @@
     document.getElementById('diario-sub').textContent =
       // 30/09/2026 (auditoria, item 15): sao os ULTIMOS 30 DIAS DE ESTUDO, nao os
       // ultimos 30 dias do calendario -- a Disciplina usa a outra janela.
-      `${r.dias} ${r.dias === 1 ? 'dia de estudo' : 'dias de estudo'} (os mais recentes) · ${r.horas}h`
+      `${r.dias} ${r.dias === 1 ? 'dia de estudo' : 'dias de estudo'} (os mais recentes) · ${duracaoHoras(r.horas)}`
       + (r.marcos ? ` · ${r.marcos} ${r.marcos === 1 ? 'marco' : 'marcos'}` : '')
       + (revisoes.length ? ` · ${revisoes.filter((x) => !x.feita).length} ${revisoes.filter((x) => !x.feita).length === 1 ? 'revisão' : 'revisões'} para hoje` : '');
 
@@ -766,7 +764,7 @@
   /* 30/09/2026: o dominio e MEDIDO pelo servidor (migration 20260930120000).
      A pessoa tem de poder ver de onde saiu cada numero -- senao ele e so mais
      uma barra. Devolve texto puro; quem chama escapa. */
-  const horasTxt = (min) => { const m = Math.round(Number(min) || 0); return m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? String(m % 60).padStart(2, '0') : ''}` : `${m} min`; };
+  const horasTxt = duracao;                  // 01/10/2026: formato unico (assets/js/formato.js)
   function comoMedido(m) {
     const d = m?.medida;
     if (!d) return '';
@@ -775,26 +773,16 @@
     if (d.alvo && d.respondidas < d.alvo) partes.push(`responda mais ${d.alvo - d.respondidas} para a medida valer inteira`);
     return partes.join(' · ');
   }
-  const hm = (seg) => { const m = Math.round(seg / 60); return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`; };
+  const hm = duracaoSeg;                     // 01/10/2026: formato unico (era "90h00")
 
   /* Horas por semana, das 8 ultimas -- das sessoes gravadas no servidor. */
-  function desenharSemanas(sessoes) {
+  function desenharSemanas(est) {
     const caixa = document.getElementById('g-semanas');
     if (!caixa) return;
-    const hoje = new Date();
-    const segHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - ((hoje.getDay() + 6) % 7));
-    const semanas = Array.from({ length: 8 }, (_, k) => {
-      // k = 7 e a semana atual; k = 0, sete semanas antes.
-      const ini = new Date(segHoje.getFullYear(), segHoje.getMonth(), segHoje.getDate() - (7 - k) * 7);
-      return { ini, seg: 0, n: 0 };
-    });
-    for (const s of sessoes || []) {
-      const t = new Date(s.criado_em);
-      for (const w of semanas) {
-        const fim = new Date(w.ini.getFullYear(), w.ini.getMonth(), w.ini.getDate() + 7);
-        if (t >= w.ini && t < fim) { w.seg += Number(s.segundos) || 0; w.n++; break; }
-      }
-    }
+    // 01/10/2026: as 8 semanas (segunda a domingo) vem da fonte unica, pelo dia
+    // de cada sessao calculado no servidor -- antes, pela meia-noite do aparelho.
+    // semanas[7] e a semana atual; semanas[0], sete semanas antes.
+    const semanas = ultimasSemanas(est, 8);
     if (!semanas.some((w) => w.seg > 0)) return;
     const maxH = Math.max(1, Math.ceil(Math.max(...semanas.map((w) => w.seg / 3600)) / 2) * 2);
     const marcas = [0, maxH / 2, maxH];
@@ -840,13 +828,8 @@
     if(elName) elName.textContent = primeiroNome;
     if(elAvatar) elAvatar.textContent = primeiroNome[0].toUpperCase();
 
-    const planoEl = document.getElementById('user-plan');
-    if (planoEl) {
-      const plano = estado.perfil?.tipo_plano || 'free';
-      if (planoEl) planoEl.textContent = plano.toUpperCase();
-      if (plano === 'beta' || plano === 'premium') { if (planoEl) planoEl.className = 'user-plan plan-beta'; }
-      if (plano === 'pro') { if (planoEl) planoEl.className = 'user-plan plan-pro'; }
-    }
+    // Plano: num lugar so (assets/js/astral.js, 01/10/2026).
+    pintarSeloDoPlano(estado.perfil);
 
     const contentArea = document.getElementById('content-area');
 

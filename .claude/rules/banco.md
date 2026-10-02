@@ -121,3 +121,41 @@ domínio, chefe, aviso de rebalancear, cronograma) dependia de um número que n�
   "Legislação" chegou a 90% em 13,5 h, acima de quem prova domínio respondendo. Teto de 70.
 
 Regressão: `node tools/testa-dominio.js` (10 checagens, sem crédito).
+
+---
+
+## 8.23. Regras de plano e estatísticas — cada uma num lugar só (01/10/2026) 🟡
+
+> 🟡 **02/10/2026: aplicado e provado no `astral-dev`; NÃO está na produção.** O `supabase db push`
+> para a produção foi bloqueado pelo controle de permissões da sessão e aguarda o Lucas. **Ordem
+> obrigatória para publicar:** (1) as 2 migrations no banco, (2) as 7 funções que usam o
+> `comum.ts`, (3) as páginas pelo `git push`. Páginas ou funções antes do banco **quebram o site**
+> (chamam `estatisticas_do_usuario` / `regras_do_plano`, que ainda não existem lá).
+
+Os dois pedidos dele depois da auditoria: *"a função única (...) para cada trava não virar um if
+espalhado"* e a fonte única de estatísticas (o `user_stats` da auditoria). **Nenhum número mudou.**
+
+### `regras_do_plano(plano)` — migration `20261001100000`
+
+- **A única tabela de regras de plano.** Limites (IA por dia, editais em 30 dias, questões por
+  dia, idade mínima da prova no grátis) e recursos (`acervo_completo`, `caderno_de_erros`,
+  `rebalanceamento`, `guia_completo`). Plano desconhecido = **grátis** (o menor acesso).
+- Quem lê: `_shared/comum.ts` (na autenticação → `usuario.regras`, `limiteDe()`, `pode()`),
+  `minha-quota`, `sortear_questoes` (via `limite_do_plano`) e o navegador (`meu_plano()` /
+  `pode()` em `astral.js`). **Não existe mais cópia** dos números em `comum.ts`.
+- 🔴 **Trava nova = uma chave aqui + `pode('chave')` onde trava.** Nunca `if (plano === 'pro')`.
+  O `testa-fonte-unica.js` falha se aparecer `if` de plano solto numa página.
+- Decisões gravadas na tabela (gap-analysis-planos.md § 5): caderno e rebalanceamento para todos;
+  Pro com o 1º edital + 2 trocas em 30 dias; beta igual ao Pro (parado, nunca rebaixado).
+
+### `estatisticas_do_usuario()` — migration `20261001110000`
+
+- Uma chamada devolve `fatos` (= `fatos_do_usuario()`), `hoje` (= `fatos_de_hoje()` + `dia`),
+  `plano` (= `meu_plano()`) e `sessoes` dos últimos 400 dias **com o `dia` já calculado no fuso de
+  São Paulo**. `security invoker`: cada um só vê o seu.
+- 🔴 **Nenhuma tela calcula dia.** O navegador lê `est.hoje.dia` e `sessao.dia`
+  (`assets/js/estatisticas.js`, que as páginas importam **pelo `estado.js`** — ver o porquê lá).
+- Regra de cálculo **não mudou**: o dia de uma sessão continua sendo o do **fim** (`criado_em`).
+  Mudar para o início é o achado NUM-06 do roadmap.
+
+Regressão: `node tools/testa-fonte-unica.js` (9 grupos; `ASTRAL_DEV=1` roda no `astral-dev`).

@@ -382,3 +382,34 @@ edital** (antes, fechar o furo de custo; o 1º edital é dele) · **pagamento**.
 mais as 14 de planos. Plano em 3 lotes e checklist de lançamento. **Próximo: as decisões dele; depois,
 o lote 1.**
 
+### 01–02/10/2026 — as duas pendências ANTES do roadmap: função única de plano e fonte única de estatísticas
+
+Pedido dele (por voz): antes do roadmap e do Lote 1, fazer (1) o `user_stats` da auditoria e (2) a
+função única de plano (*"para cada trava não virar um if espalhado"*). Respostas dele a 4 das 14
+perguntas de planos gravadas em `historico/gap-analysis-planos.md` § 5 (beta **parado**; caderno e
+rebalanceamento para todos; Pro com 2 trocas).
+
+| Peça | O que é | Onde |
+|---|---|---|
+| `regras_do_plano()`, `meu_plano()`, `pode()`, `limite_do_plano()` | a única tabela de regras de plano; `sortear_questoes` passa a perguntar a ela | migration `20261001100000` |
+| `estatisticas_do_usuario()` | fatos + hoje + plano + sessões com o **dia de São Paulo** já calculado | migration `20261001110000` |
+| `comum.ts`, `minha-quota` | limites lidos da tabela (`usuario.regras`, `limiteDe`, `pode`) — as constantes saíram | funções |
+| `assets/js/estatisticas.js` | a fonte única no navegador (as páginas importam **pelo `estado.js`**) | novo |
+| `assets/js/formato.js` | um formato de hora só: "45 min" · "2h" · "2h05" | novo |
+| 9 páginas e 6 módulos | leem da fonte única; os 5 selos de plano viraram `pintarSeloDoPlano()` | — |
+| `tools/testa-fonte-unica.js` | 9 grupos de checagem; `ASTRAL_DEV=1` roda no dev | novo |
+
+**Provado no `astral-dev`:** `testa-fonte-unica` 9/9; cota idêntica nos 3 planos (grátis 2/10/12,
+Pro 3/60/60, beta 3/60/30); janela de 30 dias recusando com 429; sorteio grátis 10/dia sem prova
+recente e Pro sem teto; **72 telas × 8 usuários fotografadas antes e depois no mesmo dia: 0 erros
+de JS, 42 idênticas, 29 só com o formato de hora**, e 1 (`quebrou`) com a sequência mudando por
+causa da virada do dia — refeita com o código antigo, deu o mesmo número do novo.
+
+🔴 **NÃO ESTÁ NA PRODUÇÃO.** O `supabase db push` foi **bloqueado pelo controle de permissões** da
+sessão. Funções e páginas dependem das migrations, então **nada foi publicado** e o trabalho ficou
+num ramo local (`fonte-unica`), sem push. Ordem para publicar: banco → as 7 funções → `git push`.
+
+**Achado novo, da comparação (para o roadmap):** NUM-14 — a sequência do topo e da ficha é o valor
+**guardado**, recalculado só quando a página salva o progresso. Na primeira abertura do dia, quem
+perdeu a sequência ainda vê o número velho ("2 dias" quando já é 0); na segunda, o certo.
+

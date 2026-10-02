@@ -70,10 +70,33 @@ export function admin(): SupabaseClient {
 // Medido em 30/07/2026: as 3 funcoes de IA atravessavam a autenticacao usando
 // so a chave publica. Por isso a verificacao de verdade tem de ser esta aqui.
 
+/** As regras do plano, como `public.regras_do_plano()` as devolve (01/10/2026).
+ *  E a UNICA tabela de regras de plano: aqui so se le. Ver a migration
+ *  20261001100000_regras_do_plano.sql. */
+export interface Regras {
+  plano: "free" | "beta" | "pro";
+  completo: boolean;
+  /** null = sem limite. */
+  limites: Record<string, number | null>;
+  recursos: Record<string, boolean>;
+}
+
 export interface Usuario {
   id: string;
   email: string | null;
   plano: "free" | "beta" | "pro";
+  regras: Regras;
+}
+
+/** O limite de um recurso no plano do usuario. null = sem limite. */
+export function limiteDe(usuario: Usuario, chave: string): number | null {
+  const v = usuario.regras?.limites?.[chave];
+  return v === null || v === undefined ? null : Number(v);
+}
+
+/** "Este usuario pode usar este recurso?" Recurso desconhecido = nao. */
+export function pode(usuario: Usuario, recurso: string): boolean {
+  return usuario.regras?.recursos?.[recurso] === true;
 }
 
 /** Chaves do projeto que jamais podem valer como identidade de usuario. */
@@ -110,8 +133,17 @@ export async function autenticar(req: Request): Promise<Usuario> {
     .eq("id", data.user.id)
     .maybeSingle();
 
-  const plano = (perfil?.tipo_plano ?? "free") as Usuario["plano"];
-  return { id: data.user.id, email: data.user.email ?? null, plano };
+  // 01/10/2026: as regras vem da tabela unica do banco (regras_do_plano), e nao
+  // mais de constantes copiadas aqui. Sem as regras nao da para saber o limite:
+  // recusa a chamada (nada foi gasto ainda) em vez de chutar um numero.
+  const { data: regras, error: erroRegras } = await admin()
+    .rpc("regras_do_plano", { p_plano: perfil?.tipo_plano ?? "free" });
+  if (erroRegras || !regras) {
+    console.error("Falha ao ler as regras do plano:", erroRegras);
+    throw new FalhaHttp(503, "Não consegui conferir seu plano agora. Tente de novo em instantes.");
+  }
+  const plano = (regras as Regras).plano;
+  return { id: data.user.id, email: data.user.email ?? null, plano, regras: regras as Regras };
 }
 
 // ── Quota ───────────────────────────────────────────────────────────────────
@@ -158,16 +190,15 @@ const FUNCOES_DESLIGADAS = new Set<Funcao>(["gerar-questoes"]);
    O teto de gasto continua de pe pelo OUTRO lado: processar-edital segue em
    2/dia no free, e `recursos_salvos` e permanente -- materia ja buscada nao e
    buscada de novo (ver assets/js/plano.js). Para gastar as 12 seria preciso
-   trocar de edital de proposito, duas vezes por dia. */
-export const LIMITE_DIARIO: Record<Usuario["plano"], Record<Funcao, number>> = {
-  // free: 10 questoes/dia empata com o plano gratuito do Qconcursos, que e a
-  // referencia que o concurseiro ja conhece.
-  free: { "processar-edital": 2, "gerar-questoes": 10, "buscar-recursos": 12 },
-  // beta e promessa vitalicia de acesso pro -- os dois andam juntos, sempre.
-  // Nenhuma migracao futura pode rebaixar essas contas.
-  beta: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 30 },
-  pro: { "processar-edital": 10, "gerar-questoes": 60, "buscar-recursos": 60 },
-};
+   trocar de edital de proposito, duas vezes por dia.
+
+   01/10/2026: os NUMEROS sairam daqui. Moram em public.regras_do_plano()
+   (migration 20261001100000), a unica tabela de regras de plano, e chegam em
+   `usuario.regras` na autenticacao. O porque de cada um continua valendo:
+     free: 10 questoes/dia empata com o plano gratuito do Qconcursos, que e a
+     referencia que o concurseiro ja conhece; 12 buscas cobrem um edital.
+     beta e promessa vitalicia de acesso pro -- os dois andam juntos, sempre.
+     Nenhuma migracao futura pode rebaixar essas contas. */
 
 /** Quanto o usuario ja gastou de cada funcao nas ultimas 24h. */
 export async function consumoDoDia(
@@ -206,7 +237,8 @@ export async function conferirQuota(
   funcao: Funcao,
   unidades = 1,
 ): Promise<void> {
-  const limite = LIMITE_DIARIO[usuario.plano][funcao];
+  const limite = limiteDe(usuario, funcao);
+  if (limite === null) return;               // plano sem limite para esta funcao
   const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data, error } = await admin()
@@ -244,10 +276,11 @@ export async function conferirQuota(
    Edital ja guardado (mesmo PDF) NAO conta: nao custa nada. Por isso so entra
    aqui o uso registrado com unidades > 0 -- e o que vem do cache nem e
    registrado (ver `semCusto` no servir). */
-export const EDITAIS_EM_30_DIAS: Record<Usuario["plano"], number> = { free: 2, beta: 3, pro: 3 };
-
+/* 01/10/2026: o numero (gratis 2, beta e Pro 3) mora em regras_do_plano(),
+   chave `editais_30_dias`. Decisao dele de 01/10: o Pro fica com 2 trocas. */
 export async function conferirJanelaDeEditais(usuario: Usuario): Promise<void> {
-  const limite = EDITAIS_EM_30_DIAS[usuario.plano] ?? 2;
+  const limite = limiteDe(usuario, "editais_30_dias");
+  if (limite === null) return;               // plano sem limite de editais
   const desde = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await admin()
     .from("uso_ia")

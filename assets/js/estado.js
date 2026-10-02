@@ -12,6 +12,12 @@
 // ============================================================================
 
 import { supabase, SUPABASE_URL, SUPABASE_KEY } from './astral.js';
+import { carregarEstatisticas, invalidarEstatisticas, sessoesDoDia, ultimosDias } from './estatisticas.js';
+/* As paginas pegam a fonte unica de estatisticas POR AQUI, nunca importando
+   estatisticas.js direto: pagina -> modulo leva `?v=`, modulo -> modulo nao, e
+   URL diferente e modulo diferente -- haveria duas copias do que esta guardado,
+   e gravar uma sessao invalidaria so uma delas (.claude/rules/paginas.md, sec. 9). */
+export { carregarEstatisticas, invalidarEstatisticas, sessoesDoDia, ultimosDias, ultimasSemanas, dataDoDia } from './estatisticas.js';
 
 const VAZIO = () => ({
   xp: 0,
@@ -347,21 +353,23 @@ export async function registrarSessao(uid, { materia, segundos, xp, modo }) {
     xp: Math.max(0, Math.round(Number(xp) || 0)),
     modo: MODOS.has(modo) ? modo : 'livre',
   }).select().single();
+  // A fonte unica de estatisticas fica velha com a sessao nova: a proxima leitura vai ao servidor.
+  invalidarEstatisticas();
   if (error) { console.error('Falha ao registrar a sessão.', error); return null; }
   return data;
 }
 
-/** Sessões de hoje, do fuso do usuário. */
+/** Sessões de hoje -- o "hoje" do SERVIDOR (fuso de Sao Paulo), da fonte unica
+ *  de estatisticas (assets/js/estatisticas.js). Ate 01/10/2026 era o relogio do
+ *  aparelho: no Acre, "0 min hoje" com a missao dizendo "estudou 50 min hoje". */
 export async function sessoesDeHoje(uid) {
-  const inicio = new Date();
-  inicio.setHours(0, 0, 0, 0);
-  const { data, error } = await supabase
-    .from('sessoes_estudo').select('*')
-    .eq('usuario_id', uid)
-    .gte('criado_em', inicio.toISOString())
-    .order('criado_em', { ascending: false });
-  if (error) { console.error('Falha ao ler as sessões de hoje.', error); return []; }
-  return data;
+  try {
+    const est = await carregarEstatisticas();
+    return sessoesDoDia(est, est?.hoje?.dia);
+  } catch (error) {
+    console.error('Falha ao ler as sessões de hoje.', error);
+    return [];
+  }
 }
 
 /** Sessoes dos ultimos 7 dias, ja somadas por dia.
@@ -375,31 +383,20 @@ export async function sessoesDeHoje(uid) {
  *  grafico zerado: o zero conta uma historia, o buraco parece defeito.
  */
 export async function sessoesDaSemana(uid) {
-  const dias = [];
-  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(hoje);
-    d.setDate(hoje.getDate() - i);
-    dias.push({ data: d, segundos: 0, hoje: i === 0 });
+  /* 01/10/2026: da fonte unica de estatisticas, com o dia de cada sessao ja
+     calculado no servidor (fuso de Sao Paulo). Antes cada dia era a meia-noite
+     do aparelho. Falhar aqui nao pode derrubar a tela: devolve a semana zerada
+     (7 dias ate hoje no aparelho), e o cartao mostra "nenhuma sessao ainda". */
+  try {
+    return ultimosDias(await carregarEstatisticas(), 7);
+  } catch (error) {
+    console.error('Falha ao ler as sessões da semana.', error);
+    const hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(hoje); d.setDate(hoje.getDate() - (6 - i));
+      return { data: d, segundos: 0, hoje: i === 6 };
+    });
   }
-
-  const inicio = new Date(dias[0].data);
-  const { data, error } = await supabase
-    .from('sessoes_estudo')
-    .select('segundos, criado_em')
-    .eq('usuario_id', uid)
-    .gte('criado_em', inicio.toISOString());
-
-  // Falhar aqui nao pode derrubar a tela: devolve a semana zerada, e o cartao
-  // mostra "nenhuma sessao ainda" em vez de sumir.
-  if (error) { console.error('Falha ao ler as sessões da semana.', error); return dias; }
-
-  for (const s of (data || [])) {
-    const d = new Date(s.criado_em); d.setHours(0, 0, 0, 0);
-    const alvo = dias.find((x) => x.data.getTime() === d.getTime());
-    if (alvo) alvo.segundos += Number(s.segundos) || 0;
-  }
-  return dias;
 }
 
 // ── Rotina de estudo (28/09/2026) ───────────────────────────────────────────

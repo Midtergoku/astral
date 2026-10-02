@@ -339,3 +339,22 @@ se o TAF veio.
 A página `taf.html`, a tabela `taf_registros` (marca + gatilho de sanidade, 30/dia) e `meu_taf()`
 (XP de preparo físico: 10 por prova por dia, separado do XP de estudo) — migration `20260930140000`.
 Regressão: `node tools/testa-taf.js` (19 checagens).
+
+---
+
+## 8.23. Os limites de plano saíram do `comum.ts` (01/10/2026)
+
+`LIMITE_DIARIO` e `EDITAIS_EM_30_DIAS` **não existem mais**. Os números moram em
+`public.regras_do_plano()` (ver `banco.md` 8.23) e chegam em **`usuario.regras`** dentro de
+`autenticar()` — uma consulta a mais por chamada, a mesma tabela que o sorteio de questões e o
+navegador usam.
+
+- Ler limite: **`limiteDe(usuario, 'gerar-questoes')`** (`null` = sem limite). Recurso:
+  **`pode(usuario, 'acervo_completo')`**. Nunca `usuario.plano === 'pro'`.
+- Se as regras não puderem ser lidas, a chamada é **recusada com 503** antes de gastar nada — não
+  há número de reserva copiado aqui (seria a segunda tabela que a mudança acabou de eliminar).
+- `minha-quota` devolve `limite`/`restante` como `null` quando o plano não tem teto.
+
+Provado no `astral-dev` antes de publicar: grátis 2/10/12, Pro 3/60/60, beta 3/60/30 (idênticos
+a antes) e a janela de 30 dias recusando a 3ª leitura com 429. Regressão:
+`node tools/testa-fonte-unica.js`.

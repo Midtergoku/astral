@@ -17,11 +17,10 @@ import {
   json,
   erro,
   FalhaHttp,
-  LIMITE_DIARIO,
   FUNCOES,
   consumoDoDia,
   admin,
-  EDITAIS_EM_30_DIAS,
+  limiteDe,
 } from "../_shared/comum.ts";
 
 Deno.serve(async (req: Request): Promise<Response> => {
@@ -35,15 +34,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   try {
     const usuario = await autenticar(req);
-    const limites = LIMITE_DIARIO[usuario.plano];
     const usado = await consumoDoDia(usuario);
 
-    const funcoes: Record<string, { limite: number; usado: number; restante: number }> = {};
+    // 01/10/2026: os limites vem de regras_do_plano(), a tabela unica de regras.
+    // null = sem limite (nenhum plano tem isso hoje nas funcoes de IA).
+    const funcoes: Record<string, { limite: number | null; usado: number; restante: number | null }> = {};
     for (const f of FUNCOES) {
+      const limite = limiteDe(usuario, f);
       funcoes[f] = {
-        limite: limites[f],
+        limite,
         usado: usado[f],
-        restante: Math.max(0, limites[f] - usado[f]),
+        restante: limite === null ? null : Math.max(0, limite - usado[f]),
       };
     }
 
@@ -56,11 +57,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .select("id", { count: "exact", head: true })
       .eq("usuario_id", usuario.id).eq("funcao", "processar-edital")
       .gt("unidades", 0).gte("criado_em", desde30);
-    const limiteMes = EDITAIS_EM_30_DIAS[usuario.plano] ?? 2;
+    const limiteMes = limiteDe(usuario, "editais_30_dias");
     funcoes["processar-edital"] = {
       limite: limiteMes,
       usado: editaisNoMes ?? 0,
-      restante: Math.max(0, limiteMes - (editaisNoMes ?? 0)),
+      restante: limiteMes === null ? null : Math.max(0, limiteMes - (editaisNoMes ?? 0)),
       janela: "30d",
     } as typeof funcoes[string];
 
@@ -73,7 +74,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         plano: usuario.plano,
         // beta e promessa vitalicia de acesso pro. Quem consome esta resposta
         // nao precisa saber a regra -- basta ler `completo`.
-        completo: usuario.plano === "pro" || usuario.plano === "beta",
+        completo: usuario.regras.completo,
         funcoes,
         // A janela e movel: 24h para tras a partir de agora, nao "meia-noite".
         janela: "24h",

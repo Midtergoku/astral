@@ -355,8 +355,8 @@
 
 <script type="module">
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, relatar }
-    from './assets/js/astral.js?v=bfdb6e4b';
-  import { carregarProgresso } from './assets/js/estado.js?v=87f966f4';
+    from './assets/js/astral.js?v=18f8a06a';
+  import { carregarProgresso, carregarEstatisticas } from './assets/js/estado.js?v=7f17c492';
   import { aplicarDivisa } from './assets/js/divisa.js?v=7fbaaf3f';
 
   /* Cada metal: a cor base e a clara (brilho e emblema). O degradê de cada
@@ -482,7 +482,8 @@
       materias: dados.materias, tagEscolhida: dados.tagEscolhida,
     }, esc);
 
-    const { data: fatos, error } = await supabase.rpc('fatos_do_usuario');
+    // 01/10/2026: os fatos vem da fonte unica de estatisticas (assets/js/estatisticas.js).
+    const { data: fatos, error } = await carregarEstatisticas().then((d) => ({ data: d?.fatos ?? null }), (e) => ({ error: e }));
     if (error || !fatos) {
       document.getElementById('conteudo').innerHTML =
         '<div class="card"><div class="vazio-texto">Não consegui carregar o quadro agora. Tente recarregar a página.</div></div>';
