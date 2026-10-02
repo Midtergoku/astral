@@ -16,3 +16,14 @@
 module.exports.SCRIPT = `try { if (!localStorage.getItem('astral_aceite_pendente')) {
   localStorage.setItem('astral_aceite_pendente', JSON.stringify({ origem: 'google', email: null, em: Date.now() })); }
 } catch (e) { /* pagina sem armazenamento: o teste segue */ }`;
+
+/* Para teste que FINGE o servidor (route em rest/v1/** devolvendo "[]"): o "[]"
+   nao diz "aceito", o registro do pendente tambem nao, e a tela de aceite fica
+   por cima de tudo -- o testa-celular estourou 6 min assim na bateria de 02/10.
+   Registrar DEPOIS do route generico: no Playwright o ultimo route vence.
+     await fingirAceite(pg); */
+module.exports.fingirAceite = async (pg) => {
+  const resposta = JSON.stringify({ vigentes: { termos: "2026-07-30", politica: "2026-06-20" }, aceito: true, aceito_em: "2026-10-02T00:00:00Z" });
+  await pg.route(/\/rest\/v1\/rpc\/(meu_consentimento|registrar_consentimento)/, (r) =>
+    r.fulfill({ status: 200, contentType: "application/json", body: resposta }));
+};

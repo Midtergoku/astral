@@ -77,6 +77,7 @@ async function abrir(nav, ap, pagina) {
   await pg.addInitScript(SESSAO);
   await pg.route("**/rest/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
   await pg.route("**/functions/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"success":true,"data":{}}' }));
+  await require("./testes/aceite-de-teste.js").fingirAceite(pg);
   // 28/09/2026: conta que NUNCA respondeu a rotina abre o questionario por
   // cima de tudo no dashboard -- de proposito, e a primeira visita. Aqui se
   // testa o menu, entao a conta finge ja ter respondido.

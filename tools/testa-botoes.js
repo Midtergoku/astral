@@ -23,6 +23,15 @@
 // Primeira execucao (17/09/2026): 85 botoes, 0 mortos de verdade. Os 3 que
 // sobram sao amostras de estilo em estilo.html -- a pagina existe para
 // mostrar COMO o botao e, e eles nao tem handler de proposito.
+//
+// 02/10/2026: com a tela de aceite (LGL-01) e o servidor fingido devolvendo
+// "[]", o aceite nunca "voltava" e a tela de aceite cobria TUDO: o teste
+// passou vendo so 159 botoes. Agora fingirAceite() responde "aceito" e ele
+// ve os 254. Os 8 "mortos" do taf.html (Registrar / Salvar indice) NAO sao
+// defeito: o campo e "required", e com ele vazio o navegador mostra o
+// balao nativo "preencha este campo", que nao mexe no DOM -- o teste nao o
+// enxerga. Ja apareciam assim antes do Lote 1 (medido no commit cbef5f9).
+// O "Livre" e o "De parede" do cronometro oscilam pela regra 3 acima.
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -84,6 +93,7 @@ const PAGINAS = fs.readdirSync(RAIZ).filter((f) => f.endsWith(".html"));
     await pg.route("**/rest/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
     await pg.route("**/functions/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"success":true,"data":{}}' }));
     await pg.route("**/auth/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+    await require("./testes/aceite-de-teste.js").fingirAceite(pg);
 
     const errosJs = [];
     pg.on("pageerror", (e) => errosJs.push(String(e.message).slice(0, 70)));

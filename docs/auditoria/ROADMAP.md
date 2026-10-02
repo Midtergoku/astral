@@ -117,3 +117,30 @@ da seção 8 do relatório final, item por item, com prova.
 | **1.4** | ✅ | Teto global (`teto_global_de_ia`, `uso_de_ia_hoje`, migration `20261002110000`); `ctx.ia()` em toda chamada à Anthropic; leitura que custou e falhou passa a contar; `checa-saude` mostra o uso do dia | No dev, com uma **"IA de mentira"** (custo zero): não-PDF não conta; resposta inútil **conta**; a 3ª leitura cai na janela (429) antes da IA; teto do dia cheio recusa até conta nova; só a chave de serviço lê o uso global. Na produção: `testa-trava-creditos` passou | 💰 **Os números do teto (10 editais, 60 guias, 100 questões por dia) são escolha minha — confirmar** (`historico/valores.md` § 13) |
 | **1.5** | ⏸️ | — | — | Depende do crédito (US$ 5) e da pergunta 5. **O 1º edital é do Lucas**. O pré-requisito (1.4) está feito |
 | **1.6** | ⏸️ | — | — | Depende das 14 perguntas de planos, da Vercel Pro (US$ 20/mês) e das credenciais do Mercado Pago dele |
+
+#### Reauditoria do Lote 1 — 02/10/2026, pelos critérios do `PROMPT-auditoria.md` (§ 1 e § 15)
+
+**Cada correção, com evidência medida na produção depois de publicar (commit `ba410a7`):**
+
+| Item | Fluxo rastreado | Evidência |
+|---|---|---|
+| 1.1 | migrations → banco vazio → comparação com a produção | `testa-migrations-do-zero` passou **duas vezes** (sozinho e dentro da bateria): 46 migrations, 581 peças iguais |
+| 1.2 | tarefa do Windows → `backup.js` → `ultimo-backup.json` → `checa-saude` | `agenda-backup.ps1 -Ver`: estado *Ready*, última execução código 0, próxima 21h; `checa-saude`: *"backup automático em dia (há 0 h, 2807 linhas)"* |
+| 1.3 | cadastro / Google → aceite pendente → `exigirSessao` → `registrar_consentimento` → tabela | `testa-consentimento` **15/15 na produção**. Consulta: RLS ligada; `authenticated` **não** insere direto; `anon` não lê nem chama a função; versões vigentes = `{termos 2026-07-30, política 2026-06-20}`; **0 aceites gravados e 7 contas reais** que verão a tela uma vez. 17 páginas passam pelo portão; a única logada fora dele é `redefinir-senha.html` — de propósito: quem redefine é mandado ao `dashboard`, que tem o portão |
+| 1.4 | função → `ctx.ia()` → `conferirTetoGlobal` → `uso_de_ia_hoje` → Anthropic | `grep`: as **4** chamadas a `messages.create` (buscar-recursos ×2, gerar-questoes, processar-edital) estão **todas** dentro de `ctx.ia()`, nenhuma fora. `uso_de_ia_hoje` e `teto_global_de_ia`: `anon` e `authenticated` **não** executam (só a chave de serviço). Segredos da produção: só `ANTHROPIC_API_KEY` — a `ANTHROPIC_BASE_URL` da "IA de mentira" **nunca** foi para lá. `checa-saude`: *"IA hoje: 0/100 · 0/60 · 0/10"*; `testa-trava-creditos` OK |
+
+**Nada mais foi afetado — a bateria inteira, 59 testes contra a produção:**
+
+| Resultado | Testes |
+|---|---|
+| ✅ passaram de primeira | 57 |
+| ⚠️ `testa-links` | falhou 1 vez (o YouTube respondeu diferente naquele instante — o cabeçalho do teste avisa disso); **12/12 ao repetir**. O Lote 1 não mexeu em `links.ts` (`git diff` vazio) |
+| ⚠️ `testa-celular` | estourou os 6 min. **Defeito do teste, não do site:** ele finge o servidor devolvendo `[]` para tudo, e `[]` não diz "aceito" — a tela de aceite ficava por cima de cada página. Consertado com `fingirAceite()` em `tools/testes/aceite-de-teste.js`: **passou em 2m20** |
+| 🔎 `testa-botoes` | passava, mas pelo mesmo motivo **via só 159 de 254 botões**. Com o conserto vê os 254. Os 8 "mortos" do TAF são o balão nativo de campo obrigatório (`required`) e **já apareciam antes do Lote 1** — medido rodando o teste no commit `cbef5f9` |
+
+**§ 15 — respostas honestas:** percorri os 4 itens executados e os 2 parados; cada linha acima tem
+comando ou consulta; testei com contas e dados reais na produção, não só lendo código. O que **não**
+testei: a tela de aceite num celular de verdade (só no navegador emulado) e uma leitura de edital real
+(1.5, sem crédito). **Se o Lucas achar um problema amanhã, o mais provável é a tela de aceite numa das
+7 contas reais com algum estado que as contas de teste não têm** — por isso o portão deixa passar quando
+a rede falha (*"exigido de quem o servidor diz que não aceitou, não de quem a rede falhou"*).
