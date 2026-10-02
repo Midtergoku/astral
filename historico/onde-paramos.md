@@ -359,3 +359,15 @@ nada; rotina curta tira matérias do cronograma por meses; trocar de edital deix
 leitura de edital que falha não conta na janela (custo sem teto quando houver crédito); 5
 promessas da página inicial não existem. Nada corrigido. **Próximo: Fase 5, quando ele mandar.**
 
+### 01/10/2026 — Auditoria, Fase 5 (experiência, negócio e código)
+
+As 8 jornadas: a da Ana (aluna nova, celular básico, 4G fraco) percorrida inteira no dev com a IA
+**simulada no navegador** (custo zero); Bruno, Carla e Eva param no 1º passo (não há assinatura nem
+trial); Diego, Fábio, Gabi e o atacante com os dados das Fases 2–4. 19 páginas medidas a 360 px no
+4G lento (7 públicas na produção, só leitura). Relatório em `docs/auditoria/04-ux-negocio-codigo.md`:
+**0 S0, 4 S1, 10 S2, 4 S3**, 4 perguntas. Achado novo mais grave: **a patente DESCE na primeira
+promoção** para Bombeiros e PM com as patentes que o próprio prompt dá de exemplo. Também: zeros
+falsos no painel carregando ou com erro; nenhum analytics/UTM/origem; 0 de 24 páginas com SEO ou
+prévia de link; contraste 3,04:1 nos botões principais; regras de condecoração duplicadas no
+navegador. Nada corrigido. **Próximo: Fase 6 (consolidação), quando ele mandar.**
+
