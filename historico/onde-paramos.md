@@ -371,3 +371,14 @@ falsos no painel carregando ou com erro; nenhum analytics/UTM/origem; 0 de 24 p�
 prévia de link; contraste 3,04:1 nos botões principais; regras de condecoração duplicadas no
 navegador. Nada corrigido. **Próximo: Fase 6 (consolidação), quando ele mandar.**
 
+### 01/10/2026 — Auditoria, Fase 6: o RELATÓRIO FINAL
+
+`docs/auditoria/RELATORIO-FINAL.md`. **Veredito: NÃO pronto para o lançamento pago.** 82 achados
+das fases viraram **76** (6 fusões): **4 S0, 22 S1, 36 S2, 14 S3**. 6 severidades mudaram (PRO-01 e
+OPS-02 subiram para S0; GAM-02, GAM-03, GAM-06 e NEG-01 desceram para S2 — trapaça só engana o
+próprio aluno enquanto não houver ranking). Os 4 S0, em ordem: **recuperação de desastre**
+(backup automático + migrations que sobem do zero) · **consentimento** · **a 1ª leitura real do
+edital** (antes, fechar o furo de custo; o 1º edital é dele) · **pagamento**. 18 perguntas para ele,
+mais as 14 de planos. Plano em 3 lotes e checklist de lançamento. **Próximo: as decisões dele; depois,
+o lote 1.**
+
