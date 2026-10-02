@@ -124,13 +124,13 @@ Regressão: `node tools/testa-dominio.js` (10 checagens, sem crédito).
 
 ---
 
-## 8.23. Regras de plano e estatísticas — cada uma num lugar só (01/10/2026) 🟡
+## 8.23. Regras de plano e estatísticas — cada uma num lugar só (01/10/2026) ✅
 
-> 🟡 **02/10/2026: aplicado e provado no `astral-dev`; NÃO está na produção.** O `supabase db push`
-> para a produção foi bloqueado pelo controle de permissões da sessão e aguarda o Lucas. **Ordem
-> obrigatória para publicar:** (1) as 2 migrations no banco, (2) as 7 funções que usam o
-> `comum.ts`, (3) as páginas pelo `git push`. Páginas ou funções antes do banco **quebram o site**
-> (chamam `estatisticas_do_usuario` / `regras_do_plano`, que ainda não existem lá).
+> ✅ **02/10/2026: publicado na produção**, depois de o Lucas liberar (*"pode publicar"*) — o
+> `supabase db push` tinha sido bloqueado pelo controle de permissões na primeira tentativa.
+> Ordem seguida, e que vale para qualquer mudança parecida: (1) as 2 migrations no banco,
+> (2) as 7 funções que usam o `comum.ts`, (3) as páginas pelo `git push`. Páginas ou funções
+> antes do banco **quebram o site**. `testa-fonte-unica.js` 9/9 na produção antes do push das páginas.
 
 Os dois pedidos dele depois da auditoria: *"a função única (...) para cada trava não virar um if
 espalhado"* e a fonte única de estatísticas (o `user_stats` da auditoria). **Nenhum número mudou.**

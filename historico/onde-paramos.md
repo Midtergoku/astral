@@ -409,6 +409,10 @@ causa da virada do dia — refeita com o código antigo, deu o mesmo número do 
 sessão. Funções e páginas dependem das migrations, então **nada foi publicado** e o trabalho ficou
 num ramo local (`fonte-unica`), sem push. Ordem para publicar: banco → as 7 funções → `git push`.
 
+✅ **02/10/2026 — PUBLICADO.** Ele liberou: *"pode publicar, depois vamos para o roadmap e depois o
+lote 1"*. Backup antes (`ASTRAL-BACKUPS/2026-10-02-03-42-01`) → as 2 migrations → as 7 funções →
+`testa-fonte-unica` 9/9 **na produção** → merge do ramo `fonte-unica` no `main` e push das páginas.
+
 **Achado novo, da comparação (para o roadmap):** NUM-14 — a sequência do topo e da ficha é o valor
 **guardado**, recalculado só quando a página salva o progresso. Na primeira abertura do dia, quem
 perdeu a sequência ainda vê o número velho ("2 dias" quando já é 0); na segunda, o certo.
