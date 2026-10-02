@@ -88,6 +88,7 @@ const PAGINAS = ['dashboard.html', 'cronograma.html', 'progresso.html', 'conta.h
     /* Vigia quadro a quadro se sobra conteudo fora da janela. Comeca ANTES de
        a pagina montar, para nao perder o primeiro instante -- que e justamente
        quando a animacao de entrada roda. */
+    await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await ctx.addInitScript(() => {
       localStorage.setItem('sb-jjogmcacbdefwiwcyjxp-auth-token', JSON.stringify({
         access_token: 'falso', token_type: 'bearer', expires_in: 3600,

@@ -358,3 +358,22 @@ navegador usam.
 Provado no `astral-dev` antes de publicar: grátis 2/10/12, Pro 3/60/60, beta 3/60/30 (idênticos
 a antes) e a janela de 30 dias recusando a 3ª leitura com 429. Regressão:
 `node tools/testa-fonte-unica.js`.
+
+---
+
+## 8.24. `ctx.ia()` — toda chamada à Anthropic passa por uma porta (02/10/2026)
+
+**Nunca chamar `anthropic.messages.create` direto num handler.** Sempre
+`await ctx.ia(() => anthropic.messages.create({...}))`. A porta:
+
+1. confere o **teto global do dia** (`uso_de_ia_hoje` / `teto_global_de_ia`, `banco.md` 8.24) —
+   cheio, recusa com 429 *"o Astral atingiu o limite de hoje — nada foi descontado de você"*;
+2. marca que **custou** quando a IA responde.
+
+No `catch` do `servir()`, se custou, o uso é **registrado mesmo com a chamada falhando** (auditoria
+EDI-01): o PDF que não é edital fazia a IA responder duas vezes, pagas, e não contava em nada.
+Falha **antes** da IA (arquivo inválido, rede, crédito) continua sem contar.
+
+Provado no `astral-dev` com uma **"IA de mentira"** (função que imita a Anthropic, apontada por
+`ANTHROPIC_BASE_URL`, custo zero): não-PDF não conta; resposta inútil conta; a 3ª leitura cai na
+janela; teto do dia cheio recusa até conta nova.

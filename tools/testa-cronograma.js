@@ -108,6 +108,7 @@ function acharPlaywright() {
     const s = await req("/auth/v1/verify", { method: "POST", headers: { apikey: PUB, "Content-Type": "application/json" }, body: JSON.stringify({ type: "magiclink", token_hash: link.hashed_token }) });
     nav = await pw.chromium.launch();
     const ctx = await nav.newContext({ viewport: { width: 1440, height: 950 } });
+    await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 3600, user: s.user }))});`);
     const pg = await ctx.newPage();
     const erros = []; pg.on("pageerror", (e) => erros.push(e.message));

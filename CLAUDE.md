@@ -153,6 +153,13 @@ node tools/roda-testes.js       a BATERIA INTEIRA (56 testes, ~30 min), um por v
 node tools/testa-dominio.js     o dominio e medido pelo servidor? (desde 30/09 -- banco.md 8.22)
 node tools/testa-fonte-unica.js regras de plano e estatisticas vem de UM lugar so? (01/10 -- banco.md 8.23)
                                 ASTRAL_DEV=1 na frente: roda no astral-dev, para provar ANTES de publicar
+node tools/testa-consentimento.js  o aceite dos Termos/Politica e GRAVADO? (02/10, LGL-01 -- banco.md 8.24)
+node tools/testa-migrations-do-zero.js  🔴 SO NO DEV, APAGA OS DADOS DE TESTE: o banco sobe do zero
+                                so com as migrations e fica igual a producao? (02/10, OPS-01)
+node tools/recria-webhook-lista.js --projeto <ref>  numa RESTAURACAO: recria o aviso de lead
+                                novo com segredo novo (nunca mostrado)
+powershell -File tools\agenda-backup.ps1 [-Ver|-Agora|-Remover]  o backup DIARIO agendado no
+                                Windows (21h); o checa-saude avisa se parar (02/10, OPS-02)
 node tools/sincroniza-materias.js  OBRIGATORIO ao mudar MATERIAS_CONHECIDAS no prova.js
 git push origin main            publica o site (Vercel republica em ~1 min). NUNCA dois em paralelo
 supabase functions deploy       edge functions NAO passam pelo git, entram no ar na hora

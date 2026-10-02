@@ -142,6 +142,7 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
     const s1 = await sessaoNova(usuario.email);
     const ctxA = await nav.newContext({ viewport: { width: 1280, height: 900 } });
     const pgA = await ctxA.newPage();
+    await pgA.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await pgA.addInitScript(scriptSessao(s1));
     await pgA.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
     await pgA.waitForTimeout(1800);
@@ -197,6 +198,7 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
     const s3 = await sessaoNova(usuario.email);
     const ctxB = await nav.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const pgB = await ctxB.newPage();
+    await pgB.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await pgB.addInitScript(scriptSessao(s3));
     await pgB.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
     await pgB.waitForTimeout(2500);

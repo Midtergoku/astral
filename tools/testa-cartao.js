@@ -73,6 +73,7 @@ const servidor = http.createServer((q, r) => {
 
     for (const [largura, altura] of [[1280, 1000], [390, 844]]) {
       const ctx = await nav.newContext({ viewport: { width: largura, height: altura } });
+      await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
       await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 3600, user: s.user }))});`);
       await ctx.route("**/functions/v1/**", (r) => r.fulfill({ status: 402, contentType: "application/json", body: '{"error":"bloqueado no teste"}' }));
       const pg = await ctx.newPage(); const erros = [];

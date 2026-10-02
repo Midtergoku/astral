@@ -418,7 +418,8 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            montarCaptcha, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
-    from './assets/js/astral.js?v=18f8a06a';
+    from './assets/js/astral.js?v=67af3f5c';
+  import { marcarAceiteNoCadastro, esquecerAceiteDoCadastro } from './assets/js/consentimento.js?v=1f1740b1';
 
   olhinhoDeSenha('senha');
 
@@ -441,6 +442,15 @@
 
   window.cadastroGoogle = async function() {
     esconderErro();
+    /* 02/10/2026 (auditoria LGL-01): o Google tambem passa pelo aceite. Antes
+       este botao criava a conta sem olhar a caixa. O aceite fica "pendente"
+       e e GRAVADO no servidor assim que a conta entra (consentimento.js). */
+    if (!document.getElementById('consentimento').checked) {
+      mostrarErro('Marque "Li e aceito os Termos de Uso e a Política de Privacidade" antes de continuar com o Google.');
+      document.getElementById('consentimento').focus();
+      return;
+    }
+    marcarAceiteNoCadastro('google');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + '/dashboard.html' }
@@ -459,7 +469,9 @@
     if (!nome) { mostrarErro('Informe seu nome.'); return; }
     if (!email || !email.includes('@')) { mostrarErro('Informe um e-mail válido.'); return; }
     if (senha.length < 8) { mostrarErro('A senha precisa ter pelo menos 8 caracteres.'); return; }
-    if (!consentimento) { mostrarErro('Você precisa aceitar a Política de Privacidade para continuar.'); return; }
+    if (!consentimento) { mostrarErro('Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.'); return; }
+    // 02/10/2026 (LGL-01): o aceite e GRAVADO no servidor quando a conta entra.
+    marcarAceiteNoCadastro('cadastro_email', email);
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Criando conta...';
@@ -477,7 +489,7 @@
       }
     });
     // Token de uso unico: sem reset, a segunda tentativa falha sozinha.
-    if (error) resetarCaptcha(widgetCaptcha);
+    if (error) { resetarCaptcha(widgetCaptcha); esquecerAceiteDoCadastro(); }
 
     if (error) {
       const m = (error.message || '').toLowerCase();

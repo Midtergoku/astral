@@ -120,6 +120,7 @@ const instante = (d, h) => {
     const pg = await ctx.newPage();
     const erros = [];
     pg.on("pageerror", (e) => erros.push(String(e.message)));
+    await pg.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await pg.addInitScript(`(() => {
       localStorage.setItem("sb-${REF}-auth-token", JSON.stringify({
         access_token: ${JSON.stringify(s.access_token)},

@@ -68,6 +68,7 @@ const servidor = http.createServer((q, r) => {
       body: JSON.stringify({ type: "magiclink", token_hash: link.corpo?.hashed_token }) })).corpo;
 
     const ctx = await nav.newContext({ viewport: { width: 1280, height: 950 } });
+    await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await ctx.addInitScript(`(() => { localStorage.setItem("sb-${REF}-auth-token", JSON.stringify({
       access_token: ${JSON.stringify(s.access_token)}, refresh_token: ${JSON.stringify(s.refresh_token)},
       token_type: "bearer", expires_at: Math.floor(Date.now()/1000)+3600, user: ${JSON.stringify(s.user)} })); })()`);

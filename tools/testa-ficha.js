@@ -229,6 +229,7 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
       const pg = await ctx.newPage();
       const errosDeTela = [];
       pg.on("pageerror", (e) => errosDeTela.push(String(e.message)));
+      await pg.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
       await pg.addInitScript(scriptSessao(sessaoA));
       await pg.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
       await pg.waitForTimeout(3500);

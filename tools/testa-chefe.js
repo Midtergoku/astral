@@ -208,6 +208,7 @@ const emDias = (n) => {
       await require("./testes/dominio-plantado.js").plantarAcertos(BASE, SERVICE, usuario.id, "Matemática", 30);
 
       const ctx = await nav.newContext({ viewport: { width: 1280, height: 1000 } });
+      await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
       await ctx.addInitScript(`(() => {
         localStorage.setItem("sb-${REF}-auth-token", JSON.stringify({
           access_token: ${JSON.stringify(s.access_token)},

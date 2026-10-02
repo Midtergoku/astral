@@ -94,6 +94,15 @@ export async function exigirSessao() {
     window.location.href = 'login.html';
     return null;
   }
+  /* 02/10/2026 (auditoria LGL-01): ninguem usa o app sem o aceite dos Termos e
+     da Politica GRAVADO no servidor (assets/js/consentimento.js). Quem nunca
+     aceitou neste navegador espera a tela de aceite; quem ja aceitou segue na
+     hora e a conferencia roda por tras. O aceite nunca derruba a pagina. */
+  try {
+    const { garantirConsentimento, jaAceitouAlgumaVez } = await import('./consentimento.js');
+    const conferencia = garantirConsentimento(supabase, session, { sair: fazerLogout });
+    if (!jaAceitouAlgumaVez(session.user.id)) await conferencia;
+  } catch (e) { console.error('Conferencia do aceite falhou.', e); }
   return session;
 }
 

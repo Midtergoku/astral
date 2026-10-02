@@ -377,6 +377,30 @@ export interface Contexto {
   cobrar(n: number): Promise<void>;
   /** Esta chamada nao custou nada (veio do que ja estava guardado): nao conta na quota. */
   semCusto(): void;
+  /** TODA chamada a Anthropic passa por aqui (02/10/2026, auditoria EDI-01/SEG-06):
+   *  confere o TETO GLOBAL do dia antes de gastar, e marca que custou depois --
+   *  assim a resposta paga que falha na validacao tambem conta. */
+  ia<T>(chamada: () => Promise<T>): Promise<T>;
+}
+
+/* ── O TETO GLOBAL DE IA (02/10/2026) ─────────────────────────────────────────
+   Os limites acima sao POR CONTA; quem criasse contas multiplicava o gasto.
+   Este e o teto do Astral INTEIRO por dia (fuso de SP), somando todas as
+   contas. O numero mora no banco (teto_global_de_ia, migration 20261002110000).
+   Sem conseguir conferir, recusa -- aqui o risco e gastar credito, e nada foi
+   gasto ainda. */
+async function conferirTetoGlobal(funcao: Funcao, unidades: number): Promise<void> {
+  const { data, error } = await admin().rpc("uso_de_ia_hoje");
+  if (error || !data) {
+    console.error("Falha ao conferir o teto global de IA:", error);
+    throw new FalhaHttp(503, "Não consegui conferir o limite de uso agora. Tente de novo em instantes.");
+  }
+  const f = (data as Record<string, { usado: number; teto: number }>)[funcao];
+  if (f && f.teto !== null && Number(f.usado) + unidades > Number(f.teto)) {
+    console.warn("Teto global de IA atingido:", funcao, JSON.stringify(f));
+    throw new FalhaHttp(429,
+      "O Astral atingiu o limite de uso de inteligência artificial de hoje. Tente de novo amanhã — nada foi descontado de você.");
+  }
 }
 
 /** Cuida de OPTIONS, metodo, autenticacao, quota, registro e erros. */
@@ -402,8 +426,13 @@ export function servir(
       );
     }
 
+    // Fora do try: o catch precisa saber se a IA chegou a responder (custou).
+    let usuario: Usuario | null = null;
+    let unidades = 1;
+    let gratis = false;
+    let custou = false;
     try {
-      const usuario = await autenticar(req);
+      usuario = await autenticar(req);
 
       // Porta de entrada: recusa quem ja esgotou a quota antes de o handler
       // sequer ler o corpo. O custo real e reservado depois, via ctx.cobrar().
@@ -413,14 +442,19 @@ export function servir(
       // nada. O testa-trava-creditos pegou isso na primeira execucao.
       if (funcao !== "processar-edital") await conferirQuota(usuario, funcao, 1);
 
-      let unidades = 1;
-      let gratis = false;
+      const quem = usuario;
       const ctx: Contexto = {
         async cobrar(n: number) {
           unidades = Math.max(1, Math.round(n));
-          await conferirQuota(usuario, funcao, unidades);
+          await conferirQuota(quem, funcao, unidades);
         },
         semCusto() { gratis = true; },
+        async ia<T>(chamada: () => Promise<T>): Promise<T> {
+          await conferirTetoGlobal(funcao, unidades);
+          const r = await chamada();
+          custou = true;
+          return r;
+        },
       };
 
       const resposta = await handler(req, usuario, ctx);
@@ -432,6 +466,15 @@ export function servir(
 
       return resposta;
     } catch (e) {
+      /* 02/10/2026 (auditoria EDI-01): a IA RESPONDEU e a chamada falhou depois
+         (ex.: PDF que nao e edital -- duas chamadas pagas e nenhuma materia).
+         Antes isso nao contava em nada, e dava para repetir sem fim. Agora conta
+         na quota/janela como uma chamada normal. Falha ANTES da IA (rede,
+         credito, validacao do arquivo) continua sem contar. */
+      if (custou && !gratis && usuario) {
+        try { await registrarUso(usuario, funcao, unidades); }
+        catch (r) { console.error("Nao registrei o uso da chamada que falhou:", r); }
+      }
       if (e instanceof FalhaHttp) return erro(req, e.message, e.status);
 
       /* ⚠️ CLASSIFICAR O ERRO DA IA (04/08/2026).

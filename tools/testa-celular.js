@@ -73,6 +73,7 @@ async function abrir(nav, ap, pagina) {
     viewport: { width: ap.w, height: ap.h }, isMobile: true, hasTouch: true, deviceScaleFactor: 2,
   });
   const pg = await ctx.newPage();
+  await pg.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
   await pg.addInitScript(SESSAO);
   await pg.route("**/rest/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
   await pg.route("**/functions/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"success":true,"data":{}}' }));

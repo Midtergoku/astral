@@ -131,6 +131,7 @@ const servidor = http.createServer((q, r) => {
 
   /* Semeia a copia do navegador, como teria quem ja usou o app.
      XP proposital diferente do "banco": e assim que se ve a correcao chegar. */
+  await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
   await ctx.addInitScript(() => {
     /* A sessao, na chave real do supabase-js. E daqui que o identidade.js tira
        o nome sem precisar de rede nenhuma. */

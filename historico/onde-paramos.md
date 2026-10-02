@@ -417,3 +417,20 @@ lote 1"*. Backup antes (`ASTRAL-BACKUPS/2026-10-02-03-42-01`) → as 2 migration
 **guardado**, recalculado só quando a página salva o progresso. Na primeira abertura do dia, quem
 perdeu a sequência ainda vê o número velho ("2 dias" quando já é 0); na segunda, o certo.
 
+### 02/10/2026 — Roadmap de correção e o Lote 1
+
+O roadmap está em `docs/auditoria/ROADMAP.md` (lotes em ordem, o que precisa estar pronto antes
+do lançamento marcado com 🚀). **Lote 1 executado — 4 de 6 itens:**
+
+| Item | Situação |
+|---|---|
+| 1.1 O banco renasce do zero só pelas migrations | ✅ provado no dev esvaziado: 46 migrations, 581 peças iguais à produção |
+| 1.2 Backup automático | 🟡 tarefa diária no PC dele (21h); **falta a cópia fora do computador — decisão dele** |
+| 1.3 Registro do aceite dos Termos (LGPD) | ✅ tabela `consentimentos` + tela de aceite; as 7 contas reais veem a tela **uma vez** |
+| 1.4 Teto de gasto de IA por dia, para o site inteiro | ✅ 10 editais / 60 guias / 100 questões por dia — **números meus, confirmar com ele** |
+| 1.5 A primeira leitura de edital de verdade | ⏸️ crédito (US$ 5) e o 1º edital é DELE |
+| 1.6 Pagamento | ⏸️ as 14 perguntas de planos + Mercado Pago |
+
+**Estado do `astral-dev` depois do Lote 1:** o esquema foi esvaziado e reconstruído pelas migrations
+(para provar o 1.1), então o acervo de questões e os usuários de teste da auditoria **não estão mais lá**
+— ressemear antes de uma nova bateria de telas no dev.

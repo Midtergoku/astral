@@ -154,6 +154,7 @@ const MINUTOS = 45;
 
     const ctx = await nav.newContext({ viewport: { width: 1280, height: 900 } });
     const pg = await ctx.newPage();
+    await pg.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await pg.addInitScript(scriptSessao(s));
     const errosDeTela = [];
     pg.on("pageerror", (e) => errosDeTela.push(String(e.message)));

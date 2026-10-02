@@ -159,3 +159,39 @@ espalhado"* e a fonte única de estatísticas (o `user_stats` da auditoria). **N
   Mudar para o início é o achado NUM-06 do roadmap.
 
 Regressão: `node tools/testa-fonte-unica.js` (9 grupos; `ASTRAL_DEV=1` roda no `astral-dev`).
+
+---
+
+## 8.24. Lote 1 da auditoria — o banco sobe do zero, o aceite é gravado, a IA tem teto (02/10/2026) ✅
+
+### `20260729000000_base_inicial` — OPS-01
+
+- `perfis`, `lista_espera`, `perfis_tipo_plano_check`, `criar_perfil_usuario()` e o gatilho
+  `ao_criar_usuario` nasceram **no painel**; 9 das 43 migrations falhavam num banco vazio.
+- A migration é **toda protegida** (`if not exists` / só se faltar): na produção não fez nada
+  (*"perfis already exists, skipping"*). A versão de verdade da função continua a de `..120000`.
+- O **webhook de leads** (`notificar-novo-cadastro`) leva segredo e **não** mora no git:
+  `node tools/recria-webhook-lista.js --projeto <ref>` (sem Database Webhooks no projeto, usa o
+  Vault + `pg_net` e uma função `notificar_lead_novo()` — o segredo não fica no texto do gatilho).
+- Prova: `node tools/testa-migrations-do-zero.js` — **só no `astral-dev`**; esvazia o esquema,
+  aplica as 46 migrations e compara 581 peças com a produção. ⚠️ Apaga os dados de teste do dev.
+- 🔴 **Antes de 02/10 eu dizia que o dev "ficou idêntico à produção, exceto o webhook" (Fase 2).
+  Estava errado:** faltava `perfis_tipo_plano_check`. Eu não comparava restrições.
+
+### `20261002100000_consentimento` — LGL-01
+
+- `versoes_vigentes()` = a **data do topo** de `termos.html` e `privacidade.html`. Mudou o texto?
+  Mude a data **nos dois lugares** — o `testa-consentimento` falha se divergirem.
+- `consentimentos` (RLS: só o próprio lê; **sem grant de escrita**), `registrar_consentimento()`
+  (só aceita a versão vigente), `meu_consentimento()`.
+- O portão é o `exigirSessao()` (`assets/js/consentimento.js`). **Contas de teste** passam pelo
+  portão real com `tools/testes/aceite-de-teste.js` (o "aceite pendente" do cadastro).
+- As 7 contas reais criadas antes de 02/10 veem a tela de aceite **uma vez**.
+
+### `20261002110000_teto_global_de_ia` — SEG-06 (com EDI-01 no `comum.ts`)
+
+- `teto_global_de_ia()`: edital 10/dia · guia 60/dia · questões 100/dia, **o Astral inteiro**
+  (💰 números escolhidos por mim, para ele confirmar — `historico/valores.md`).
+- `uso_de_ia_hoje()`: só a chave de serviço; o `checa-saude` mostra e falha no teto.
+- Regressão: `ASTRAL_DEV=1 node tools/testa-consentimento.js` (15) e o teste de custo com a
+  "IA de mentira" (registro em `docs/auditoria/ROADMAP.md`).

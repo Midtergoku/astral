@@ -351,6 +351,28 @@ edital + o guia deles), Pro ≈ 3 — e **só se forem editais que ninguém subi
 
 ---
 
+## 13. 🧯 O teto global de IA por dia (02/10/2026 — Lote 1 da auditoria, item 1.4)
+
+Antes, os limites eram **por conta**: quem criasse contas multiplicava o gasto. Agora há um teto
+para **o Astral inteiro**, por dia (fuso de SP), em `public.teto_global_de_ia()` — **um lugar só
+para mudar**. Bateu no teto, a IA não é chamada e o aluno lê *"o Astral atingiu o limite de hoje"*.
+
+| Função | Teto por dia | Custo unitário (estimativa, §3) | Pior dia possível |
+|---|---|---|---|
+| Ler edital | **10** | R$ 0,85 a 7,50 | **~R$ 8,50 a 75** |
+| Guia (busca de professores) | **60** | ~R$ 0,68 (até ~R$ 1,90 se a busca pausar) | **~R$ 41 a 114** |
+| Questões por IA | **100** (questões) | ~R$ 0,02 por questão | ~R$ 2 — e hoje **desligada** |
+
+- ⚠️ **Os números são escolha minha, para ele confirmar.** Com crédito pré-pago de US$ 5 (~R$ 28),
+  o próprio crédito acaba antes do teto num dia ruim — o teto protege é **depois** de pôr mais.
+- Edital e guia **já guardados** (cache) não contam: não custam nada.
+- **Junto (EDI-01):** leitura em que a IA **respondeu** e a resposta não serviu agora **conta** na
+  janela de 30 dias do aluno. Antes, um PDF que não é edital custava 2 chamadas pagas e podia ser
+  repetido sem fim. Falha **antes** da IA continua sem contar.
+- O `checa-saude` mostra o uso do dia contra o teto e falha se bater.
+
+---
+
 ## 📒 Registro de mudanças deste arquivo
 
 | Data | O que mudou |
@@ -359,3 +381,4 @@ edital + o guia deles), Pro ≈ 3 — e **só se forem editais que ninguém subi
 | 29/09/2026 | Seções 9 (planos mensal/trimestral/anual), 10 (custos fixos do lançamento — **Vercel obrigatória no Pro para cobrar**) e 11 (a trava da troca de edital, proposta) |
 | 29/09/2026 | **8 editais reais medidos** (páginas, texto, matérias lidas no edital). Custo por aluno calculado sobre eles: **R$ 4,00 a R$ 6,75** (ainda estimativa: a IA não rodou). Descoberta: o Bombeiro do Rio tem 11 disciplinas — o guia pesa mais que o edital |
 | 30/09/2026 | §11: a "cara de feito na hora" (12 s) saiu, decisão dele. §12 novo: o custo das peças de 30/09 — tudo R$ 0, exceto o TAF lido do edital (~R$ 0,01 por edital, estimado) |
+| 02/10/2026 | §13 novo: o teto global de IA por dia (10 editais, 60 guias, 100 questões) e a leitura que falha depois de a IA responder passando a contar. Backup diário agendado no PC: R$ 0, ~2 MB por cópia (~730 MB/ano) |

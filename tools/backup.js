@@ -58,6 +58,7 @@ const TABELAS = [
   'catalogo_condecoracoes', 'catalogo_divisas', 'catalogo_habilidades',
   'administradores', 'materias_conhecidas',
   'taf_registros',                                    // 30/09/2026, o TAF
+  'consentimentos',                                   // 02/10/2026, o aceite (LGL-01)
 ];
 // Tabela que existe e NAO vai para o backup, com o porque. Hoje: nenhuma.
 const IGNORADAS = {};
@@ -167,6 +168,10 @@ O QUE **NAO** TEM AQUI
 COMO RESTAURAR, se um dia precisar
   1. criar um projeto Supabase novo
   2. rodar as migrations do git:  supabase db push --linked
+     (desde 02/10/2026 isto funciona num banco VAZIO -- provado por
+      tools/testa-migrations-do-zero.js. Depois, recriar o aviso de lead
+      novo, que leva segredo e nao mora no git:
+        node tools/recria-webhook-lista.js --projeto <ref do projeto novo>)
   3. carregar cada .json na tabela correspondente, UMA INSTRUCAO POR TABELA:
 
        insert into public.<tabela> overriding system value
@@ -227,4 +232,17 @@ COMO RESTAURAR, se um dia precisar
   } else {
     console.log('Backup completo. ' + resumo.length + ' arquivos em ' + pasta);
   }
-})().catch((e) => { console.error('\n❌ ' + e.message); process.exitCode = 1; });
+  /* 02/10/2026 (auditoria OPS-02): o resultado de CADA execucao fica gravado,
+     para o checa-saude avisar quando o backup automatico parar. Backup que
+     falha calado e o mesmo que backup nenhum. */
+  registrarResultado({ ok: !falhas.length && !dentro, pasta, linhas, falhas: falhas.map((f) => f.t) });
+})().catch((e) => { console.error('\n❌ ' + e.message); registrarResultado({ ok: false, erro: e.message }); process.exitCode = 1; });
+
+/** Grava ..\ASTRAL-BACKUPS\ultimo-backup.json: quando foi e se deu certo. */
+function registrarResultado(r) {
+  try {
+    fs.mkdirSync(DESTINO, { recursive: true });
+    fs.writeFileSync(path.join(DESTINO, 'ultimo-backup.json'),
+      JSON.stringify({ em: new Date().toISOString(), ...r }, null, 2), 'utf8');
+  } catch { /* sem onde gravar: o codigo de saida ja diz que falhou */ }
+}

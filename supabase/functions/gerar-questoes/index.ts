@@ -86,7 +86,8 @@ Deno.serve(servir("gerar-questoes", async (req: Request, _usuario: Usuario, ctx:
       ? "\n\nATENÇÃO: a resposta anterior veio fora do formato. Responda APENAS com o objeto JSON, começando com { e terminando com }. Nada antes, nada depois."
       : "";
 
-    const resposta = await anthropic.messages.create({
+    // 02/10/2026: pela ctx.ia -- teto global antes, e conta se a resposta paga falhar.
+    const resposta = await ctx.ia(() => anthropic.messages.create({
     model: MODELO,
     max_tokens: 2000,
     messages: [{
@@ -135,7 +136,7 @@ Regras importantes:
 - Escreva texto puro: nada de HTML, script ou markdown dentro dos campos
 - Retorne SOMENTE o JSON, nada mais${reforco}`,
     }],
-    });
+    }));
 
     const bruto = resposta.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("");
     return json(req, { success: true, data: validar(extrairJson(bruto)) });

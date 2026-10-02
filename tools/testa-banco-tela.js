@@ -98,6 +98,7 @@ const MARCA = `TELA-${Date.now()}`;
 
   const abrir = async (conta) => {
     const c = await nav.newContext({ viewport: { width: 1280, height: 1000 } });
+    await c.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await c.addInitScript(`(() => {
       localStorage.setItem("sb-${REF}-auth-token", JSON.stringify({
         access_token: ${JSON.stringify(conta.sessao.access_token)},

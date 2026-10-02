@@ -142,6 +142,38 @@ async function json(url, opts) {
         "testar um cadastro valido por fora antes de concluir que quebrou",
       );
 
+  // 02/10/2026 (auditoria SEG-06): o uso de IA de hoje contra o TETO GLOBAL do
+  // dia (teto_global_de_ia, migration 20261002110000). Bater no teto e falha:
+  // os alunos estao recebendo "limite de hoje" -- ou alguem esta abusando.
+  try {
+    const sk = JSON.parse(require("child_process").execSync("supabase projects api-keys --project-ref jjogmcacbdefwiwcyjxp -o json",
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })).find((k) => k.name === "service_role").api_key;
+    const ia = await json(`${API}/rest/v1/rpc/uso_de_ia_hoje`, { method: "POST",
+      headers: { apikey: sk, Authorization: `Bearer ${sk}`, "Content-Type": "application/json" }, body: "{}" });
+    const linhas = Object.entries(ia.corpo || {}).map(([f, v]) => `${f} ${v.usado}/${v.teto}`);
+    const cheio = Object.entries(ia.corpo || {}).filter(([, v]) => Number(v.usado) >= Number(v.teto));
+    if (ia.status !== 200) falha(`nao consegui ler o uso de IA de hoje (HTTP ${ia.status})`, "a migration 20261002110000 esta aplicada?");
+    else if (cheio.length) falha(`TETO GLOBAL DE IA ATINGIDO hoje: ${cheio.map(([f]) => f).join(", ")}`, "ver quem gastou em uso_ia; o teto mora em teto_global_de_ia()");
+    else ok(`IA hoje, contra o teto global: ${linhas.join(" · ")}`);
+  } catch (e) { console.log(`  (uso de IA de hoje nao conferido: ${e.message.slice(0, 60)})`); }
+
+  // 02/10/2026 (auditoria OPS-02): o backup diario agendado
+  // (tools/agenda-backup.ps1) esta rodando? Backup que para calado e o mesmo
+  // que backup nenhum -- o plano gratis do Supabase nao faz o dele.
+  try {
+    const status = require("path").resolve(__dirname, "..", "..", "ASTRAL-BACKUPS", "ultimo-backup.json");
+    const u = JSON.parse(require("fs").readFileSync(status, "utf8"));
+    const horas = (Date.now() - Date.parse(u.em)) / 36e5;
+    if (!u.ok) falha(`o ultimo backup FALHOU (${u.em.slice(0, 16)}): ${(u.falhas || []).join(", ") || u.erro || "sem detalhe"}`,
+      "rodar node tools/backup.js e ler o erro; ver ..\\ASTRAL-BACKUPS\\backup-agendado.log");
+    else if (horas > 48) falha(`o ultimo backup tem ${Math.round(horas / 24)} dia(s)`,
+      "conferir a tarefa: powershell -File tools\\agenda-backup.ps1 -Ver (o PC ficou desligado?)");
+    else ok(`backup automatico em dia (ha ${Math.round(horas)} h, ${u.linhas} linhas)`);
+  } catch (e) {
+    falha("nao achei o registro do backup automatico (ultimo-backup.json)",
+      "criar a tarefa: powershell -File tools\\agenda-backup.ps1 -Agora");
+  }
+
   // Os lembretes que ele mandou guardar, com gatilho MEDIDO. Ficam aqui porque
   // este arquivo e a primeira coisa de toda sessao -- combinado que depende de
   // eu lembrar sozinho nao e combinado, e um esquecimento com data marcada.

@@ -78,6 +78,7 @@ const servidor = http.createServer((q, r) => {
 
     nav = await pw.chromium.launch();
     const ctx = await nav.newContext({ viewport: { width: 1280, height: 900 } });
+    await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({
       access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer",
       expires_at: Math.floor(Date.now() / 1000) + 3600, user: s.user }))});`);

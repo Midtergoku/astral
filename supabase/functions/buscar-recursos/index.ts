@@ -158,7 +158,8 @@ Regras importantes:
       tools: [{ type: "web_search_20250305" as const, name: "web_search", max_uses: 2 }],
     };
 
-    let resposta = await anthropic.messages.create({ ...OPCOES, messages: mensagens });
+    // 02/10/2026: pela ctx.ia -- teto global antes, e conta se a resposta paga falhar.
+    let resposta = await ctx.ia(() => anthropic.messages.create({ ...OPCOES, messages: mensagens }));
     let voltas = 0;
     const gasto = { entrada: 0, saida: 0, buscas: 0 };
     const somar = (r: typeof resposta) => {
@@ -172,7 +173,7 @@ Regras importantes:
     while (resposta.stop_reason === "pause_turn" && voltas < 2) {
       voltas++;
       mensagens.push({ role: "assistant", content: resposta.content });
-      resposta = await anthropic.messages.create({ ...OPCOES, messages: mensagens });
+      resposta = await ctx.ia(() => anthropic.messages.create({ ...OPCOES, messages: mensagens }));
       somar(resposta);
     }
 

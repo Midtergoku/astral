@@ -72,6 +72,7 @@ const PAGINAS = fs.readdirSync(RAIZ).filter((f) => f.endsWith(".html"));
   for (const pagina of PAGINAS) {
     const ctx = await nav.newContext({ viewport: { width: 1280, height: 900 } });
     const pg = await ctx.newPage();
+    await pg.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);   // 02/10/2026: o aceite (LGL-01)
     await pg.addInitScript(() => {
       const d = Math.floor(Date.now() / 1000) + 7200;
       localStorage.setItem("sb-jjogmcacbdefwiwcyjxp-auth-token", JSON.stringify({
