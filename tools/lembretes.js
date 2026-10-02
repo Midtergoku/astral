@@ -59,6 +59,14 @@ async function smtpPendente() {
   return c.smtp_host ? 0 : 1;
 }
 
+/* Quantos editais DIFERENTES a IA ja leu de verdade (o cache por arquivo). */
+async function editaisLidos(chave) {
+  const r = await fetch(`${BASE}/rest/v1/editais_lidos?select=hash`,
+    { headers: { apikey: chave, Authorization: `Bearer ${chave}`, Prefer: "count=exact", Range: "0-0" } });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return Number((r.headers.get("content-range") || "*/0").split("/")[1]) || 0;
+}
+
 const LEMBRETES = [
   {
     id: "SMTP",
@@ -92,6 +100,20 @@ const LEMBRETES = [
           + "com 200 ela mexe meio ponto. E abaixo disso quase toda medalha fica "
           + "em 0% ou 100%, entao a porcentagem nao diferencia nada.",
     medir: usuariosAtivos30Dias,
+  },
+  {
+    id: "P6",
+    titulo: "Reconhecer o mesmo edital pelo TEXTO, e nao so pelo arquivo?",
+    combinado: 'Pergunta P6 dos planos, respondida em 02/10/2026: "Vamos na sua sugestao, '
+             + 'depois lembre de me avisar qual vale mais a pena." Medir nos editais reais: '
+             + 'quantos sao o MESMO edital com arquivo diferente (outro site, salvo de novo) e '
+             + 'quanto isso custou de IA repetida. Se o desperdicio for pequeno, fica o arquivo. '
+             + 'Pesa tambem no beta: ele so vale quando o edital e lido uma vez para todos.',
+    gatilho: 20,
+    unidade: "editais diferentes lidos pela IA",
+    porque: "com menos de 20 editais reais nao da para medir repeticao; abaixo disso "
+          + "qualquer resposta seria palpite.",
+    medir: editaisLidos,
   },
 ];
 

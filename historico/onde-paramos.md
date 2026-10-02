@@ -434,3 +434,33 @@ do lançamento marcado com 🚀). **Lote 1 executado — 4 de 6 itens:**
 **Estado do `astral-dev` depois do Lote 1:** o esquema foi esvaziado e reconstruído pelas migrations
 (para provar o 1.1), então o acervo de questões e os usuários de teste da auditoria **não estão mais lá**
 — ressemear antes de uma nova bateria de telas no dev.
+
+### 02/10/2026 — ele pediu o relatório ANTES do roadmap
+
+Depois do Lote 1: *"Me dê o relatório primeiro, para eu responder às perguntas, para aí sim termos o
+roadmap, esqueci dessa parte, e adicione essas 3 coisas que dependem de mim já no roadmap depois que
+eu responder as perguntas do relatorio-final.md"*.
+
+**O que fica combinado:** entreguei o relatório final com TODAS as perguntas abertas numa lista só
+(as 18 do `RELATORIO-FINAL.md` § 7, as 10 de planos ainda sem resposta em `gap-analysis-planos.md`
+§ 2, e as 3 novas do Lote 1: cópia do backup fora do PC, números do teto de IA, senha de app do Gmail).
+**Quando ele responder:** gravar as respostas (com a frase dele) em `gap-analysis-planos.md` § 5 e no
+`RELATORIO-FINAL.md`, refazer o `docs/auditoria/ROADMAP.md` com elas, e pôr as 3 coisas que dependem
+dele como itens do roadmap. **Não começar o Lote 2 antes disso.**
+
+### 02/10/2026 — ele respondeu tudo; roadmap versão 2
+
+Ele respondeu as **31 perguntas** (18 do relatório, 3 do Lote 1, 10 de planos). Gravadas com as
+palavras dele em `docs/auditoria/RELATORIO-FINAL.md` § 11 e `historico/gap-analysis-planos.md` § 5.
+**Todas as 14 perguntas de planos estão respondidas.** O `docs/auditoria/ROADMAP.md` foi refeito
+(versão 2) com elas; as 3 coisas que dependem dele viraram itens (**1.2b**, **1.4** confirmado,
+**4.1** por último).
+
+**Nasceram hoje:** `historico/revisao-de-questoes.md` (13 conferências antes de publicar questão —
+ordem dele) e o lembrete **P6** em `tools/lembretes.js` (avisar com 20 editais reais qual hash vale mais).
+
+**Ainda esperam ele (o resto está decidido):** resetar a patente na troca de edital (ideia dele,
+minha opinião é contra) · os 3 exageros da página inicial (30 segundos, IA treinada, cartão de
+exemplo) · guardar a senha da cópia do backup · crédito · Mercado Pago · senha do Gmail.
+
+**Próximo bloco: o 1.2b** (cópia do backup no GitHub privado, criptografada), depois o Lote 2.

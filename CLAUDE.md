@@ -99,6 +99,10 @@ de leigo (regra 2) continua obrigatório ao fim de todo bloco, inclusive do que 
 > funil e LTV de um produto com 0 chamadas de IA é o palpite que o roadmap já alerta.
 > O resto do prompt supremo já existe aqui, e em versão medida — ver a tabela do relatório
 > de 08/09 em `historico/sessoes.md`.
+>
+> ✏️ **02/10/2026 — ele mudou a decisão do FUNIL:** pergunta 16 da auditoria, *"comece agora"*.
+> Origem do cadastro + 4 eventos (cadastro → edital → rotina → 1ª sessão) numa tabela nossa, R$ 0 —
+> item 2.14 do `docs/auditoria/ROADMAP.md`. LTV, MRR, churn e o resto continuam guardados.
 
 ## Os 5 erros que mais custaram (a tabela inteira: `historico/erros.md`)
 
@@ -264,6 +268,7 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 | **`../docs/auditoria/`** | **a auditoria pré-lançamento: o prompt dele e um relatório por fase (00-mapa, 01-seguranca-legal…)** | **antes de corrigir qualquer achado da auditoria — e ao seguir para a próxima fase** |
 | **`gap-analysis-planos.md`** | **01/10: a especificação de planos Free/Pro/trial comparada com o código, item por item, + 14 perguntas para ele** | **antes de mexer em plano, trava do grátis, trial, beta ou cache de edital** |
 | **`provas-para-baixar.md`** | os links de prova por forca, com o que eu medi em cada uma | ao trazer material novo para o banco de questoes |
+| **`revisao-de-questoes.md`** | **as 13 conferências que toda questão passa antes de ir ao ar** — ordem dele em 02/10: *"grave esse tipo de revisão (...) depois vamos implementar muito mais"* | **ANTES de publicar qualquer questão nova, e ao importar prova** |
 | `CLAUDE-original-2989.md` | o caderno inteiro antes desta reorganização | algo parecer que sumiu |
 | `erros.md` | os 33 erros meus, completos, mais as 8 vezes em que afirmei sem medir | antes de afirmar qualquer coisa |
 | `auditorias.md` | as auditorias de 29/07 — código, segurança e banco | antes de auditar de novo |

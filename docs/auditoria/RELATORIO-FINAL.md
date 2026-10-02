@@ -317,3 +317,75 @@ plano), BAN-03 (a mensagem do fim da amostra sem acento), parte de COD-03 (`ehCo
 `nomeDoPlano`) e **parte** de NUM-05 — painel, cronômetro, cronograma, gráficos, diário e revisão
 passaram a usar o dia de São Paulo; **ainda usam o relógio do aparelho** o dia da semana do
 cronograma (`cronograma.js` `blocosDeHoje`) e os dias até a prova (`chefe.js` `diasAte`).
+
+---
+
+## 11. ✅ Respostas do Lucas — 02/10/2026
+
+> Respondidas por escrito, na ordem do relatório que eu entreguei (letras A a E). As palavras dele
+> entre aspas; a coluna da direita é o que passa a valer no `ROADMAP.md` (versão 2, de 02/10).
+> Numeração: 1–18 = seção 7 acima · 19–21 = as três novas do Lote 1 · P3–P13 = as de planos.
+
+### A. Travam a lei ou um bloqueador
+
+| # | Resposta dele | O que fica valendo |
+|---|---|---|
+| 1 | *"Sim, é, a idade mínima vai ser 16. Você pergunta. Pode fazer o que você falou que ia fazer"* | **16 anos**, nos Termos **e** na Política. Data de nascimento no cadastro. 16 e 17 usam o grátis; **pagar exige confirmação do responsável** (roadmap 3.6) |
+| 2 | *"Concordo"* | Excluir a conta **anonimiza** o e-mail na auditoria de plano (roadmap 2.2) |
+| 3 | *"essa três eu não entendi. É proibido utilizar questões oficiais no nosso site? (...) são questões públicas (...) eu preciso de algum tipo de autorização?"* | Respondido a ele em 02/10 (ver abaixo). **Sem advogado antes do lançamento**, salvo se ele quiser; fonte citada em cada questão (roadmap 3.18) |
+| 4 | *"não pretendo utilizar ele no momento, mas se nós conseguirmos (...) ler o edital uma vez e depois manter ele e reutilizar para outras pessoas, aí o beta fica válido. Porque não vai ter gasto a mais (...) vai ser gasto, por exemplo, 7 reais uma vez só nesse edital"* | **O beta depende do cache de edital provado.** Enquanto isso, nada muda no beta nem nos textos públicos. O cache de edital/guia por concurso vira item do roadmap (3.23) |
+| 5 | *"Apenas no dia que eu sinalizar crédito."* | A simulação da conta dele **só** é revertida no dia em que ele avisar do crédito (roadmap 1.5) |
+
+**Resposta à pergunta 3, como foi dada a ele:** a Lei 9.610/98, art. 8º, IV, diz que **não** são
+protegidos por direito autoral *"os textos de tratados ou convenções, leis, decretos, regulamentos,
+decisões judiciais e demais atos oficiais"*. Prova feita pela própria força (EEAR, EsPCEx, ESA,
+Colégio Naval, EAM) é ato de órgão público: o argumento de que é livre é forte. Prova feita por banca
+**privada** contratada (ex.: FGV no CBMERJ, Vunesp na PM-SP) é mais discutível. Sites grandes vendem
+acesso a questões de concurso há anos. **Não sou advogado**: o risco é baixo, não zero. O que reduz o
+risco: citar a fonte em cada questão, **não** copiar comentário ou resolução de cursinho, e tirar do
+ar se alguém pedir. Fonte do texto da lei: lido em 02/10 na cópia da Lei 9.610 em
+ufrgs.br/cursopgdr/legislacao/l9610.htm.
+
+### B. As três que dependem dele (vindas do Lote 1)
+
+| # | Resposta dele | O que fica valendo |
+|---|---|---|
+| 19 | *"Escolho a opção A — um repositório privado e separado no GitHub, com a cópia criptografada: R$ 0. Desde que seja realmente seguro."* | Roadmap **1.2b**, com as condições de "realmente seguro" escritas no item |
+| 20 | *"Concordo, depois me dê sua opinião"* | Teto mantido: 10 editais, 60 guias, 100 questões por dia. Opinião dada em 02/10 (abaixo) |
+| 21 | *"Vamos deixar ela por último, primeiro fazemos o que você pode fazer e depois eu entro em cena e você me ajuda a criar."* | A senha de app do Gmail vira o **último item** do roadmap (4.1). ⚠️ Até lá, SEG-03 (criar conta com o e-mail de outra pessoa) continua aberto |
+
+**Opinião sobre o teto (20), medida:** o guia conta **uma unidade por matéria**
+(`buscar-recursos`), e os 7 editais diferentes medidos em `valores.md` têm **6,3 matérias** em média
+(4 a 11). Então 60 guias ≈ **10 editais novos por dia** — o mesmo número do teto de editais: os dois
+estão coerentes. Guia de edital já lido **não conta** (vem guardado). Com o crédito de US$ 5, o próprio
+crédito acaba antes do teto; o teto passa a importar quando houver mais crédito. **Revisar os números
+depois do 1º edital dele, com o custo real medido** — hoje eles são conta, não medição.
+
+### C. Travam um S1
+
+| # | Resposta dele | O que fica valendo |
+|---|---|---|
+| 6 | *"Concordo. Inclusive grave esse tipo de revisão para questões pois depois vamos implementar muito mais"* | Despublicar as quebradas (2.11). A revisão virou **`historico/revisao-de-questoes.md`** — 13 conferências, obrigatória para toda importação nova |
+| 7 | *"Concordo"* | A folga planejada da rotina **não quebra** a sequência (3.8) |
+| 8 | *"Concordo. Acho que se a pessoa quiser trocar o edital, aí sim vale a pena resetar a patente, o que acha?"* | Bônus só daqui para frente; a patente **nunca** desce por causa do bônus (3.7). **Resetar na troca de edital: respondi com a minha opinião (contra) e aguardo a decisão dele** |
+| 9 | *"concordo em tirar agora (...) a gente tem algum plano no roadmap para incluir essas coisas? (...) se forem coisas inúteis é só a gente tirar"* | Tirar as 5 agora (2.12). Opinião, item por item, dada em 02/10 — 3 têm plano, 1 volta sozinha, 1 sai de vez |
+| 10 | *"Concordo"* | Consertar a regra da Platina (2.9) |
+| 11 | *"Concordo"* | O botão "Rebalancear" vira a explicação "seu cronograma se ajusta sozinho toda segunda" (2.3) |
+
+### D. Planos (as 10 que faltavam de `historico/gap-analysis-planos.md`)
+
+Gravadas lá, na seção 5. Resumo: P3, P5, P7+P13, P9, P10, P11, P12 = como sugeri; P6 = sugestão,
+**com lembrete automático** (`tools/lembretes.js`, dispara com 20 editais reais lidos); P8 = sim,
+**testado antes de lançar** (vira 🚀).
+
+### E. Definem o desenho
+
+| # | Resposta dele | O que fica valendo |
+|---|---|---|
+| 12 | *"Suavizar para 'para quem tem dificuldade de foco'"* | Troca da frase do TDAH (2.12) |
+| 13 | *"Concordo"* | A mesma hora vale o mesmo XP, cronometrada ou marcada (3.13) |
+| 14 | *"Concordo"* | A escada deve durar até a prova, não 10 semanas (3.13) |
+| 15 | *"Concordo"* | Mantém a passagem praça → oficial por XP |
+| 16 | *"Comece agora"* | **Funil sobe para o Lote 2** (2.14). ⚠️ Muda a decisão de 08/09 ("guardar para depois da Fase 1") |
+| 17 | *"Concordo"* | "Passei!" no Lote 3 (3.22) |
+| 18 | *"Concordo"* | Primeiro acesso só com o envio do edital (3.19) |

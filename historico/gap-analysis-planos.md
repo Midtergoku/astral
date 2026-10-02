@@ -263,3 +263,21 @@ inicial e dos termos só muda com a sua decisão** (é o que a página promete).
 
 Junto, ele autorizou a **camada única de estatísticas** (`user_stats`), a recomendação estrutural da
 auditoria de 30/09 que estava pendente: *"faço quando você mandar — então pode fazer agora"*.
+
+### ✅ Respostas dele — 02/10/2026 (por escrito, as 10 que faltavam + o beta de novo)
+
+| Pergunta | Resposta dele | O que fica valendo |
+|---|---|---|
+| **3 — habilidades secretas** | *"Concordo"* (com manter como está) | Secretas até 70% e ativas **para todos**, como hoje |
+| **5 — guia no grátis** | *"Concordo"* (com não limitar) | Guia **completo para todos**: limitar não economiza, só esconde |
+| **6 — hash do edital** | *"Vamos na sua sugestão, depois lembre de me avisar qual vale mais a pena."* | Fica o hash do **arquivo**. Lembrete **P6** em `tools/lembretes.js`: dispara sozinho com **20 editais reais lidos**, e aí meço quantas repetições se perderam |
+| **7 + 13 — editais ativos no Pro** | *"Concordo"* (com 1 por enquanto) | **1 edital ativo** por conta, nos dois planos |
+| **8 — links do guia toda semana** | *"Concordo, mas precisamos testar antes de lançar"* | Job semanal com a API do YouTube (R$ 0), **🚀 testado antes do lançamento** |
+| **9 — ordem do onboarding** | *"Antes"* | A rotina continua **antes** do edital |
+| **10 — PL-12** | *"Concordo"* | O grátis mantém **as duas regras**: 10 questões/dia **e** só provas de 4 anos ou mais |
+| **11 — PL-22** | *"Concordo"* | O Quadro de operações **não esconde nada** no grátis (e deve virar aba de Conquistas — RED-02) |
+| **12 — PL-26** | *"Concordo"* | **Sem marca d'água** no cartão do grátis |
+| **14 — o beta (de novo)** | *"se nós conseguirmos (...) ler o edital uma vez e depois manter ele e reutilizar para outras pessoas, aí o beta fica válido. Porque não vai ter gasto a mais"* | O beta **volta a valer quando o cache por concurso estiver provado** (edital e guia lidos uma vez, reaproveitados por todos do mesmo concurso). Até lá, parado — sem mexer nos textos |
+
+**Todas as 14 perguntas de planos estão respondidas.** O que ainda trava o pagamento (roadmap 1.6):
+as credenciais do Mercado Pago dele e a Vercel Pro (US$ 20/mês) no dia da 1ª cobrança.

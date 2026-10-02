@@ -1,15 +1,18 @@
 # Roadmap de correção — da auditoria ao lançamento
 
-> **02/10/2026** · Montado a partir de `RELATORIO-FINAL.md` (76 achados + NUM-14, achado em 02/10).
+> **Versão 2 — 02/10/2026, refeita com as respostas dele** (`RELATORIO-FINAL.md` § 11 e
+> `historico/gap-analysis-planos.md` § 5). A versão 1, de antes das respostas, está no commit `cbef5f9`.
+>
 > Cada item traz o **ID do achado** (a evidência completa está no arquivo da fase), **o que fazer**,
 > **os arquivos** e o **esforço** (**P** < 1 h · **M** 1–4 h · **G** > 4 h).
 >
 > **Como ler:** itens com a **mesma causa** estão agrupados e se corrigem juntos. 🚀 = **tem de estar
-> pronto antes do lançamento pago**. ❓ = depende de decisão do Lucas (número da pergunta no
-> relatório final, seção 7). 💰 = custa dinheiro (preço na mesma linha). ✅ = feito, com a data.
+> pronto antes do lançamento pago**. ✔️ = decidido por ele em 02/10 (o número é o da pergunta).
+> ❓ = ainda espera decisão dele. 💰 = custa dinheiro (preço na mesma linha). ✅ = feito, com a data.
 >
-> **Ordem:** Lote 1 (os S0) → Lote 2 (S1 de menor esforço) → Lote 3 (o resto). Dentro de cada
-> lote, a ordem é a de dependência.
+> **Ordem:** Lote 1 (os S0) → Lote 2 (S1 de menor esforço + o funil) → Lote 3 (o resto) →
+> **Lote 4 (o que precisa dele em cena — por último, ordem dele)**. Dentro de cada lote, a ordem é a
+> de dependência. **O próximo bloco de trabalho é o 1.2b**, e depois o Lote 2.
 
 ---
 
@@ -32,74 +35,100 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 
 | # | Itens | O que fazer | Arquivos | Esforço | Depende de |
 |---|---|---|---|---|---|
-| **1.1** 🚀 ✅ | **OPS-01** | Migration "zero", com data **anterior** a todas, criando o que só existe no painel: `perfis`, `lista_espera`, `criar_perfil_usuario()` e o gatilho em `auth.users` — tudo com `if not exists`/`create or replace`, sem efeito na produção. Provar subindo um banco **vazio** só com as migrations e comparando com a produção. O gatilho do webhook de leads entra sem o segredo (fica no banco; anotar como recriar) | `supabase/migrations/20260729000000_base_inicial.sql`, `tools/testa-migrations-do-zero.js` (novo) | M | — |
-| **1.2** 🚀 🟡 | **OPS-02** | Backup **automático** diário. Primeiro passo, R$ 0 e sem dado saindo do computador dele: tarefa agendada do Windows rodando `tools/backup.js` todo dia, guardando os últimos 30 e avisando se falhar. Cópia **fora** do computador (nuvem) = decisão ❓ | `tools/agenda-backup.ps1` (novo), `tools/backup.js` | M | ❓ cópia fora do PC (GitHub criptografado, R$ 0 · ou Supabase Pro 💰 US$ 25/mês) |
-| **1.3** 🚀 ✅ | **LGL-01** | Aceite **gravado** (quem, quando, versão dos Termos e da Política), para cadastro por e-mail **e** por Google: tabela `consentimentos` (RLS, só o próprio lê; grava só por função), `registrar_consentimento()`, `meu_consentimento()`; versão no topo dos Termos e da Política; quem entra sem aceite da versão atual vê a tela de aceite antes do app | migration nova; `assets/js/astral.js` (`exigirSessao`), `assets/js/consentimento.js` (novo), `criar-conta.html`, `login.html`, `termos.html`, `privacidade.html`; `tools/testa-consentimento.js` (novo) | M | — |
-| **1.4** 🚀 ✅ | **EDI-01 + SEG-06** (mesma causa: custo de IA sem teto) | (a) A leitura que **chamou** a IA conta na janela mesmo se falhar; (b) **teto global** diário de chamadas de IA (todas as contas somadas), lido de **um** lugar (`regras_do_plano`/função própria), recusando com mensagem clara antes de gastar; (c) o teto e o gasto do dia visíveis para o vigia | `supabase/functions/_shared/comum.ts`, `processar-edital/index.ts`, migration (teto global), `tools/testa-trava-creditos.js` | P + M | — |
-| **1.5** 🚀 ⏸️ | **PRO-01** | Reverter a simulação da conta do Lucas (`tools/simula-edital.js --reverter`) → crédito → **o 1º edital é dele** → medir custo e tempo reais → registrar em `valores.md` | — | P | ❓ pergunta 5 (quando reverter) · 💰 crédito US$ 5 · **depois do 1.4** |
-| **1.6** 🚀 ⏸️ | **PAG-01** (+ NEG-02, jornadas 2/3/5, "cancele na sua conta") | Webhook do Mercado Pago com assinatura validada e idempotência; planos, trial, arrependimento (CDC 49), cancelar; tudo por `pode()`/`regras_do_plano` | `supabase/functions/` (novo webhook), migrations, `conta.html`, `index.html` | G (várias sessões) | ❓ as 14 perguntas de planos · 💰 Vercel Pro US$ 20/mês na 1ª cobrança · credenciais do Mercado Pago dele |
+| **1.1** 🚀 ✅ | **OPS-01** | Migration "zero" + provar o banco subindo vazio igual à produção. **Feito em 02/10** (registro no fim) | `supabase/migrations/20260729000000_base_inicial.sql`, `tools/testa-migrations-do-zero.js` | M | — |
+| **1.2** 🚀 ✅ | **OPS-02** (parte local) | Backup diário agendado no PC dele, com aviso no `checa-saude` se parar. **Feito em 02/10** | `tools/agenda-backup.ps1`, `tools/backup.js`, `tools/checa-saude.js` | M | — |
+| **1.2b** 🚀 | **OPS-02** (cópia fora do PC) — ✔️ 19, opção A, *"desde que seja realmente seguro"* | Cópia diária num **repositório GitHub PRIVADO e separado** (nunca o do site, que é público). "Realmente seguro" quer dizer, e só se declara feito com as 5 provas: **(1)** cada cópia é **criptografada no PC antes de sair** (AES-256-GCM), e o GitHub só vê um arquivo ilegível — provado procurando um e-mail conhecido no arquivo enviado: 0 ocorrências; **(2)** a senha da criptografia **nunca** vai para nenhum repositório; **(3)** a senha precisa existir **também fora do PC** — senão, se o PC morrer, a cópia na nuvem não abre (é o único passo dele: guardar uma senha no gerenciador de senhas do Google, ~1 min); **(4)** **restauração provada**: baixar a cópia da nuvem numa pasta nova, decifrar e restaurar no `astral-dev` com o `testa-restauracao.js`; **(5)** tamanho sob controle: ~2 MB por cópia, guardando **só as últimas 30** (~60 MB), sem acumular ~730 MB/ano no histórico. O acesso ao GitHub usa a credencial que o `git` já tem no PC (o `gh` não está instalado). O `checa-saude` passa a avisar se a cópia da nuvem envelhecer | `tools/backup.js`, `tools/backup-nuvem.js` (novo), `tools/agenda-backup.ps1`, `tools/checa-saude.js` | M | R$ 0 · ele guardar a senha (1 min) |
+| **1.3** 🚀 ✅ | **LGL-01** | Aceite gravado (quem, quando, versão), para e-mail **e** Google. **Feito em 02/10** | `assets/js/consentimento.js`, migration, `tools/testa-consentimento.js` | M | — |
+| **1.4** 🚀 ✅ | **EDI-01 + SEG-06** | Leitura que custou e falhou conta; teto global diário. **Feito em 02/10.** ✔️ 20: números confirmados (10 editais / 60 guias / 100 questões); **rever depois do 1º edital dele, com custo medido** | `_shared/comum.ts`, migration `20261002110000` | P + M | — |
+| **1.5** 🚀 ⏸️ | **PRO-01** | Reverter a simulação da conta dele → **o 1º edital é dele** → medir custo e tempo reais → `valores.md`. ✔️ 5: **só no dia em que ele avisar do crédito** | `tools/simula-edital.js --reverter` | P | 💰 crédito US$ 5 · aviso dele |
+| **1.6** 🚀 ⏸️ | **PAG-01** (+ NEG-02, "cancele na sua conta") | Webhook do Mercado Pago com assinatura validada e idempotência; planos, trial, arrependimento (CDC 49), cancelar; tudo por `pode()`/`regras_do_plano`. ✔️ **As 14 perguntas de planos estão respondidas** (`gap-analysis-planos.md` § 5). **Antes dele: o 3.6** (menor de 16–17 só paga com o responsável) | `supabase/functions/` (novo webhook), migrations, `conta.html`, `index.html` | G (várias sessões) | credenciais do Mercado Pago dele · 💰 Vercel Pro US$ 20/mês na 1ª cobrança |
 
 ---
 
-## Lote 2 — S1 de menor esforço (cada um < 1 h)
+## Lote 2 — S1 de menor esforço (cada um < 1 h) + o funil
 
-| # | Itens (mesma causa) | O que fazer | Arquivos | Esforço | 🚀 / ❓ |
+| # | Itens (mesma causa) | O que fazer | Arquivos | Esforço | 🚀 / decisão |
 |---|---|---|---|---|---|
-| **2.1** | **SEG-02 + SEG-03** — e-mail não chega | SMTP do Gmail com senha de app → provar entrega → desligar a confirmação automática (`smtp-configura.ps1 -ExigirConfirmacao`) | config de autenticação | P | 🚀 · depende da **senha de app do Gmail** |
-| **2.2** | **LGL-03 + LGL-04** — dados do aluno | `meus_dados()` no servidor com todas as tabelas; exclusão que apaga `lista_espera` pelo e-mail e anonimiza a auditoria; expurgo de `erros_cliente` > 12 meses | migration, `conta.html`, `excluir-conta/index.ts` | P | 🚀 · ❓ pergunta 2 (retenção da auditoria) |
-| **2.3** | **NUM-03 + CRO-02** — dois domínios para a mesma matéria | Uma fonte só para o que a tela mostra e o que o cronograma usa (dizer "como você estava na segunda" ou usar o atual); o aviso de desequilíbrio só afirma o que confere; tirar o botão "Rebalancear" ou virar explicação | `dashboard.html`, `progresso.html`, `assets/js/plano.js` | P | 🚀 · ❓ pergunta 11 |
+| ~~2.1~~ | SEG-02 + SEG-03 | **Movido para o fim (4.1)** — ✔️ 21: *"vamos deixar ela por último"* | — | — | — |
+| **2.2** | **LGL-03 + LGL-04** — dados do aluno | `meus_dados()` no servidor com todas as tabelas; exclusão que apaga `lista_espera` pelo e-mail e **anonimiza o e-mail na auditoria**; expurgo de `erros_cliente` > 12 meses | migration, `conta.html`, `excluir-conta/index.ts` | P | 🚀 · ✔️ 2 |
+| **2.3** | **NUM-03 + CRO-02** — dois domínios para a mesma matéria | Uma fonte só para o que a tela mostra e o que o cronograma usa; o aviso de desequilíbrio só afirma o que confere; o botão "Rebalancear" **vira o texto** *"seu cronograma se ajusta sozinho toda segunda"* | `dashboard.html`, `progresso.html`, `assets/js/plano.js` | P | 🚀 · ✔️ 11 |
 | **2.4** | **CRO-01** — matéria some em rotina curta | Rodízio: a matéria que ficou de fora numa semana entra na seguinte; o questionário avisa "sua rotina tem N sessões e o edital M matérias" | `assets/js/cronograma.js`, `assets/js/rotina.js` | P | 🚀 |
 | **2.5** | **NUM-01** — Amplitude conta matéria fora do edital | Filtrar pelas matérias do edital em `ficha_do_usuario`; o servidor recusar sessão de matéria fora do edital (exceto "Geral") | migration | P | 🚀 |
 | **2.6** | **NUM-02** — 5 condecorações contra a descrição | Relógio na Mão (livre + pomodoro), Duas Frentes (2 matérias no mês), Começo de Semana/Domingo de Serviço (dias distintos), Turno da Noite/Vigília (hora de início). **Nos dois lugares** (servidor e `condecoracoes.js`) até o COD-01 juntar | migration, `assets/js/condecoracoes.js` | P | 🚀 |
 | **2.7** | **NUM-04** — cronômetro e cronograma não se enxergam | Sessão medida da matéria do bloco marca o bloco | `assets/js/cronograma.js` (`blocosDeHoje`) | P | 🚀 |
 | **2.8** | **JOR-01** — patente desce | Patente do edital que não é degrau exato entra **no lugar** do degrau que casou; teste com os exemplos do prompt nas 6 carreiras | `assets/js/divisa.js` | P | 🚀 |
-| **2.9** | **GAM-05** — Platina impossível | Doutrina só sobre matérias com Banco (ou 70 vale 100 nelas); tirar as de "retorno" da conta | migration, `assets/js/catalogo.js` | P | ❓ pergunta 10 |
+| **2.9** | **GAM-05** — Platina impossível | **Consertar a regra**: Doutrina só sobre matérias com Banco (ou 70 vale 100 nelas); tirar as de "retorno" da conta | migration, `assets/js/catalogo.js` | P | ✔️ 10 |
 | **2.10** | **CAL-01 + CAL-02** — calendário | Trocar de edital atualiza o evento `edital_prova`; "próximo evento" = o mais próximo; prova importada apagada não volta | `calendario.html`, `dashboard.html` | P | 🚀 (CAL-01) |
-| **2.11** | **BAN-01 (despublicar) + BAN-02** — acervo | Despublicar as questões com símbolo perdido, alternativas repetidas e figura ausente (sem apagar); três checagens novas no `testa-acervo-limpo.js`; botão "reportar erro" na questão | `tools/arruma-acervo.js`, `tools/testa-acervo-limpo.js`, `banco.html`, migration | P + P | 🚀 · ❓ pergunta 6 |
-| **2.12** | **PRO-02 (+ PRO-03, PRO-04, PRO-05)** — página inicial | Tirar ou reescrever as 5 promessas sem entrega, o "IA treinada", "30 segundos", TDAH, o cartão de exemplo; alinhar beta | `index.html`, `cadastro.html` | P | 🚀 · ❓ perguntas 4, 9 e 12 (é o que a landing promete — regra 8.1) |
+| **2.11** | **BAN-01 (despublicar) + BAN-02** — acervo | **Despublicar já** as quebradas (símbolo perdido, alternativas trocadas, figura ausente), sem apagar; as checagens 6 a 9 de `historico/revisao-de-questoes.md` no `testa-acervo-limpo.js`; o campo `revisao` passa a dizer **o que** foi conferido; botão "reportar erro" na questão | `tools/arruma-acervo.js`, `tools/testa-acervo-limpo.js`, `banco.html`, migration | P + P | 🚀 · ✔️ 6 |
+| **2.12** | **PRO-02 + PRO-03 (TDAH)** — página inicial | **Tirar as 5 promessas sem entrega** (✔️ 9) e trocar "feito para quem tem TDAH" por **"para quem tem dificuldade de foco"** (✔️ 12). Cada uma tem destino: *cronograma pelo tempo até a prova* volta com o **3.14**; *cancele na sua conta* volta com o **1.6**; *lembretes* volta com o **4.2** (sem o "aprendem com seus hábitos"); *"concurseiros na lista de espera"* volta como **contador real** quando houver gente; *subtópicos* **sai de vez**. **Textos do beta: não mexer** (✔️ 4, beta parado) | `index.html`, `cadastro.html` | P | 🚀 · ❓ os 3 exageros da PRO-03 ("30 segundos", "IA treinada", cartão de exemplo) |
 | **2.13** | **NUM-14** (S2) — sequência velha | A sequência do topo e da ficha calculada na hora (`sequencia_do_usuario`), não a guardada | migration (`ficha_do_usuario`), `dashboard.html` | P | — |
+| **2.14** | **NEG-01** — o funil (subiu do Lote 3) | Origem do cadastro (UTM) no perfil + 4 eventos numa tabela nossa (cadastro → edital → rotina → 1ª sessão), com RLS. **R$ 0**, sem ferramenta de fora. ✔️ 16: *"comece agora"* — muda a decisão de 08/09 de guardar para depois da Fase 1 | migration, `assets/js/astral.js`, `criar-conta.html` | M | ✔️ 16 |
 
 ---
 
 ## Lote 3 — o restante
 
 ### S1 de esforço M
-| # | Itens | O que fazer | Arquivos | Esforço | 🚀 / ❓ |
+| # | Itens | O que fazer | Arquivos | Esforço | 🚀 / decisão |
 |---|---|---|---|---|---|
 | **3.1** | **CRN-01 + GAM-11 + GAM-10** — tempo medido | Cronômetro pela hora de início (não por tique); gravar ao sair com `keepalive`; avisar quando o servidor recusar; perguntar "ainda estudando?" a cada 50–60 min; servidor recusar sessão < 1 min | `cronometro.html`, migration | M | 🚀 (CRN-01) |
 | **3.2** | **UX-01** — zeros falsos | Esqueleto ("—") enquanto carrega; erro que diz "seus dados estão guardados" | páginas da área logada | M | 🚀 |
 | **3.3** | **EDI-02 + EDI-03** — corrigir a leitura | Editar matéria, peso e data; a IA devolver de onde veio o peso; botão "a leitura está errada" que invalida o cache | `dashboard.html`, `processar-edital/index.ts`, migration | M | 🚀 (EDI-02) |
-| **3.4** | **BAN-01 (reimportar)** | Reimportar as provas da EEAR com os símbolos e os pares certos; conferir gabarito por amostra | `tools/importa-provas.js`, `tools/arruma-acervo.js` | M | — |
+| **3.4** | **BAN-01 (reimportar)** | Reimportar as provas da EEAR com os símbolos e os pares certos, **passando pela lista de `historico/revisao-de-questoes.md`** | `tools/importa-provas.js`, `tools/arruma-acervo.js` | M | — |
 | **3.5** | **SEG-01** — tabela de erros aberta | Limite por origem e janela; expurgo | `registrar-erro/index.ts`, migration | M | 🚀 |
-| **3.6** | **LGL-02** — menores | Idade no cadastro; aceite do responsável entre 16 e 17; alinhar Política e Termos | `criar-conta.html`, `login.html`, migration, `termos.html`, `privacidade.html` | M | 🚀 · ❓ pergunta 1 |
-| **3.7** | **GAM-01 + GAM-12** — bônus da Instrução | Bônus gravado na sessão (só da escolha em diante); patente não desce; teto por ramo | migration, `habilidades.html` | M | ❓ pergunta 8 |
-| **3.8** | **GAM-04** — folga | Dia de folga da rotina não quebra a sequência (ou textos honestos) | migration, `assets/js/diario.js`, catálogo | M | ❓ pergunta 7 |
+| **3.6** | **LGL-02** — menores | **Idade mínima 16** nos Termos e na Política; data de nascimento no cadastro (e-mail e Google); 16 e 17 usam o grátis; **para pagar, confirmação do responsável**. **Tem de vir antes do 1.6** | `criar-conta.html`, `login.html`, migration, `termos.html`, `privacidade.html` | M | 🚀 · ✔️ 1 |
+| **3.7** | **GAM-01 + GAM-12** — bônus da Instrução | Bônus gravado na sessão (**só da escolha em diante**); "Recomeçar" não desce a patente; teto por ramo | migration, `habilidades.html` | M | ✔️ 8 · ❓ **resetar a patente ao trocar de edital** (ideia dele; minha opinião é contra — aguardando) |
+| **3.8** | **GAM-04** — folga | O dia de folga **planejado na rotina não quebra** a sequência | migration, `assets/js/diario.js`, catálogo | M | ✔️ 7 |
 
 ### S2 e S3, agrupados pela causa
-| # | Itens | O que fazer | Esforço | 🚀 / ❓ |
+| # | Itens | O que fazer | Esforço | 🚀 / decisão |
 |---|---|---|---|---|
 | **3.9** | **NUM-05 (resto) + NUM-06 + NUM-07** — dia e hora | Dia da semana do cronograma e dias até a prova pelo dia de SP; sessão conta no dia em que **começou**; "últimos 30" = 30 datas | M | — |
 | **3.10** | **UX-02 + UX-03 + UX-08** — celular | Contraste dos botões ≥ 4,5:1; campos com 16 px; alvos de toque ≥ 24 px | P | 🚀 (UX-02, UX-03) |
 | **3.11** | **NEG-03 + UX-06** — vitrine | Descrição, Open Graph, favicon, `robots.txt`, `sitemap.xml`, manifesto de PWA | P | 🚀 (NEG-03) |
 | **3.12** | **GAM-02 + GAM-03 + GAM-06 + GAM-09 + GAM-13** — trapaça e segredo | Condecoração de sessão longa só com tempo medido; gabarito só depois da resposta; matérias do edital pelo servidor; divisa "Reintegrado" secreta; total de divisas só das possíveis | M | voltam a S1 se houver ranking |
-| **3.13** | **GAM-07 + GAM-08** — escada e XP | Escada que não depende de como o edital escreve a patente; a tela dizer "+20 XP (ou +80 cronometrando)" | M | ❓ perguntas 13, 14 e 15 |
-| **3.14** | **CRO-03 + CRO-04 + CRO-05 + EDI-04** — cronograma e leitura | Reta final e prova passada mudam o plano; semana manual avisa e inclui matéria nova; "Voltar ao automático" confirma; rotina inválida avisa; mensagem de falha clara | M | — |
+| **3.13** | **GAM-07 + GAM-08** — escada e XP | **A mesma hora vale o mesmo XP**, cronometrada ou marcada (✔️ 13); a escada **dura até a prova**, não ~10 semanas (✔️ 14); passagem praça → oficial por XP **fica** (✔️ 15); escada que não depende de como o edital escreve a patente | M | ✔️ 13, 14, 15 |
+| **3.14** | **CRO-03 + CRO-04 + CRO-05 + EDI-04** — cronograma e leitura | Reta final e prova passada mudam o plano (**devolve a promessa "cronograma pelo tempo até a prova"**); semana manual avisa e inclui matéria nova; "Voltar ao automático" confirma; rotina inválida avisa; mensagem de falha clara | M | — |
 | **3.15** | **OPS-03 + COD-02** — operação | Vigia lendo gasto de IA, tamanho do banco e erros das funções; bateria de testes no `astral-dev` | M | 🚀 (alerta de gasto) |
 | **3.16** | **SEG-04 + SEG-05 + SEG-07** — sessão e senha | Texto honesto sobre a 1 h do token (ou `jwt_exp` menor); reautenticação para trocar senha; fixar versões das bibliotecas | P | — |
-| **3.17** | **NEG-01 + NEG-04** — medir o negócio | Origem (UTM) no perfil, 4 eventos de funil numa tabela nossa; página de leitura para o administrador | M | ❓ pergunta 16 |
-| **3.18** | **LGL-05 + LGL-06** — textos legais | Política e Termos em dia (Google como operador, retenção, beta); opinião jurídica sobre provas | P | 🚀 · ❓ pergunta 3 |
-| **3.19** | **UX-04 + UX-05 + UX-07** — primeiro acesso e peso | Primeiro acesso só com o envio do edital; reduzir o peso de login/cadastro; lembretes (depois do SMTP) | M–G | ❓ pergunta 18 |
+| **3.17** | **NEG-04** — painel de negócio | Página de leitura para o administrador, sobre os eventos do **2.14** | M | — |
+| **3.18** | **LGL-05 + LGL-06** — textos legais | Política e Termos em dia (Google como operador, retenção, idade 16); **fonte (banca, prova e ano) visível em cada questão**; sem advogado antes do lançamento, salvo se ele quiser (✔️ 3 — Lei 9.610, art. 8º, IV) | P | 🚀 · ✔️ 3 |
+| **3.19** | **UX-04 + UX-05** — primeiro acesso e peso | **Primeiro acesso só com o envio do edital** (✔️ 18); reduzir o peso de login/cadastro | M | ✔️ 18 |
 | **3.20** | **NUM-08 + NUM-11 + NUM-12 + NUM-13** — números menores | Uma média de domínio (ponderada); "estudada há N dias" pelo estudo mais recente; letras da semana sem ambiguidade; tag "em formação" com rótulo | P | — |
-| **3.21** | **COD-01 + COD-03 (resto) + UX-09** — código | As 74 regras só no servidor; tirar `TABELAS_NIVEIS`, `ligacaoAcesa`, `comEspera`, `tagDe`, `meu_dominio`, `montarCronograma`, `progresso.badges`; aba "Missões" → "Conquistas" | M | — |
-| **3.22** | **Fim da jornada** (jornada 7) | "Passei!": comemoração, depoimento, próximo concurso | M | ❓ pergunta 17 |
+| **3.21** | **COD-01 + COD-03 (resto) + UX-09 + RED-02** — código | As 74 regras só no servidor; tirar `TABELAS_NIVEIS`, `ligacaoAcesa`, `comEspera`, `tagDe`, `meu_dominio`, `montarCronograma`, `progresso.badges`; aba "Missões" → "Conquistas"; o Quadro de operações vira aba de Conquistas, **sem esconder nada no grátis** (✔️ P11) | M | ✔️ P11 |
+| **3.22** | **Fim da jornada** (jornada 7) | "Passei!": comemoração, depoimento, manter a conta para o próximo concurso | M | ✔️ 17 |
+| **3.23** | **Cache por concurso** (CE-01, CE-05, CE-06, CE-07 + guia compartilhado) — **novo** | Edital e guia lidos **uma vez** e reaproveitados por todos do mesmo concurso, com versão e curadoria. **É a condição do beta** (✔️ 4: *"aí o beta fica válido, porque não vai ter gasto a mais"*) e de trocas ilimitadas no Pro (✔️ P2). O lembrete **P6** (`tools/lembretes.js`, 20 editais reais) diz se vale também reconhecer o edital pelo texto | 2 sessões | ✔️ 4, P6 |
+| **3.24** | **CE-08** — links do guia toda semana — **novo** | Job semanal com a API do YouTube (chave do Google, cota grátis, R$ 0); **testado antes de lançar** (✔️ P8) | 1 sessão | 🚀 · ✔️ P8 |
+
+---
+
+## Lote 4 — o que precisa dele em cena (por último, ordem dele)
+
+> ✔️ 21: *"primeiro fazemos o que você pode fazer e depois eu entro em cena e você me ajuda a criar."*
+
+| # | Itens | O que fazer | Esforço | 🚀 |
+|---|---|---|---|---|
+| **4.1** | **SEG-02 + SEG-03** — e-mail não chega | Ele cria a senha de app do Gmail (com a verificação em duas etapas ligada), eu guio passo a passo → `smtp-configura.ps1 -Aplicar` → provar entrega → `-ExigirConfirmacao`. **R$ 0.** ⚠️ Até aqui, dá para criar conta com o e-mail de outra pessoa (SEG-03): por isso fica **antes** do lançamento pago | P | 🚀 |
+| **4.2** | **UX-07** — lembretes | Lembrete simples por e-mail (estudo do dia, sequência em risco) — **depende do 4.1**. Devolve a promessa de lembretes da página inicial, **sem** "aprendem com seus hábitos" | M | — |
 
 ---
 
 ## O que tem de estar pronto antes do lançamento pago (🚀)
 
-Lote 1 inteiro (1.1 a 1.6) · 2.1 · 2.2 · 2.3 · 2.4 · 2.5 · 2.6 · 2.7 · 2.8 · 2.10 (CAL-01) · 2.11 ·
-2.12 · 3.1 · 3.2 · 3.3 · 3.5 · 3.6 · 3.10 · 3.11 · 3.15 (alerta de gasto) · 3.18 — e o checklist
-da seção 8 do relatório final, item por item, com prova.
+Lote 1 inteiro (1.1 a 1.6, com o **1.2b**) · 2.2 · 2.3 · 2.4 · 2.5 · 2.6 · 2.7 · 2.8 · 2.10 (CAL-01) ·
+2.11 · 2.12 · 3.1 · 3.2 · 3.3 · 3.5 · **3.6 (antes do 1.6)** · 3.10 · 3.11 · 3.15 (alerta de gasto) ·
+3.18 · **3.24** · **4.1** — e o checklist da seção 8 do relatório final, item por item, com prova.
+
+## O que ainda espera ele (❓) — fora isso, está tudo decidido
+
+| O quê | Onde |
+|---|---|
+| Resetar a patente ao trocar de edital? (ideia dele; minha opinião é contra) | 3.7 |
+| Os 3 exageros da página inicial: "em 30 segundos", "IA treinada", o cartão de exemplo impossível | 2.12 |
+| Guardar a senha da cópia do backup no gerenciador de senhas do Google (~1 min) | 1.2b |
+| Avisar do crédito (US$ 5) | 1.5 |
+| Credenciais do Mercado Pago; Vercel Pro US$ 20/mês na 1ª cobrança | 1.6 |
+| Senha de app do Gmail (ele quis por último) | 4.1 |
 
 ---
 
