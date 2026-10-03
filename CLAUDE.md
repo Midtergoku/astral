@@ -164,6 +164,8 @@ node tools/recria-webhook-lista.js --projeto <ref>  numa RESTAURACAO: recria o a
                                 novo com segredo novo (nunca mostrado)
 powershell -File tools\agenda-backup.ps1 [-Ver|-Agora|-Remover]  o backup DIARIO agendado no
                                 Windows (21h); o checa-saude avisa se parar (02/10, OPS-02)
+node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tela bloqueada, recarregar,
+                                aba esquecida, pomodoro) -- relogio simulado (03/10, CRN-01)
 node tools/funil.js [--dias 30]  🆕 de onde vieram os alunos e ate onde chegaram (cadastro ->
                                 edital -> rotina -> 1a sessao), por origem. So le (03/10, NEG-01)
 node tools/testa-funil.js       o funil marca cada etapa uma vez e a origem chega certa? ASTRAL_DEV=1
