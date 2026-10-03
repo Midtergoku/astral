@@ -32,7 +32,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     // Log antes de apagar: depois nao ha mais de quem falar.
-    console.log(`Exclusao de conta solicitada: ${usuario.id} (${usuario.email ?? "sem e-mail"})`);
+    // 02/10/2026 (LGL-04): so o id. O e-mail no log da funcao era mais um
+    // rastro da pessoa que pediu para sumir.
+    // Os outros rastros (lista de espera, e-mail na auditoria) saem no
+    // gatilho ao_excluir_conta, em auth.users -- migration 20261003100000.
+    console.log(`Exclusao de conta solicitada: ${usuario.id}`);
 
     const { error } = await admin().auth.admin.deleteUser(usuario.id);
     if (error) {

@@ -283,9 +283,10 @@
   <div class="card" style="margin-bottom:1.25rem;">
     <div class="section-title">Baixar meus dados</div>
     <p class="section-sub">
-      Gera um arquivo com tudo: seu cadastro, seu edital, matérias, XP, conquistas,
-      histórico do cronômetro e eventos do calendário. É um arquivo de texto no formato JSON —
-      pode abrir no bloco de notas.
+      Gera um arquivo com tudo o que o Astral guarda sobre você: cadastro, edital, matérias, XP,
+      conquistas, especializações, sessões de estudo, respostas e caderno de erros, guia de estudo,
+      marcas do TAF, eventos do calendário, aceites dos Termos e histórico de plano. É um arquivo de
+      texto no formato JSON — pode abrir no bloco de notas.
     </p>
     <button class="btn btn-roxo" id="btn-exportar">
       <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -305,7 +306,10 @@
         <li>Seu edital, matérias e cronograma</li>
         <li>XP, patente, sequência e conquistas</li>
         <li>Histórico do cronômetro e eventos do calendário</li>
+        <li>Sua inscrição na lista de espera, se houver</li>
       </ul>
+      Do histórico de troca de plano fica só o fato (de qual plano para qual, e quando), sem seu
+      e-mail. Registros técnicos de erro ficam no máximo 12 meses, sem ligação com você.<br>
       Se quiser guardar alguma coisa, <strong>baixe seus dados antes</strong>.
     </div>
 
@@ -484,33 +488,15 @@
     const btn = el('btn-exportar');
     btn.disabled = true;
 
-    // Os dados agora moram no banco. Buscamos tudo antes de montar o arquivo --
-    // exportar só o que sobrou no navegador entregaria uma cópia incompleta,
-    // que é justamente o oposto do direito de portabilidade.
-    const [progresso, eventos, sessoes] = await Promise.all([
-      supabase.from('progresso').select('*').eq('usuario_id', usuario.id).maybeSingle(),
-      supabase.from('eventos').select('*').eq('usuario_id', usuario.id).order('data'),
-      supabase.from('sessoes_estudo').select('*').eq('usuario_id', usuario.id).order('criado_em', { ascending: false }),
-    ]);
-
-    const pacote = {
-      exportado_em: new Date().toISOString(),
-      origem: 'Astral — astral-psi.vercel.app',
-      conta: {
-        id: usuario.id,
-        email: usuario.email,
-        nome: nomeDoUsuario(usuario, perfil),
-        criada_em: usuario.created_at,
-        ultimo_acesso: usuario.last_sign_in_at,
-        forma_de_acesso: usuario.app_metadata?.provider || 'email',
-      },
-      perfil,
-      progresso: progresso.data ?? null,
-      eventos:   eventos.data ?? [],
-      sessoes_de_estudo: sessoes.data ?? [],
-    };
-
+    // 02/10/2026 (LGL-03): o pacote vem INTEIRO do servidor (meus_dados).
+    // Antes a página montava 4 das 16 tabelas e chamava isso de "tudo" --
+    // e algumas (uso de IA, erros, histórico de plano) ela nem consegue ler.
+    const { data: pacote, error } = await supabase.rpc('meus_dados');
     btn.disabled = false;
+    if (error || !pacote) {
+      toast('Não foi possível gerar o arquivo agora. Tente de novo em instantes.');
+      return;
+    }
 
     const blob = new Blob([JSON.stringify(pacote, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
