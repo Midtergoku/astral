@@ -145,6 +145,7 @@ const { pathToFileURL } = require("url");
     // 03/10/2026 (NUM-02): os fatos novos do servidor (fatos_do_usuario).
     diasPorDiaSemana: Object.fromEntries([...Array(7)].map((_, d) => [d, 999])),
     materiasNoMesMax: 99,
+    dominioNoTeto: 100,
     atributos: {
       disciplina: { valor: 100 }, resistencia: { valor: 100 },
       amplitude: { valor: 100 }, doutrina: { valor: 100 }, precisao: { valor: null },
@@ -167,6 +168,19 @@ const { pathToFileURL } = require("url");
   const quase = motor.conferir(quaseTudo);
   if (!quase.resumo.platinou) ok("a platina NÃO cai faltando uma", "e são 73");
   else falha("🚨 platinou sem ter tudo");
+
+  // ── 8b. A platina NAO exige sumir (03/10/2026, auditoria GAM-05) ─────────
+  // Antes ela pedia "De Volta ao Posto" (sumir 30 dias): a Platina obrigava a
+  // abandonar o estudo por um mes. Quem faz tudo e NUNCA some platina.
+  const nuncaSumiu = motor.conferir({ ...deus, maiorRetornoDias: 0 });
+  if (nuncaSumiu.resumo.platinou) ok("🎯 a PLATINA cai para quem nunca sumiu", "sem Reintegrado nem De Volta ao Posto");
+  else falha("🔴 a platina ainda exige sumir", nuncaSumiu.condecoracoes.filter((c) => !c.conquistada).map((c) => c.id).join(", "));
+  // E a Doutrina Consolidada cai com a materia sem Banco no teto dela (70),
+  // nao exige o atributo DOUTRINA em 100.
+  const comTeto = motor.conferir({ ...deus, dominioNoTeto: 100, atributos: { ...deus.atributos, doutrina: { valor: 91 } } });
+  if (comTeto.condecoracoes.find((c) => c.id === "doutrina_total")?.conquistada)
+    ok("🎯 Doutrina Consolidada: cada matéria no teto basta", "com DOUTRINA 91 (uma matéria sem Banco em 70)");
+  else falha("Doutrina Consolidada ainda exige 100% de média");
 
   // ── 9. Tipo desconhecido falha para o lado seguro ────────────────────────
   // Simula erro de digitacao no catalogo. Tem de resultar em medalha que nao

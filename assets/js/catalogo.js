@@ -80,6 +80,8 @@ export const METAIS = {
      horasNoDia   { min }                    N horas somadas num unico dia
      materias     { dominioMin, quantas }    N materias acima de X% de dominio
      dominioMinimo{ min }                    NENHUMA materia abaixo de X%
+     dominioNoTeto{ min }                    media do dominio sobre o TETO de cada materia
+                                             (com Banco: 100; sem Banco: 70 -- 30/09)
      atributo     { chave, min }             um atributo da ficha bate o valor
      horario      { deHora, ateHora, vezes } N sessoes COMECADAS dentro de uma faixa do dia
      diaSemana    { dias, vezes }            N sessoes em dias especificos (0=domingo)
@@ -287,8 +289,12 @@ export const CONDECORACOES = [
     condicao: { tipo: 'sessaoUnica', minutosMin: 120 } },
 
   { id: 'doutrina_total',   metal: 'ouro', nome: 'Doutrina Consolidada',
-    descricao: 'DOUTRINA no máximo: domínio pleno de todas as matérias.',
-    condicao: { tipo: 'atributo', chave: 'doutrina', min: 100 } },
+    descricao: 'Domínio pleno de todas as matérias — nas que não têm Banco de questões, os 70% que o estudo alcança.',
+    // 03/10/2026 (auditoria GAM-05): era DOUTRINA 100 = media 100%. Materia sem
+    // Banco para em 70 (decisao de 30/09), entao em quase todo edital ela era
+    // impossivel -- e a Platina junto. O atributo DOUTRINA nao muda: ele entra
+    // no Preparo, e la 70% medido so por tempo nao pode valer 100.
+    condicao: { tipo: 'dominioNoTeto', min: 100 } },
 
   { id: 'ficha_completa',   metal: 'ouro', nome: 'Ficha Impecável',
     descricao: 'Disciplina, Resistência e Amplitude no máximo ao mesmo tempo.',
@@ -340,7 +346,11 @@ export const CONDECORACOES = [
   // interessante ate o fim.
   { id: 'platina',          metal: 'platina', nome: 'Condecoração Máxima',
     descricao: 'Todas as outras condecorações conquistadas.',
-    condicao: { tipo: 'todas', exceto: ['platina'] } },
+    // 03/10/2026 (auditoria GAM-05, decisao dele na pergunta 10): Reintegrado
+    // e De Volta ao Posto premiam VOLTAR depois de sumir 14 e 30 dias. Como
+    // exigencia da Platina, obrigavam a abandonar o estudo -- saem da conta.
+    // Continuam existindo, secretas, para quem volta.
+    condicao: { tipo: 'todas', exceto: ['platina', 'reintegrado', 'reintegrado_longo'] } },
 
   // ══ AS SECRETAS ══════════════════════════════════════════════════════════
   // Nao aparecem na lista ate dispararem. Cada uma premia um comportamento que

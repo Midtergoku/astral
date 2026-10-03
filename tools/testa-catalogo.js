@@ -48,6 +48,8 @@ const { pathToFileURL } = require("url");
     "atributo", "atributosTodos", "horario", "diaSemana", "modo",
     // 03/10/2026 (NUM-02): dias distintos de estudo e materias estudadas no mes
     "diasDaSemana", "materiasNoMes",
+    // 03/10/2026 (GAM-05): o dominio de cada materia sobre o teto dela
+    "dominioNoTeto",
     "condecoracao", "todas",
   ]);
 

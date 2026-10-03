@@ -409,7 +409,7 @@
       // 01/10/2026: os fatos vem da fonte unica de estatisticas (assets/js/estatisticas.js).
       const { data: fatos, error } = await carregarEstatisticas().then((d) => ({ data: d?.fatos ?? null }), (e) => ({ error: e }));
       if (error || !fatos) return;
-      const { conferir } = await import('./assets/js/condecoracoes.js?v=6833e429');
+      const { conferir } = await import('./assets/js/condecoracoes.js?v=5c58a996');
       // 30/09/2026 (auditoria, item 12): com as GRAVADAS, como o painel -- eram 7 aqui e 8 la.
       const { data: gravadas } = await supabase.rpc('sincronizar_conquistas');
       const r = conferir(fatos, gravadas || null);

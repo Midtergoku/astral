@@ -102,7 +102,7 @@ export const FRENTES = [
     lema: 'O conteúdo tomado, matéria por matéria.',
     // 03/10/2026 (NUM-02): materiasNoMes e o tipo novo de Duas Frentes (era
     // atributo amplitude 40, nesta mesma frente e na mesma altura: 2 x 20 = 40).
-    pega: (c) => ['materias', 'dominioMinimo', 'materiaSeguida', 'materiaMenosEstudada', 'materiasNoDia', 'materiasNoMes']
+    pega: (c) => ['materias', 'dominioMinimo', 'materiaSeguida', 'materiaMenosEstudada', 'materiasNoDia', 'materiasNoMes', 'dominioNoTeto']
       .includes(c.tipo) || (c.tipo === 'atributo' && ['doutrina', 'amplitude'].includes(c.chave)),
     /* unidade: um índice de 0 a ~100 de "quanto do conteúdo está tomado".
        Aqui o julgamento é maior, porque as condições medem coisas de natureza

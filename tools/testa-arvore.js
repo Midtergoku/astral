@@ -106,6 +106,7 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(48)} ${d}`); fal
     // e o melhor mes em materias. Sem eles, 5 nos "nunca acendiam" aqui.
     diasPorDiaSemana: Object.fromEntries([...Array(7)].map((_, d) => [d, 999])),
     materiasNoMesMax: 99,
+    dominioNoTeto: 100,
     atributos: { disciplina: { valor: 100 }, resistencia: { valor: 100 },
                  amplitude: { valor: 100 }, doutrina: { valor: 100 }, precisao: { valor: null } },
   };

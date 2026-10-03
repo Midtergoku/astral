@@ -69,6 +69,8 @@ function progressoDe(cond, f, jaTem) {
     }
 
     case 'dominioMinimo':  return frac(f.dominioMinimo, cond.min);
+    // 03/10/2026 (GAM-05): o dominio sobre o teto de cada materia (servidor).
+    case 'dominioNoTeto':  return frac(f.dominioNoTeto, cond.min);
     case 'materiaMenosEstudada': return frac(f.dominioMenosEstudada, cond.dominioMin);
 
     case 'materiaDominada': {
