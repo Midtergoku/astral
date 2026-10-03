@@ -297,7 +297,7 @@
 <script type="module">
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
     from './assets/js/astral.js?v=6073012e';
-  import { montarQuestoes } from './assets/js/prova.js?v=eb5c7443';
+  import { montarQuestoes } from './assets/js/prova.js?v=25b893ea';
   import { classificarLista, assuntosConhecidos } from './assets/js/assuntos.js?v=78708ba1';
   import { pdfParaLeituras, ligarArrastar } from './assets/js/pdf-para-texto.js?v=e2aa35f7';
 
@@ -510,7 +510,7 @@
        tem. Questao com defeito entra NO ACERVO mas FORA DO AR, com o motivo.
        E o campo revisao passa a dizer O QUE foi conferido -- antes era "ok"
        em todas, inclusive nas quebradas. */
-    const { defeitos } = await import('./assets/js/defeitos-de-questao.js?v=71276f63');
+    const { defeitos } = await import('./assets/js/defeitos-de-questao.js?v=4bde0714');
     const comDefeito = defeitos(marcadas.map((q, i) => ({ ...q, id: i, banca, prova, ano })));
     const hoje = new Date().toLocaleDateString('pt-BR');
     const payload = marcadas.map((q, i) => ({

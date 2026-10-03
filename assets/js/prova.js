@@ -24,9 +24,37 @@
 // 4. A ULTIMA ALTERNATIVA VAZA. Ela corre ate o fim do bloco e arrasta
 //    cabecalho, rodape e o texto de apoio da questao seguinte.
 
-/** O FORM FEED (0x0C) que o pdftotext poe entre paginas vira quebra de linha. */
+/* ── O SIMBOLO PERDIDO (03/10/2026, auditoria BAN-01, roadmap 3.4) ───────────
+   As provas da EEAR escrevem =, +, −, π, ≤, ≠ na fonte SymbolMT, e o texto do
+   PDF devolve um codigo da "area de uso privado" (U+F03D no lugar de "=") que
+   nao se desenha: 113 questoes sairam do ar por isso. A fonte de cada codigo
+   foi MEDIDA com o pdf.js nas 18 provas CFS (scratch l34-fontes.js):
+   quase tudo SymbolMT, cuja tabela e a codificacao Adobe Symbol.
+
+   So entram aqui os codigos SEM ambiguidade. Ficam de fora, de proposito:
+   - F072, F061, F06C, F06F, F076: tambem aparecem na fonte MT Extra, onde
+     significam OUTRA coisa (F072 e ρ na Symbol e a setinha de vetor na MT Extra);
+   - F0E6 a F0FE, F0BD, F0BE, F8xx: pedacos de colchete e de chave GRANDES --
+     matriz, sistema, fracao de varias linhas. Virar texto nao os conserta.
+   O que sobra continua acusado pelo detector (defeitos-de-questao.js, item 6). */
+const SIMBOLO = {
+  0xF028: "(", 0xF029: ")", 0xF02B: "+", 0xF02D: "−", 0xF03C: "<", 0xF03D: "=", 0xF03E: ">",
+  0xF040: "≅", 0xF044: "Δ", 0xF049: "Ι", 0xF04E: "Ν", 0xF057: "Ω", 0xF05B: "[", 0xF05D: "]", 0xF05E: "⊥",
+  0xF062: "β", 0xF067: "γ", 0xF06D: "μ", 0xF070: "π", 0xF071: "θ",
+  0xF0A3: "≤", 0xF0AE: "→", 0xF0B0: "°", 0xF0B3: "≥", 0xF0B4: "×", 0xF0B7: "•", 0xF0B9: "≠",
+  0xF0C2: "ℜ", 0xF0C8: "∪", 0xF0CE: "∈", 0xF0D7: "·", 0xF0E5: "∑",
+};
+export function trocarSimbolos(texto) {
+  if (texto == null) return texto;
+  let saida = "";
+  for (const c of String(texto)) saida += SIMBOLO[c.codePointAt(0)] ?? c;
+  return saida;
+}
+
+/** O FORM FEED (0x0C) que o pdftotext poe entre paginas vira quebra de linha.
+    E o simbolo da SymbolMT vira o caractere de verdade (ver trocarSimbolos). */
 export function limparPagina(texto) {
-  return String(texto || "").split(String.fromCharCode(12)).join("\n");
+  return trocarSimbolos(String(texto || "").split(String.fromCharCode(12)).join("\n"));
 }
 
 /* ── De que MATERIA e cada questao ───────────────────────────────────────────

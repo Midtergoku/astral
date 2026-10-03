@@ -939,7 +939,7 @@
     const estado = $('m-gab-estado');
     estado.textContent = 'lendo o gabarito…';
     try {
-      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=eb5c7443');
+      const { gabaritoDeTabela } = await import('./assets/js/prova.js?v=25b893ea');
       const texto = (await pdfParaLeituras(arquivo)).join('\n');
       let g = gabaritoDeTabela(texto);
 
@@ -994,7 +994,7 @@
 
     $('m-lote').innerHTML = '<div class="esqueleto-bloco" style="height:6rem"></div>';
     try {
-      const { montarQuestoes } = await import('./assets/js/prova.js?v=eb5c7443');
+      const { montarQuestoes } = await import('./assets/js/prova.js?v=25b893ea');
       const { classificarLista } = await import('./assets/js/assuntos.js?v=78708ba1');
       const leituras = await pdfParaLeituras(arquivo);
       // 🔴 `incluirSemGabarito: true` aqui, e NUNCA no acervo público. Muita

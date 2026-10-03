@@ -134,6 +134,37 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
     conf("toda questão diz O QUE foi conferido (não só \"ok\")", semRegistro);
   }
 
+
+  /* ── 4c. O detector nao mata questao boa (03/10/2026, roadmap 3.4) ───────
+     A 1a versao da regra 7 marcava as DUAS questoes de qualquer par com as
+     mesmas alternativas -- e tirou do ar V/F, "I e II" e "Somente I esta
+     correto" legitimos. Casos inventados, um para cada lado da regra. */
+  console.log("\n== 4c. O DETECTOR NAO MATA QUESTAO BOA ==");
+  {
+    const D = await import("../assets/js/defeitos-de-questao.js");
+    const P = { banca: "T", prova: "P", ano: 2026 };
+    const VF = { a: "V - F - F - V", b: "F - V - V - F", c: "V - V - F - F", d: "F - F - V - V" };
+    const FRASES = { a: "Era charmosa; tinha olhos castanhos.", b: "Um pedreiro caiu ontem do andaime.", c: "O dinheiro possibilita trocas.", d: "Preciso te contar o que aconteceu." };
+    const NUM = { a: "150; 4500", b: "150; 9000", c: "300; 4500", d: "300; 9000" };
+    const q = (id, enunciado, alternativas) => ({ id, ...P, enunciado, alternativas, gabarito: "a" });
+    const marcadas = (lista) => [...D.alternativasRepetidas(lista).keys()].sort().join(",");
+    const caso = (nome, lista, esperado) => {
+      const m = marcadas(lista);
+      m === esperado ? ok(nome, m || "nenhuma") : falha(nome, `marcou [${m}], esperado [${esperado}]`);
+    };
+    caso("dois V/F legítimos (com \"( )\") ficam no ar",
+      [q(1, "Marque V ou F. ( ) um ( ) dois ( ) tres ( ) quatro", VF), q(2, "Sobre o texto: ( ) a ( ) b ( ) c ( ) d", VF)], "");
+    caso("🎯 V/F sem nenhum \"( )\" no enunciado continua acusado",
+      [q(3, "Marque V ou F. ( ) um ( ) dois ( ) tres ( ) quatro", VF), q(4, "Complete the sentence: She ____ when the plane landed.", VF)], "4");
+    caso("frases iguais em duas questões: as duas acusadas",
+      [q(5, "Assinale a correta quanto à pontuação.", FRASES), q(6, "Avalie as afirmações sobre o acento.", FRASES)], "5,6");
+    caso("resposta numérica repetida não é molde: as duas acusadas",
+      [q(7, "Determine a velocidade e a força na corda.", NUM), q(8, "Qual a indicação da balança?", NUM)], "7,8");
+    D.ehMolde("Todas as afirmações estão corretas.") && D.ehMolde("Somente I e II estão corretos.") && !D.ehMolde("comparative.")
+      ? ok("\"Somente I…\" e \"Todas as afirmações…\" são molde; palavra comum não")
+      : falha("a regra de molde errou um caso básico");
+  }
+
   console.log("\n== 5. O QUE TEM LA DENTRO ==");
   {
     const porMat = {};

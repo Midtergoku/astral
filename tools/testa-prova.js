@@ -187,6 +187,26 @@ const PROVA = [
       : falha("ficou com a versao pior", `${Object.keys(q?.alternativas || {}).length} alternativas`);
   }
 
+
+  // ── 8. O simbolo da fonte SymbolMT (03/10/2026, roadmap 3.4) ─────────────
+  console.log("\n== 6. O SIMBOLO PERDIDO VIRA O CARACTERE CERTO ==");
+  {
+    const cp = (n) => String.fromCodePoint(n);
+    const bruto = `x ${cp(0xF03D)} 2${cp(0xF070)} ${cp(0xF02B)} 1, x ${cp(0xF0B9)} 0, y ${cp(0xF0A3)} 3`;
+    const certo = "x = 2π + 1, x ≠ 0, y ≤ 3";
+    P.trocarSimbolos(bruto) === certo ? ok("SymbolMT: = π + ≠ ≤ voltam", certo) : falha("simbolo nao voltou", P.trocarSimbolos(bruto));
+    // F072 e ρ na Symbol mas a setinha de vetor na MT Extra: NAO se adivinha
+    const ambiguo = `v${cp(0xF072)}`;
+    P.trocarSimbolos(ambiguo) === ambiguo ? ok("🎯 código ambíguo (MT Extra) NÃO é trocado por chute") : falha("trocou codigo ambiguo", P.trocarSimbolos(ambiguo));
+    const prova = `GABARITO OFICIAL\n01 A\n\nAS QUESTÕES DE 1 A 1 REFEREM-SE À MATEMÁTICA\n\n01 – Se x ${cp(0xF03D)} 3, quanto vale 2x ${cp(0xF02D)} 1?\na) 5\nb) 6\nc) 7\nd) 8\n`;
+    const r = P.montarQuestoes([prova], { incluirSemGabarito: true });
+    const q = [...r.prontas, ...r.revisar].find((x) => x.numero === 1);
+    const temPUA = (s) => [...String(s)].some((c) => c.codePointAt(0) >= 0xE000 && c.codePointAt(0) <= 0xF8FF);
+    /=.*−/.test(q?.enunciado || "") && !temPUA(q?.enunciado || "")
+      ? ok("🎯 a importação já entrega o texto com o símbolo certo", q.enunciado.slice(0, 40))
+      : falha("a importacao ainda traz simbolo perdido", JSON.stringify(q?.enunciado));
+  }
+
   console.log("\n" + "=".repeat(72));
   console.log(falhas === 0
     ? "A PROVA E ENTENDIDA IGUAL — e agora pelo mesmo codigo nos dois lados."

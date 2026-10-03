@@ -52,6 +52,29 @@ function questaoColada(q) {
       questoes da mesma prova. Fora os conjuntos curtos (numeros, I/II/III,
       V-F, letras), que se repetem de verdade. Marca as DUAS: nao da para
       saber qual delas ficou com as alternativas certas. */
+/* 03/10/2026 (roadmap 3.4): alternativas "DE MOLDE" -- sequencias V/F ou T/F,
+   numeros de relacionar colunas, "I e II.", "Somente I esta correto." -- SE
+   REPETEM DE VERDADE entre questoes da mesma prova. A primeira versao desta
+   regra marcava as duas e tirou do ar questoes boas (medido: 3 de Matematica
+   do CFSd com "Somente I esta correto...", 4 de V/F da EAGS 2024 cod 31).
+   Com molde, so e defeito a questao cujo enunciado NAO tem a forma que essas
+   alternativas pedem: V/F sem nenhum "( )", "I e II" sem itens I, II...
+   (Fronteira por letra Unicode, nao por \b: o \b do JavaScript nao ve "á".) */
+const PALAVRAS_DE_MOLDE = /(?<!\p{L})(somente|apenas|todas|nenhuma|as|afirmações|afirmativas|está|estão|corretos?|corretas?|incorretos?|incorretas?)(?!\p{L})/giu;
+// Numero sozinho NAO e molde ("150; 9000" e resposta de conta): so sequencia de colunas.
+function ehMolde(alt) {
+  const s = String(alt).replace(PALAVRAS_DE_MOLDE, " ");
+  if (!/^[\s0-9IVXFTCEeou,.;\-–‐—]+$/.test(s)) return false;
+  // so palavras de molde ("Todas as afirmações estão corretas.")
+  if (/^[\s.,;]*$/.test(s)) return String(alt).trim().length > 0;
+  return /[IVXFTCE]/.test(s) || /^\s*\d{1,2}(\s*[-–‐—]\s*\d{1,2}){2,}\s*\.?\s*$/.test(s);
+}
+function cabeNoMolde(q) {
+  const e = String(q.enunciado || "") + " " + String(q.texto_apoio || "");
+  const parenteses = (e.match(/\(\s*\)/g) || []).length;
+  const romanos = (e.match(/(^|\s)(I|II|III|IV|V)\s*[-–‐.)]\s/g) || []).length;
+  return parenteses >= 2 || romanos >= 2;
+}
 function alternativasRepetidas(todas) {
   const grupos = new Map();
   for (const q of todas) {
@@ -67,7 +90,11 @@ function alternativasRepetidas(todas) {
     if (g.length < 2) continue;
     // enunciado igual = questao repetida (outro defeito, tratado a parte)
     if (new Set(g.map((q) => norm(q.enunciado))).size < 2) continue;
-    for (const q of g) marcadas.set(q.id, "alternativas de outra questao");
+    const molde = Object.values(g[0].alternativas || {}).every(ehMolde);
+    for (const q of g) {
+      if (molde && cabeNoMolde(q)) continue;     // repeticao legitima de molde
+      marcadas.set(q.id, "alternativas de outra questao");
+    }
   }
   return marcadas;
 }
@@ -83,4 +110,4 @@ function defeitos(todas) {
   return achados;
 }
 
-export { defeitos, simboloPerdido, dependeDeFigura, questaoColada, alternativasRepetidas, FIGURA };
+export { defeitos, simboloPerdido, dependeDeFigura, questaoColada, alternativasRepetidas, FIGURA, ehMolde, cabeNoMolde };

@@ -83,3 +83,17 @@ aluno de outro estado. Ver `docs/auditoria/ROADMAP.md` 3.25.
   As conferências **à mão (10 a 13)** continuam por fazer — elas entram na reimportação (roadmap 3.4).
 - Item 14, o do aluno: o botão **"Achou um erro nesta questão? Avise"** grava em `questoes_reportadas`; o
   `checa-saude` avisa quando há relato esperando revisão. Depois de revisar, marcar `resolvido_em`.
+
+## ✏️ 03/10/2026 — a primeira reimportação (roadmap 3.4)
+
+- **61 voltaram ao ar** depois de passar pela lista inteira: automático 1-9 (o detector rodou sobre o
+  acervo como ficaria) e **à mão 10-13** — texto inteiro lido, **conta resolvida** nas de cálculo,
+  matéria e assunto conferidos, 5 vistas no celular de 360 px. `revisao` de cada uma diz isso.
+- **Lição para a próxima importação:** reimportar não conserta prova de duas colunas — o leitor lê
+  igual. E símbolo de volta não basta: raiz, fração e barra de conjugado o PDF **desenha**, não escreve.
+- **Regra 7 refinada:** alternativas "de molde" (V/F, "1 - 4 - 3 - 2", "I e II", "Somente I está
+  correto") se repetem de verdade; só são defeito quando o enunciado não tem a forma que pedem.
+- **Item 6:** os códigos sem ambiguidade da SymbolMT viram o caractere já na importação
+  (`trocarSimbolos` em `assets/js/prova.js`). MT Extra e pedaços de colchete continuam acusados.
+- **Duas armadilhas que a lista não tinha, acrescentar:** questão de "according to the text" sem o
+  texto guardado; e a MESMA questão em dois códigos da EAGS (republicar as duas cria repetida).
