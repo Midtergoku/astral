@@ -82,6 +82,40 @@ function acharPlaywright() {
       ? ok("semana editada vale, sem matéria que saiu do edital") : falha("semana editada", JSON.stringify(editada[1]));
   }
 
+  /* 03/10/2026 (auditoria CRO-01, roadmap 2.4): ROTINA CURTA. Com 1 dia de 1 h
+     (opcao da tela), Historia, Geografia e Informatica nunca apareciam em 52
+     semanas. Agora elas se revezam. A simulacao e a da auditoria: o dominio
+     sobe so pelo tempo estudado (o melhor caso para quem ja aparece). */
+  console.log("\n== 1b. ROTINA CURTA: AS MATÉRIAS SE REVEZAM ==");
+  for (const [rotulo, rot, espera] of [
+    ["1 dia de 1h (2 blocos)", { dias: [6], minutosUtil: 60, minutosFds: 60, bloco: 25 }, 5],
+    ["2 dias de 1h (2 blocos)", { dias: [3, 6], minutosUtil: 60, minutosFds: 60, bloco: 50 }, 5],
+    ["1 dia de 30min (1 bloco)", { dias: [6], minutosUtil: 30, minutosFds: 30, bloco: 30 }, 9],
+  ]) {
+    const min = Object.fromEntries(MATERIAS.map((m) => [m.nome, 0]));
+    const ultima = {}; let pior = 0;
+    for (let sem = 1; sem <= 52; sem++) {
+      const mats = MATERIAS.map((m) => { const d = Math.round(40 * Math.min(1, min[m.nome] / 600)); return { ...m, progresso: d, medida: { semana: d } }; });
+      const nesta = new Set();
+      for (const d of C.montarSemana(mats, rot, { semana: 2900 + sem })) for (const b of d.blocos) { min[b.materia] += b.minutos; nesta.add(b.materia); }
+      for (const n of nesta) ultima[n] = sem;
+      for (const m of MATERIAS) pior = Math.max(pior, sem - (ultima[m.nome] ?? 0));
+    }
+    pior <= espera ? ok(`🎯 ${rotulo}: toda matéria volta em até ${espera} semanas`, `maior espera ${pior}`)
+      : falha(`${rotulo}: matéria some por tempo demais`, `${pior} semanas (limite ${espera})`);
+  }
+  {
+    const rot = { dias: [6], minutosUtil: 60, minutosFds: 60, bloco: 25 };
+    JSON.stringify(C.montarSemana(MATERIAS, rot, { semana: 3000 })) === JSON.stringify(C.montarSemana(MATERIAS, rot, { semana: 3000 }))
+      ? ok("rotina curta: mesma semana, mesma resposta", "o rodízio anda por semana, não por visita") : falha("rotina curta muda a cada visita");
+    const padrao = C.montarSemana(MATERIAS, C.ROTINA_PADRAO, { semana: 1 });
+    JSON.stringify(padrao) === JSON.stringify(C.montarSemana(MATERIAS, C.ROTINA_PADRAO, { semana: 2 }))
+      ? ok("rotina que cabe todas: o número da semana não muda nada") : falha("rodízio mexeu em rotina que não precisa");
+    const seg = new Date("2026-10-05T03:00:00Z"), dom = new Date("2026-10-05T02:59:00Z");   // 00:00 de segunda em SP
+    C.numeroDaSemana(seg) === C.numeroDaSemana(dom) + 1 ? ok("a semana vira à meia-noite de segunda, no horário de Brasília")
+      : falha("a semana vira na hora errada", `${C.numeroDaSemana(dom)} -> ${C.numeroDaSemana(seg)}`);
+  }
+
   const pw = acharPlaywright();
   if (!pw) { console.log("\n  (playwright não encontrado -- a parte de TELA foi pulada)"); process.exit(falhas ? 1 : 0); }
 

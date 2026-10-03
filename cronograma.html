@@ -319,8 +319,8 @@
   import { carregarProgresso, sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=7f17c492';
   import { duracao } from './assets/js/formato.js?v=8300466c';
   import { montarSemana, blocosDeHoje, resumoDaRotina, normalizarRotina, xpDoBloco, DIAS, DIAS_CURTOS }
-    from './assets/js/cronograma.js?v=bd45888d';
-  import { perguntarRotina } from './assets/js/rotina.js?v=d098b18a';
+    from './assets/js/cronograma.js?v=5435e808';
+  import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { necessidadeDe } from './assets/js/plano.js?v=b8fa3798';
 
   // Segunda primeiro: e assim que se planeja uma semana de estudo.
@@ -370,6 +370,9 @@
     const porMateria = {};
     for (const b of blocos) porMateria[b.materia] = (porMateria[b.materia] || 0) + b.minutos;
     const pm = Object.entries(porMateria).sort((a, b) => b[1] - a[1]);
+    // 03/10/2026 (CRO-01): rotina curta revezando -- a frase "toda materia
+    // aparece" so e dita quando e verdade NESTA semana.
+    const foraDaSemana = materias.map((m) => m.nome).filter((n) => n && !(n in porMateria));
     const maiorPm = Math.max(1, ...pm.map((x) => x[1]));
 
     const posHoje = (hojeIdx + 6) % 7;   // posicao de hoje na ordem segunda..domingo
@@ -441,7 +444,9 @@
 
       <div class="card porMateria">
         <div class="section-title">Tempo por matéria na semana</div>
-        <p class="section-sub">Proporcional ao peso no edital e ao quanto ainda falta dominar. Toda matéria aparece pelo menos uma vez.</p>
+        <p class="section-sub">Proporcional ao peso no edital e ao quanto ainda falta dominar. ${foraDaSemana.length
+          ? `Sua rotina tem ${blocos.length} ${blocos.length === 1 ? 'bloco' : 'blocos'} na semana e o edital ${materias.length} matérias: elas se revezam, e cada uma volta em poucas semanas. Fora desta semana: ${foraDaSemana.map(esc).join(', ')}.`
+          : 'Toda matéria aparece pelo menos uma vez.'}</p>
         ${pm.map(([m, v]) => `
           <div class="pm-linha">
             <span>${esc(m)}</span>
@@ -456,7 +461,7 @@
   function ligar(semana) {
     const $ = (id) => document.getElementById(id);
     $('ajustar')?.addEventListener('click', async () => {
-      const r = await perguntarRotina({ atual: rotina });
+      const r = await perguntarRotina({ atual: rotina, materias: materias.length });
       if (!r) return;
       await gravar(r, 'Rotina ajustada. A semana foi montada de novo.');
     });

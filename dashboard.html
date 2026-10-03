@@ -1480,8 +1480,8 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=7f17c492';
   import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=7f17c492';
   import { duracao, duracaoHoras } from './assets/js/formato.js?v=8300466c';
-  import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=bd45888d';
-  import { perguntarRotina } from './assets/js/rotina.js?v=d098b18a';
+  import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=5435e808';
+  import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
   import { nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
@@ -2364,7 +2364,7 @@ function verificarBalanco() {
   }
 
   async function perguntarRotinaPrimeiraVez() {
-    const r = await perguntarRotina({ podePular: true });
+    const r = await perguntarRotina({ podePular: true, materias: (estado.materias || []).length });
     const rotina = r?.pulou
       ? { ...ROTINA_PADRAO, pulou: true, respondidoEm: new Date().toISOString() }
       : r;

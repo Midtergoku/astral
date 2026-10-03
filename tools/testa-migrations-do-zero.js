@@ -151,5 +151,10 @@ const DIFERENCA_PERMITIDA = (linha) =>
 
   console.log("\n" + "=".repeat(76));
   console.log(falhas ? `${falhas} FALHA(S).` : "O BANCO SOBE DO ZERO SO COM O GIT -- e fica igual a producao.");
+  // 03/10/2026: rodei este teste no meio de um trabalho, depois testei uma
+  // tela no dev vazio, e o "aviso escondido" que vi era falta de dado, nao
+  // comportamento. O aviso abaixo existe para eu nao confundir de novo.
+  console.log("\n⚠️  O astral-dev ficou VAZIO: sem questoes e sem os usuarios de teste da auditoria.");
+  console.log("   Antes de testar tela no dev, ressemear (acervo copiado da producao + usuarios f3).");
   process.exitCode = falhas ? 1 : 0;
 })();

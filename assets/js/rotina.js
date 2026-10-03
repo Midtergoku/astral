@@ -103,7 +103,7 @@ function injetarCss() {
  * `podePular`: na primeira vez, "agora nao" usa a rotina padrao.
  * Devolve a rotina, { pulou: true } se pulou, ou null se fechou editando.
  */
-export function perguntarRotina({ atual = null, podePular = false } = {}) {
+export function perguntarRotina({ atual = null, podePular = false, materias = 0 } = {}) {
   injetarCss();
   const r = normalizarRotina(atual);
   const escolha = { dias: new Set(r.dias), minutosUtil: r.minutosUtil, minutosFds: r.minutosFds, bloco: r.bloco };
@@ -176,6 +176,11 @@ export function perguntarRotina({ atual = null, podePular = false } = {}) {
       $('#rotina-ok').disabled = escolha.dias.size === 0;
       $('#rotina-previa').innerHTML = escolha.dias.size
         ? `Fica assim: <b>${escolha.dias.size} dia${escolha.dias.size > 1 ? 's' : ''}</b>, <b>${sessoes} sessões</b> e <b>${horas(semanaMin)}</b> de estudo por semana.`
+          // 03/10/2026 (CRO-01): menos sessoes que materias -- avisar ANTES,
+          // e nao deixar a pessoa descobrir que uma materia sumiu.
+          + (materias > sessoes
+            ? `<br>Seu edital tem <b>${materias} matérias</b> e a semana, ${sessoes} ${sessoes === 1 ? 'sessão' : 'sessões'}: elas vão se revezar, e cada uma volta em poucas semanas. Mais tempo, menos espera.`
+            : '')
         : 'Marque pelo menos um dia.';
     }
 

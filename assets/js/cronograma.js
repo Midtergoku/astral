@@ -92,11 +92,43 @@ function blocosDoDia(orcamento, bloco) {
   return blocos;
 }
 
+/** O numero da semana de estudo (comeca na SEGUNDA, no fuso de Sao Paulo).
+    Muda uma vez por semana, igual para todas as telas -- e a "vez" do rodizio. */
+export function numeroDaSemana(agora = new Date()) {
+  const diaSP = Math.floor((agora.getTime() - 3 * 3600e3) / 86400e3);   // SP = UTC-3, sem horario de verao desde 2019
+  return Math.floor((diaSP + 3) / 7);                                   // 01/01/1970 foi quinta: +3 alinha na segunda
+}
+
+/* 03/10/2026 (auditoria CRO-01, roadmap 2.4): com rotina CURTA -- menos blocos
+   na semana do que materias no edital -- a conta por necessidade dava os
+   blocos sempre as mesmas: com 1 dia de 1 h, Historia, Geografia e
+   Informatica NUNCA apareciam em 52 semanas simuladas. E a materia que nunca
+   e estudada continua com 0%, entao nunca ganhava a vez. A tela prometia
+   "toda materia aparece pelo menos uma vez".
+   Agora, quando falta bloco: METADE dos blocos (para baixo) vai para as de
+   maior necessidade; o resto RODA por uma lista fixa (peso, depois nome),
+   andando a cada semana. Toda materia aparece pelo menos a cada
+   ceil(materias / blocos que rodam) semanas. */
+function escolherNaRotinaCurta(vivas, vagas, semanaN) {
+  const porNecessidade = vivas.map((m, i) => i)
+    .sort((a, b) => necessidadeDe(vivas[b]) - necessidadeDe(vivas[a]) || (Number(vivas[b].peso) || 0) - (Number(vivas[a].peso) || 0));
+  const fixas = porNecessidade.slice(0, Math.floor(vagas / 2));
+  const giram = vagas - fixas.length;
+  const roda = vivas.map((m, i) => i)
+    .sort((a, b) => (Number(vivas[b].peso) || 0) - (Number(vivas[a].peso) || 0) || String(vivas[a].nome).localeCompare(String(vivas[b].nome)));
+  const escolhidas = new Set(fixas);
+  const inicio = ((semanaN * giram) % roda.length + roda.length) % roda.length;
+  for (let k = 0; escolhidas.size < vagas && k < roda.length; k++) escolhidas.add(roda[(inicio + k) % roda.length]);
+  return escolhidas;
+}
+
 /**
  * A semana. Devolve 7 dias (0 = domingo), cada um:
  *   { dia, estuda, blocos: [{ materia, minutos, xp }] }
+ * `semana` (opcional) e o numero da semana -- so muda o rodizio da rotina
+ * curta. Sem ele, e a semana de hoje.
  */
-export function montarSemana(materias = [], rotinaBruta = null) {
+export function montarSemana(materias = [], rotinaBruta = null, { semana: semanaN = numeroDaSemana() } = {}) {
   const rotina = normalizarRotina(rotinaBruta);
   const vivas = (materias || []).filter((m) => m && m.nome);
   const nomes = new Set(vivas.map((m) => m.nome));
@@ -134,6 +166,8 @@ export function montarSemana(materias = [], rotinaBruta = null) {
   const piso = vagas >= vivas.length ? totalMin / Math.max(1, vagas) : 0;
   const alvo = peso.map((p) => Math.max((p / soma) * totalMin, piso));
   const dado = vivas.map(() => 0);
+  // Rotina curta: so as escolhidas desta semana entram (ver escolherNaRotinaCurta).
+  const nestaSemana = vagas > 0 && vagas < vivas.length ? escolherNaRotinaCurta(vivas, vagas, semanaN) : null;
 
   // Segunda primeiro: a semana de estudo comeca na segunda, e o domingo
   // (quando ha) fica com o que sobrou -- revisao do que ficou para tras.
@@ -143,7 +177,8 @@ export function montarSemana(materias = [], rotinaBruta = null) {
     for (const minutos of d.vagas) {
       let melhor = -1, falta = -Infinity;
       for (let i = 0; i < vivas.length; i++) {
-        if (hoje.has(i) && hoje.size < vivas.length) continue;   // nao repete no dia
+        if (nestaSemana && !nestaSemana.has(i)) continue;          // fora do rodizio desta semana
+        if (hoje.has(i) && hoje.size < (nestaSemana ? nestaSemana.size : vivas.length)) continue;   // nao repete no dia
         const f = alvo[i] - dado[i];
         if (f > falta + 1e-9 || (Math.abs(f - falta) <= 1e-9 && (Number(vivas[i].peso) || 0) > (Number(vivas[melhor]?.peso) || 0))) {
           melhor = i; falta = f;
