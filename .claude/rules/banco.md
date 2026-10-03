@@ -215,3 +215,20 @@ exato** (`dominio_calculado`: `est.materia = ed.m->>'nome'`). Trocar o nome só 
 - `salvar_progresso` mescla matérias pela **lista nova** (`mesclar_materias`): remover e
   acrescentar pela tela funcionam sem nada de novo no servidor.
 - Regressão: `node tools/testa-corrigir-edital.js` (30 checagens; `ASTRAL_DEV=1` no dev).
+
+---
+
+## 8.27. A questão como imagem do caderno (03/10/2026, roadmap 3.4) ✅
+
+`questoes.imagem` (`img/questoes/<id>-<hash8>.webp`, servida pelo site, `check` no formato).
+`sortear_questoes` e `caderno_de_erros` devolvem o campo. Com imagem, **a imagem é a questão**:
+o texto guardado (em geral o quebrado) fica só para busca; o Banco mostra botões só com a letra.
+
+- 🔴 **Detector e testes de texto não valem para ela** (`defeitos()` e `alternativasRepetidas` pulam
+  `q.imagem`; `testa-acervo-limpo` 4d confere a imagem). **Qualquer leitura nova de `questoes` para
+  conferir defeito tem de pedir a coluna `imagem`** — sem ela, o `arruma-acervo` tiraria do ar as
+  165 questões de imagem achando que o texto embaralhado é o que o aluno vê.
+- Publicar imagem nova: `tools/recorta-questoes.js` → **olhar cada uma** (gabarito ao lado) → só então
+  `imagem` + `publicada`. A mesma questão aparece em vários códigos da EAGS: conferir cópia pelo texto
+  **e** pela imagem.
+- Regressão: `node tools/testa-questao-imagem.js` (7) e `testa-acervo-limpo` (4d).

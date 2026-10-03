@@ -166,6 +166,9 @@ powershell -File tools\agenda-backup.ps1 [-Ver|-Agora|-Remover]  o backup DIARIO
                                 Windows (21h); o checa-saude avisa se parar (02/10, OPS-02)
 node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tela bloqueada, recarregar,
                                 aba esquecida, pomodoro) -- relogio simulado (03/10, CRN-01)
+node tools/recorta-questoes.js --ids 1,2 | --fora-do-ar  recorta a questao do PDF como IMAGEM (img/questoes);
+                                NAO grava no banco. Toda imagem e conferida por olho antes de publicar (03/10, 3.4)
+node tools/testa-questao-imagem.js  a questao como imagem funciona no Banco em 360 px? (03/10, 3.4)
 node tools/testa-corrigir-edital.js  o aluno corrige materia, peso e data? renomear leva as horas?
                                 "a leitura esta errada" grava? ASTRAL_DEV=1 roda no dev (03/10, EDI-02/03)
 node tools/testa-banco-fora.js  com o banco FORA DO AR a tela mente? ("0 dias, Recruta") e salva o

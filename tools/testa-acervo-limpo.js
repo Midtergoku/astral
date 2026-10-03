@@ -61,7 +61,9 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
     const semGab = todas.filter((q) => !q.gabarito);
     semGab.length === 0 ? ok("todas tem gabarito") : falha("sem gabarito", `${semGab.length}`);
 
-    const gabFantasma = todas.filter((q) => !q.alternativas || !q.alternativas[q.gabarito]);
+    // Com imagem, a alternativa esta NA IMAGEM: basta a letra existir (#175: a "d" e uma
+    // fracao desenhada, o texto guardado dela e vazio -- e a questao esta certa).
+    const gabFantasma = todas.filter((q) => q.imagem ? !(q.gabarito in (q.alternativas || {})) : (!q.alternativas || !q.alternativas[q.gabarito]));
     gabFantasma.length === 0
       ? ok("🎯 o gabarito aponta para uma alternativa que existe", "ninguem fica sem resposta certa")
       : falha("gabarito aponta para alternativa inexistente", `${gabFantasma.length}`);

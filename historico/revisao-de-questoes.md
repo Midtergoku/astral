@@ -97,3 +97,13 @@ aluno de outro estado. Ver `docs/auditoria/ROADMAP.md` 3.25.
   (`trocarSimbolos` em `assets/js/prova.js`). MT Extra e pedaços de colchete continuam acusados.
 - **Duas armadilhas que a lista não tinha, acrescentar:** questão de "according to the text" sem o
   texto guardado; e a MESMA questão em dois códigos da EAGS (republicar as duas cria repetida).
+
+## ✏️ 03/10/2026 — caminho A: a questão como imagem (pedido dele: "faça a A")
+
+- **165 voltaram como imagem do caderno oficial**, cada uma vista por olho com o gabarito oficial ao
+  lado e a conta resolvida nas de cálculo. Para imagem, a conferência 12 (celular) virou teste:
+  `tools/testa-questao-imagem.js`.
+- **O que a imagem não resolve, e a lista agora pede:** questão que depende de **texto de apoio**
+  ("according to the text") precisa do texto importado junto — imagem só da questão não basta.
+- **Gabarito pintado no caderno:** alguns PDFs trazem a alternativa certa em vermelho. O recorte
+  repinta de cinza, e a conferência por olho confirma que não sobrou marca.
