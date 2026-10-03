@@ -1483,7 +1483,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=db95bc0a';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
-  import { nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
+  import { nivelDe } from './assets/js/divisa.js?v=cd5fe2ca';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
   import { pontoFraco } from './assets/js/chefe.js?v=87797754';
 
@@ -2041,7 +2041,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       const [{ abrirCartao }, { tagVestida }] = await Promise.all([
         import('./assets/js/cartao.js?v=5d0e29cc'),
-        import('./assets/js/divisa.js?v=7fbaaf3f'),
+        import('./assets/js/divisa.js?v=cd5fe2ca'),
       ]);
       const n = nivelDaConta();
       const t = tagVestida(estado.materias, estado.tagEscolhida);
@@ -2962,7 +2962,7 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=7fbaaf3f"></script>
+<script type="module" src="/assets/js/divisa.js?v=cd5fe2ca"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

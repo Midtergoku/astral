@@ -206,6 +206,9 @@ function degrauDaPatente(carreira, patente) {
   const CHAVES = [
     ['coronel', 'coronel'], ['major', 'major'], ['capitao', 'capitao'],
     ['subtenente', 'subtenente'], ['suboficial', 'suboficial'],
+    // 03/10/2026: "Aluno-Oficial" (PM e Bombeiros) nao casava com nada e a
+    // pessoa via a escada inteira de SOLDADO. E o aluno do oficialato.
+    ['aluno-oficial', 'aspirante'], ['aluno oficial', 'aspirante'],
     ['aspirante', 'aspirante'], ['cadete', 'aspirante'],
     ['guarda-marinha', 'guarda-marinha'], ['guarda marinha', 'guarda-marinha'],
     ['tenente', 'tenente'],
@@ -214,12 +217,26 @@ function degrauDaPatente(carreira, patente) {
     ['soldado', 'soldado'], ['bombeiro', 'soldado'], ['recruta', 'recruta'],
   ];
 
+  /* 03/10/2026 (auditoria JOR-01, roadmap 2.8): "Soldado" casava com o
+     PRIMEIRO degrau que tem "soldado" -- "Aluno-Soldado BM", que vem ANTES de
+     "Soldado BM". A escada do aluno de Bombeiros e PM era "Soldado ->
+     Aluno-Soldado BM": a primeira promocao era um rebaixamento. Quem o edital
+     ja poe num posto FORMADO nao casa com degrau de aluno. */
+  const aluno = ehEtapaDeAluno(patente);
   for (const [naPatente, naCarreira] of CHAVES) {
     if (!alvo.includes(naPatente)) continue;
-    const i = carreira.findIndex((p) => normalizar(p).includes(naCarreira));
+    const i = carreira.findIndex((p) => normalizar(p).includes(naCarreira)
+      && (aluno || !normalizar(p).includes('aluno')));
     if (i >= 0) return i;
   }
   return -1;
+}
+
+/* O edital poe a pessoa numa etapa de ALUNO ("Aluno-Sargento", "Cadete",
+   "Aluno-Oficial"): ela e aluna primeiro e o posto formado vem DEPOIS. */
+function ehEtapaDeAluno(patente) {
+  const p = normalizar(patente || '');
+  return p.includes('aluno') || p.includes('cadete');
 }
 
 export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = null) {
@@ -242,12 +259,18 @@ export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = 
     nomes = carreira.slice();                       // nao reconheceu: carreira inteira
   } else if (normalizar(carreira[degrau]) === normalizar(patenteInicial)) {
     nomes = carreira.slice(degrau);                 // e um degrau existente: comeca nele
-  } else {
+  } else if (ehEtapaDeAluno(patenteInicial)) {
     /* Casou por palavra-chave, mas o edital chama de outro jeito ("Aluno-Sargento"
        para "3º Sargento"). O nome do edital vira o degrau zero, e a carreira
        segue a partir do que casou -- e o que a pessoa vive de verdade: ela e
        aluna primeiro, sargento depois. */
     nomes = [patenteInicial, ...carreira.slice(degrau)];
+  } else {
+    /* 03/10/2026 (JOR-01): posto FORMADO com outro nome ("Soldado PM 2ª Classe"
+       para "Soldado PM", "Bombeiro Militar de 3ª Classe" para "Soldado BM").
+       O nome do edital entra NO LUGAR do degrau que casou -- antes entrava
+       ANTES dele, e a primeira promocao era para o mesmo posto, ou abaixo. */
+    nomes = [patenteInicial, ...carreira.slice(degrau + 1)];
   }
 
   const tabela = nomes.map((nome, i) => ({

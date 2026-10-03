@@ -193,6 +193,33 @@ function conferir(titulo, condicao, detalhe) {
     conferir('e a carreira dele segue pela dos bombeiros',
       /BM/.test(bm2.nome), bm2.nome);
 
+    /* 03/10/2026 (auditoria JOR-01, roadmap 2.8): com as patentes que o PROPRIO
+       prompt da IA da como exemplo, Bombeiros e PM subiam para "Aluno-Soldado"
+       -- a primeira promocao era um rebaixamento, no publico principal. Regra:
+       quem entra num posto FORMADO nunca passa por degrau de aluno, e o
+       segundo degrau nunca e o mesmo posto com outro nome. */
+    const escada = (forca, pat) => {
+      const n = [];
+      for (const x of [0, 500, 1200, 2000, 3000, 4500]) { const v = nivelDe(x, 'x', forca, pat).nome; if (n.at(-1) !== v) n.push(v); }
+      return n;
+    };
+    for (const [forca, pat, segundo] of [
+      ['bombeiros', 'Soldado', 'Cabo BM'], ['bombeiros', 'Bombeiro Militar de 3ª Classe', 'Cabo BM'],
+      ['pm', 'Soldado', 'Cabo PM'], ['pm', 'Soldado PM 2ª Classe', 'Cabo PM'],
+      ['exercito', 'Soldado', 'Cabo'], ['marinha', 'Grumete', 'Marinheiro'],
+    ]) {
+      const e = escada(forca, pat);
+      conferir(`🎯 ${forca} "${pat}": a 1ª promoção sobe, sem passar por aluno`,
+        e[1] === segundo && !e.slice(1).some((p) => /aluno/i.test(p)), e.slice(0, 3).join(' > '));
+    }
+    for (const [forca, pat, segundo] of [
+      ['exercito', 'Aluno-Sargento', '3º Sargento'], ['exercito', 'Cadete', 'Aspirante a Oficial'],
+      ['bombeiros', 'Aluno-Oficial BM', 'Aspirante a Oficial BM'], ['pm', 'Aluno-Oficial PM', 'Aspirante a Oficial PM'],
+    ]) {
+      const e = escada(forca, pat);
+      conferir(`etapa de aluno "${pat}" vai para o posto formado`, e[0] === pat && e[1] === segundo, e.slice(0, 3).join(' > '));
+    }
+
     /* O caso que motivou a mudança: nome sem palavra-chave nenhuma. */
     const semPista = nivelDe(0, 'Concurso de Admissão ao Curso de Formação de Sargentos');
     conferir('SEM a IA, um edital assim caía no genérico (era o defeito)',
