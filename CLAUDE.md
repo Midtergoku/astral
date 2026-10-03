@@ -164,6 +164,11 @@ node tools/recria-webhook-lista.js --projeto <ref>  numa RESTAURACAO: recria o a
                                 novo com segredo novo (nunca mostrado)
 powershell -File tools\agenda-backup.ps1 [-Ver|-Agora|-Remover]  o backup DIARIO agendado no
                                 Windows (21h); o checa-saude avisa se parar (02/10, OPS-02)
+node tools/funil.js [--dias 30]  🆕 de onde vieram os alunos e ate onde chegaram (cadastro ->
+                                edital -> rotina -> 1a sessao), por origem. So le (03/10, NEG-01)
+node tools/testa-funil.js       o funil marca cada etapa uma vez e a origem chega certa? ASTRAL_DEV=1
+node tools/testa-dados-do-aluno.js  "baixar meus dados" entrega TUDO e excluir nao deixa rastro? FALHA
+                                se tabela nova com usuario_id ficar fora (03/10, LGL-03/04)
 node tools/sincroniza-materias.js  OBRIGATORIO ao mudar MATERIAS_CONHECIDAS no prova.js
 git push origin main            publica o site (Vercel republica em ~1 min). NUNCA dois em paralelo
 supabase functions deploy       edge functions NAO passam pelo git, entram no ar na hora
