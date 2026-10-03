@@ -12,7 +12,8 @@
 >
 > **Ordem:** Lote 1 (os S0) → Lote 2 (S1 de menor esforço + o funil) → Lote 3 (o resto) →
 > **Lote 4 (o que precisa dele em cena — por último, ordem dele)**. Dentro de cada lote, a ordem é a
-> de dependência. **O próximo bloco de trabalho é o 1.2b**, e depois o Lote 2.
+> de dependência. ~~O próximo bloco de trabalho é o 1.2b~~ — **02/10, 2ª rodada: o 1.2b foi para
+> o Lote 4** (a senha precisa dele em cena, em 4 lugares). **O próximo bloco é o Lote 2.**
 
 ---
 
@@ -37,7 +38,7 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 |---|---|---|---|---|---|
 | **1.1** 🚀 ✅ | **OPS-01** | Migration "zero" + provar o banco subindo vazio igual à produção. **Feito em 02/10** (registro no fim) | `supabase/migrations/20260729000000_base_inicial.sql`, `tools/testa-migrations-do-zero.js` | M | — |
 | **1.2** 🚀 ✅ | **OPS-02** (parte local) | Backup diário agendado no PC dele, com aviso no `checa-saude` se parar. **Feito em 02/10** | `tools/agenda-backup.ps1`, `tools/backup.js`, `tools/checa-saude.js` | M | — |
-| **1.2b** 🚀 | **OPS-02** (cópia fora do PC) — ✔️ 19, opção A, *"desde que seja realmente seguro"* | Cópia diária num **repositório GitHub PRIVADO e separado** (nunca o do site, que é público). "Realmente seguro" quer dizer, e só se declara feito com as 5 provas: **(1)** cada cópia é **criptografada no PC antes de sair** (AES-256-GCM), e o GitHub só vê um arquivo ilegível — provado procurando um e-mail conhecido no arquivo enviado: 0 ocorrências; **(2)** a senha da criptografia **nunca** vai para nenhum repositório; **(3)** a senha precisa existir **também fora do PC** — senão, se o PC morrer, a cópia na nuvem não abre (é o único passo dele: guardar uma senha no gerenciador de senhas do Google, ~1 min); **(4)** **restauração provada**: baixar a cópia da nuvem numa pasta nova, decifrar e restaurar no `astral-dev` com o `testa-restauracao.js`; **(5)** tamanho sob controle: ~2 MB por cópia, guardando **só as últimas 30** (~60 MB), sem acumular ~730 MB/ano no histórico. O acesso ao GitHub usa a credencial que o `git` já tem no PC (o `gh` não está instalado). O `checa-saude` passa a avisar se a cópia da nuvem envelhecer | `tools/backup.js`, `tools/backup-nuvem.js` (novo), `tools/agenda-backup.ps1`, `tools/checa-saude.js` | M | R$ 0 · ele guardar a senha (1 min) |
+| **1.2b** 🚀 ➡️ **4.3** | **OPS-02** (cópia fora do PC). **Movido para o Lote 4 em 02/10** — ele quer a senha em 4 lugares e "quando chegar a hora, você me avisa"; sem a senha guardada fora do PC, a cópia na nuvem não abre, então ela só vale com ele presente. O texto abaixo é o plano, mantido — ✔️ 19, opção A, *"desde que seja realmente seguro"* | Cópia diária num **repositório GitHub PRIVADO e separado** (nunca o do site, que é público). "Realmente seguro" quer dizer, e só se declara feito com as 5 provas: **(1)** cada cópia é **criptografada no PC antes de sair** (AES-256-GCM), e o GitHub só vê um arquivo ilegível — provado procurando um e-mail conhecido no arquivo enviado: 0 ocorrências; **(2)** a senha da criptografia **nunca** vai para nenhum repositório; **(3)** a senha precisa existir **também fora do PC** — senão, se o PC morrer, a cópia na nuvem não abre (é o único passo dele: guardar uma senha no gerenciador de senhas do Google, ~1 min); **(4)** **restauração provada**: baixar a cópia da nuvem numa pasta nova, decifrar e restaurar no `astral-dev` com o `testa-restauracao.js`; **(5)** tamanho sob controle: ~2 MB por cópia, guardando **só as últimas 30** (~60 MB), sem acumular ~730 MB/ano no histórico. O acesso ao GitHub usa a credencial que o `git` já tem no PC (o `gh` não está instalado). O `checa-saude` passa a avisar se a cópia da nuvem envelhecer | `tools/backup.js`, `tools/backup-nuvem.js` (novo), `tools/agenda-backup.ps1`, `tools/checa-saude.js` | M | R$ 0 · ele guardar a senha (1 min) |
 | **1.3** 🚀 ✅ | **LGL-01** | Aceite gravado (quem, quando, versão), para e-mail **e** Google. **Feito em 02/10** | `assets/js/consentimento.js`, migration, `tools/testa-consentimento.js` | M | — |
 | **1.4** 🚀 ✅ | **EDI-01 + SEG-06** | Leitura que custou e falhou conta; teto global diário. **Feito em 02/10.** ✔️ 20: números confirmados (10 editais / 60 guias / 100 questões); **rever depois do 1º edital dele, com custo medido** | `_shared/comum.ts`, migration `20261002110000` | P + M | — |
 | **1.5** 🚀 ⏸️ | **PRO-01** | Reverter a simulação da conta dele → **o 1º edital é dele** → medir custo e tempo reais → `valores.md`. ✔️ 5: **só no dia em que ele avisar do crédito** | `tools/simula-edital.js --reverter` | P | 💰 crédito US$ 5 · aviso dele |
@@ -60,7 +61,7 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 | **2.9** | **GAM-05** — Platina impossível | **Consertar a regra**: Doutrina só sobre matérias com Banco (ou 70 vale 100 nelas); tirar as de "retorno" da conta | migration, `assets/js/catalogo.js` | P | ✔️ 10 |
 | **2.10** | **CAL-01 + CAL-02** — calendário | Trocar de edital atualiza o evento `edital_prova`; "próximo evento" = o mais próximo; prova importada apagada não volta | `calendario.html`, `dashboard.html` | P | 🚀 (CAL-01) |
 | **2.11** | **BAN-01 (despublicar) + BAN-02** — acervo | **Despublicar já** as quebradas (símbolo perdido, alternativas trocadas, figura ausente), sem apagar; as checagens 6 a 9 de `historico/revisao-de-questoes.md` no `testa-acervo-limpo.js`; o campo `revisao` passa a dizer **o que** foi conferido; botão "reportar erro" na questão | `tools/arruma-acervo.js`, `tools/testa-acervo-limpo.js`, `banco.html`, migration | P + P | 🚀 · ✔️ 6 |
-| **2.12** | **PRO-02 + PRO-03 (TDAH)** — página inicial | **Tirar as 5 promessas sem entrega** (✔️ 9) e trocar "feito para quem tem TDAH" por **"para quem tem dificuldade de foco"** (✔️ 12). Cada uma tem destino: *cronograma pelo tempo até a prova* volta com o **3.14**; *cancele na sua conta* volta com o **1.6**; *lembretes* volta com o **4.2** (sem o "aprendem com seus hábitos"); *"concurseiros na lista de espera"* volta como **contador real** quando houver gente; *subtópicos* **sai de vez**. **Textos do beta: não mexer** (✔️ 4, beta parado) | `index.html`, `cadastro.html` | P | 🚀 · ❓ os 3 exageros da PRO-03 ("30 segundos", "IA treinada", cartão de exemplo) |
+| **2.12** | **PRO-02 + PRO-03 (TDAH)** — página inicial | **Tirar as 5 promessas sem entrega** (✔️ 9) e trocar "feito para quem tem TDAH" por **"para quem tem dificuldade de foco"** (✔️ 12). Cada uma tem destino: *cronograma pelo tempo até a prova* volta com o **3.14**; *cancele na sua conta* volta com o **1.6**; *lembretes* volta com o **4.2** (sem o "aprendem com seus hábitos"); *"concurseiros na lista de espera"* volta como **contador real** quando houver gente; *subtópicos* **sai de vez**. **Textos do beta: não mexer** (✔️ 4, beta parado). **Tirar também os 3 exageros** — "em 30 segundos", "IA treinada" e o cartão de exemplo "Nível 12 — Cadete" (✔️ 02/10, 2ª rodada: *"pode tirar as três"*) | `index.html`, `cadastro.html` | P | 🚀 · ✔️ 9, 12 |
 | **2.13** | **NUM-14** (S2) — sequência velha | A sequência do topo e da ficha calculada na hora (`sequencia_do_usuario`), não a guardada | migration (`ficha_do_usuario`), `dashboard.html` | P | — |
 | **2.14** | **NEG-01** — o funil (subiu do Lote 3) | Origem do cadastro (UTM) no perfil + 4 eventos numa tabela nossa (cadastro → edital → rotina → 1ª sessão), com RLS. **R$ 0**, sem ferramenta de fora. ✔️ 16: *"comece agora"* — muda a decisão de 08/09 de guardar para depois da Fase 1 | migration, `assets/js/astral.js`, `criar-conta.html` | M | ✔️ 16 |
 
@@ -77,7 +78,8 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 | **3.4** | **BAN-01 (reimportar)** | Reimportar as provas da EEAR com os símbolos e os pares certos, **passando pela lista de `historico/revisao-de-questoes.md`** | `tools/importa-provas.js`, `tools/arruma-acervo.js` | M | — |
 | **3.5** | **SEG-01** — tabela de erros aberta | Limite por origem e janela; expurgo | `registrar-erro/index.ts`, migration | M | 🚀 |
 | **3.6** | **LGL-02** — menores | **Idade mínima 16** nos Termos e na Política; data de nascimento no cadastro (e-mail e Google); 16 e 17 usam o grátis; **para pagar, confirmação do responsável**. **Tem de vir antes do 1.6** | `criar-conta.html`, `login.html`, migration, `termos.html`, `privacidade.html` | M | 🚀 · ✔️ 1 |
-| **3.7** | **GAM-01 + GAM-12** — bônus da Instrução | Bônus gravado na sessão (**só da escolha em diante**); "Recomeçar" não desce a patente; teto por ramo | migration, `habilidades.html` | M | ✔️ 8 · ❓ **resetar a patente ao trocar de edital** (ideia dele; minha opinião é contra — aguardando) |
+| **3.7** | **GAM-01 + GAM-12** — bônus da Instrução | Bônus gravado na sessão (**só da escolha em diante**); "Recomeçar" não desce a patente; teto por ramo | migration, `habilidades.html` | M | ✔️ 8 |
+| **3.7b** | **Troca de edital** — novo (✔️ 02/10, 2ª rodada) | **Não zerar a patente.** Ela já passa sozinha para o degrau equivalente da carreira nova; falta **a tela de "Transferência"** no momento da troca: *"Você foi transferido para a Aeronáutica como 3º Sargento"*, dizendo o que fica (XP, horas, condecorações) e o que recomeça (domínio das matérias novas). Ele: *"Português e Matemática servem para os dois concursos (...) a prova pode ter sido cancelada, ela não passou (...) pode ficar chateada mesmo"* | `dashboard.html` (troca de edital), `assets/js/divisa.js` | P | ✔️ |
 | **3.8** | **GAM-04** — folga | O dia de folga **planejado na rotina não quebra** a sequência | migration, `assets/js/diario.js`, catálogo | M | ✔️ 7 |
 
 ### S2 e S3, agrupados pela causa
@@ -92,12 +94,12 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 | **3.15** | **OPS-03 + COD-02** — operação | Vigia lendo gasto de IA, tamanho do banco e erros das funções; bateria de testes no `astral-dev` | M | 🚀 (alerta de gasto) |
 | **3.16** | **SEG-04 + SEG-05 + SEG-07** — sessão e senha | Texto honesto sobre a 1 h do token (ou `jwt_exp` menor); reautenticação para trocar senha; fixar versões das bibliotecas | P | — |
 | **3.17** | **NEG-04** — painel de negócio | Página de leitura para o administrador, sobre os eventos do **2.14** | M | — |
-| **3.18** | **LGL-05 + LGL-06** — textos legais | Política e Termos em dia (Google como operador, retenção, idade 16); **fonte (banca, prova e ano) visível em cada questão**; sem advogado antes do lançamento, salvo se ele quiser (✔️ 3 — Lei 9.610, art. 8º, IV) | P | 🚀 · ✔️ 3 |
+| **3.18** | **LGL-05 + LGL-06** — textos legais | Política e Termos em dia (Google como operador, retenção, idade 16); **fonte (banca, prova e ano) visível em cada questão**; sem advogado antes do lançamento, salvo se ele quiser (✔️ 3 — Lei 9.610, art. 8º, IV). 02/10, 2ª rodada: *"futuramente a gente vê (...) eu tenho alguns contatos, eu pergunto para alguns advogados"* — **lembrar a ele quando este item chegar** | P | 🚀 · ✔️ 3 |
 | **3.19** | **UX-04 + UX-05** — primeiro acesso e peso | **Primeiro acesso só com o envio do edital** (✔️ 18); reduzir o peso de login/cadastro | M | ✔️ 18 |
 | **3.20** | **NUM-08 + NUM-11 + NUM-12 + NUM-13** — números menores | Uma média de domínio (ponderada); "estudada há N dias" pelo estudo mais recente; letras da semana sem ambiguidade; tag "em formação" com rótulo | P | — |
 | **3.21** | **COD-01 + COD-03 (resto) + UX-09 + RED-02** — código | As 74 regras só no servidor; tirar `TABELAS_NIVEIS`, `ligacaoAcesa`, `comEspera`, `tagDe`, `meu_dominio`, `montarCronograma`, `progresso.badges`; aba "Missões" → "Conquistas"; o Quadro de operações vira aba de Conquistas, **sem esconder nada no grátis** (✔️ P11) | M | ✔️ P11 |
 | **3.22** | **Fim da jornada** (jornada 7) | "Passei!": comemoração, depoimento, manter a conta para o próximo concurso | M | ✔️ 17 |
-| **3.23** | **Cache por concurso** (CE-01, CE-05, CE-06, CE-07 + guia compartilhado) — **novo** | Edital e guia lidos **uma vez** e reaproveitados por todos do mesmo concurso, com versão e curadoria. **É a condição do beta** (✔️ 4: *"aí o beta fica válido, porque não vai ter gasto a mais"*) e de trocas ilimitadas no Pro (✔️ P2). O lembrete **P6** (`tools/lembretes.js`, 20 editais reais) diz se vale também reconhecer o edital pelo texto | 2 sessões | ✔️ 4, P6 |
+| **3.23** | **Cache por concurso** (CE-01, CE-05, CE-06, CE-07 + guia compartilhado) — **novo** · **logo depois do 1.5** | **O que já existe (29/09):** edital e guia guardados pelo **arquivo** (`editais_lidos`, `guias_por_edital`) — o mesmo PDF não paga de novo. **O que falta — a "aba" que ele pediu:** uma **lista de editais prontos**, com selo **"revisado"**, em que o aluno **escolhe o concurso em vez de enviar o PDF** — sem isso, o aluno que baixou o mesmo edital de outro site paga de novo (arquivo diferente). **A estratégia dele (02/10, 2ª rodada):** *"eu subo [o máximo de editais possível] e conforme eu vou tendo dinheiro, eu vou colocando"* — pré-carregar os concursos antes dos alunos chegarem, edital **e** guia. Custo por concurso, estimado: **R$ 4,00 a 6,75** (`valores.md` §3), a medir no 1.5. ⚠️ **A pré-carga não pode esbarrar nas travas de aluno**: o limite de 2 editais em 30 dias e o teto global de 10 por dia parariam ele no 3º edital — ela roda por ferramenta minha (`tools/`), com a chave de serviço, contada à parte. Edital e guia com versão e curadoria. **É a condição do beta** (✔️ 4: *"aí o beta fica válido, porque não vai ter gasto a mais"*) e de trocas ilimitadas no Pro (✔️ P2). O lembrete **P6** (`tools/lembretes.js`, 20 editais reais) diz se vale também reconhecer o edital pelo texto | 2 sessões | ✔️ 4, P6 |
 | **3.24** | **CE-08** — links do guia toda semana — **novo** | Job semanal com a API do YouTube (chave do Google, cota grátis, R$ 0); **testado antes de lançar** (✔️ P8) | 1 sessão | 🚀 · ✔️ P8 |
 
 ---
@@ -109,23 +111,27 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 | # | Itens | O que fazer | Esforço | 🚀 |
 |---|---|---|---|---|
 | **4.1** | **SEG-02 + SEG-03** — e-mail não chega | Ele cria a senha de app do Gmail (com a verificação em duas etapas ligada), eu guio passo a passo → `smtp-configura.ps1 -Aplicar` → provar entrega → `-ExigirConfirmacao`. **R$ 0.** ⚠️ Até aqui, dá para criar conta com o e-mail de outra pessoa (SEG-03): por isso fica **antes** do lançamento pago | P | 🚀 |
+| **4.3** | **OPS-02** — cópia do backup fora do PC (era o 1.2b; o plano das 5 provas está lá) | Ele quer a senha guardada em **4 lugares**: no computador, no celular dele, no celular de outra pessoa de confiança e **no papel** (*"isso a gente não pode perder de jeito nenhum"*). Quem tem só a senha não abre nada: precisa **também** do acesso ao repositório privado — são duas trancas | M | 🚀 |
 | **4.2** | **UX-07** — lembretes | Lembrete simples por e-mail (estudo do dia, sequência em risco) — **depende do 4.1**. Devolve a promessa de lembretes da página inicial, **sem** "aprendem com seus hábitos" | M | — |
 
 ---
 
 ## O que tem de estar pronto antes do lançamento pago (🚀)
 
-Lote 1 inteiro (1.1 a 1.6, com o **1.2b**) · 2.2 · 2.3 · 2.4 · 2.5 · 2.6 · 2.7 · 2.8 · 2.10 (CAL-01) ·
+Lote 1 inteiro (1.1 a 1.6) · **4.3** (era o 1.2b) · 2.2 · 2.3 · 2.4 · 2.5 · 2.6 · 2.7 · 2.8 · 2.10 (CAL-01) ·
 2.11 · 2.12 · 3.1 · 3.2 · 3.3 · 3.5 · **3.6 (antes do 1.6)** · 3.10 · 3.11 · 3.15 (alerta de gasto) ·
 3.18 · **3.24** · **4.1** — e o checklist da seção 8 do relatório final, item por item, com prova.
 
 ## O que ainda espera ele (❓) — fora isso, está tudo decidido
 
+> ✔️ **02/10, 2ª rodada — respondidas:** não zerar a patente (vira a tela de Transferência, 3.7b) ·
+> tirar os 3 exageros (2.12) · advogado fica para depois, ele pergunta aos contatos (3.18).
+> **Pedido dele, que vale para todo o roadmap:** *"as coisas que você gravou, conforme elas vão
+> chegando na etapa, você vai me lembrando"*.
+
 | O quê | Onde |
 |---|---|
-| Resetar a patente ao trocar de edital? (ideia dele; minha opinião é contra) | 3.7 |
-| Os 3 exageros da página inicial: "em 30 segundos", "IA treinada", o cartão de exemplo impossível | 2.12 |
-| Guardar a senha da cópia do backup no gerenciador de senhas do Google (~1 min) | 1.2b |
+| Guardar a senha da cópia do backup em 4 lugares (PC, celular dele, celular de alguém de confiança, papel) | 4.3 |
 | Avisar do crédito (US$ 5) | 1.5 |
 | Credenciais do Mercado Pago; Vercel Pro US$ 20/mês na 1ª cobrança | 1.6 |
 | Senha de app do Gmail (ele quis por último) | 4.1 |

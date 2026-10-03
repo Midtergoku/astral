@@ -389,3 +389,14 @@ Gravadas lá, na seção 5. Resumo: P3, P5, P7+P13, P9, P10, P11, P12 = como sug
 | 16 | *"Comece agora"* | **Funil sobe para o Lote 2** (2.14). ⚠️ Muda a decisão de 08/09 ("guardar para depois da Fase 1") |
 | 17 | *"Concordo"* | "Passei!" no Lote 3 (3.22) |
 | 18 | *"Concordo"* | Primeiro acesso só com o envio do edital (3.19) |
+
+### 2ª rodada — 02/10/2026 (por voz, depois das minhas respostas às perguntas 3, 8 e 9)
+
+| # | Resposta dele | O que fica valendo |
+|---|---|---|
+| 3 | *"vamos deixar (...) eu creio que não vai ter nenhum problema não. Futuramente a gente vê também, eu tenho alguns contatos, eu pergunto para alguns advogados"* | Sem advogado agora. Fonte citada na questão continua no 3.18; **lembrar a ele dos contatos quando o 3.18 chegar** |
+| 8 | *"não vamos zerar a patente. Em vez de zerar, mostra uma tela de transferência"* | Roadmap **3.7b**: a patente passa ao degrau equivalente da carreira nova (já acontece) + a tela de Transferência |
+| 9 | *"já que a maioria delas vai voltar e já está no roadmap, vamos manter e o subtópicos (...) a gente tira mesmo"* | As 5 saem agora; 4 voltam pelos itens do roadmap; subtópicos sai de vez |
+| 20 | *"a gente talvez não precise esperar as pessoas subirem o edital (...) eu subo e conforme eu vou tendo dinheiro, eu vou colocando"* | **Pré-carregar os concursos** (edital + guia) antes dos alunos — roadmap 3.23, logo depois do 1.5, por ferramenta minha que não esbarra nas travas de aluno |
+| 19 | *"não entendi tão bem como isso fica seguro (...) guardar [a senha] no computador, no meu celular, no celular de mais alguém e (...) num papel"* | O 1.2b foi para o **Lote 4 (4.3)**, com ele presente. Explicação de segurança dada em 02/10 |
+| PRO-03 | *"os três exageros da página inicial, pode tirar as três"* | 2.12: saem "em 30 segundos", "IA treinada" e o cartão de exemplo |
