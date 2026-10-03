@@ -38,6 +38,14 @@ select.materia-select:focus { border-color:var(--purple); }
 .pomodoro-config { width:100%; background:var(--surface); border:1px solid var(--border); border-radius: 6px; padding:1rem 1.25rem; display:none; }
 
 .pomodoro-config.show { display:block; }
+/* 03/10/2026 (CRN-01/GAM-11): a pergunta de presenca */
+.crono-pergunta { position:fixed; inset:0; z-index:300; display:flex; align-items:center; justify-content:center; padding:var(--e3); background:color-mix(in srgb, var(--breu) 80%, transparent); }
+.cp-caixa { background:var(--casco); border:1px solid var(--linha); border-radius:var(--r-g); padding:var(--e4); max-width:420px; width:100%; }
+.cp-caixa h3 { font-family:var(--display); font-size:var(--t-lg); color:var(--papel); margin-bottom:var(--e2); }
+.cp-caixa p { color:var(--texto-2); font-size:var(--t-sm); line-height:1.5; }
+.cp-botoes { display:flex; flex-wrap:wrap; gap:var(--e2); margin-top:var(--e3); }
+.cp-botoes button { flex:1 1 160px; min-height:44px; border-radius:var(--r-p); border:1px solid var(--linha); background:var(--casco-2); color:var(--texto); font:inherit; font-weight:600; cursor:pointer; padding:10px 14px; }
+.cp-botoes .cp-sim { background:var(--latao); border-color:var(--latao); color:var(--breu); }
 
 .pconfig-titulo { font-size:0.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem; }
 
@@ -426,15 +434,54 @@ select.materia-select:focus { border-color:var(--purple); }
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
     from './assets/js/astral.js?v=6073012e';
   import { carregarProgresso, salvarProgresso,
-           registrarSessao as registrarSessaoNoBanco,
-           sessoesDeHoje } from './assets/js/estado.js?v=142ef660';
+           gravarSessao,
+           sessoesDeHoje } from './assets/js/estado.js?v=5ad62657';
   import { montarSemana, blocosDeHoje } from './assets/js/cronograma.js?v=db95bc0a';
   import { duracao } from './assets/js/formato.js?v=8300466c';
 
   const CIRCUNFERENCIA = 2 * Math.PI * 120;
   let usuario=null, progresso=null, modo='livre', rodando=false, intervalo=null;
-  let segundosAtual=0, segundosTotalHoje=0, sessoesHoje=0, xpHoje=0;
-  let historico=[], fasePomodoro='foco', pomodoroSeg=0, totalPomodoroSeg=0;
+  let segundosTotalHoje=0, sessoesHoje=0, xpHoje=0;
+  let historico=[], fasePomodoro='foco';
+
+  /* ══ 03/10/2026 (auditoria CRN-01 + GAM-11, roadmap 3.1) ═══════════════════
+     ANTES o tempo era SOMADO de 1 em 1 a cada tique: tela bloqueada ou aba em
+     segundo plano paravam a conta (12 min estudados viraram 2), recarregar a
+     pagina zerava a sessao (3 min perdidos) e fechar o pomodoro no meio perdia
+     o foco (10 min). E nada perguntava se a pessoa ainda estava la: 25 min
+     parado viravam 48 XP.
+     AGORA:
+     - o tempo e o RELOGIO: hora em que comecou, menos agora;
+     - a sessao mora no navegador (localStorage): recarregar ou fechar a aba
+       nao a perde -- ao voltar, ela continua;
+     - se a pagina ficou mais de 5 min sem dar sinal (fechada, ou o celular
+       bloqueado), ao voltar o Astral PERGUNTA se a pessoa estudou esse tempo;
+     - com a aba aberta, a cada 50 min sem a pessoa tocar em nada, pergunta
+       "ainda estudando?" -- sem resposta em 5 min, pausa na hora da pergunta;
+     - o pomodoro nao emenda um foco no outro sozinho: cada foco novo e um
+       clique (antes a aba esquecida virava foco atras de foco);
+     - o servidor recusou? a tela DIZ, e nao mostra XP que nao existe. */
+  const SEM_SINAL_MS = 5 * 60000;     // mais que isto sem sinal: perguntar ao voltar
+  const PRESENCA_MS  = 50 * 60000;    // de quanto em quanto perguntar "ainda estudando?"
+  const TOLERA_MS    = 5 * 60000;     // quanto esperar a resposta antes de pausar
+  let s = null;                       // a sessao corrente (ver novaSessao)
+  const chave = () => `astral_crono_${usuario.id}`;
+  const agora = () => Date.now();
+  function guardar() {
+    try { if (s) localStorage.setItem(chave(), JSON.stringify(s)); else localStorage.removeItem(chave()); }
+    catch { /* sem armazenamento: a sessao vale so enquanto a aba estiver aberta */ }
+  }
+  function novaSessao() {
+    const foco = parseInt(document.getElementById('pomo-foco').value) || 25;
+    const pausa = parseInt(document.getElementById('pomo-pausa').value) || 5;
+    return { modo, materia: document.getElementById('select-materia').value || 'Geral',
+             rodando: false, acumMs: 0, inicioMs: 0, sinalMs: agora(), confirmadoMs: agora(),
+             fase: 'foco', focoMin: foco, pausaMin: pausa, pergunta: null };
+  }
+  // ms correndo no trecho atual, com teto (a pergunta pendente congela a conta)
+  const correndoMs = (ate) => (s && s.rodando ? Math.max(0, Math.min(ate ?? agora(), s.pergunta?.ateMs ?? Infinity) - s.inicioMs) : 0);
+  const decorridoMs = (ate) => (s ? s.acumMs + correndoMs(ate) : 0);
+  const duracaoFaseMs = () => (s.fase === 'foco' ? s.focoMin : s.pausaMin) * 60000;
 
   async function init() {
     const session = await exigirSessao();
@@ -476,6 +523,7 @@ select.materia-select:focus { border-color:var(--purple); }
 
     document.getElementById('crono-progress').style.strokeDasharray=CIRCUNFERENCIA;
     document.getElementById('crono-progress').style.strokeDashoffset=CIRCUNFERENCIA;
+    restaurar();
   }
 
 
@@ -582,10 +630,11 @@ select.materia-select:focus { border-color:var(--purple); }
   });
 
   window.setModo=function(m){
-    // Voltando do relogio para o MESMO modo: so troca a vista. Chamar
-    // resetar() aqui jogaria fora a sessao que ficou rodando por tras.
+    // Voltando do relogio para o MESMO modo: so troca a vista.
     if (vista === 'relogio' && m === modo) { mostrarVista('timer'); return; }
     if (vista === 'relogio') mostrarVista('timer');
+    // Trocar de modo com sessao em andamento: grava o que ja foi estudado.
+    if (s && s.fase === 'foco' && decorridoMs() >= 60000) finalizar(agora());
     modo=m;resetar();
     document.getElementById('btn-livre').classList.toggle('active',m==='livre');
     document.getElementById('btn-pomodoro').classList.toggle('active',m==='pomodoro');
@@ -593,52 +642,64 @@ select.materia-select:focus { border-color:var(--purple); }
     if(m==='pomodoro'){fasePomodoro='foco';atualizarFaseDisplay();}
   }
 
-  window.togglePlay=function(){rodando?pausar():iniciar();}
+  window.togglePlay=function(){ if (s?.pergunta) return; rodando?pausar():iniciar(); }
 
   function iniciar(){
-    rodando=true;
+    if (!s) s = novaSessao();
+    s.materia = document.getElementById('select-materia').value || s.materia;
+    s.rodando = true; s.inicioMs = agora(); s.sinalMs = agora(); s.confirmadoMs = agora();
+    rodando = true; guardar();
     setBtnPlay(true);
-    if(modo==='livre'){
-      document.getElementById('crono-fase').textContent='ESTUDANDO';
-      document.getElementById('btn-finalizar').classList.add('show');
-      intervalo=setInterval(()=>{
-        segundosAtual++;
-        atualizarTempoDisplay(segundosAtual);
-        atualizarAnel((segundosAtual%3600)/3600);
-      },1000);
-    } else {
-      iniciarPomodoro();
+    if (modo === 'livre') document.getElementById('btn-finalizar').classList.add('show');
+    ligarTique(); desenhar();
+  }
+
+  function pausar(ateMs){
+    if (!s) return;
+    if (s.rodando) { s.acumMs += correndoMs(ateMs); s.rodando = false; }
+    rodando = false; guardar();
+    setBtnPlay(false); desenhar();
+  }
+
+  function ligarTique(){ clearInterval(intervalo); intervalo = setInterval(tique, 1000); }
+
+  /* O tique so DESENHA e confere: o tempo nao depende dele. */
+  function tique(){
+    if (!s) return;
+    if (s.rodando && document.visibilityState === 'visible' && !s.pergunta) { s.sinalMs = agora(); }
+    // presenca: 50 min sem a pessoa confirmar
+    if (s.rodando && !s.pergunta && agora() - s.confirmadoMs >= PRESENCA_MS) {
+      perguntar('presenca', s.confirmadoMs + PRESENCA_MS);
     }
+    // sem resposta em 5 min: pausa na hora da pergunta
+    if (s.pergunta?.tipo === 'presenca' && agora() - s.pergunta.ateMs >= TOLERA_MS) {
+      const ate = s.pergunta.ateMs; s.pergunta = null; fecharPergunta();
+      pausar(ate);
+      mostrarNotif(`Pausado às ${hhmm(ate)}: ninguém respondeu. Retome quando voltar.`);
+    }
+    // pomodoro: fim da fase pelo relogio
+    if (s.modo === 'pomodoro' && s.rodando && !s.pergunta && decorridoMs() >= duracaoFaseMs()) {
+      fimDaFase(s.inicioMs + (duracaoFaseMs() - s.acumMs));
+    }
+    guardar(); desenhar();
   }
 
-  function pausar(){
-    rodando=false;clearInterval(intervalo);
-    setBtnPlay(false);
-    document.getElementById('crono-fase').textContent='PAUSADO';
-  }
-
-  function iniciarPomodoro(){
-    const focoMin=parseInt(document.getElementById('pomo-foco').value)||25;
-    const pausaMin=parseInt(document.getElementById('pomo-pausa').value)||5;
-    totalPomodoroSeg=fasePomodoro==='foco'?focoMin*60:pausaMin*60;
-    pomodoroSeg=totalPomodoroSeg;
-    atualizarFaseDisplay();
-    atualizarTempoDisplay(pomodoroSeg);
-    atualizarAnel(1);
-    if(!rodando)return;
-    clearInterval(intervalo);
-    intervalo=setInterval(()=>{
-      pomodoroSeg--;
-      if(fasePomodoro==='foco')segundosAtual++;
-      atualizarTempoDisplay(pomodoroSeg);
-      atualizarAnel(pomodoroSeg/totalPomodoroSeg);
-      if(pomodoroSeg<=0){
-        clearInterval(intervalo);
-        if(fasePomodoro==='foco'){registrarSessao();fasePomodoro='pausa';mostrarNotif('<i data-icone="relogio"></i> Foco concluído! Hora da pausa.');}
-        else{fasePomodoro='foco';mostrarNotif('<i data-icone="raio"></i> Pausa encerrada! Vamos estudar.');}
-        iniciarPomodoro();
-      }
-    },1000);
+  async function fimDaFase(fimMs){
+    if (s.fase === 'foco') {
+      const foco = s.focoMin * 60;
+      s.acumMs = 0; s.rodando = false; s.fase = 'pausa'; s.inicioMs = fimMs;
+      fasePomodoro = 'pausa';
+      await enviar(foco, 'pomodoro');
+      // a pausa corre sozinha; o FOCO seguinte e um clique (sem emendar)
+      s.rodando = true; s.inicioMs = Math.max(fimMs, s.inicioMs); rodando = true;
+      mostrarNotif('Foco concluído! Hora da pausa.');
+    } else {
+      s.fase = 'foco'; s.acumMs = 0; s.rodando = false; rodando = false;
+      fasePomodoro = 'foco';
+      setBtnPlay(false);
+      mostrarNotif('Pausa encerrada! Toque em ▶ para o próximo foco.');
+    }
+    guardar(); atualizarFaseDisplay(); desenhar();
   }
 
   function atualizarFaseDisplay(){
@@ -649,15 +710,21 @@ select.materia-select:focus { border-color:var(--purple); }
   }
 
   window.pularFase=function(){
-    if(modo!=='pomodoro')return;
-    clearInterval(intervalo);
-    if(fasePomodoro==='foco'&&segundosAtual>0)registrarSessao();
-    fasePomodoro=fasePomodoro==='foco'?'pausa':'foco';
-    if(rodando)iniciarPomodoro();else atualizarFaseDisplay();
+    if(modo!=='pomodoro'||!s)return;
+    if (s.fase === 'foco') {
+      const feito = Math.floor(decorridoMs() / 1000);
+      s.acumMs = 0; s.fase = 'pausa'; fasePomodoro = 'pausa';
+      if (feito >= 60) enviar(feito, 'pomodoro');
+      s.rodando = rodando; s.inicioMs = agora();
+    } else {
+      s.fase = 'foco'; fasePomodoro = 'foco'; s.acumMs = 0; s.rodando = false; rodando = false; setBtnPlay(false);
+    }
+    guardar(); atualizarFaseDisplay(); desenhar();
   }
 
   window.resetar=function(){
-    clearInterval(intervalo);rodando=false;segundosAtual=0;pomodoroSeg=0;fasePomodoro='foco';
+    clearInterval(intervalo); rodando=false; s=null; guardar(); fasePomodoro='foco';
+    fecharPergunta();
     setBtnPlay(false);
     document.getElementById('crono-tempo').textContent='00:00';
     document.getElementById('crono-fase').textContent='PRONTO';
@@ -667,26 +734,110 @@ select.materia-select:focus { border-color:var(--purple); }
     document.getElementById('btn-finalizar').classList.remove('show');
   }
 
-  window.finalizarLivre=function(){
-    if(modo==='livre'&&rodando){pausar();registrarSessao();resetar();}
+  window.finalizarLivre=function(){ if (s && s.modo === 'livre') finalizar(agora()); }
+
+  /* Fecha a sessao ate `ateMs` e manda para o servidor. */
+  function finalizar(ateMs){
+    if (!s) return;
+    const segundos = Math.floor(decorridoMs(ateMs) / 1000);
+    const m = s.modo;
+    resetar();
+    if (segundos >= 60) enviar(segundos, m);
   }
 
-  function registrarSessao(){
-    if(segundosAtual<60)return;
-    const materia=document.getElementById('select-materia').value||'Geral';
-    const xp=Math.floor(segundosAtual/60)*2;
-    const segundos=segundosAtual;
-    const sessao={materia,segundos,xp,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
-    historico.unshift(sessao);
-    segundosTotalHoje+=segundos;sessoesHoje++;xpHoje+=xp;segundosAtual=0;
-
-    // Uma linha por sessao no banco, e o XP e as horas somados no progresso.
-    registrarSessaoNoBanco(usuario.id,{materia,segundos,xp,modo});
+  /* O servidor e quem diz se a sessao vale -- e quanto XP ela da. */
+  async function enviar(segundos, m){
+    const materia = s?.materia || document.getElementById('select-materia').value || 'Geral';
+    const { sessao, erro } = await gravarSessao(usuario.id, { materia, segundos, xp: 0, modo: m });
+    if (erro) { toast(erro, 'error'); return; }
+    const xp = Number(sessao.xp) || 0;
+    historico.unshift({ materia: sessao.materia || materia, segundos: sessao.segundos, xp,
+      hora: new Date(sessao.criado_em || Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) });
+    segundosTotalHoje += sessao.segundos; sessoesHoje++; xpHoje += xp;
     progresso.xp += xp;
-    progresso.horas = Math.round((progresso.horas + segundos/3600)*10)/10;
+    progresso.horas = Math.round((progresso.horas + sessao.segundos/3600)*10)/10;
     salvarProgresso(usuario.id, progresso, { imediato: true });
+    atualizarStats(); renderHistorico(); animarXP(xp);
+  }
 
-    atualizarStats();renderHistorico();animarXP(xp);
+  // ── A pergunta (presenca e "voce estudou esse tempo?") ──────────────────────
+  const hhmm = (ms) => new Date(ms).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  function perguntar(tipo, ateMs){
+    s.pergunta = { tipo, ateMs }; guardar(); mostrarPergunta();
+  }
+  function mostrarPergunta(){
+    fecharPergunta();
+    if (!s?.pergunta) return;
+    const { tipo, ateMs } = s.pergunta;
+    const caixa = document.createElement('div');
+    caixa.className = 'crono-pergunta'; caixa.setAttribute('role', 'dialog'); caixa.setAttribute('aria-modal', 'true');
+    caixa.innerHTML = tipo === 'volta'
+      ? `<div class="cp-caixa"><h3>Você estudou esse tempo todo?</h3>
+          <p>O cronômetro ficou sem sinal desde as <b>${hhmm(ateMs)}</b> (página fechada ou tela bloqueada). Se você estudou até agora, ele conta tudo.</p>
+          <div class="cp-botoes"><button type="button" data-cp="sim" class="cp-sim">Sim, estudei até agora</button>
+          <button type="button" data-cp="parei">Parei às ${hhmm(ateMs)}</button></div></div>`
+      : `<div class="cp-caixa"><h3>Ainda estudando?</h3>
+          <p>O cronômetro está ligado há um tempo. Sem resposta em 5 minutos, ele pausa às <b>${hhmm(ateMs)}</b>.</p>
+          <div class="cp-botoes"><button type="button" data-cp="sim" class="cp-sim">Sim, continuar</button>
+          <button type="button" data-cp="parei">Encerrar a sessão</button></div></div>`;
+    document.body.appendChild(caixa);
+    caixa.querySelector('.cp-sim').focus();
+    caixa.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-cp]'); if (!b || !s?.pergunta) return;
+      const p = s.pergunta; s.pergunta = null; fecharPergunta();
+      if (b.dataset.cp === 'sim') {
+        // "volta": conta o tempo sem sinal. "presenca": conta ate 5 min de atraso na resposta.
+        if (p.tipo === 'presenca' && s.rodando) {
+          const resp = agora();
+          s.acumMs += Math.max(0, Math.min(resp, p.ateMs + TOLERA_MS) - s.inicioMs);
+          s.inicioMs = resp;
+        }
+        s.confirmadoMs = agora(); s.sinalMs = agora(); guardar(); desenhar();
+      } else if (s.modo === 'livre' || s.fase === 'foco') {
+        finalizar(p.ateMs);
+      } else { pausar(p.ateMs); }
+    });
+  }
+  function fecharPergunta(){ document.querySelectorAll('.crono-pergunta').forEach((x) => x.remove()); }
+
+  // ── Desenhar a partir do estado ─────────────────────────────────────────────
+  function desenhar(){
+    if (!s) return;
+    const ms = decorridoMs();
+    if (s.modo === 'pomodoro') {
+      const resta = Math.max(0, duracaoFaseMs() - ms);
+      atualizarTempoDisplay(Math.ceil(resta / 1000));
+      atualizarAnel(resta / duracaoFaseMs());
+      document.getElementById('crono-fase').textContent = s.rodando ? (s.fase === 'foco' ? 'FOCO' : 'PAUSA') : 'PAUSADO';
+    } else {
+      const seg = Math.floor(ms / 1000);
+      atualizarTempoDisplay(seg);
+      atualizarAnel((seg % 3600) / 3600);
+      document.getElementById('crono-fase').textContent = s.rodando ? 'ESTUDANDO' : 'PAUSADO';
+    }
+  }
+
+  /* Ao abrir a pagina (ou voltar a ela): retoma a sessao guardada. Se ela
+     ficou sem sinal mais de 5 min, pergunta antes de contar esse tempo. */
+  function restaurar(){
+    let salvo = null;
+    try { salvo = JSON.parse(localStorage.getItem(chave()) || 'null'); } catch { /* nada guardado */ }
+    if (!salvo) return;
+    s = salvo; modo = s.modo; rodando = s.rodando; fasePomodoro = s.fase;
+    document.getElementById('btn-livre').classList.toggle('active', modo === 'livre');
+    document.getElementById('btn-pomodoro').classList.toggle('active', modo === 'pomodoro');
+    document.getElementById('pomodoro-config').classList.toggle('show', modo === 'pomodoro');
+    const sel = document.getElementById('select-materia');
+    if ([...sel.options].some((o) => o.value === s.materia)) sel.value = s.materia;
+    setBtnPlay(s.rodando);
+    if (modo === 'livre') document.getElementById('btn-finalizar').classList.add('show');
+    if (modo === 'pomodoro') atualizarFaseDisplay();
+    conferirVolta();
+    if (s?.pergunta) mostrarPergunta();
+    ligarTique(); desenhar();
+  }
+  function conferirVolta(){
+    if (s && s.rodando && !s.pergunta && agora() - s.sinalMs > SEM_SINAL_MS) perguntar('volta', s.sinalMs);
   }
 
   function setBtnPlay(playing){
@@ -741,7 +892,17 @@ select.materia-select:focus { border-color:var(--purple); }
 
   window.fazerLogout = fazerLogout;
 
-  window.addEventListener('beforeunload',()=>{if(modo==='livre'&&rodando&&segundosAtual>=60)registrarSessao();});
+  // Voltou para a aba (ou desbloqueou o celular): confere o tempo sem sinal.
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && s) { conferirVolta(); tique(); } });
+  // A mesma sessao em outra aba: as duas mostram o mesmo cronometro.
+  window.addEventListener('storage', (e) => {
+    if (!usuario || e.key !== chave()) return;
+    try { s = e.newValue ? JSON.parse(e.newValue) : null; } catch { s = null; }
+    if (!s) { clearInterval(intervalo); rodando = false; fecharPergunta(); setBtnPlay(false);
+      document.getElementById('crono-tempo').textContent = '00:00'; document.getElementById('crono-fase').textContent = 'PRONTO'; return; }
+    rodando = s.rodando; setBtnPlay(rodando); ligarTique(); desenhar();
+    if (s.pergunta) mostrarPergunta(); else fecharPergunta();
+  });
   init();
 </script>
 <script src="assets/js/transicao.js?v=7290037a"></script>

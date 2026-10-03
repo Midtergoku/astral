@@ -418,8 +418,24 @@ export async function registrarSessao(uid, { materia, segundos, xp, modo }) {
   }).select().single();
   // A fonte unica de estatisticas fica velha com a sessao nova: a proxima leitura vai ao servidor.
   invalidarEstatisticas();
-  if (error) { console.error('Falha ao registrar a sessão.', error); return null; }
+  if (error) { console.error('Falha ao registrar a sessão.', error); ultimoErroDeSessao = error; return null; }
   return data;
+}
+
+/* 03/10/2026 (auditoria CRN-01): o cronometro precisa saber POR QUE o servidor
+   recusou -- antes a tela somava o XP mesmo assim (a 2a aba mostrava "120 XP"
+   que nao existiam). Devolve { sessao } ou { erro } com frase para o aluno. */
+let ultimoErroDeSessao = null;
+export async function gravarSessao(uid, dados) {
+  ultimoErroDeSessao = null;
+  const sessao = await registrarSessao(uid, dados);
+  if (sessao) return { sessao };
+  const m = String(ultimoErroDeSessao?.message || '');
+  const erro = /mais longa que o tempo/.test(m)
+    ? 'Esta sessão não foi aceita: ela é mais longa que o tempo desde a última sessão gravada (outra aba aberta?).'
+    : /menos de 1 minuto/.test(m) ? 'Sessão com menos de 1 minuto não conta.'
+    : 'Não consegui gravar esta sessão agora. Tente finalizar de novo em instantes.';
+  return { erro };
 }
 
 /** Sessões de hoje -- o "hoje" do SERVIDOR (fuso de Sao Paulo), da fonte unica
