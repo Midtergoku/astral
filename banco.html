@@ -82,8 +82,8 @@
 
   .alts { display: grid; gap: .4rem; }
   /* 03/10/2026 (roadmap 3.4): questao como imagem do caderno oficial */
-  .questao-imagem { display: block; background: #fff; border-radius: var(--r-p); padding: var(--e2); margin-bottom: var(--e1); }
-  .questao-imagem img { display: block; width: 100%; height: auto; }
+  .questao-imagem { display: block; margin-bottom: var(--e1); }
+  .questao-imagem img { display: block; width: 100%; height: auto; border-radius: var(--r-p); }
   .questao-imagem-nota { font-size: var(--t-xs); color: var(--texto-3); margin: 0 0 var(--e3); }
   .questao:has(.alt.so-letra) .alts { grid-template-columns: repeat(auto-fit, minmax(3.5rem, 1fr)); }
   .alt.so-letra { justify-content: center; min-height: 44px; }

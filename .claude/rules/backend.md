@@ -393,3 +393,15 @@ vira `null`). A tela (`dashboard.html`, `FONTE_DO_PESO`) diz qual no rodapé de 
 Leitura guardada antes de 03/10 não tem o campo → texto neutro, sem afirmar a origem.
 ⚠️ **Nunca rodou com a IA de verdade** (sem crédito): no 1º edital real, conferir se veio.
 Regressão: `testa-trava-creditos` ("a leitura diz de onde veio o peso").
+
+## 8.27. registrar-erro com limite por origem (03/10/2026, roadmap 3.5)
+
+Continua **sem login de propósito**. Limites (`LIMITES` no topo da função), contados de uma vez e
+atomicamente por `contar_erro_cliente(p_limites jsonb)` em `erros_cliente_limite`:
+origem (IP sem login / conta com login), mesmo erro, total por hora, total por dia. **As chaves de
+hora e de dia têm de ser diferentes** (à meia-noite as duas janelas são o mesmo instante).
+
+- **IP:** `cf-connecting-ip` — medido no dev: o cliente não consegue falsificar (XFF e X-Real-IP
+  falsos são descartados; CF-Connecting-IP falso é recusado). Guardado só como HMAC, por 2 dias.
+- Contagem falhou → **não grava** (falha fechada, ao contrário do resto: aqui o barato é perder um erro).
+- Regressão: `node tools/testa-limite-erros.js` (9; `ASTRAL_DEV=1` no dev).
