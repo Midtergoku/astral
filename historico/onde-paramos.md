@@ -464,3 +464,14 @@ minha opinião é contra) · os 3 exageros da página inicial (30 segundos, IA t
 exemplo) · guardar a senha da cópia do backup · crédito · Mercado Pago · senha do Gmail.
 
 **Próximo bloco: o 1.2b** (cópia do backup no GitHub privado, criptografada), depois o Lote 2.
+
+### 03/10/2026 — Lote 2 começado (2.2, 2.3, 2.4 no ar) e duas ordens dele
+
+- **2.2, 2.3, 2.4 publicados** (registro no `ROADMAP.md`). O relatório desses três foi entregue, mas
+  ele pediu para **reenviá-lo** depois de responder o que segue — *"só para eu me organizar"*. **Não
+  começar o 2.5 antes de ele dizer.**
+- **Ordem nova: tudo que custa dinheiro vai por último** → Lote 5 (5.1 crédito e o 1º edital dele,
+  5.2 pré-carga dos concursos, 5.3 pagamento).
+- **Corrigi o reaproveitamento de edital**, que eu tinha descrito errado (lista para o aluno escolher):
+  é invisível — o aluno sobe o PDF e o sistema reconhece. Novo item **2.15**: os dois textos da tela
+  que ainda dizem "lendo seu edital" e "guia sendo montado agora" quando estava tudo guardado.

@@ -281,3 +281,17 @@ auditoria de 30/09 que estava pendente: *"faço quando você mandar — então p
 
 **Todas as 14 perguntas de planos estão respondidas.** O que ainda trava o pagamento (roadmap 1.6):
 as credenciais do Mercado Pago dele e a Vercel Pro (US$ 20/mês) no dia da 1ª cobrança.
+
+### ✏️ 03/10/2026 — o cache de edital, explicado por ele (corrige a minha leitura)
+
+*"Uma pessoa subiu o edital. Esse lugar não é que ele vai ficar à mostra para as pessoas escolherem o
+edital que ela quer subir. Não vai. Isso vai ficar guardado num banco de dados nosso (...) quando outra
+pessoa também subir, ela vai fazer o mesmo processo (...) e o nosso sistema vai identificar que é o
+mesmo edital (...) e só vai pegar essas informações que ele já tem e jogar para o aluno."*
+
+- **CE-06 (painel de curadoria) e CE-07 (selo "verificado")** da especificação ficam como ferramenta
+  **minha/dele**, nunca como tela de escolha para o aluno. O aluno não vê lista nenhuma.
+- **A pré-carga** é ele pondo o crédito e eu subindo os editais (*"para mim é o mesmo você enviar os
+  editais"*) — `docs/auditoria/ROADMAP.md` 5.2, no fim, junto com tudo que custa dinheiro.
+- O reaproveitamento pede reconhecer o mesmo edital mesmo com **arquivo diferente** — é a pergunta 6,
+  que fica com o lembrete automático de 20 editais reais.
