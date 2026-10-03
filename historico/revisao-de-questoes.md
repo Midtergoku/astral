@@ -64,3 +64,10 @@ quando for reimportada certa (roadmap 3.4), e a resposta que algum aluno já deu
 - `historico/provas-para-baixar.md`: de onde vem o material novo
 - O botão **"reportar erro na questão"** (BAN-02) é o item 14 desta lista, feito pelo aluno: pega
   o que nenhuma das 13 conferências pegou
+
+## ✏️ 03/10/2026 — estado e cargo (pedido dele)
+
+Concurso estadual muda de estado para estado. Ao importar prova nova, registrar também **de que estado**
+ela é (ou "nacional", para EEAR, EsPCEx, EFOM, ITA, Colégio Naval) e **de que cargo/nível** (soldado,
+oficial…). Matéria regional — legislação, história e geografia do estado — **nunca** pode aparecer para
+aluno de outro estado. Ver `docs/auditoria/ROADMAP.md` 3.25.

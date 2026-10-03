@@ -475,3 +475,12 @@ exemplo) · guardar a senha da cópia do backup · crédito · Mercado Pago · s
 - **Corrigi o reaproveitamento de edital**, que eu tinha descrito errado (lista para o aluno escolher):
   é invisível — o aluno sobe o PDF e o sistema reconhece. Novo item **2.15**: os dois textos da tela
   que ainda dizem "lendo seu edital" e "guia sendo montado agora" quando estava tudo guardado.
+
+### 03/10/2026 — 2.5 no ar; e a pergunta dele sobre os estados
+
+- **2.5 publicado** (Amplitude só com matéria do edital). Próximo: **2.6**, quando ele disser.
+- Ele lembrou que **concurso estadual (bombeiro, polícia) muda de estado para estado**, e que o oficial
+  do RJ tem 8 matérias. As "9 matérias de Bombeiros" dos meus relatórios eram um **edital de teste
+  inventado** pela auditoria ("TESTE CBM Soldado 2026"), não um edital real. Virou o item **3.25** do
+  roadmap: o Banco de questões não sabe de estado nem de cargo — o resto (edital, cronograma) já é de
+  cada pessoa.
