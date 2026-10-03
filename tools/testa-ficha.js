@@ -253,6 +253,17 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
     if (doEdital.status === 201 && gd?.materia === "fisica")
       ok("materia do edital passa (sem diferenciar maiuscula)", "fisica = Fisica");
     else falha("materia do edital foi trocada", `HTTP ${doEdital.status} ${JSON.stringify(doEdital.corpo).slice(0, 90)}`);
+    // ── 3b. A SEQUENCIA E A DE HOJE (03/10/2026, auditoria NUM-14) ─────────
+    // progresso.streak so muda quando a pagina salva. Estraga o guardado e a
+    // ficha tem de continuar dizendo a sequencia REAL (12 dias plantados).
+    await req(`/rest/v1/progresso?usuario_id=eq.${a.id}`, { method: "PATCH",
+      headers: { ...admin, Prefer: "return=minimal" }, body: JSON.stringify({ streak: 99 }) });
+    const fSeq = await ficha(tA);
+    const seqHoje = (await req("/rest/v1/rpc/minha_sequencia", { method: "POST", headers: comoUsuario(tA), body: "{}" })).corpo;
+    /sequência de 12\b/.test(fSeq?.atributos?.disciplina?.porque || "") && seqHoje === 12
+      ? ok("🎯 a sequência é a de HOJE, não a guardada", `guardado 99 · mostrado 12`)
+      : falha("a ficha mostrou a sequência guardada", `${fSeq?.atributos?.disciplina?.porque} · minha_sequencia ${seqHoje}`);
+
     // Sessao nova dispara o recalculo do dominio (gatilho dominio_apos_sessao,
     // 30/09) e apaga o dominio fixado acima -- a comparacao com a TELA, mais
     // abaixo, espera DOUTRINA 30. Fixa de novo. (03/10: sem isto a tela deu 7.)

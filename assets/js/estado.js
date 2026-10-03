@@ -102,8 +102,14 @@ function lerDoBanco(uid) {
 
   const tarefa = (async () => {
     const local = lerLocal(uid);
-    const { data, error } = await supabase
-      .from('progresso').select('*').eq('usuario_id', uid).maybeSingle();
+    /* 03/10/2026 (auditoria NUM-14): a sequencia vem calculada NA HORA
+       (minha_sequencia), junto com o progresso. O progresso.streak guardado
+       so muda quando a pagina salva: na 1a abertura do dia, quem ja tinha
+       perdido a sequencia via "2 dias" no topo -- e o certo so na 2a. */
+    const [{ data, error }, seq] = await Promise.all([
+      supabase.from('progresso').select('*').eq('usuario_id', uid).maybeSingle(),
+      supabase.rpc('minha_sequencia').then((r) => r, () => ({ error: true })),
+    ]);
 
     if (error) {
       console.error('Falha ao ler o progresso; usando a cópia do navegador.', error);
@@ -111,6 +117,7 @@ function lerDoBanco(uid) {
     }
 
     if (data) {
+      if (!seq?.error && Number.isFinite(Number(seq?.data))) data.streak = Number(seq.data);
       const doBanco = normalizar(data);
       gravarLocal(uid, doBanco);
       return doBanco;
