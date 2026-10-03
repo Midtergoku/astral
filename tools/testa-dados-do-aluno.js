@@ -65,6 +65,7 @@ const SEMENTES = (u) => ({
   // o gatilho ja cria a etapa 'cadastro'; a semente acrescenta outra
   funil: `insert into public.funil (usuario_id, etapa) values ('${u}', 'rotina') on conflict do nothing`,
   questoes_reportadas: `insert into public.questoes_reportadas (usuario_id, questao_id, motivo) select '${u}', id, 'gabarito' from public.questoes order by id limit 1`,
+  editais_reportados: `insert into public.editais_reportados (usuario_id, edital_hash, detalhe) values ('${u}', repeat('ab', 32), 'teste dados-do-aluno')`,
 });
 
 const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".svg": "image/svg+xml" };

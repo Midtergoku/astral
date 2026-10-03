@@ -171,6 +171,21 @@ async function json(url, opts) {
     else ok("nenhuma questao reportada esperando revisao");
   } catch (e) { console.log(`  (relatos de questao nao conferidos: ${e.message.slice(0, 60)})`); }
 
+  // 03/10/2026 (auditoria EDI-03, roadmap 3.3): "a leitura do edital esta
+  // errada". A leitura guardada serve a todos que sobem o mesmo PDF -- e NAO
+  // e apagada sozinha (cada releitura custa credito). AVISAR O LUCAS; conferir
+  // o resultado em editais_lidos; marcar resolvido_em depois.
+  try {
+    const sk = JSON.parse(require("child_process").execSync("supabase projects api-keys --project-ref jjogmcacbdefwiwcyjxp -o json",
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })).find((k) => k.name === "service_role").api_key;
+    const r = await json(`${API}/rest/v1/editais_reportados?resolvido_em=is.null&select=edital_hash,concurso`,
+      { headers: { apikey: sk, Authorization: `Bearer ${sk}` } });
+    const abertos = Array.isArray(r.corpo) ? r.corpo : [];
+    if (r.status !== 200) console.log(`  (avisos de edital nao conferidos: HTTP ${r.status})`);
+    else if (abertos.length) console.log(`  🔔 ${abertos.length} aviso(s) de "leitura do edital errada" -- AVISAR O LUCAS: ${[...new Set(abertos.map((x) => x.concurso || x.edital_hash.slice(0, 10)))].slice(0, 5).join(" · ")}`);
+    else ok("nenhuma leitura de edital contestada");
+  } catch (e) { console.log(`  (avisos de edital nao conferidos: ${e.message.slice(0, 60)})`); }
+
   // 02/10/2026 (auditoria OPS-02): o backup diario agendado
   // (tools/agenda-backup.ps1) esta rodando? Backup que para calado e o mesmo
   // que backup nenhum -- o plano gratis do Supabase nao faz o dele.

@@ -195,3 +195,23 @@ Regressão: `node tools/testa-fonte-unica.js` (9 grupos; `ASTRAL_DEV=1` roda no 
 - `uso_de_ia_hoje()`: só a chave de serviço; o `checa-saude` mostra e falha no teto.
 - Regressão: `ASTRAL_DEV=1 node tools/testa-consentimento.js` (15) e o teste de custo com a
   "IA de mentira" (registro em `docs/auditoria/ROADMAP.md`).
+
+---
+
+## 8.26. Corrigir a leitura do edital (03/10/2026, roadmap 3.3) ✅
+
+**Leia antes de mexer em nome de matéria.** O tempo estudado é ligado à matéria pelo **nome
+exato** (`dominio_calculado`: `est.materia = ed.m->>'nome'`). Trocar o nome só em
+`progresso.materias` deixa as horas antigas **órfãs** — o domínio cai.
+
+| Peça | O que faz |
+|---|---|
+| `renomear_materias(p_trocas jsonb)` | `[{de, para}]`, **tudo ou nada**: confere todas antes de mexer; renomeia em `sessoes_estudo`, `recursos_salvos` e `progresso.materias`. Security definer (sessão não tem grant de update — continua não tendo) |
+| Travas | só matéria **do edital**; o nome novo não pode ser de outra matéria do edital **nem** de estudo gravado em outra (juntar duas inflaria "a mesma matéria N dias seguidos"); comparação sem acento/caixa (`unaccent_simples`). Troca cruzada A↔B é recusada |
+| `editais_reportados` | "a leitura está errada": `(usuario_id, edital_hash)` único, hash SHA-256 conferido por `check`. RLS: insere e lê só o seu. Entra em `meus_dados`, no `backup.js` e no `checa-saude` (🔔) |
+
+- **O aviso NÃO apaga `editais_lidos`.** Um aluno apagaria a leitura de todos, e cada
+  releitura custa crédito. Quem decide é o dono, olhando o aviso.
+- `salvar_progresso` mescla matérias pela **lista nova** (`mesclar_materias`): remover e
+  acrescentar pela tela funcionam sem nada de novo no servidor.
+- Regressão: `node tools/testa-corrigir-edital.js` (30 checagens; `ASTRAL_DEV=1` no dev).

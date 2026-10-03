@@ -385,3 +385,11 @@ janela; teto do dia cheio recusa até conta nova.
 "Recebendo seu edital" ate a resposta; "Lendo seu edital" **so depois de 8 s** (o guardado
 volta antes); a linha do guia diz "pronto", "X de N prontas" ou "sendo montado agora".
 Pedido dele (30/09 e 03/10): a tela nao finge leitura. Regressao: `testa-revelacao-tela.js`.
+
+## 8.26. De onde veio o peso (03/10/2026, roadmap 3.3)
+
+`processar-edital` pede e valida `fontePeso`: `"formula"` | `"questoes"` | `"igual"` (outro valor
+vira `null`). A tela (`dashboard.html`, `FONTE_DO_PESO`) diz qual no rodapé de *Matérias e pesos*.
+Leitura guardada antes de 03/10 não tem o campo → texto neutro, sem afirmar a origem.
+⚠️ **Nunca rodou com a IA de verdade** (sem crédito): no 1º edital real, conferir se veio.
+Regressão: `testa-trava-creditos` ("a leitura diz de onde veio o peso").

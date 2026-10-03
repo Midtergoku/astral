@@ -1005,6 +1005,45 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 @media (hover: hover) and (pointer: fine) {
   .edital-remover:hover { text-decoration: underline; }
 }
+/* 03/10/2026 (EDI-02/EDI-03): corrigir a leitura */
+.edital-rodape-acoes { display: inline-flex; align-items: center; gap: var(--e3); flex-wrap: wrap; }
+.edital-link {
+  background: none; border: none; padding: .25rem 0; cursor: pointer;
+  color: var(--latao-c); font-family: var(--display); font-size: .78rem; font-weight: 600;
+}
+@media (hover: hover) and (pointer: fine) {
+  .edital-link:hover { text-decoration: underline; }
+}
+.edital-form, .edital-relato { margin-top: var(--e2); display: grid; gap: var(--e2); }
+.edital-form[hidden], .edital-relato[hidden] { display: none; }
+.ef-topo { display: flex; align-items: center; gap: var(--e3); flex-wrap: wrap; }
+.ef-data { display: inline-flex; align-items: center; gap: var(--e2); font-size: var(--t-sm); color: var(--texto-2); }
+.ef-dica { font-size: var(--t-xs); color: var(--texto-3); }
+.ef-cab, .ef-linha { display: grid; grid-template-columns: minmax(0, 1fr) 6rem 2.5rem; gap: var(--e2); align-items: center; }
+.ef-cab { font-size: var(--t-xs); color: var(--texto-3); text-transform: uppercase; letter-spacing: .06em; }
+#ef-linhas { display: grid; gap: var(--e2); }
+.edital-form input, .edital-relato textarea {
+  background: var(--casco-2); border: 1px solid var(--linha); border-radius: var(--r-p);
+  color: var(--texto); font: inherit; font-size: var(--t-sm); padding: .5rem .6rem; min-height: 40px; width: 100%;
+}
+.edital-form input:focus-visible, .edital-relato textarea:focus-visible { outline: 2px solid var(--latao); outline-offset: 1px; }
+.ef-data input { width: auto; }
+.ef-peso { font-family: var(--dado); text-align: right; }
+.ef-tirar {
+  min-height: 40px; background: none; border: 1px solid var(--linha); border-radius: var(--r-p);
+  color: var(--brasa-c); font-size: 1.1rem; cursor: pointer;
+}
+.ef-mais {
+  justify-self: start; background: none; border: 1px dashed var(--linha); border-radius: var(--r-p);
+  color: var(--texto-2); font-family: var(--display); font-size: .8rem; font-weight: 600; padding: .5rem .85rem; cursor: pointer;
+}
+.ef-soma { font-family: var(--dado); font-size: var(--t-xs); color: var(--texto-2); }
+.ef-erro { font-size: var(--t-sm); color: var(--brasa-c); min-height: 1em; }
+.ef-erro:empty { display: none; }
+.ef-acoes { display: flex; gap: var(--e2); flex-wrap: wrap; }
+.ef-salvar { border-color: var(--latao); color: var(--latao-c); }
+.edital-relato label { font-size: var(--t-sm); color: var(--texto-2); }
+.edital-relato label span { color: var(--texto-3); }
 @media (max-width: 720px) {
   .edital-grade { grid-template-columns: 1fr; }
   .edital-acoes { width: 100%; }
@@ -1318,9 +1357,24 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
       <div class="edital-pesos" id="edital-pesos" hidden>
         <div class="edital-grade" id="edital-grade"></div>
         <div class="edital-rodape">
-          <span>Pesos lidos do edital. Na dúvida, vale o documento oficial.</span>
-          <button class="edital-remover" id="edital-remover" type="button">Remover edital</button>
+          <span id="edital-fonte">Pesos da leitura automática do edital. Na dúvida, vale o documento oficial.</span>
+          <span class="edital-rodape-acoes">
+            <button class="edital-link" id="edital-corrigir" type="button">Corrigir</button>
+            <button class="edital-link" id="edital-reportar" type="button" hidden>A leitura está errada</button>
+            <button class="edital-remover" id="edital-remover" type="button">Remover edital</button>
+          </span>
         </div>
+        <!-- 03/10/2026 (EDI-02): corrigir materia, peso e data aqui mesmo -->
+        <form class="edital-form" id="edital-form" hidden novalidate></form>
+        <!-- 03/10/2026 (EDI-03): avisar que a leitura guardada esta errada -->
+        <form class="edital-relato" id="edital-relato" hidden>
+          <label for="edital-relato-texto">O que está errado na leitura? <span>(opcional)</span></label>
+          <textarea id="edital-relato-texto" maxlength="500" rows="3" placeholder="Ex.: faltou Física; a prova é em 12/04, não 12/03"></textarea>
+          <div class="ef-acoes">
+            <button type="submit" class="edital-btn">Enviar</button>
+            <button type="button" class="edital-btn" id="edital-relato-cancelar">Cancelar</button>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -2712,6 +2766,8 @@ function verificarBalanco() {
         nome: resultado.concurso || file.name,
         materias: resultado.materias?.length || 0,
         dataProva: resultado.dataProva || null,
+        // 03/10/2026 (EDI-02): de onde veio o peso -- formula, questoes ou igual
+        fontePeso: resultado.fontePeso || null,
         // 04/08/2026: a IA passou a LER a forca e a patente do edital, em vez
         // de o navegador adivinhar pelo nome. Guardado aqui porque e daqui que
         // o divisa.js le. Ver o cabecalho de assets/js/divisa.js.
@@ -2907,6 +2963,7 @@ function verificarBalanco() {
         <span class="edital-barra"><span style="width:${Math.round((Number(x.peso) || 0) / maior * 100)}%"></span></span>
         <span class="edital-peso">${Number(x.peso) || 0}%</span>
       </div>`).join('');
+    pintarRodapeDoEdital(e);
   }
 
   document.getElementById('edital-ver')?.addEventListener('click', (ev) => {
@@ -2928,6 +2985,206 @@ function verificarBalanco() {
     // Espera gravar: recarregar antes perderia a remocao.
     await salvarDados({ imediato: true });
     location.reload();
+  });
+
+  // ── CORRIGIR A LEITURA DO EDITAL (03/10/2026 -- auditoria EDI-02/EDI-03, roadmap 3.3) ──
+  /* Antes, se a IA errasse uma materia, um peso ou a data, o aluno so podia
+     remover ou trocar o edital -- e subir o mesmo PDF devolvia a mesma leitura,
+     guardada. Agora corrige aqui. Renomear passa pelo servidor
+     (renomear_materias): o tempo estudado e ligado ao NOME da materia, e
+     renomear so na lista deixaria as horas antigas orfas. */
+  const FONTE_DO_PESO = {
+    formula:  'Pesos tirados da fórmula da nota final do edital.',
+    questoes: 'Pesos calculados pelo número de questões de cada matéria.',
+    igual:    'O edital não informa os pesos: dividimos igual entre as matérias. Se você souber, corrija.',
+    aluno:    'Pesos corrigidos por você.',
+  };
+  const semAcento = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+
+  function pintarRodapeDoEdital(e) {
+    const fonte = document.getElementById('edital-fonte');
+    if (fonte) fonte.textContent = FONTE_DO_PESO[e?.fontePeso] || 'Pesos da leitura automática do edital. Na dúvida, vale o documento oficial.';
+    // "A leitura está errada" so faz sentido para leitura guardada (com impressao digital)
+    const rep = document.getElementById('edital-reportar');
+    if (rep) rep.hidden = !(typeof e?.hash === 'string' && /^[0-9a-f]{64}$/.test(e.hash));
+  }
+
+  const linhaDaCorrecao = (m) => `
+    <div class="ef-linha"${m ? ` data-original="${att(m.nome)}"` : ''}>
+      <input class="ef-nome" type="text" maxlength="120" value="${m ? att(m.nome) : ''}" placeholder="Nome da matéria" aria-label="Nome da matéria">
+      <input class="ef-peso" type="number" inputmode="decimal" min="0" max="100" step="0.5" value="${m ? (Number(m.peso) || 0) : ''}" placeholder="0" aria-label="Peso em %">
+      <button type="button" class="ef-tirar" aria-label="Tirar esta matéria">×</button>
+    </div>`;
+
+  function somaDaCorrecao() {
+    const form = document.getElementById('edital-form');
+    const soma = [...form.querySelectorAll('.ef-peso')].reduce((s, i) => s + (Number(String(i.value).replace(',', '.')) || 0), 0);
+    const el = document.getElementById('ef-soma');
+    el.textContent = `Soma dos pesos: ${Math.round(soma * 10) / 10}%` + (Math.abs(soma - 100) > 0.5 && soma > 0 ? ' — ao salvar, ajustamos para 100% mantendo a proporção' : '');
+  }
+
+  function abrirCorrecao() {
+    const form = document.getElementById('edital-form');
+    const e = estado.edital || {};
+    const d = String(e.dataProva || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    form.innerHTML = `
+      <div class="ef-topo">
+        <label class="ef-data">Data da prova
+          <input type="date" id="ef-data" value="${d ? `${d[3]}-${d[2]}-${d[1]}` : ''}">
+        </label>
+        <span class="ef-dica">Deixe em branco se o edital ainda não marcou.</span>
+      </div>
+      <div class="ef-cab" aria-hidden="true"><span>Matéria</span><span>Peso (%)</span><span></span></div>
+      <div id="ef-linhas">${estado.materias.map(linhaDaCorrecao).join('')}</div>
+      <button type="button" class="ef-mais" id="ef-mais">+ Adicionar matéria</button>
+      <div class="ef-soma" id="ef-soma"></div>
+      <div class="ef-erro" id="ef-erro" role="alert"></div>
+      <div class="ef-acoes">
+        <button type="submit" class="edital-btn ef-salvar">Salvar correção</button>
+        <button type="button" class="edital-btn" id="ef-cancelar">Cancelar</button>
+      </div>`;
+    form.hidden = false;
+    document.getElementById('edital-grade').hidden = true;
+    document.querySelector('.edital-rodape').hidden = true;
+    somaDaCorrecao();
+    form.querySelector('.ef-nome')?.focus();
+  }
+
+  function fecharCorrecao() {
+    const form = document.getElementById('edital-form');
+    form.hidden = true;
+    form.innerHTML = '';
+    document.getElementById('edital-grade').hidden = false;
+    document.querySelector('.edital-rodape').hidden = false;
+  }
+
+  async function salvarCorrecao(ev) {
+    ev.preventDefault();
+    const form = document.getElementById('edital-form');
+    const erro = document.getElementById('ef-erro');
+    const falhar = (msg) => { erro.textContent = msg; return false; };
+    erro.textContent = '';
+
+    const linhas = [...form.querySelectorAll('.ef-linha')].map((l) => ({
+      original: l.dataset.original ?? null,
+      nome: l.querySelector('.ef-nome').value.replace(/\s+/g, ' ').trim(),
+      peso: Number(String(l.querySelector('.ef-peso').value || '0').replace(',', '.')),
+    }));
+    if (!linhas.length) return falhar('Deixe pelo menos uma matéria.');
+    if (linhas.some((l) => !l.nome)) return falhar('Toda matéria precisa de um nome.');
+    const vistos = new Set();
+    for (const l of linhas) {
+      const k = semAcento(l.nome);
+      if (vistos.has(k)) return falhar(`Há duas matérias chamadas "${l.nome}".`);
+      vistos.add(k);
+    }
+    if (linhas.some((l) => !Number.isFinite(l.peso) || l.peso < 0 || l.peso > 100)) return falhar('O peso é um número de 0 a 100.');
+    const soma = linhas.reduce((s, l) => s + l.peso, 0);
+    if (soma <= 0) return falhar('Pelo menos uma matéria precisa ter peso.');
+
+    // Troca cruzada (A vira B e B vira A) fica para duas correcoes: o servidor recusa.
+    const trocas = linhas.filter((l) => l.original && l.original !== l.nome).map((l) => ({ de: l.original, para: l.nome }));
+    const originais = new Set(linhas.filter((l) => l.original).map((l) => semAcento(l.original)));
+    const cruzada = trocas.find((t) => semAcento(t.para) !== semAcento(t.de) && originais.has(semAcento(t.para)));
+    if (cruzada) return falhar(`"${cruzada.para}" já é o nome de outra matéria. Para trocar dois nomes entre si, corrija um de cada vez.`);
+
+    const dataISO = document.getElementById('ef-data').value;
+    const dIso = dataISO.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const dataProva = dIso ? `${dIso[3]}/${dIso[2]}/${dIso[1]}` : null;
+
+    // Pesos somando 100, na mesma proporcao do que a pessoa digitou.
+    const ajustou = Math.abs(soma - 100) > 0.5;
+    const pesoFinal = (p) => (ajustou ? Math.round((p / soma) * 1000) / 10 : p);
+
+    const botao = form.querySelector('.ef-salvar');
+    botao.disabled = true;
+    try {
+      if (trocas.length) {
+        const { error } = await supabase.rpc('renomear_materias', { p_trocas: trocas });
+        if (error) {
+          relatar(error, 'dashboard/renomear_materias');
+          // O servidor escreve sem acento (convencao dos .sql); a tela traduz.
+          const m = String(error.message || '');
+          const nome = (m.match(/"([^"]*)"/) || [])[1] || '';
+          return falhar(/estudo gravado/.test(m) ? `Você já tem estudo gravado como "${nome}" em outra matéria. Escolha outro nome.`
+            : /outra materia chamada/.test(m) ? `Já existe outra matéria chamada "${nome}".`
+            : /nao esta no seu edital/.test(m) ? 'O edital mudou em outra tela. Recarregue a página e corrija de novo.'
+            : 'Não consegui salvar a troca de nome. Nada foi mudado — tente de novo.');
+        }
+      }
+      const pesosMudaram = linhas.some((l) => {
+        const antes = estado.materias.find((m) => m.nome === l.original);
+        return !antes || Number(antes.peso) !== pesoFinal(l.peso);
+      }) || linhas.length !== estado.materias.length;
+
+      estado.materias = linhas.map((l) => {
+        const antes = l.original ? estado.materias.find((m) => m.nome === l.original) : null;
+        return { ...(antes || { questoes: null, progresso: 0 }), nome: l.nome, peso: pesoFinal(l.peso) };
+      });
+      estado.edital = {
+        ...estado.edital,
+        materias: estado.materias.length,
+        dataProva,
+        // a leitura original fica guardada: "corrigido por voce" nao apaga de onde veio
+        fontePesoLido: estado.edital?.fontePesoLido ?? estado.edital?.fontePeso ?? null,
+        fontePeso: pesosMudaram ? 'aluno' : (estado.edital?.fontePeso ?? null),
+        corrigidoEm: new Date().toISOString(),
+      };
+      await salvarDados({ imediato: true });
+      fecharCorrecao();
+      renderUI();
+      // o chefe e a prova do calendario acompanham a data nova (desenharChefe sincroniza)
+      carregarRPG(estado.usuario.id).catch((e) => relatar(e, 'dashboard/rpg-apos-correcao'));
+      toast(ajustou ? 'Correção salva. Os pesos foram ajustados para somar 100%.' : 'Correção salva.');
+    } finally {
+      botao.disabled = false;
+    }
+  }
+
+  document.getElementById('edital-corrigir')?.addEventListener('click', abrirCorrecao);
+  document.getElementById('edital-form')?.addEventListener('submit', salvarCorrecao);
+  document.getElementById('edital-form')?.addEventListener('input', (ev) => {
+    if (ev.target.classList?.contains('ef-peso')) somaDaCorrecao();
+  });
+  document.getElementById('edital-form')?.addEventListener('click', (ev) => {
+    if (ev.target.id === 'ef-cancelar') return fecharCorrecao();
+    if (ev.target.id === 'ef-mais') {
+      document.getElementById('ef-linhas').insertAdjacentHTML('beforeend', linhaDaCorrecao(null));
+      document.querySelector('#ef-linhas .ef-linha:last-child .ef-nome')?.focus();
+      return;
+    }
+    if (ev.target.classList?.contains('ef-tirar')) { ev.target.closest('.ef-linha')?.remove(); somaDaCorrecao(); }
+  });
+
+  // "A leitura está errada": fica registrado para o dono conferir. NAO apaga a
+  // leitura guardada -- um aluno apagaria a de todos, e cada releitura custa credito.
+  document.getElementById('edital-reportar')?.addEventListener('click', () => {
+    const caixa = document.getElementById('edital-relato');
+    caixa.hidden = !caixa.hidden;
+    if (!caixa.hidden) caixa.querySelector('textarea')?.focus();
+  });
+  document.getElementById('edital-relato')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const caixa = ev.currentTarget;
+    const detalhe = caixa.querySelector('textarea').value.trim().slice(0, 500) || null;
+    const botao = caixa.querySelector('button[type="submit"]');
+    botao.disabled = true;
+    const { error } = await supabase.from('editais_reportados').insert({
+      edital_hash: estado.edital?.hash, concurso: String(estado.edital?.nome || '').slice(0, 160) || null, detalhe,
+    });
+    botao.disabled = false;
+    if (error && error.code !== '23505') {
+      relatar(error, 'dashboard/reportar-edital');
+      toast('Não consegui enviar agora. Tente de novo em instantes.', 'error');
+      return;
+    }
+    caixa.hidden = true;
+    caixa.querySelector('textarea').value = '';
+    toast(error ? 'Você já avisou sobre esta leitura — ela está na fila para conferirmos.'
+                : 'Recebido. Vamos conferir esta leitura do edital. Enquanto isso, você pode usar "Corrigir".');
+  });
+  document.getElementById('edital-relato-cancelar')?.addEventListener('click', () => {
+    document.getElementById('edital-relato').hidden = true;
   });
 
   // ── SALVAR DADOS ──

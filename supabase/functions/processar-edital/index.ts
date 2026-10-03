@@ -67,9 +67,15 @@ interface Materia { nome: string; questoes: number; peso: number }
    fala do assunto -- diferente de false ("este concurso nao tem TAF"). */
 interface ProvaTaf { prova: string; nome: string; masculino: number | null; feminino: number | null }
 interface Taf { existe: boolean | null; provas: ProvaTaf[] }
+/* 03/10/2026 (auditoria EDI-02, roadmap 3.3): DE ONDE veio o peso. A tela dizia
+   "Pesos lidos do edital" tambem quando a IA dividiu igual por falta de
+   informacao. null = leitura antiga (guardada antes deste campo). */
+type FontePeso = "formula" | "questoes" | "igual";
+const FONTES_DE_PESO: readonly FontePeso[] = ["formula", "questoes", "igual"];
 interface Edital {
   concurso: string;
   dataProva: string | null;
+  fontePeso: FontePeso | null;
   forca: Forca;
   patenteInicial: string | null;
   materias: Materia[];
@@ -154,6 +160,7 @@ function validar(d: unknown): Edital {
   return {
     concurso: typeof e.concurso === "string" ? e.concurso.trim().slice(0, 160) : "Concurso",
     dataProva: typeof e.dataProva === "string" && e.dataProva.trim() ? e.dataProva.trim().slice(0, 20) : null,
+    fontePeso: FONTES_DE_PESO.includes(e.fontePeso as FontePeso) ? e.fontePeso as FontePeso : null,
     forca: validarForca(e.forca),
     // A patente vem do edital e e texto livre -- por isso limite curto e trim.
     // Null quando o modelo nao achou: melhor o app usar o padrao da forca do
@@ -250,6 +257,7 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
 {
   "concurso": "nome do concurso",
   "dataProva": "data no formato DD/MM/AAAA ou null",
+  "fontePeso": "formula",
   "forca": "exercito",
   "patenteInicial": "Soldado",
   "materias": [
@@ -276,6 +284,10 @@ Regras:
   2. o número de questões de cada matéria (questoes / total * 100);
   3. se o edital não disser nem uma coisa nem outra, distribua igualmente.
   A soma dos pesos deve ficar próxima de 100.
+
+- "fontePeso" diz QUAL dos três caminhos acima você usou, com EXATAMENTE um destes
+  valores: "formula" (1), "questoes" (2) ou "igual" (3). Seja honesto: o aluno vê
+  isso na tela, e um peso suposto apresentado como lido engana quem estuda.
 
 - Ordene do maior para o menor peso
 

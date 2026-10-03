@@ -166,6 +166,8 @@ powershell -File tools\agenda-backup.ps1 [-Ver|-Agora|-Remover]  o backup DIARIO
                                 Windows (21h); o checa-saude avisa se parar (02/10, OPS-02)
 node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tela bloqueada, recarregar,
                                 aba esquecida, pomodoro) -- relogio simulado (03/10, CRN-01)
+node tools/testa-corrigir-edital.js  o aluno corrige materia, peso e data? renomear leva as horas?
+                                "a leitura esta errada" grava? ASTRAL_DEV=1 roda no dev (03/10, EDI-02/03)
 node tools/testa-banco-fora.js  com o banco FORA DO AR a tela mente? ("0 dias, Recruta") e salva o
                                 vazio por cima do verdadeiro? (03/10, UX-01). ASTRAL_RAIZ=pasta roda
                                 contra outra copia do site (ex.: worktree do commit antigo)

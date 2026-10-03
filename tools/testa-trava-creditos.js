@@ -67,7 +67,7 @@ const sha = (buf) => crypto.createHash("sha256").update(buf).digest("hex");
     // O edital "ja lido por outro aluno": planta o resultado pela impressao digital.
     const pdfGuardado = pdf("guardado-" + Date.now());
     const hash = sha(pdfGuardado); hashes.push(hash);
-    const RESULTADO = { concurso: "Teste Trava Bombeiro", dataProva: "06/12/2026", forca: "bombeiros", patenteInicial: "Soldado",
+    const RESULTADO = { concurso: "Teste Trava Bombeiro", dataProva: "06/12/2026", forca: "bombeiros", patenteInicial: "Soldado", fontePeso: "questoes",
       materias: [{ nome: "Física", questoes: 10, peso: 50 }, { nome: "Química", questoes: 10, peso: 50 }] };
     await req("/rest/v1/editais_lidos", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
       body: JSON.stringify({ hash, resultado: RESULTADO, paginas: 3 }) });
@@ -78,6 +78,8 @@ const sha = (buf) => crypto.createHash("sha256").update(buf).digest("hex");
       const d = r.corpo?.data;
       r.status === 200 && d?.concurso === RESULTADO.concurso && d?.hash === hash
         ? ok("🎯 devolveu o resultado guardado, na hora", `${d.materias.length} matérias, sem IA`) : falha("edital guardado", `HTTP ${r.status} ${JSON.stringify(r.corpo).slice(0, 90)}`);
+      // 03/10/2026 (EDI-02, roadmap 3.3): de onde veio o peso passa pela validacao
+      d?.fontePeso === "questoes" ? ok("a leitura diz de onde veio o peso", "fontePeso: questoes") : falha("fontePeso sumiu na validação", String(d?.fontePeso));
       (await usos(gratis.id, "processar-edital")) === 0
         ? ok("🎯 e NÃO contou na cota do aluno", "não custou nada") : falha("edital guardado contou na cota");
     }
