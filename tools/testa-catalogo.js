@@ -46,6 +46,8 @@ const { pathToFileURL } = require("url");
     "dominioMinimo", "materiaMenosEstudada", "edital",
     // derivados
     "atributo", "atributosTodos", "horario", "diaSemana", "modo",
+    // 03/10/2026 (NUM-02): dias distintos de estudo e materias estudadas no mes
+    "diasDaSemana", "materiasNoMes",
     "condecoracao", "todas",
   ]);
 

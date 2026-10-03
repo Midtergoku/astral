@@ -2047,7 +2047,7 @@ function mostrarLevelUp(nomeNivel) {
       const t = tagVestida(estado.materias, estado.tagEscolhida);
       let condecoracoes = null, total = null;
       if (resumoRPG) {
-        const { conferir } = await import('./assets/js/condecoracoes.js?v=ca3738be');
+        const { conferir } = await import('./assets/js/condecoracoes.js?v=6833e429');
         const r = conferir(resumoRPG.fatos, resumoRPG.gravadas).resumo;
         condecoracoes = r.conquistadas; total = r.total;
       }
@@ -2198,7 +2198,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       if (!fatos) return;                             // sem fatos, sem anúncio
       const [{ conferir }, { anunciarNovidades }] = await Promise.all([
-        import('./assets/js/condecoracoes.js?v=ca3738be'),
+        import('./assets/js/condecoracoes.js?v=6833e429'),
         import('./assets/js/anuncio.js?v=dd704853'),
       ]);
       await anunciarNovidades(uid, conferir(fatos, gravadas));
@@ -2496,7 +2496,7 @@ function verificarBalanco() {
     }
     // So o condecoracoes.js: importar o catalogo.js com carimbo criaria uma
     // SEGUNDA copia do modulo (ver o cabecalho do condecoracoes.js).
-    const { conferir, quaseLa } = await import('./assets/js/condecoracoes.js?v=ca3738be');
+    const { conferir, quaseLa } = await import('./assets/js/condecoracoes.js?v=6833e429');
     const { condecoracoes, resumo } = conferir(resumoRPG.fatos, resumoRPG.gravadas);
     const proxima = quaseLa(condecoracoes, 1)[0];
     const metais = new Map();

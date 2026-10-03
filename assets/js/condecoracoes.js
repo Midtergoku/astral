@@ -89,6 +89,14 @@ function progressoDe(cond, f, jaTem) {
     case 'diaSemana':
       return frac(conta(f.porDiaSemana, (cond.dias || []).map(String)), cond.vezes);
 
+    // 03/10/2026 (NUM-02): DIAS distintos, e materias num mesmo mes -- o mesmo
+    // que avaliar_condicao faz no servidor (migration 20261003120000).
+    case 'diasDaSemana':
+      return frac(conta(f.diasPorDiaSemana, (cond.dias || []).map(String)), cond.vezes);
+
+    case 'materiasNoMes':
+      return frac(f.materiasNoMesMax, cond.quantas);
+
     case 'modo':
       return frac(f.porModo?.[cond.modo], cond.vezes);
 

@@ -81,14 +81,23 @@ export const METAIS = {
      materias     { dominioMin, quantas }    N materias acima de X% de dominio
      dominioMinimo{ min }                    NENHUMA materia abaixo de X%
      atributo     { chave, min }             um atributo da ficha bate o valor
-     horario      { deHora, ateHora, vezes } N sessoes dentro de uma faixa do dia
+     horario      { deHora, ateHora, vezes } N sessoes COMECADAS dentro de uma faixa do dia
      diaSemana    { dias, vezes }            N sessoes em dias especificos (0=domingo)
+     diasDaSemana { dias, vezes }            N DIAS distintos (nao sessoes) em dias especificos
+     materiasNoMes{ quantas }                N materias diferentes num mesmo mes do calendario
      semanaPerfeita { vezes }                N semanas com os 7 dias estudados
      materiaSeguida { dias }                 a MESMA materia N dias seguidos
      meses        { min }                    ativo em N meses distintos
      retorno      { diasSumidoMin }          voltou depois de sumir
      viradaMateria{ dominioMin }             a materia mais atrasada subiu
-     modo         { modo, vezes }            N sessoes de um modo (livre/pomodoro/cronograma)
+     modo         { modo, vezes }            N sessoes de um modo (livre/pomodoro/cronograma;
+                                             'medido' = livre + pomodoro, o relogio correu)
+
+   03/10/2026 (auditoria NUM-02): quatro regras faziam outra coisa do que a
+   descricao diz -- Relogio na Mao (pomodoro nao contava), Duas Frentes (pedia
+   4 materias), Comeco de Semana e Domingo de Servico (contavam sessoes, nao
+   dias). E o horario era o do FIM da sessao, nao o do comeco. A regra e a da
+   descricao: e o que o aluno le.
      xp           { min }                    XP acumulado
      eventos      { min }                    eventos no calendario
      recursos     { min }                    guias de professores salvos
@@ -125,7 +134,7 @@ export const CONDECORACOES = [
 
   { id: 'duas_frentes',     metal: 'bronze', nome: 'Duas Frentes',
     descricao: 'Estudou duas matérias diferentes no mesmo mês.',
-    condicao: { tipo: 'atributo', chave: 'amplitude', min: 40 } },
+    condicao: { tipo: 'materiasNoMes', quantas: 2 } },
 
   { id: 'meia_hora',        metal: 'bronze', nome: 'Sentinela',
     descricao: 'Uma sessão de 30 minutos sem levantar.',
@@ -153,7 +162,7 @@ export const CONDECORACOES = [
 
   { id: 'cronometro_usado', metal: 'bronze', nome: 'Relógio na Mão',
     descricao: 'Cinco sessões cronometradas de verdade.',
-    condicao: { tipo: 'modo', modo: 'livre', vezes: 5 } },
+    condicao: { tipo: 'modo', modo: 'medido', vezes: 5 } },
 
   /* 🔴 AQUI HAVIA DUAS CONDECORACOES QUE VIOLAVAM A REGRA DELE, e foi o
      proprio teste que pegou, em 19/09/2026.
@@ -357,11 +366,11 @@ export const CONDECORACOES = [
 
   { id: 'segunda_feira',    metal: 'prata', secreta: true, nome: 'Começo de Semana',
     descricao: 'Dez segundas-feiras estudadas. A mais difícil de todas.',
-    condicao: { tipo: 'diaSemana', dias: [1], vezes: 10 } },
+    condicao: { tipo: 'diasDaSemana', dias: [1], vezes: 10 } },
 
   { id: 'domingo_fiel',     metal: 'prata', secreta: true, nome: 'Domingo de Serviço',
     descricao: 'Dez domingos estudados.',
-    condicao: { tipo: 'diaSemana', dias: [0], vezes: 10 } },
+    condicao: { tipo: 'diasDaSemana', dias: [0], vezes: 10 } },
 
   { id: 'semana_perfeita',  metal: 'prata', secreta: true, nome: 'Semana Sem Brecha',
     descricao: 'Uma semana com os sete dias estudados.',
