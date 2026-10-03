@@ -33,10 +33,10 @@ rastro do **que** foi conferido não é revisão.
 | 3 | A matéria existe na lista de matérias conhecidas (nada inventado) | ✅ já checa |
 | 4 | Não é repetida no acervo | ✅ já checa |
 | 5 | Enunciado com 3 palavras ou mais; sem cabeçalho/rodapé de prova dentro | ✅ já checa |
-| 6 | **Nenhum caractere da área de uso privado** (U+E000 a U+F8FF): é o símbolo perdido | 🔴 falta (roadmap 2.11) |
-| 7 | **Nenhum conjunto de alternativas igual ao de outra questão da mesma prova** (fora "I, II, III" e V-F) | 🔴 falta (roadmap 2.11) |
-| 8 | **Nenhum "NN –" de outra questão colado no enunciado** | 🔴 falta (roadmap 2.11), cuidado com listas numeradas legítimas |
-| 9 | **Palavras de figura** ("figura", "desenho", "gráfico", "observe", "histograma", "abaixo") **sem imagem**: a questão fica despublicada até ter imagem | 🔴 falta (roadmap 2.11) |
+| 6 | **Nenhum caractere da área de uso privado** (U+E000 a U+F8FF): é o símbolo perdido | ✅ desde 03/10/2026 |
+| 7 | **Nenhum conjunto de alternativas igual ao de outra questão da mesma prova** (fora "I, II, III" e V-F) | ✅ desde 03/10/2026 |
+| 8 | **Nenhum "NN –" de outra questão colado no enunciado** | ✅ desde 03/10/2026 — só número de questão SEGUINTE, de 7 para cima (a 1ª versão pegava listas de colunas boas) |
+| 9 | **Palavras de figura** ("figura", "desenho", "gráfico", "observe", "histograma", "abaixo") **sem imagem**: a questão fica despublicada até ter imagem | ✅ desde 03/10/2026 |
 
 ### À mão (o automático não pega)
 
@@ -71,3 +71,15 @@ Concurso estadual muda de estado para estado. Ao importar prova nova, registrar 
 ela é (ou "nacional", para EEAR, EsPCEx, EFOM, ITA, Colégio Naval) e **de que cargo/nível** (soldado,
 oficial…). Matéria regional — legislação, história e geografia do estado — **nunca** pode aparecer para
 aluno de outro estado. Ver `docs/auditoria/ROADMAP.md` 3.25.
+
+## ✏️ 03/10/2026 — as conferências automáticas valem (roadmap 2.11)
+
+- Os itens **6 a 9** moram em `assets/js/defeitos-de-questao.js` — **um módulo só**, usado pela tela
+  de importar (questão com defeito entra **fora do ar**, com o motivo), pelo `tools/arruma-acervo.js`
+  (tira do ar o que já está publicado) e pelo `tools/testa-acervo-limpo.js` (falha se algum estiver no ar).
+- Aplicado no acervo: **300 questões tiradas do ar, nenhuma apagada** — 113 símbolo perdido, 113 alternativas
+  de outra questão, 64 outra questão colada, 10 figura. Ficaram **1.680** no ar.
+- O campo `revisao` passou a dizer o que foi conferido: `auto 1-9 em 03/10/2026; mao 10-13 pendente`.
+  As conferências **à mão (10 a 13)** continuam por fazer — elas entram na reimportação (roadmap 3.4).
+- Item 14, o do aluno: o botão **"Achou um erro nesta questão? Avise"** grava em `questoes_reportadas`; o
+  `checa-saude` avisa quando há relato esperando revisão. Depois de revisar, marcar `resolvido_em`.
