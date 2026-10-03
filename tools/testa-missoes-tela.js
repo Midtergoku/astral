@@ -187,13 +187,17 @@ const servidor = http.createServer((q, r) => {
     }
 
     // ── 4. 🔴 Estudar de verdade move a barra ──────────────────────────────
-    // Duas sessões AGORA, de 30 min cada, em matérias diferentes: cobre
-    // minutos, número de sessões e matérias distintas de uma vez.
+    // Sessões AGORA que cumprem TODA missão diária que não depende do relógio:
+    // 3 matérias, 3 sessões, uma de 50 min, 110 min no total, livre e
+    // cronograma. 03/10/2026: eram 2 sessões de 30 min -- e quando o sorteio
+    // do dia caía em "sessão de 40 min", "3 matérias" e "antes das 9h", nenhuma
+    // avançava e o teste falhava com o site certo (bateria de 03/10).
     await req("/rest/v1/sessoes_estudo", {
       method: "POST", headers: { ...admin, Prefer: "return=minimal" },
       body: JSON.stringify([
-        { usuario_id: usuario.id, materia: "Matematica", segundos: 1800, xp: 25, modo: "livre" },
+        { usuario_id: usuario.id, materia: "Matematica", segundos: 3000, xp: 25, modo: "livre" },
         { usuario_id: usuario.id, materia: "Portugues", segundos: 1800, xp: 25, modo: "cronograma" },
+        { usuario_id: usuario.id, materia: "Fisica", segundos: 1800, xp: 25, modo: "livre" },
       ]),
     });
 
