@@ -504,7 +504,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            SUPABASE_URL, montarCaptcha, tokenCaptcha, resetarCaptcha }
-    from './assets/js/astral.js?v=67af3f5c';
+    from './assets/js/astral.js?v=6073012e';
 
   let widgetCaptcha = null;
   montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
@@ -623,5 +623,7 @@
 
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
+<!-- 03/10/2026 (NEG-01): anota de onde a pessoa veio, na 1a visita -->
+<script type="module" src="assets/js/origem.js?v=21c1c75f"></script>
 </body>
 </html>

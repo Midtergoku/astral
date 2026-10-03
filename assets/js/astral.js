@@ -103,6 +103,9 @@ export async function exigirSessao() {
     const conferencia = garantirConsentimento(supabase, session, { sair: fazerLogout });
     if (!jaAceitouAlgumaVez(session.user.id)) await conferencia;
   } catch (e) { console.error('Conferencia do aceite falhou.', e); }
+  /* 03/10/2026 (auditoria NEG-01): a origem anotada na 1a visita vai para o
+     funil, uma vez por conta. Por tras, sem esperar: nunca atrasa a pagina. */
+  import('./origem.js').then((m) => m.enviarOrigem(supabase, session.user.id)).catch(() => {});
   return session;
 }
 

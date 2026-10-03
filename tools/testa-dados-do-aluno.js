@@ -62,6 +62,8 @@ const SEMENTES = (u) => ({
   // da producao enquanto o teste roda.
   uso_ia: `insert into public.uso_ia (usuario_id, funcao, unidades, criado_em) values ('${u}', 'buscar-recursos', 1, now() - interval '2 days')`,
   erros_cliente: `insert into public.erros_cliente (usuario_id, mensagem) values ('${u}', 'erro de teste dados-do-aluno')`,
+  // o gatilho ja cria a etapa 'cadastro'; a semente acrescenta outra
+  funil: `insert into public.funil (usuario_id, etapa) values ('${u}', 'rotina') on conflict do nothing`,
   questoes_reportadas: `insert into public.questoes_reportadas (usuario_id, questao_id, motivo) select '${u}', id, 'gabarito' from public.questoes order by id limit 1`,
 });
 
