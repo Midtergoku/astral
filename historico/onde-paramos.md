@@ -484,3 +484,18 @@ exemplo) · guardar a senha da cópia do backup · crédito · Mercado Pago · s
   inventado** pela auditoria ("TESTE CBM Soldado 2026"), não um edital real. Virou o item **3.25** do
   roadmap: o Banco de questões não sabe de estado nem de cargo — o resto (edital, cronograma) já é de
   cada pessoa.
+
+### 03/10/2026 (noite) — Lote 2 fechado
+
+**2.2 a 2.15 no ar**, cada um com teste que falha no código antigo e a bateria inteira (60–61
+testes) passando. O que mudou para quem usa, em uma linha cada: baixar TODOS os dados e excluir
+sem rastro (2.2) · aviso do painel que confere a semana (2.3) · matérias que se revezam em rotina
+curta (2.4) · Amplitude só do edital (2.5) · 5 condecorações fazendo o que dizem (2.6) ·
+cronômetro marcando o bloco sem contar duas vezes (2.7) · patente que não desce (2.8) · Platina
+possível (2.9) · prova do calendário acompanhando o edital (2.10) · 300 questões quebradas fora
+do ar + botão "reportar erro" (2.11) · página inicial sem promessa falsa (2.12) · sequência de
+hoje (2.13) · o funil (2.14) · a tela que não finge leitura (2.15).
+
+**Ferramentas novas:** `tools/funil.js` (o funil por origem), `tools/testa-funil.js`,
+`tools/testa-dados-do-aluno.js`, `assets/js/defeitos-de-questao.js` (a revisão de questões).
+**Próximo:** Lote 3, item 3.1 (o cronômetro que perde tempo), quando ele disser.

@@ -377,3 +377,11 @@ Falha **antes** da IA (arquivo inválido, rede, crédito) continua sem contar.
 Provado no `astral-dev` com uma **"IA de mentira"** (função que imita a Anthropic, apontada por
 `ANTHROPIC_BASE_URL`, custo zero): não-PDF não conta; resposta inútil conta; a 3ª leitura cai na
 janela; teto do dia cheio recusa até conta nova.
+
+## 8.25. O edital guardado diz a verdade na tela (03/10/2026, roadmap 2.15)
+
+`processar-edital`, no caminho do edital guardado, devolve tambem `guardado: true` e
+`guiasProntos` (quantas materias do edital ja tem guia em `guias_por_edital`). O painel:
+"Recebendo seu edital" ate a resposta; "Lendo seu edital" **so depois de 8 s** (o guardado
+volta antes); a linha do guia diz "pronto", "X de N prontas" ou "sendo montado agora".
+Pedido dele (30/09 e 03/10): a tela nao finge leitura. Regressao: `testa-revelacao-tela.js`.
