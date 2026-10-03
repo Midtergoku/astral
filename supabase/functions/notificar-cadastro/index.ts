@@ -64,6 +64,17 @@ Deno.serve(async (req) => {
       });
     }
 
+    // 02/10/2026: os testes automaticos (tools/testa-*.js) inscrevem contas
+    // @astral-teste.local na lista de espera da producao e as apagam no fim.
+    // Sem esta linha, cada execucao mandava ao Lucas um "novo cadastro" falso.
+    // O dominio .local nao existe na internet: nenhuma pessoa real o usa.
+    if (String(registro.email).toLowerCase().endsWith("@astral-teste.local")) {
+      return new Response(JSON.stringify({ success: true, ignorado: "conta de teste" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const nome = escapar(registro.nome);
     const email = escapar(registro.email);
     const concurso = escapar(registro.concurso);
