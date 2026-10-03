@@ -108,7 +108,10 @@ function lerDoBanco(uid) {
        perdido a sequencia via "2 dias" no topo -- e o certo so na 2a. */
     const [{ data, error }, seq] = await Promise.all([
       supabase.from('progresso').select('*').eq('usuario_id', uid).maybeSingle(),
-      supabase.rpc('minha_sequencia').then((r) => r, () => ({ error: true })),
+      // Sem a sequencia de hoje, vale a guardada -- a leitura do progresso
+      // NUNCA cai por causa dela (o testa-velocidade pegou: um erro aqui
+      // derrubava o progresso inteiro).
+      Promise.resolve().then(() => supabase.rpc('minha_sequencia')).catch(() => ({ error: true })),
     ]);
 
     if (error) {
