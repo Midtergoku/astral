@@ -128,6 +128,13 @@
   .veredito.boa { color: var(--oliva-c); }
 
   .veredito.ma { color: var(--brasa-c); }
+  /* 03/10/2026 (BAN-02): avisar que a questao tem erro. Discreto de proposito:
+     e para quem achou o erro, nao um convite a cada questao. */
+  .reportar { margin-top: var(--e3); font-size: var(--t-xs); color: var(--texto-3); }
+  .reportar-abrir { background: none; border: none; padding: 0; color: var(--texto-3); font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .reportar-motivos { display: flex; flex-wrap: wrap; gap: var(--e2); margin-top: var(--e2); }
+  .reportar-motivos button { background: var(--casco-2); border: 1px solid var(--linha); color: var(--texto-2); border-radius: var(--r-p); padding: 6px 10px; font: inherit; font-size: var(--t-xs); cursor: pointer; min-height: 32px; }
+  @media (hover: hover) { .reportar-abrir:hover, .reportar-motivos button:hover { color: var(--texto); } }
 
   /* A explicacao do gabarito. Aparece so DEPOIS de responder -- antes seria
      entregar a resposta. Fica recolhida atras de um resumo curto para nao
@@ -644,8 +651,41 @@
               </button>`).join('')}
           </div>`}
         <div data-explicacao="${att(String(q.id))}"></div>
+        ${q._origem === 'minha' ? '' : `
+          <div class="reportar" data-reportar="${att(String(q._idReal ?? q.id))}">
+            <button type="button" class="reportar-abrir">Achou um erro nesta questão? Avise</button>
+          </div>`}
       </div>`;
   }
+
+  /* 03/10/2026 (auditoria BAN-02): "reportar erro". Um clique abre os motivos;
+     o segundo grava em questoes_reportadas (uma linha por pessoa e questao).
+     Os detectores da auditoria tiraram 300 questoes do ar, mas gabarito errado
+     com enunciado perfeito so quem estuda percebe. O checa-saude avisa o Lucas. */
+  const MOTIVOS = [['gabarito', 'Gabarito errado'], ['enunciado', 'Enunciado ou alternativas com erro'],
+                   ['figura', 'Falta figura ou tabela'], ['outro', 'Outro']];
+  document.addEventListener('click', async (e) => {
+    const caixa = e.target.closest('[data-reportar]');
+    if (!caixa) return;
+    if (e.target.closest('.reportar-abrir')) {
+      caixa.innerHTML = 'Qual é o problema?<div class="reportar-motivos">'
+        + MOTIVOS.map(([v, r]) => `<button type="button" data-motivo="${v}">${r}</button>`).join('') + '</div>';
+      return;
+    }
+    const b = e.target.closest('[data-motivo]');
+    if (!b) return;
+    caixa.querySelectorAll('button').forEach((x) => { x.disabled = true; });
+    const { error } = await supabase.from('questoes_reportadas')
+      .insert({ questao_id: Number(caixa.dataset.reportar), motivo: b.dataset.motivo });
+    // 23505 = ja tinha avisado desta questao: para quem clicou, o resultado e o mesmo.
+    if (error && error.code !== '23505') {
+      relatar(error, 'banco/reportar');
+      caixa.querySelectorAll('button').forEach((x) => { x.disabled = false; });
+      toast('Não consegui enviar agora. Tente de novo.');
+      return;
+    }
+    caixa.textContent = 'Obrigado — esta questão vai ser revisada.';
+  });
 
   function responder(id, letra) {
     if (respostas[id]) return;              // já respondeu: não se muda a resposta

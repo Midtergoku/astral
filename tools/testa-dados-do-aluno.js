@@ -62,6 +62,7 @@ const SEMENTES = (u) => ({
   // da producao enquanto o teste roda.
   uso_ia: `insert into public.uso_ia (usuario_id, funcao, unidades, criado_em) values ('${u}', 'buscar-recursos', 1, now() - interval '2 days')`,
   erros_cliente: `insert into public.erros_cliente (usuario_id, mensagem) values ('${u}', 'erro de teste dados-do-aluno')`,
+  questoes_reportadas: `insert into public.questoes_reportadas (usuario_id, questao_id, motivo) select '${u}', id, 'gabarito' from public.questoes order by id limit 1`,
 });
 
 const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".svg": "image/svg+xml" };

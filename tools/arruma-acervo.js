@@ -36,7 +36,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   const todas = [];
   for (let off = 0; off < 60000; off += 1000) {
     const r = await fetch(
-      `${BASE}/rest/v1/questoes?select=id,prova,numero,materia,enunciado,alternativas,gabarito,tipo&publicada=is.true&limit=1000&offset=${off}`,
+      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,enunciado,texto_apoio,alternativas,gabarito,tipo&publicada=is.true&order=id&limit=1000&offset=${off}`,
       { headers: admin });
     const p = await r.json();
     if (!Array.isArray(p)) { console.log("🔴 nao consegui ler:", JSON.stringify(p).slice(0, 120)); process.exit(1); }
@@ -79,6 +79,26 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
     gruposRepetidos++;
     grupo.sort((a, b) => a.id - b.id);
     for (const q of grupo.slice(1)) marcar(q, "repetida");
+  }
+
+  /* 03/10/2026 (auditoria BAN-01, roadmap 2.11): os defeitos que a auditoria
+     achou e que a importacao nao pegava -- simbolo perdido, alternativas de
+     outra questao, pedaco de outra questao colado, figura que o Banco nao
+     tem. Itens 6 a 9 de historico/revisao-de-questoes.md, num modulo so (o
+     testa-acervo-limpo usa o mesmo). */
+  const { defeitos } = await import("../assets/js/defeitos-de-questao.js");
+  for (const [id, motivo] of defeitos(todas.filter((q) => !tirar.has(q.id)))) marcar({ id }, motivo);
+
+  // Quanto sobra por materia: abaixo de 10 publicadas, a materia deixa de ser
+  // medida pelo Banco (dominio_formula) e passa a ter teto de 70.
+  const resta = {};
+  for (const q of todas) if (!tirar.has(q.id)) resta[q.materia] = (resta[q.materia] || 0) + 1;
+  const antes = {};
+  for (const q of todas) antes[q.materia] = (antes[q.materia] || 0) + 1;
+  console.log("  por materia (antes -> depois):");
+  for (const m of Object.keys(antes).sort()) {
+    const aviso = (antes[m] >= 10 && (resta[m] || 0) < 10) ? "  ⚠️ cai abaixo de 10: deixa de ser medida pelo Banco" : "";
+    console.log(`     ${m.padEnd(26)} ${String(antes[m]).padStart(4)} -> ${String(resta[m] || 0).padStart(4)}${aviso}`);
   }
 
   const porMotivo = {};

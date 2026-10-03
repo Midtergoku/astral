@@ -157,6 +157,20 @@ async function json(url, opts) {
     else ok(`IA hoje, contra o teto global: ${linhas.join(" · ")}`);
   } catch (e) { console.log(`  (uso de IA de hoje nao conferido: ${e.message.slice(0, 60)})`); }
 
+  // 03/10/2026 (auditoria BAN-02): questao que um aluno reportou como errada.
+  // Nao e falha do site -- e trabalho para fazer: AVISAR O LUCAS e revisar a
+  // questao (historico/revisao-de-questoes.md). Marcar resolvido_em depois.
+  try {
+    const sk = JSON.parse(require("child_process").execSync("supabase projects api-keys --project-ref jjogmcacbdefwiwcyjxp -o json",
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })).find((k) => k.name === "service_role").api_key;
+    const r = await json(`${API}/rest/v1/questoes_reportadas?resolvido_em=is.null&select=questao_id,motivo&usuario_id=not.is.null`,
+      { headers: { apikey: sk, Authorization: `Bearer ${sk}` } });
+    const abertos = Array.isArray(r.corpo) ? r.corpo : [];
+    if (r.status !== 200) console.log(`  (relatos de questao nao conferidos: HTTP ${r.status})`);
+    else if (abertos.length) console.log(`  🔔 ${abertos.length} relato(s) de questao com erro esperando revisao -- AVISAR O LUCAS: questoes #${[...new Set(abertos.map((x) => x.questao_id))].slice(0, 8).join(" #")}`);
+    else ok("nenhuma questao reportada esperando revisao");
+  } catch (e) { console.log(`  (relatos de questao nao conferidos: ${e.message.slice(0, 60)})`); }
+
   // 02/10/2026 (auditoria OPS-02): o backup diario agendado
   // (tools/agenda-backup.ps1) esta rodando? Backup que para calado e o mesmo
   // que backup nenhum -- o plano gratis do Supabase nao faz o dele.

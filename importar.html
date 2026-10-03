@@ -504,7 +504,16 @@
     const btn = $('btn-gravar');
     btn.disabled = true; btn.textContent = 'Gravando…';
 
-    const payload = marcadas.map((q) => ({
+    /* 03/10/2026 (auditoria BAN-01): antes de publicar, os defeitos 6 a 9 de
+       historico/revisao-de-questoes.md -- simbolo perdido, alternativas de
+       outra questao, pedaco de outra questao colado, figura que o Banco nao
+       tem. Questao com defeito entra NO ACERVO mas FORA DO AR, com o motivo.
+       E o campo revisao passa a dizer O QUE foi conferido -- antes era "ok"
+       em todas, inclusive nas quebradas. */
+    const { defeitos } = await import('./assets/js/defeitos-de-questao.js?v=71276f63');
+    const comDefeito = defeitos(marcadas.map((q, i) => ({ ...q, id: i, banca, prova, ano })));
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    const payload = marcadas.map((q, i) => ({
       banca, prova, ano,
       numero: q.numero,
       materia: q.materia,
@@ -512,9 +521,10 @@
       enunciado: q.enunciado,
       alternativas: q.alternativas,
       gabarito: q.gabarito,
-      publicada: true,
-      revisao: q.motivo || 'ok',
+      publicada: !comDefeito.has(i),
+      revisao: comDefeito.get(i) || q.motivo || `auto 1-9 em ${hoje}; mao 10-13 pendente`,
     }));
+    if (comDefeito.size) toast(`${comDefeito.size} com defeito entram fora do ar: ${[...new Set(comDefeito.values())].join(', ')}.`);
 
     const { data, error } = await supabase.rpc('publicar_questoes', { p_questoes: payload });
     btn.disabled = false; btn.textContent = 'Gravar no acervo';

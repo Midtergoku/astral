@@ -452,6 +452,35 @@ const MARCA = `TELA-${Date.now()}`;
         : falha("acertar nao tirou do caderno", `${naAba} -> ${depois}`);
     }
 
+    // ── 3f. REPORTAR ERRO (03/10/2026, auditoria BAN-02) ─────────────────
+    // Antes nao havia NENHUM jeito de avisar que a questao estava errada.
+    console.log("\n== 3f. REPORTAR ERRO NA QUESTÃO ==");
+    {
+      await pg.click('[data-aba="acervo"]').catch(() => {});
+      await pg.waitForSelector("#btn-sortear", { timeout: 15000 }).catch(() => {});
+      await pg.click("#btn-limpar").catch(() => {});
+      await pg.click("#btn-sortear");
+      await pg.waitForSelector("[data-reportar] .reportar-abrir", { timeout: 15000 }).catch(() => {});
+      const alvo = await pg.evaluate(() => document.querySelector("[data-reportar]")?.dataset.reportar);
+      alvo ? ok("toda questão do acervo tem 'Achou um erro? Avise'") : falha("o botão de reportar não apareceu");
+      await pg.click("[data-reportar] .reportar-abrir").catch(() => {});
+      await pg.click('[data-reportar] [data-motivo="gabarito"]').catch(() => {});
+      await pg.waitForTimeout(2000);
+      const msg = await pg.evaluate(() => document.querySelector("[data-reportar]")?.textContent.trim());
+      const linhas = (await req(`/rest/v1/questoes_reportadas?usuario_id=eq.${ze.id}&select=questao_id,motivo`, { headers: admin })).corpo || [];
+      linhas.length === 1 && String(linhas[0].questao_id) === String(alvo) && linhas[0].motivo === "gabarito" && /Obrigado/.test(msg || "")
+        ? ok("🎯 o relato chega ao banco: questão, motivo e quem", `#${alvo} · gabarito`)
+        : falha("o relato não foi gravado", `${JSON.stringify(linhas)} · ${msg}`);
+      // Ninguem reporta em nome de outro, nem le o relato alheio
+      const outro = await criar("outro", "free");
+      const forjado = await req("/rest/v1/questoes_reportadas", { method: "POST", headers: { ...outro.cabecalho, Prefer: "return=minimal" },
+        body: JSON.stringify({ usuario_id: ze.id, questao_id: Number(alvo), motivo: "outro" }) });
+      const leu = (await req(`/rest/v1/questoes_reportadas?select=questao_id`, { headers: outro.cabecalho })).corpo || [];
+      forjado.status >= 400 && Array.isArray(leu) && leu.length === 0
+        ? ok("ninguém reporta em nome de outro, nem lê o relato alheio", `insert forjado ${forjado.status}, leu ${leu.length}`)
+        : falha("dá para forjar ou ler relato de outro", `${forjado.status} · ${JSON.stringify(leu).slice(0, 60)}`);
+    }
+
     // ── 4. NENHUMA COR FORA DO SISTEMA ───────────────────────────────────
     console.log("\n== 4. A CASA ==");
     const html = fs.readFileSync(path.join(RAIZ, "banco.html"), "utf8");

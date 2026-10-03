@@ -40,7 +40,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   const todas = [];
   for (let off = 0; off < 40000; off += 1000) {
     const r = await fetch(
-      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,assunto,enunciado,alternativas,gabarito,tipo,texto_apoio&publicada=is.true&limit=1000&offset=${off}`,
+      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,assunto,enunciado,alternativas,gabarito,tipo,texto_apoio,revisao&publicada=is.true&limit=1000&offset=${off}`,
       { headers: admin });
     const p = await r.json();
     if (!Array.isArray(p)) { console.log("🔴 nao consegui ler o acervo:", JSON.stringify(p).slice(0, 120)); process.exit(1); }
@@ -116,6 +116,24 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   }
 
   // ── 5. O retrato do acervo ──────────────────────────────────────────────
+  /* ── 4b. Os defeitos da auditoria (03/10/2026, BAN-01) ──────────────────
+     Itens 6 a 9 de historico/revisao-de-questoes.md. Em 01/10 havia 113
+     questoes com simbolo perdido, 113 com alternativas de outra questao, 64
+     com outra questao colada e 10 dependendo de figura -- TODAS marcadas
+     "revisao ok". O mesmo modulo que o arruma-acervo e o importar.html usam. */
+  console.log("\n== 4b. NENHUM DEFEITO DA AUDITORIA NO AR ==");
+  {
+    const D = await import("../assets/js/defeitos-de-questao.js");
+    const conf = (nome, lista) => lista.length === 0 ? ok(nome) : falha(nome, `${lista.length}: #${lista.slice(0, 4).map((q) => q.id).join(" #")}`);
+    conf("🎯 nenhum símbolo perdido (quadradinho no lugar de ≠, π…)", todas.filter((q) => D.simboloPerdido(q)));
+    const repetidas = D.alternativasRepetidas(todas);
+    conf("🎯 nenhuma questão com as alternativas de outra", todas.filter((q) => repetidas.has(q.id)));
+    conf("nenhum pedaço de outra questão colado no enunciado", todas.filter((q) => D.questaoColada(q)));
+    conf("nenhuma questão que depende de figura", todas.filter((q) => D.dependeDeFigura(q)));
+    const semRegistro = todas.filter((q) => !q.revisao || q.revisao === "ok");
+    conf("toda questão diz O QUE foi conferido (não só \"ok\")", semRegistro);
+  }
+
   console.log("\n== 5. O QUE TEM LA DENTRO ==");
   {
     const porMat = {};

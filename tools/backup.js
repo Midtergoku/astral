@@ -59,6 +59,7 @@ const TABELAS = [
   'administradores', 'materias_conhecidas',
   'taf_registros',                                    // 30/09/2026, o TAF
   'consentimentos',                                   // 02/10/2026, o aceite (LGL-01)
+  'questoes_reportadas',                              // 03/10/2026, "reportar erro" (BAN-02)
 ];
 // Tabela que existe e NAO vai para o backup, com o porque. Hoje: nenhuma.
 const IGNORADAS = {};
