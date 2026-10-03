@@ -101,7 +101,11 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(48)} ${d}`); fal
       .map((nome) => ({ nome, progresso: 100 })),
     porHora: Object.fromEntries([...Array(24)].map((_, h) => [h, 999])),
     porDiaSemana: Object.fromEntries([...Array(7)].map((_, d) => [d, 999])),
-    porModo: { livre: 999, pomodoro: 999, cronograma: 999 },
+    porModo: { livre: 999, pomodoro: 999, cronograma: 999, medido: 999 },
+    // 03/10/2026 (NUM-02): os fatos novos -- dias distintos por dia da semana
+    // e o melhor mes em materias. Sem eles, 5 nos "nunca acendiam" aqui.
+    diasPorDiaSemana: Object.fromEntries([...Array(7)].map((_, d) => [d, 999])),
+    materiasNoMesMax: 99,
     atributos: { disciplina: { valor: 100 }, resistencia: { valor: 100 },
                  amplitude: { valor: 100 }, doutrina: { valor: 100 }, precisao: { valor: null } },
   };

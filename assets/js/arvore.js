@@ -100,7 +100,9 @@ export const FRENTES = [
   {
     id: 'terreno', nome: 'Terreno',
     lema: 'O conteúdo tomado, matéria por matéria.',
-    pega: (c) => ['materias', 'dominioMinimo', 'materiaSeguida', 'materiaMenosEstudada', 'materiasNoDia']
+    // 03/10/2026 (NUM-02): materiasNoMes e o tipo novo de Duas Frentes (era
+    // atributo amplitude 40, nesta mesma frente e na mesma altura: 2 x 20 = 40).
+    pega: (c) => ['materias', 'dominioMinimo', 'materiaSeguida', 'materiaMenosEstudada', 'materiasNoDia', 'materiasNoMes']
       .includes(c.tipo) || (c.tipo === 'atributo' && ['doutrina', 'amplitude'].includes(c.chave)),
     /* unidade: um índice de 0 a ~100 de "quanto do conteúdo está tomado".
        Aqui o julgamento é maior, porque as condições medem coisas de natureza
@@ -108,6 +110,7 @@ export const FRENTES = [
     ordena: (c) => {
       if (c.tipo === 'materias') return c.quantas * 18;
       if (c.tipo === 'materiasNoDia') return c.quantas * 14;
+      if (c.tipo === 'materiasNoMes') return c.quantas * 20;
       if (c.tipo === 'materiaSeguida') return c.dias * 2.5;
       if (c.tipo === 'dominioMinimo') return c.min + 40;      // exige TODAS acima
       if (c.tipo === 'materiaMenosEstudada') return c.dominioMin;
@@ -117,11 +120,13 @@ export const FRENTES = [
   {
     id: 'vigilia', nome: 'Vigília',
     lema: 'As horas em que quase ninguém está estudando.',
-    pega: (c) => ['horario', 'diaSemana', 'retorno'].includes(c.tipo),
+    // 03/10/2026 (NUM-02): diasDaSemana e o tipo novo de Comeco de Semana e
+    // Domingo de Servico (eram diaSemana, nesta frente, ordenados por vezes).
+    pega: (c) => ['horario', 'diaSemana', 'diasDaSemana', 'retorno'].includes(c.tipo),
     // unidade: número de ocorrências exigidas, com peso por dificuldade
     ordena: (c) => {
       if (c.tipo === 'horario') return c.vezes * 2;    // hora incomum custa mais
-      if (c.tipo === 'diaSemana') return c.vezes;
+      if (c.tipo === 'diaSemana' || c.tipo === 'diasDaSemana') return c.vezes;
       return c.diasSumidoMin;                          // retorno: quanto sumiu
     },
   },
