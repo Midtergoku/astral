@@ -34,6 +34,9 @@
 
 
 
+/* 03/10/2026 (UX-01) */
+.falha-de-carga { border-color: color-mix(in srgb, var(--brasa) 45%, var(--linha)); margin-bottom: var(--e3); }
+.falha-de-carga .btn-tentar { margin-top: var(--e3); min-height: 44px; padding: 10px 18px; border-radius: var(--r-p); border: 1px solid var(--latao); background: var(--latao); color: var(--breu); font: inherit; font-weight: 600; cursor: pointer; }
 .streak-badge {
       display: flex;
       align-items: center;
@@ -1209,26 +1212,34 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     <div class="topbar-right">
       <span class="divisa-topo" data-divisa></span>
       <div class="streak-badge" id="streak-badge">
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--oliva-c);display:inline-block;margin-right:4px;animation:pulseGreen 2s ease-in-out infinite;"></span><i data-icone="chama"></i> <span id="streak-count">0</span> dias
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--oliva-c);display:inline-block;margin-right:4px;animation:pulseGreen 2s ease-in-out infinite;"></span><i data-icone="chama"></i> <span id="streak-count">—</span> dias
       </div>
     </div>
+  </div>
+
+  <!-- 03/10/2026 (UX-01): quando o progresso nao carrega -->
+  <div class="card falha-de-carga" id="falha-de-carga" hidden role="alert">
+    <div class="section-title">Não consegui carregar os seus dados agora</div>
+    <p class="section-sub">Eles estão guardados na sua conta — nada se perdeu. Pode ser a sua internet ou o servidor por um instante.</p>
+    <button type="button" class="btn-tentar">Tentar de novo</button>
   </div>
 
   <!-- STATS CARDS -->
   <div class="grid-3">
     <div class="card xp-card stat-purple">
       <div class="card-label">Nível atual</div>
-      <div class="card-value" id="nivel-nome">Recruta</div>
-      <div class="card-sub" id="nivel-sub">Nível 1</div>
+      <!-- 03/10/2026 (UX-01): "—" enquanto carrega; antes "Recruta, Nivel 1, 0 XP" parecia real -->
+      <div class="card-value" id="nivel-nome">—</div>
+      <div class="card-sub" id="nivel-sub">&nbsp;</div>
       <div class="xp-bar-wrap">
         <div class="xp-bar-label">
-          <span id="xp-atual">0 XP</span>
-          <span id="xp-proximo">500 XP</span>
+          <span id="xp-atual">—</span>
+          <span id="xp-proximo"></span>
         </div>
         <div class="xp-bar">
           <div class="xp-fill" id="xp-fill" style="width:0%"></div>
         </div>
-        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.4rem;text-align:right;">próximo rank: <span id="proximo-rank" style="color:var(--purple-lt);font-weight:600;">Soldado</span></div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.4rem;text-align:right;">próximo rank: <span id="proximo-rank" style="color:var(--purple-lt);font-weight:600;">—</span></div>
       </div>
       <!-- 30/09/2026 (item 10): o cartao para os stories. assets/js/cartao.js -->
       <button type="button" class="btn-cartao" id="btn-cartao">Compartilhar minha divisa</button>
@@ -1236,13 +1247,13 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 
     <div class="card stat-green">
       <div class="card-label">Tempo investido</div>
-      <div class="card-value" id="horas-total">0h</div>
+      <div class="card-value" id="horas-total">—</div>
       <div class="card-sub">no total</div>
     </div>
 
     <div class="card stat-gold">
       <div class="card-label">Domínio do edital</div>
-      <div class="card-value" id="materias-cobertas">0/0</div>
+      <div class="card-value" id="materias-cobertas">—</div>
       <div class="card-sub">matérias com 70% ou mais · <a href="progresso.html" class="card-link">medido pelo Banco</a></div>
     </div>
   </div>
@@ -1476,15 +1487,15 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     from './assets/js/astral.js?v=6073012e';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
-  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=5ad62657';
-  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=5ad62657';
-  import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=5ad62657';
-  import { carregarEventos, sincronizarProvaDoEdital, provaImportada, PROVA_DISPENSADA } from './assets/js/estado.js?v=5ad62657';
+  import { carregarProgresso, salvarProgresso, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
+  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=ab647345';
+  import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
+  import { carregarEventos, sincronizarProvaDoEdital, provaImportada, PROVA_DISPENSADA } from './assets/js/estado.js?v=ab647345';
   import { duracao, duracaoHoras } from './assets/js/formato.js?v=8300466c';
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=db95bc0a';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
-  import { nivelDe } from './assets/js/divisa.js?v=cd5fe2ca';
+  import { nivelDe } from './assets/js/divisa.js?v=3ebe4901';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
   import { pontoFraco } from './assets/js/chefe.js?v=87797754';
 
@@ -1686,7 +1697,7 @@ function mostrarLevelUp(nomeNivel) {
 
     if (erroPerfil) {
       relatar(erroPerfil, 'carregar perfil');
-      toast('Nao consegui carregar os dados da sua conta. O plano pode aparecer errado nesta tela.', 'error');
+      toast('Não consegui carregar o seu plano agora. A tela pode mostrar o plano errado até recarregar.', 'error');
     }
 
     estado.perfil = perfil;
@@ -1695,6 +1706,12 @@ function mostrarLevelUp(nomeNivel) {
     // dados aqui e o banco ainda nao, carregarProgresso() migra antes de
     // devolver -- ninguem perde o que ja conquistou.
     const dados = await carregarProgresso(session.user.id);
+    /* 03/10/2026 (auditoria UX-01, roadmap 3.2): o progresso NAO veio (banco
+       fora e nada guardado neste navegador). Antes a tela desenhava o vazio:
+       "0 dias, Recruta, 0h" para quem tinha 45 dias seguidos -- parecia que
+       tudo tinha sido perdido. Agora diz a verdade e deixa os "—". E o
+       estado.js nao deixa salvar o vazio por cima do verdadeiro. */
+    if (progressoIndisponivel(session.user.id)) { mostrarFalhaDeCarga(); return; }
     estado.xp             = dados.xp;
     estado.streak         = dados.streak;
     estado.horas          = dados.horas;
@@ -1752,6 +1769,13 @@ function mostrarLevelUp(nomeNivel) {
        (ver assets/js/plano.js), entao entrar no dashboard dez vezes nao gera
        dez buscas. */
     montarGuiaPorTras(session.user.id);
+  }
+
+  function mostrarFalhaDeCarga() {
+    const alvo = document.getElementById('falha-de-carga');
+    if (!alvo) return;
+    alvo.hidden = false;
+    alvo.querySelector('button')?.addEventListener('click', () => location.reload(), { once: true });
   }
 
   function montarGuiaPorTras(uid) {
@@ -2054,7 +2078,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       const [{ abrirCartao }, { tagVestida }] = await Promise.all([
         import('./assets/js/cartao.js?v=5d0e29cc'),
-        import('./assets/js/divisa.js?v=cd5fe2ca'),
+        import('./assets/js/divisa.js?v=3ebe4901'),
       ]);
       const n = nivelDaConta();
       const t = tagVestida(estado.materias, estado.tagEscolhida);
@@ -2987,7 +3011,7 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=cd5fe2ca"></script>
+<script type="module" src="/assets/js/divisa.js?v=3ebe4901"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

@@ -489,7 +489,7 @@ export function aplicarDivisa(dados, esc) {
   if (!document.querySelector('[data-divisa]')) return;
   try {
     const { supabase, esc } = await import('./astral.js');
-    const { carregarProgresso } = await import('./estado.js');
+    const { carregarProgresso, progressoIndisponivel } = await import('./estado.js');
 
     const { data } = await supabase.auth.getSession();
     const uid = data?.session?.user?.id;
@@ -549,7 +549,12 @@ export function aplicarDivisa(dados, esc) {
       patenteInicial: p?.edital?.patenteInicial || null,
     }, esc);
 
-    pintar(await carregarProgresso(uid, pintar));
+    const progresso = await carregarProgresso(uid, pintar);
+    /* 03/10/2026 (auditoria UX-01, roadmap 3.2): banco fora e nada neste
+       navegador -- o que voltou e o VAZIO, e pinta-lo dizia "RECRUTA sem tag"
+       no topo de quem e Sargento. Sem dado, a faixa fica em branco. */
+    if (progressoIndisponivel(uid)) return;
+    pintar(progresso);
   } catch (e) {
     /* silencio proposital -- ver comentario acima */
   }

@@ -1201,7 +1201,18 @@
   // ── Montar ────────────────────────────────────────────────────────────────
   async function desenhar() {
     const { data, error } = await supabase.rpc('filtros_de_questoes');
-    if (error) { relatar(error, 'banco/filtros'); return; }
+    if (error) {
+      relatar(error, 'banco/filtros');
+      // 03/10/2026 (auditoria UX-01): a tela ficava EM BRANCO, sem aviso nenhum.
+      $('conteudo').innerHTML = `
+        <div class="card" role="alert" style="text-align:center;padding:var(--e5) var(--e3)">
+          <div class="empty-title">Não consegui abrir o Banco agora</div>
+          <div class="vazio-texto">As suas respostas e o caderno de erros estão guardados — nada se perdeu.
+            Pode ser a sua internet ou o servidor por um instante.</div>
+          <button type="button" class="btn btn-roxo" style="margin-top:var(--e3)" onclick="location.reload()">Tentar de novo</button>
+        </div>`;
+      return;
+    }
     filtros = data;
 
     // O acervo ainda está sendo montado -- dizer isso é melhor que mostrar

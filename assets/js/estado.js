@@ -97,6 +97,11 @@ const paraBanco = (uid, e) => ({
 const emVoo = new Map();
 const JANELA_CARONA = 2000;
 
+/* Contas cujo progresso NAO veio (banco fora e nada no navegador): a tela
+   tem de dizer isso, e ninguem salva o vazio por cima do verdadeiro. */
+const leituraFalhou = new Set();
+export const progressoIndisponivel = (uid) => leituraFalhou.has(uid);
+
 function lerDoBanco(uid) {
   if (emVoo.has(uid)) return emVoo.get(uid);
 
@@ -116,8 +121,15 @@ function lerDoBanco(uid) {
 
     if (error) {
       console.error('Falha ao ler o progresso; usando a cópia do navegador.', error);
-      return local ? normalizar(local) : VAZIO();
+      /* 03/10/2026 (auditoria UX-01, roadmap 3.2): sem o banco E sem copia no
+         navegador, o que volta e um progresso VAZIO -- e a tela mostrava
+         "0 dias, Recruta, 0h" como se fosse real. Pior: se a pessoa marcasse
+         uma sessao, o vazio seria SALVO por cima do verdadeiro. Agora a falha
+         fica marcada: a tela avisa, e salvarProgresso se recusa. */
+      if (!local) { leituraFalhou.add(uid); return VAZIO(); }
+      return normalizar(local);
     }
+    leituraFalhou.delete(uid);
 
     if (data) {
       if (!seq?.error && Number.isFinite(Number(seq?.data))) data.streak = Number(seq.data);
@@ -189,6 +201,13 @@ let ultimoUid = null;
  * respiro de 600ms. Marcar cinco sessoes seguidas vira uma escrita, nao cinco.
  */
 export function salvarProgresso(uid, estado, { imediato = false } = {}) {
+  // 03/10/2026 (UX-01): o progresso nao veio -- salvar seria gravar o VAZIO
+  // por cima do verdadeiro. Nem no navegador: a copia vazia viraria "o ultimo
+  // valor conhecido" na proxima falha.
+  if (leituraFalhou.has(uid)) {
+    console.warn('Progresso nao carregado: nada foi salvo, para nao apagar os dados reais.');
+    return Promise.resolve();
+  }
   ultimoEstado = estado;
   ultimoUid = uid;
   gravarLocal(uid, estado);

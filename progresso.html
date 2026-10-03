@@ -169,6 +169,7 @@
    cronograma que o painel nunca lia -- dizia "rebalanceado!" e nada mudava.
    O cronograma ja se ajusta sozinho toda segunda (decisao dele, 30/09); o
    botao virou a explicacao disso, com o caminho para ver a semana. */
+.btn-tentar { margin-top: var(--e3); min-height: 44px; padding: 10px 18px; border-radius: var(--r-p); border: 1px solid var(--latao); background: var(--latao); color: var(--breu); font: inherit; font-weight: 600; cursor: pointer; }
 .nota-ajuste {
   display: inline-flex;
   align-items: center;
@@ -532,7 +533,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
     from './assets/js/astral.js?v=6073012e';
-  import { carregarProgresso, carregarEstatisticas, ultimasSemanas } from './assets/js/estado.js?v=5ad62657';
+  import { carregarProgresso, carregarEstatisticas, ultimasSemanas, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
   import { duracao, duracaoSeg, duracaoHoras } from './assets/js/formato.js?v=8300466c';
 
   let estado = {
@@ -562,7 +563,7 @@
 
     if (erroPerfil) {
       relatar(erroPerfil, 'carregar perfil');
-      toast('Nao consegui carregar os dados da sua conta. O plano pode aparecer errado nesta tela.', 'error');
+      toast('Não consegui carregar o seu plano agora. A tela pode mostrar o plano errado até recarregar.', 'error');
     }
 
     estado.perfil = perfil;
@@ -570,6 +571,15 @@
     // Progresso vem da conta. Guardo o objeto inteiro porque o rebalanceamento
     // reescreve o cronograma e precisa devolver tudo, nao so a parte alterada.
     estado.progresso = await carregarProgresso(session.user.id);
+    /* 03/10/2026 (auditoria UX-01): o progresso nao veio -- antes a tela ficava
+       so com o aviso de plano e nada mais. Agora diz o que houve e que nada
+       se perdeu, sem desenhar matérias zeradas. */
+    if (progressoIndisponivel(session.user.id)) {
+      document.getElementById('content-area').innerHTML = `<div class="card" role="alert"><div class="section-title">Não consegui carregar os seus dados agora</div>
+        <p class="section-sub">Eles estão guardados na sua conta — nada se perdeu. Pode ser a sua internet ou o servidor por um instante.</p>
+        <button type="button" class="btn-tentar" onclick="location.reload()">Tentar de novo</button></div>`;
+      return;
+    }
     estado.materias  = estado.progresso.materias;
     estado.edital    = estado.progresso.edital;
 
@@ -887,7 +897,7 @@
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=cd5fe2ca"></script>
+<script type="module" src="/assets/js/divisa.js?v=3ebe4901"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>
