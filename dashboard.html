@@ -1480,7 +1480,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=7f17c492';
   import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=7f17c492';
   import { duracao, duracaoHoras } from './assets/js/formato.js?v=8300466c';
-  import { montarSemana, blocosDeHoje, ROTINA_PADRAO } from './assets/js/cronograma.js?v=5435e808';
+  import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=db95bc0a';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
   import { nivelDe } from './assets/js/divisa.js?v=7fbaaf3f';
@@ -2360,7 +2360,7 @@ function verificarBalanco() {
   function sessaoDeHoje() {
     if (!estado.materias?.length) return [];
     return blocosDeHoje(montarSemana(estado.materias, estado.rotina), estado.hoje || [])
-      .map((b) => ({ materia: b.materia, tempo: b.minutos, xp: b.xp, feito: b.feito }));
+      .map((b) => ({ materia: b.materia, tempo: b.minutos, xp: b.xp, feito: b.feito, restante: b.restante, medido: b.medido }));
   }
 
   async function perguntarRotinaPrimeiraVez() {
@@ -2434,9 +2434,11 @@ function verificarBalanco() {
         </div>
         <div class="today-info">
           <div class="today-materia">${esc(item.materia)}</div>
-          <div class="today-tempo">${item.tempo} min</div>
+          <div class="today-tempo">${!item.feito && item.medido > 0
+            ? `${item.medido} de ${item.tempo} min no cronômetro · faltam ${item.restante}`
+            : item.feito && item.medido > 0 ? `${item.tempo} min · feito no cronômetro` : `${item.tempo} min`}</div>
         </div>
-        <div class="xp-pill">+${item.xp} XP</div>
+        <div class="xp-pill">+${!item.feito && item.medido > 0 ? xpDoBloco(item.restante) : item.xp} XP</div>
       </div>
     `).join('');
   }
@@ -2525,8 +2527,13 @@ function verificarBalanco() {
     const nivelAntes = nivelDaConta().indice;
 
     item.feito = true;
+    /* 03/10/2026 (NUM-04): o que o cronometro ja mediu deste bloco nao conta
+       de novo -- grava so o que FALTA. Antes gravava o bloco inteiro por cima
+       do tempo medido, e o mesmo estudo contava duas vezes. */
+    const minutos = item.medido > 0 ? Number(item.restante) || 0 : Number(item.tempo) || 0;
+    item.xp = xpDoBloco(minutos);
     estado.xp += item.xp;
-    estado.horas = Math.round((estado.horas + item.tempo / 60) * 10) / 10;
+    estado.horas = Math.round((estado.horas + minutos / 60) * 10) / 10;
 
     /* 🔴 O REGISTRO DA SESSÃO, acrescentado em 19/09/2026.
        Antes, marcar a sessão do dia subia o XP e não deixava rastro nenhum:
@@ -2548,14 +2555,14 @@ function verificarBalanco() {
        O registro é para a ficha, não para o saldo. */
     registrarSessao(estado.usuario.id, {
       materia: item.materia,
-      segundos: Math.round((Number(item.tempo) || 0) * 60),
+      segundos: Math.round(minutos * 60),
       xp: item.xp,
       modo: 'cronograma',
     }).then(() => atualizarMissoes())
       .catch(() => { /* ja logado dentro de registrarSessao */ });
     // O bloco feito vem das sessoes de hoje: sem isto, o redesenho logo
     // abaixo o mostraria desmarcado ate a proxima visita.
-    (estado.hoje ||= []).push({ modo: 'cronograma', materia: item.materia, segundos: item.tempo * 60 });
+    (estado.hoje ||= []).push({ modo: 'cronograma', materia: item.materia, segundos: minutos * 60 });
 
     // Detecta level up
     const nivelDepois = nivelDaConta().indice;

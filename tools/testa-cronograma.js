@@ -104,6 +104,29 @@ function acharPlaywright() {
     pior <= espera ? ok(`🎯 ${rotulo}: toda matéria volta em até ${espera} semanas`, `maior espera ${pior}`)
       : falha(`${rotulo}: matéria some por tempo demais`, `${pior} semanas (limite ${espera})`);
   }
+  /* 03/10/2026 (auditoria NUM-04, roadmap 2.7): o CRONOMETRO marca o bloco.
+     Antes so a sessao marcada no cronograma pagava o bloco: quem estudava pelo
+     cronometro via o bloco aberto, marcava, e o tempo contava duas vezes. */
+  console.log("\n== 1c. O CRONÔMETRO MARCA O BLOCO DO DIA ==");
+  {
+    const semana = [0, 1, 2, 3, 4, 5, 6].map((dia) => ({ dia, estuda: true,
+      blocos: [{ materia: "Física", minutos: 40, xp: 20 }, { materia: "Química", minutos: 40, xp: 20 }, { materia: "Física", minutos: 40, xp: 20 }] }));
+    const agora = new Date("2026-10-05T15:00:00Z");
+    const b1 = C.blocosDeHoje(semana, [{ materia: "Física", modo: "pomodoro", segundos: 40 * 60 }], agora);
+    b1[0].feito && !b1[1].feito && !b1[2].feito
+      ? ok("🎯 40 min de Física no cronômetro marcam o 1º bloco de Física", "pomodoro conta") : falha("cronômetro não marcou o bloco", JSON.stringify(b1.map((b) => b.feito)));
+    const b2 = C.blocosDeHoje(semana, [{ materia: "física", modo: "livre", segundos: 30 * 60 }], agora);
+    b2[0].feito ? ok("75% do bloco medido (30 de 40) conta como feito", "sem diferenciar maiúscula") : falha("30 de 40 não marcou", JSON.stringify(b2[0]));
+    const b3 = C.blocosDeHoje(semana, [{ materia: "Física", modo: "livre", segundos: 15 * 60 }], agora);
+    !b3[0].feito && b3[0].medido === 15 && b3[0].restante === 25
+      ? ok("🎯 bloco pela metade mostra o que falta", "15 medidos, faltam 25 -- marcar grava só os 25") : falha("bloco parcial errado", JSON.stringify(b3[0]));
+    const b4 = C.blocosDeHoje(semana, [{ materia: "Física", modo: "pomodoro", segundos: 80 * 60 }], agora);
+    b4[0].feito && b4[2].feito && !b4[1].feito ? ok("80 min de Física pagam os 2 blocos de Física, não o de Química") : falha("abatimento na ordem errado", JSON.stringify(b4.map((b) => b.feito)));
+    const b5 = C.blocosDeHoje(semana, [{ materia: "Física", modo: "cronograma", segundos: 40 * 60 }, { materia: "Física", modo: "livre", segundos: 40 * 60 }], agora);
+    b5[0].feito && b5[2].feito ? ok("marcado + cronometrado: cada um paga o seu bloco") : falha("marcado e medido se atrapalharam", JSON.stringify(b5.map((b) => b.feito)));
+    const b6 = C.blocosDeHoje(semana, [{ materia: "Geral", modo: "livre", segundos: 120 * 60 }], agora);
+    b6.every((b) => !b.feito) ? ok("tempo em 'Geral' não marca bloco de matéria") : falha("'Geral' marcou bloco");
+  }
   {
     const rot = { dias: [6], minutosUtil: 60, minutosFds: 60, bloco: 25 };
     JSON.stringify(C.montarSemana(MATERIAS, rot, { semana: 3000 })) === JSON.stringify(C.montarSemana(MATERIAS, rot, { semana: 3000 }))

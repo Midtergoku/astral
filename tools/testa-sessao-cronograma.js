@@ -113,7 +113,7 @@ const MATERIA = "Matematica de Teste";
 const MINUTOS = 45;
 
 (async () => {
-  let usuario = null;
+  let usuario = null, usuario2 = null;
   await new Promise((r) => servidor.listen(PORTA, r));
   const nav = await pw.chromium.launch();
 
@@ -224,11 +224,54 @@ const MINUTOS = 45;
     }
 
     await ctx.close();
+
+    /* ── 2. O CRONOMETRO CONTA PARA O BLOCO (03/10/2026, auditoria NUM-04) ──
+       Antes: 15 min cronometrados da materia do bloco e o bloco continuava
+       aberto; marcar gravava os 45 min INTEIROS por cima -- o mesmo estudo
+       contava duas vezes. Agora o painel mostra o que falta e grava so isso. */
+    console.log("\n== 2. ESTUDOU PELO CRONÔMETRO ==");
+    usuario2 = await criarUsuario();
+    const s2 = await sessaoNova(usuario2.email);
+    const cab2 = { apikey: PUB, Authorization: `Bearer ${s2.access_token}`, "Content-Type": "application/json" };
+    await req("/rest/v1/rpc/salvar_progresso", { method: "POST", headers: cab2, body: JSON.stringify({
+      p_xp: 0, p_streak: 0, p_horas: 0, p_edital: null, p_materias: [{ nome: MATERIA, peso: 3, progresso: 10 }],
+      p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null }) });
+    await req(`/rest/v1/progresso?usuario_id=eq.${usuario2.id}`, { method: "PATCH", headers: { ...cab2, Prefer: "return=minimal" },
+      body: JSON.stringify({ rotina: { dias: [0, 1, 2, 3, 4, 5, 6], minutosUtil: MINUTOS, minutosFds: MINUTOS, bloco: 50 } }) });
+    // 15 min no cronometro, plantados pela chave de servico (o cliente nao
+    // consegue gravar "15 min" numa conta criada agora: o relogio nao correu).
+    await req("/rest/v1/sessoes_estudo", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+      body: JSON.stringify({ usuario_id: usuario2.id, materia: MATERIA, segundos: 15 * 60, xp: 30, modo: "livre" }) });
+    const ctx2 = await nav.newContext({ viewport: { width: 1280, height: 900 } });
+    const pg2 = await ctx2.newPage();
+    await pg2.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);
+    await pg2.addInitScript(scriptSessao(s2));
+    const erros2 = [];
+    pg2.on("pageerror", (e) => erros2.push(String(e.message)));
+    await pg2.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
+    await pg2.waitForFunction(() => !!document.querySelector('[onclick*="marcarFeito"]'), { timeout: 15000 }).catch(() => {});
+    const texto = await pg2.evaluate(() => document.querySelector("#item-0 .today-tempo")?.textContent || "");
+    if (/15 de 45 min/.test(texto) && /faltam 30/.test(texto)) ok("🎯 o painel mostra o que o cronômetro já fez", texto.trim());
+    else falha("o painel ignorou o cronômetro", JSON.stringify(texto));
+    await pg2.click('#item-0 [onclick*="marcarFeito"]').catch(() => {});
+    await pg2.waitForTimeout(3000);
+    const linhas2 = (await req(`/rest/v1/sessoes_estudo?usuario_id=eq.${usuario2.id}&modo=eq.cronograma&select=segundos`, { headers: cab2 })).corpo || [];
+    if (linhas2.length === 1 && Number(linhas2[0].segundos) === 30 * 60) ok("🎯 marcar grava SÓ o que faltava", "30 min, não 45 -- sem contar duas vezes");
+    else falha("marcar gravou o bloco inteiro de novo", JSON.stringify(linhas2));
+    await pg2.reload({ waitUntil: "load" });
+    await pg2.waitForTimeout(4000);
+    const feito = await pg2.evaluate(() => !!document.querySelector("#item-0.done"));
+    if (feito) ok("recarregou e o bloco continua feito");
+    else falha("o bloco voltou a aparecer aberto");
+    if (erros2.length) falha("a tela deu erro de JavaScript", erros2[0].slice(0, 70));
+    else ok("nenhum erro de JavaScript na tela");
+    await ctx2.close();
   } finally {
     if (usuario) {
       await req(`/auth/v1/admin/users/${usuario.id}`, { method: "DELETE", headers: admin });
       console.log("\n  (usuario de teste apagado)");
     }
+    if (usuario2) await req(`/auth/v1/admin/users/${usuario2.id}`, { method: "DELETE", headers: admin });
     await nav.close();
     servidor.close();
   }

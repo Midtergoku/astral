@@ -198,15 +198,32 @@ export function blocosDeHoje(semana, sessoesDeHoje = [], agora = new Date()) {
   const dia = semana?.[agora.getDay()];
   if (!dia) return [];
   // Cada sessao do cronograma de hoje "paga" um bloco da mesma materia, na ordem.
-  const pagas = {};
+  /* 03/10/2026 (auditoria NUM-04, roadmap 2.7): o TEMPO MEDIDO tambem paga.
+     Antes so a sessao marcada no cronograma contava: quem estudava o bloco
+     pelo cronometro (que ja vem com a materia do bloco escolhida) via o bloco
+     desmarcado, marcava, e o mesmo tempo contava DUAS vezes.
+     Agora os minutos medidos (livre/pomodoro) da materia vao abatendo os
+     blocos dela, na ordem. Bloco com 75% ou mais medido esta feito; o que
+     ficou pela metade mostra o que FALTA -- e marcar grava so o que falta. */
+  const chave = (m) => String(m || '').toLowerCase();
+  const pagas = {}, medidos = {};
   for (const s of sessoesDeHoje || []) {
-    if (s.modo !== 'cronograma' || !s.materia) continue;
-    pagas[s.materia] = (pagas[s.materia] || 0) + 1;
+    if (!s.materia) continue;
+    const k = chave(s.materia);
+    if (s.modo === 'cronograma') pagas[k] = (pagas[k] || 0) + 1;
+    else if (s.modo === 'livre' || s.modo === 'pomodoro') medidos[k] = (medidos[k] || 0) + (Number(s.segundos) || 0) / 60;
   }
   return dia.blocos.map((b) => {
-    const feito = (pagas[b.materia] || 0) > 0;
-    if (feito) pagas[b.materia]--;
-    return { ...b, feito };
+    const k = chave(b.materia);
+    if ((pagas[k] || 0) > 0) { pagas[k]--; return { ...b, feito: true, restante: 0, medido: 0 }; }
+    const tem = medidos[k] || 0;
+    if (tem >= b.minutos * 0.75) {
+      medidos[k] = Math.max(0, tem - b.minutos);
+      return { ...b, feito: true, restante: 0, medido: Math.min(b.minutos, Math.round(tem)) };
+    }
+    medidos[k] = 0;
+    const medido = Math.round(tem);
+    return { ...b, feito: false, restante: Math.max(5, b.minutos - medido), medido };
   });
 }
 
