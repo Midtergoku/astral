@@ -95,6 +95,10 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
 
     for (const [largura, altura] of [[1280, 1000], [390, 844]]) {
       console.log(`== ${largura}px ==`);
+      // 03/10/2026 (2.15): no celular o guia de Fisica ja esta guardado -- a
+      // linha do guia tem de dizer "1 de 2", nao "sendo montado".
+      if (largura === 390) await req("/rest/v1/guias_por_edital", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+        body: JSON.stringify({ edital_hash: hash, materia: "Física", dados: { professores: [] } }) });
       const email = `revela-${largura}-${Date.now()}@astral-teste.local`;
       const u = await req("/auth/v1/admin/users", { method: "POST", headers: admin,
         body: JSON.stringify({ email, password: "T!" + crypto.randomUUID(), email_confirm: true }) });
@@ -119,6 +123,12 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
       await pg.waitForSelector("#upload-area", { state: "visible", timeout: 15000 });
       await pg.click("#rotina-ok", { timeout: 15000 });
       await pg.waitForTimeout(800);
+      // Todo titulo que aparecer durante a espera (2.15): edital guardado nao e lido.
+      await pg.evaluate(() => {
+        window.__titulos = [];
+        const h = document.querySelector("[data-ai-titulo]");
+        new MutationObserver(() => window.__titulos.push(h.textContent)).observe(h, { childList: true, characterData: true, subtree: true });
+      });
       const t0 = Date.now();
       await pg.setInputFiles("#file-input", pdfArq);
 
@@ -146,6 +156,14 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
         texto.includes(trecho) ? ok(`mostra ${oque}`, trecho) : falha(`não mostrou ${oque}`, texto.slice(-110));
       }
       /verificad/i.test(texto) ? falha("🚨 diz 'verificado' sem existir revisão") : ok("não promete 'edital verificado'");
+      const titulos = await pg.evaluate(() => window.__titulos || []);
+      !titulos.some((x) => /Lendo/i.test(x))
+        ? ok("🎯 edital guardado: nunca diz 'Lendo seu edital'", titulos.filter((x, i, a) => a.indexOf(x) === i).join(" → "))
+        : falha("disse 'Lendo' sem ler nada", titulos.join(" → "));
+      const linhaGuia = (texto.match(/Guia de professores:[^.]*?(painel|agora)/) || [""])[0];
+      (largura === 390 ? /1 de 2/.test(linhaGuia) : /sendo montado agora/.test(linhaGuia))
+        ? ok("🎯 a linha do guia diz o que é verdade", linhaGuia)
+        : falha("a linha do guia mente", linhaGuia || texto.slice(-120));
 
       // O painel ja aparece para conta nova; o fim da revelacao e a secao de upload sumir.
       await pg.waitForSelector("#upload-section", { state: "hidden", timeout: 8000 }).catch(() => null);
@@ -163,12 +181,56 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
       await pg.screenshot({ path: path.join(fotos, `painel-${largura}.png`) });
       await ctx.close();
     }
+
+    /* 03/10/2026 (2.15): o outro lado -- edital NOVO, que a IA le de verdade e
+       demora. A resposta e segurada 9 s: "Lendo seu edital" TEM de aparecer
+       (depois de 8 s). Resposta fingida pelo teste: nao chama a IA. */
+    console.log("== edital novo (resposta lenta) ==");
+    {
+      const email = `revela-lento-${Date.now()}@astral-teste.local`;
+      const u = await req("/auth/v1/admin/users", { method: "POST", headers: admin,
+        body: JSON.stringify({ email, password: "T!" + crypto.randomUUID(), email_confirm: true }) });
+      contas.push(u.id);
+      const link = await req("/auth/v1/admin/generate_link", { method: "POST", headers: admin, body: JSON.stringify({ type: "magiclink", email }) });
+      const s = await req("/auth/v1/verify", { method: "POST", headers: { apikey: PUB, "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "magiclink", token_hash: link.hashed_token }) });
+      const ctx = await nav.newContext({ viewport: { width: 1280, height: 1000 } });
+      await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);
+      await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({
+        access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer",
+        expires_at: Math.floor(Date.now() / 1000) + 3600, user: s.user }))});`);
+      const pg = await ctx.newPage();
+      await pg.route("**/functions/v1/buscar-recursos", (r) => r.fulfill({ status: 402, contentType: "application/json", body: '{"error":"teste"}' }));
+      await pg.route("**/functions/v1/processar-edital", async (r) => {
+        await new Promise((ok) => setTimeout(ok, 9000));
+        r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, data: { ...RESULTADO, hash: "f".repeat(64) } }) });
+      });
+      await pg.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
+      await pg.waitForSelector("#upload-area", { state: "visible", timeout: 15000 });
+      await pg.click("#rotina-ok", { timeout: 15000 });
+      await pg.waitForTimeout(800);
+      await pg.evaluate(() => {
+        window.__titulos = [];
+        const h = document.querySelector("[data-ai-titulo]");
+        new MutationObserver(() => window.__titulos.push(h.textContent)).observe(h, { childList: true, characterData: true, subtree: true });
+      });
+      await pg.setInputFiles("#file-input", pdfArq);
+      await pg.waitForSelector(".ai-revela li", { timeout: 25000 }).catch(() => null);
+      await pg.waitForTimeout(1500);
+      const titulos = await pg.evaluate(() => window.__titulos || []);
+      const vistos = titulos.filter((x, i, a) => a.indexOf(x) === i);
+      vistos[0] === "Recebendo seu edital." && vistos.includes("Lendo seu edital.") && vistos.includes("Seu plano está pronto.")
+        ? ok("🎯 edital novo e lento: aí sim diz 'Lendo seu edital'", vistos.join(" → "))
+        : falha("a sequência de títulos do edital novo", vistos.join(" → "));
+      await ctx.close();
+    }
   } catch (e) {
     falha("erro no teste: " + e.message);
   } finally {
     if (nav) await nav.close();
     servidor.close();
     await fetch(`${BASE}/rest/v1/editais_lidos?hash=eq.${hash}`, { method: "DELETE", headers: admin });
+    await fetch(`${BASE}/rest/v1/guias_por_edital?edital_hash=eq.${hash}`, { method: "DELETE", headers: admin });
     for (const id of contas) await fetch(`${BASE}/auth/v1/admin/users/${id}`, { method: "DELETE", headers: admin });
     try { fs.unlinkSync(pdfArq); } catch { /* temporario */ }
     console.log(`\n  (${contas.length} contas e o edital plantado apagados · fotos em ${fotos})`);

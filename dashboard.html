@@ -1279,8 +1279,8 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     <!-- AI Processing -->
     <div class="card ai-processing" id="ai-processing">
       <div class="ai-icon"><i data-icone="ia"></i></div>
-      <h3 data-ai-titulo>Lendo seu edital.</h3>
-      <p data-ai-detalhe>Extraindo matérias, calculando pesos e montando seu cronograma. Não feche esta página.</p>
+      <h3 data-ai-titulo>Recebendo seu edital.</h3>
+      <p data-ai-detalhe>Conferindo o arquivo. Não feche esta página.</p>
       <ol class="ai-revela" data-ai-lista hidden aria-live="polite"></ol>
     </div>
   </div>
@@ -1781,6 +1781,8 @@ function mostrarLevelUp(nomeNivel) {
      as sessoes e horas da semana dela, a patente. Nada de "Edital verificado":
      nao existe revisao humana, e escrever isso seria mentir. O guia aparece
      como "sendo montado", porque e o que ele esta. */
+  // O que o servidor disse sobre este edital (guardado? guias prontos?) -- 2.15.
+  let revelacao = { guardado: false, guiasProntos: 0 };
   function revelarResultado(proc) {
     const titulo = proc.querySelector('[data-ai-titulo]');
     const detalhe = proc.querySelector('[data-ai-detalhe]');
@@ -1810,7 +1812,12 @@ function mostrarLevelUp(nomeNivel) {
     const naRotina = estado.rotina && !estado.rotina.pulou ? 'na sua rotina' : 'numa rotina padrão (ajuste em Cronograma)';
     linhas.push({ texto: `Cronograma montado ${naRotina}: <b>${blocos.length}</b> sess${blocos.length === 1 ? 'ão' : 'ões'} · <b>${horas}</b> por semana` });
 
-    linhas.push({ texto: 'Guia de professores: sendo montado agora, aparece aqui no painel', andando: true });
+    // 03/10/2026 (CE-09): "sendo montado agora" so quando e verdade -- o guia
+    // deste edital pode ja estar pronto (outro aluno subiu o mesmo edital).
+    const prontos = Math.min(revelacao.guiasProntos, n);
+    if (n && prontos >= n) linhas.push({ texto: 'Guia de professores: <b>pronto</b>, aparece aqui no painel' });
+    else if (prontos > 0) linhas.push({ texto: `Guia de professores: <b>${prontos} de ${n}</b> matérias prontas, o resto sendo montado agora`, andando: true });
+    else linhas.push({ texto: 'Guia de professores: sendo montado agora, aparece aqui no painel', andando: true });
 
     const nivel = nivelDaConta();
     linhas.push({ texto: `${estado.xp > 0 ? 'Sua patente' : 'Sua patente inicial'}: <b>${esc(nivel.nome)}</b>` });
@@ -2643,8 +2650,18 @@ function verificarBalanco() {
     const titulo = proc.querySelector('[data-ai-titulo]');
     const detalhe = proc.querySelector('[data-ai-detalhe]');
     const lista = proc.querySelector('[data-ai-lista]');
-    if (titulo) titulo.textContent = 'Lendo seu edital.';
-    if (detalhe) { detalhe.hidden = false; detalhe.textContent = 'Extraindo matérias, calculando pesos e montando seu cronograma. Não feche esta página.'; }
+    /* 03/10/2026 (roadmap 2.15; pedido dele de 30/09, reforcado em 03/10:
+       "nao vai dizer que esta lendo o edital, nem nada"): o edital JA GUARDADO
+       volta em poucos segundos e nao e lido de novo -- entao "Lendo seu edital"
+       so aparece se a resposta demorar, que e quando a IA esta lendo de verdade.
+       8 s e nao 2,5: no teste o guardado levou 2,4 s no computador; com PDF
+       grande no celular ou o servidor acordando, passaria -- e mentiria. */
+    if (titulo) titulo.textContent = 'Recebendo seu edital.';
+    if (detalhe) { detalhe.hidden = false; detalhe.textContent = 'Conferindo o arquivo. Não feche esta página.'; }
+    const lendoDeVerdade = setTimeout(() => {
+      if (titulo) titulo.textContent = 'Lendo seu edital.';
+      if (detalhe) detalhe.textContent = 'Extraindo matérias, calculando pesos e montando seu cronograma. Não feche esta página.';
+    }, 8000);
     if (lista) { lista.hidden = true; lista.innerHTML = ''; }
     // No celular os cartoes de nivel vem antes: sem isto a revelacao passava fora da tela.
     const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2662,7 +2679,9 @@ function verificarBalanco() {
       // chamarIA manda o access_token do usuario e ja devolve o objeto
       // validado pela edge function. O codigo anterior mandava a chave
       // publica e ainda fazia stringify + parse do que ja era objeto.
-      const resultado = await chamarIA('processar-edital', { pdfBase64: base64 });
+      const resultado = await chamarIA('processar-edital', { pdfBase64: base64 }).finally(() => clearTimeout(lendoDeVerdade));
+      // O que o servidor ja tinha guardado deste edital (2.15): a revelacao conta a verdade.
+      revelacao = { guardado: resultado.guardado === true, guiasProntos: Number(resultado.guiasProntos) || 0 };
 
       // Monta estado com os dados do edital
       estado.edital = {

@@ -215,7 +215,14 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
       .update({ usos: (guardado.usos ?? 1) + 1, ultimo_uso: new Date().toISOString() })
       .eq("hash", hash);
     console.log("processar-edital guardado", JSON.stringify({ hash: hash.slice(0, 12), custo_usd: 0 }));
-    return json(req, { success: true, data: { ...validar(guardado.resultado), hash } });
+    /* 03/10/2026 (roadmap 2.15, CE-09): a tela dizia "Guia de professores:
+       sendo montado agora" mesmo com o guia deste edital ja pronto. Conta
+       quantas materias ja tem guia guardado, para ela dizer a verdade. */
+    const resultado = validar(guardado.resultado);
+    const nomes = (resultado.materias || []).map((m: { nome?: string }) => m?.nome).filter(Boolean);
+    const { count } = await admin().from("guias_por_edital")
+      .select("materia", { count: "exact", head: true }).eq("edital_hash", hash).in("materia", nomes);
+    return json(req, { success: true, data: { ...resultado, hash, guardado: true, guiasProntos: count ?? 0 } });
   }
 
   // Edital NOVO custa de verdade: aqui entra a janela de 30 dias.
