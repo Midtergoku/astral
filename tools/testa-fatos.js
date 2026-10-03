@@ -167,6 +167,15 @@ function instante(diasAtras, hora) {
     if (f.atributos?.disciplina) ok("a ficha vem junto", `disciplina ${f.atributos.disciplina.valor}`);
     else falha("os atributos não vieram");
 
+    // ── 03/10/2026: "dia estudado" = 15 min somados no dia (decisão dele) ──
+    // Um dia NOVO com só 10 min: conta horas e XP, mas NÃO conta como dia.
+    await req("/rest/v1/sessoes_estudo", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+      body: JSON.stringify({ usuario_id: usuario.id, materia: "Fisica", segundos: 600, xp: 20, modo: "livre", criado_em: instante(70, 14) }) });
+    const f15 = (await req("/rest/v1/rpc/fatos_do_usuario", { method: "POST",
+      headers: { apikey: PUB, Authorization: `Bearer ${t}`, "Content-Type": "application/json" }, body: "{}" })).corpo;
+    conf("🎯 dia com 10 min NÃO conta como dia estudado", f15.diasEstudados, f.diasEstudados);
+    conf("mas a sessão dele conta (sessões +1)", f15.sessoes, f.sessoes + 1);
+
     // ── 🔴 Vazamento ──────────────────────────────────────────────────────
     const anon = await req("/rest/v1/rpc/fatos_do_usuario", {
       method: "POST", headers: { apikey: PUB, "Content-Type": "application/json" }, body: "{}",
