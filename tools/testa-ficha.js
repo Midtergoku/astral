@@ -221,6 +221,48 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
       falha("XP medido/declarado errado", JSON.stringify(f?.xp));
     }
 
+    // ── 3a. AMPLITUDE so com materia do edital (03/10/2026, auditoria NUM-01) ─
+    // Antes: estudo de materia fora do edital (de um edital antigo, "Geral",
+    // ou inventada) contava -- "9 de 4 do edital" = 100. Planto 2 sessoes de
+    // materias que NAO estao no edital e uma de "Geral": tem de continuar 75.
+    // O codigo antigo daria 100 aqui (5 distintas de 4, teto 100).
+    await plantarSessoes(a.id, [
+      { materia: "Quimica", segundos: 1200, xp: 0, modo: "livre", criado_em: diasAtras(2) },
+      { materia: "Biologia", segundos: 1200, xp: 0, modo: "livre", criado_em: diasAtras(3) },
+      { materia: "Geral", segundos: 1200, xp: 0, modo: "livre", criado_em: diasAtras(4) },
+    ]);
+    const fFora = await ficha(tA);
+    if (fFora?.atributos?.amplitude?.valor === 75)
+      ok("🎯 AMPLITUDE ignora materia fora do edital e 'Geral'", `75 — ${fFora.atributos.amplitude.porque}`);
+    else falha("AMPLITUDE contou materia fora do edital", JSON.stringify(fFora?.atributos?.amplitude));
+    // E o servidor nao aceita mais a materia inventada: ela vira "Geral" (o
+    // tempo fica -- recusar faria perder estudo de verdade).
+    const inventada = await req("/rest/v1/sessoes_estudo", {
+      method: "POST", headers: { ...comoUsuario(tA), Prefer: "return=representation" },
+      body: JSON.stringify({ usuario_id: a.id, materia: "Materia Inventada", segundos: 600, xp: 0, modo: "cronograma" }),
+    });
+    const gravada = Array.isArray(inventada.corpo) ? inventada.corpo[0] : null;
+    if (inventada.status === 201 && gravada?.materia === "Geral" && gravada?.segundos === 600)
+      ok("🎯 sessao de materia fora do edital vira 'Geral'", "o tempo fica, a materia inventada nao");
+    else falha("o servidor aceitou a materia inventada", `HTTP ${inventada.status} ${JSON.stringify(inventada.corpo).slice(0, 90)}`);
+    const doEdital = await req("/rest/v1/sessoes_estudo", {
+      method: "POST", headers: { ...comoUsuario(tA), Prefer: "return=representation" },
+      body: JSON.stringify({ usuario_id: a.id, materia: "fisica", segundos: 600, xp: 0, modo: "cronograma" }),
+    });
+    const gd = Array.isArray(doEdital.corpo) ? doEdital.corpo[0] : null;
+    if (doEdital.status === 201 && gd?.materia === "fisica")
+      ok("materia do edital passa (sem diferenciar maiuscula)", "fisica = Fisica");
+    else falha("materia do edital foi trocada", `HTTP ${doEdital.status} ${JSON.stringify(doEdital.corpo).slice(0, 90)}`);
+    // Sessao nova dispara o recalculo do dominio (gatilho dominio_apos_sessao,
+    // 30/09) e apaga o dominio fixado acima -- a comparacao com a TELA, mais
+    // abaixo, espera DOUTRINA 30. Fixa de novo. (03/10: sem isto a tela deu 7.)
+    await require("./testes/dominio-plantado.js").fixarDominio(BASE, SERVICE, a.id, [
+      { nome: "Matematica", peso: 3, progresso: 60 },
+      { nome: "Portugues", peso: 3, progresso: 40 },
+      { nome: "Fisica", peso: 2, progresso: 20 },
+      { nome: "Ingles", peso: 1, progresso: 0 },
+    ]);
+
     // ── 3b. A ficha APARECE NA TELA? ────────────────────────────────────────
     // A funcao responder nao basta: em 04/08 o dashboard inteiro deixou de
     // desenhar por um erro que nenhum teste de API teria visto.
