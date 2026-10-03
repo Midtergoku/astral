@@ -1319,7 +1319,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     <div class="balanco-banner-titulo" id="balanco-titulo">Desequilíbrio detectado</div>
     <div class="balanco-banner-sub" id="balanco-sub">Algumas matérias estão muito à frente de outras.</div>
   </div>
-  <a class="balanco-banner-btn" id="balanco-btn" href="progresso.html">Ver sugestão →</a>
+  <a class="balanco-banner-btn" id="balanco-btn" href="cronograma.html">Ver a semana →</a>
 </div>
 
     <!-- HOJE -->
@@ -2301,9 +2301,24 @@ function verificarBalanco() {
     const maisAtrasada = estado.materias.find(m => (Number(m.progresso) || 0) === minimo);
     const fraco = pontoFraco(estado.materias);
     const alvo = estado.materias.find((m) => m.nome === fraco?.nome) || maisAtrasada;
+    /* 03/10/2026 (auditoria NUM-03, roadmap 2.3): "o cronograma desta semana
+       ja da mais tempo a ela" era frase FIXA -- e no usuario desequilibrado a
+       semana dava mais tempo a Portugues (100%) do que a Fisica (0%). O
+       cronograma usa de proposito o dominio de SEGUNDA-FEIRA (a semana se
+       ajusta uma vez, toda segunda -- decisao dele); entao a frase agora CONFERE
+       a semana montada antes de afirmar, e senao diz quando o ajuste vem. */
+    const minutosNaSemana = {};
+    for (const d of montarSemana(estado.materias, estado.rotina)) {
+      for (const b of d.blocos || []) minutosNaSemana[b.materia] = (minutosNaSemana[b.materia] || 0) + b.minutos;
+    }
+    const maisTempo = Math.max(0, ...Object.values(minutosNaSemana));
+    const alvoLidera = (minutosNaSemana[alvo?.nome] || 0) > 0 && minutosNaSemana[alvo?.nome] === maisTempo;
     titulo.textContent = 'Domínio desequilibrado';
     sub.textContent = `${maisAtrasada?.nome} está ${diferenca} pontos percentuais atrás de ${maisAvancada?.nome}. `
-      + `Pelo peso no edital, a que mais rende agora é ${alvo?.nome} — e o cronograma desta semana já dá mais tempo a ela.`;
+      + `Pelo peso no edital, a que mais rende agora é ${alvo?.nome}`
+      + (alvoLidera
+        ? ' — e o cronograma desta semana já dá mais tempo a ela.'
+        : ' — o cronograma se ajusta toda segunda-feira, com o domínio que você tiver até lá.');
     treinar(alvo);
     banner.classList.add('show');
   } else {

@@ -51,7 +51,7 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 | # | Itens (mesma causa) | O que fazer | Arquivos | Esforço | 🚀 / decisão |
 |---|---|---|---|---|---|
 | ~~2.1~~ | SEG-02 + SEG-03 | **Movido para o fim (4.1)** — ✔️ 21: *"vamos deixar ela por último"* | — | — | — |
-| **2.2** | **LGL-03 + LGL-04** — dados do aluno | `meus_dados()` no servidor com todas as tabelas; exclusão que apaga `lista_espera` pelo e-mail e **anonimiza o e-mail na auditoria**; expurgo de `erros_cliente` > 12 meses | migration, `conta.html`, `excluir-conta/index.ts` | P | 🚀 · ✔️ 2 |
+| **2.2** ✅ | **LGL-03 + LGL-04** — dados do aluno | `meus_dados()` no servidor com todas as tabelas; exclusão que apaga `lista_espera` pelo e-mail e **anonimiza o e-mail na auditoria**; expurgo de `erros_cliente` > 12 meses | migration, `conta.html`, `excluir-conta/index.ts` | P | 🚀 · ✔️ 2 |
 | **2.3** | **NUM-03 + CRO-02** — dois domínios para a mesma matéria | Uma fonte só para o que a tela mostra e o que o cronograma usa; o aviso de desequilíbrio só afirma o que confere; o botão "Rebalancear" **vira o texto** *"seu cronograma se ajusta sozinho toda segunda"* | `dashboard.html`, `progresso.html`, `assets/js/plano.js` | P | 🚀 · ✔️ 11 |
 | **2.4** | **CRO-01** — matéria some em rotina curta | Rodízio: a matéria que ficou de fora numa semana entra na seguinte; o questionário avisa "sua rotina tem N sessões e o edital M matérias" | `assets/js/cronograma.js`, `assets/js/rotina.js` | P | 🚀 |
 | **2.5** | **NUM-01** — Amplitude conta matéria fora do edital | Filtrar pelas matérias do edital em `ficha_do_usuario`; o servidor recusar sessão de matéria fora do edital (exceto "Geral") | migration | P | 🚀 |
@@ -179,3 +179,9 @@ testei: a tela de aceite num celular de verdade (só no navegador emulado) e uma
 (1.5, sem crédito). **Se o Lucas achar um problema amanhã, o mais provável é a tela de aceite numa das
 7 contas reais com algum estado que as contas de teste não têm** — por isso o portão deixa passar quando
 a rede falha (*"exigido de quem o servidor diz que não aceitou, não de quem a rede falhou"*).
+
+### Lote 2 — execução
+
+| # | Data | O que foi feito | Como foi provado | Observação |
+|---|---|---|---|---|
+| **2.2** ✅ | 03/10/2026 | `meus_dados()` no servidor (14 tabelas + lista de espera + histórico de plano; antes eram 4); gatilho `ao_excluir_conta` em `auth.users` que apaga a inscrição na lista de espera e tira e-mail e nome da auditoria — inclusive da linha `lead_removido` que o próprio delete cria; expurgo diário (`pg_cron`, 03:15 de SP) dos erros com mais de 12 meses; `excluir-conta` sem e-mail no log; `conta.html` exporta pelo servidor e diz o que sai e o que fica. Migration `20261003100000` | `tools/testa-dados-do-aluno.js` **17/17 no dev e na produção**, com as 12 tabelas semeadas (o teste FALHA se uma tabela ficar sem semente ou fora do pacote); exclusão pelo botão de verdade; arquivo baixado pelo navegador; `testa-migrations-do-zero`: igual à produção | 🔴 A 1ª execução na produção mandou **1 e-mail falso** de "novo cadastro" ao Lucas (o teste inscreve um lead). Consertado: `notificar-cadastro` ignora `@astral-teste.local` — provado em `net._http_response`. Ver `erros.md` |
