@@ -78,7 +78,7 @@ function cabeNoMolde(q) {
 function alternativasRepetidas(todas) {
   const grupos = new Map();
   for (const q of todas) {
-    if (q.tipo === "certo_errado") continue;
+    if (q.tipo === "certo_errado" || q.imagem) continue;
     const alts = Object.values(q.alternativas || {}).map(norm);
     if (alts.length < 4 || alts.every((a) => a.length <= 6)) continue;
     const chave = `${q.banca}|${q.prova}|${q.ano}|` + [...alts].sort().join("§");
@@ -100,7 +100,11 @@ function alternativasRepetidas(todas) {
 }
 
 /** Todos os defeitos novos de uma lista de questoes: Map id -> motivo. */
-function defeitos(todas) {
+/* 03/10/2026 (roadmap 3.4): questao com IMAGEM do caderno oficial e vista pela
+   imagem -- o texto guardado (que costuma ser justamente o quebrado) nao chega
+   ao aluno. Os itens 6 a 9 olham texto, entao nao se aplicam a ela. */
+function defeitos(todasBrutas) {
+  const todas = (todasBrutas || []).filter((q) => !q.imagem);
   const achados = new Map();
   for (const q of todas) {
     const m = simboloPerdido(q) || questaoColada(q) || dependeDeFigura(q);

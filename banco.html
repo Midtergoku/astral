@@ -81,6 +81,12 @@
   }
 
   .alts { display: grid; gap: .4rem; }
+  /* 03/10/2026 (roadmap 3.4): questao como imagem do caderno oficial */
+  .questao-imagem { display: block; background: #fff; border-radius: var(--r-p); padding: var(--e2); margin-bottom: var(--e1); }
+  .questao-imagem img { display: block; width: 100%; height: auto; }
+  .questao-imagem-nota { font-size: var(--t-xs); color: var(--texto-3); margin: 0 0 var(--e3); }
+  .questao:has(.alt.so-letra) .alts { grid-template-columns: repeat(auto-fit, minmax(3.5rem, 1fr)); }
+  .alt.so-letra { justify-content: center; min-height: 44px; }
 
   .alt {
     display: flex; gap: .6rem; align-items: flex-start; width: 100%;
@@ -637,7 +643,15 @@
             <summary>Texto de apoio</summary>
             <div class="apoio-texto">${esc(q.texto_apoio)}</div>
           </details>` : ''}
-        <div class="questao-enunciado">${esc(q.enunciado)}</div>
+        ${q.imagem ? `
+          <!-- 03/10/2026 (roadmap 3.4): a questao como foi IMPRESSA no caderno oficial --
+               raiz, fracao, matriz e figura que o texto do PDF nao reproduz. Tocar abre maior. -->
+          <a class="questao-imagem" href="${att(q.imagem)}" target="_blank" rel="noopener">
+            <img src="${att(q.imagem)}" loading="lazy" decoding="async"
+                 alt="Questão ${att(String(q.numero ?? ''))} da prova ${att(q.prova || '')}, como foi impressa no caderno oficial">
+          </a>
+          <p class="questao-imagem-nota">Imagem do caderno oficial da prova. Toque para ampliar.</p>`
+          : `<div class="questao-enunciado">${esc(q.enunciado)}</div>`}
         ${q.tipo === 'certo_errado' ? `
           <div class="alts ce">
             <button class="alt" data-responder="${att(String(q.id))}" data-letra="c">Certo</button>
@@ -645,9 +659,9 @@
           </div>` : `
           <div class="alts">
             ${alts.map(([letra, texto]) => `
-              <button class="alt" data-responder="${att(String(q.id))}" data-letra="${att(letra)}">
+              <button class="alt${q.imagem ? ' so-letra' : ''}" data-responder="${att(String(q.id))}" data-letra="${att(letra)}"${q.imagem ? ` aria-label="Alternativa ${att(letra)}"` : ''}>
                 <span class="alt-letra">${esc(letra)})</span>
-                <span>${esc(texto)}</span>
+                ${q.imagem ? '' : `<span>${esc(texto)}</span>`}
               </button>`).join('')}
           </div>`}
         <div data-explicacao="${att(String(q.id))}"></div>

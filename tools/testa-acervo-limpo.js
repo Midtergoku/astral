@@ -40,7 +40,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   const todas = [];
   for (let off = 0; off < 40000; off += 1000) {
     const r = await fetch(
-      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,assunto,enunciado,alternativas,gabarito,tipo,texto_apoio,revisao&publicada=is.true&limit=1000&offset=${off}`,
+      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,assunto,enunciado,alternativas,gabarito,tipo,texto_apoio,revisao,imagem&publicada=is.true&limit=1000&offset=${off}`,
       { headers: admin });
     const p = await r.json();
     if (!Array.isArray(p)) { console.log("🔴 nao consegui ler o acervo:", JSON.stringify(p).slice(0, 120)); process.exit(1); }
@@ -49,6 +49,10 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   }
 
   console.log(`\nTESTA-ACERVO-LIMPO  ${todas.length} questoes no ar\n`);
+  /* 03/10/2026 (roadmap 3.4): questao com IMAGEM do caderno e vista pela imagem.
+     As checagens de TEXTO (4, 4b) valem para as outras; a com imagem tem a sua (4d). */
+  const deTexto = todas.filter((q) => !q.imagem);
+  const comImagem = todas.filter((q) => q.imagem);
   if (!todas.length) { console.log("  (acervo vazio -- nada a conferir)"); process.exit(0); }
 
   // ── 1. Toda questao tem resposta, e a resposta EXISTE ────────────────────
@@ -88,7 +92,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   {
     const por = new Map();
     for (const q of todas) {
-      const c = chaveDe(q);
+      const c = q.imagem ? "img|" + q.imagem : chaveDe(q);
       if (!por.has(c)) por.set(c, []);
       por.get(c).push(q);
     }
@@ -102,16 +106,16 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   // ── 4. O texto nao esta picado ──────────────────────────────────────────
   console.log("\n== 4. O TEXTO CHEGOU INTEIRO ==");
   {
-    const curtas = todas.filter((q) => String(q.enunciado).trim().split(/\s+/).length < 3);
+    const curtas = deTexto.filter((q) => String(q.enunciado).trim().split(/\s+/).length < 3);
     curtas.length === 0
       ? ok("nenhum enunciado picado", "todos com 3 palavras ou mais")
       : falha("enunciado picado", curtas.slice(0, 3).map((q) => JSON.stringify(q.enunciado.slice(0, 30))).join(" "));
 
-    const vazias = todas.filter((q) => Object.values(q.alternativas || {}).some((t) => !String(t).trim()));
+    const vazias = deTexto.filter((q) => Object.values(q.alternativas || {}).some((t) => !String(t).trim()));
     vazias.length === 0 ? ok("nenhuma alternativa vazia") : falha("alternativa vazia", `${vazias.length}`);
 
     // Rodape de prova vazando para dentro da questao -- ja aconteceu.
-    const sujas = todas.filter((q) => /MINIST[ÉE]RIO DA DEFESA|C[ÓO]DIGO DA PROVA/i.test(q.enunciado));
+    const sujas = deTexto.filter((q) => /MINIST[ÉE]RIO DA DEFESA|C[ÓO]DIGO DA PROVA/i.test(q.enunciado));
     sujas.length === 0 ? ok("nenhum cabecalho de prova dentro da questao") : falha("rodape vazou", `${sujas.length}`);
   }
 
@@ -125,11 +129,11 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   {
     const D = await import("../assets/js/defeitos-de-questao.js");
     const conf = (nome, lista) => lista.length === 0 ? ok(nome) : falha(nome, `${lista.length}: #${lista.slice(0, 4).map((q) => q.id).join(" #")}`);
-    conf("🎯 nenhum símbolo perdido (quadradinho no lugar de ≠, π…)", todas.filter((q) => D.simboloPerdido(q)));
-    const repetidas = D.alternativasRepetidas(todas);
-    conf("🎯 nenhuma questão com as alternativas de outra", todas.filter((q) => repetidas.has(q.id)));
-    conf("nenhum pedaço de outra questão colado no enunciado", todas.filter((q) => D.questaoColada(q)));
-    conf("nenhuma questão que depende de figura", todas.filter((q) => D.dependeDeFigura(q)));
+    conf("🎯 nenhum símbolo perdido (quadradinho no lugar de ≠, π…)", deTexto.filter((q) => D.simboloPerdido(q)));
+    const repetidas = D.alternativasRepetidas(deTexto);
+    conf("🎯 nenhuma questão com as alternativas de outra", deTexto.filter((q) => repetidas.has(q.id)));
+    conf("nenhum pedaço de outra questão colado no enunciado", deTexto.filter((q) => D.questaoColada(q)));
+    conf("nenhuma questão que depende de figura", deTexto.filter((q) => D.dependeDeFigura(q)));
     const semRegistro = todas.filter((q) => !q.revisao || q.revisao === "ok");
     conf("toda questão diz O QUE foi conferido (não só \"ok\")", semRegistro);
   }
@@ -139,6 +143,19 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
      A 1a versao da regra 7 marcava as DUAS questoes de qualquer par com as
      mesmas alternativas -- e tirou do ar V/F, "I e II" e "Somente I esta
      correto" legitimos. Casos inventados, um para cada lado da regra. */
+  console.log("\n== 4d. QUESTAO COMO IMAGEM DO CADERNO ==");
+  {
+    const fs2 = require("fs"), path2 = require("path");
+    const raiz = path2.resolve(__dirname, "..");
+    const semArquivo = comImagem.filter((q) => !fs2.existsSync(path2.join(raiz, q.imagem)));
+    semArquivo.length === 0 ? ok(`🎯 toda imagem existe no site`, `${comImagem.length} com imagem`)
+                            : falha("imagem que nao existe no site", semArquivo.slice(0, 4).map((q) => "#" + q.id).join(" "));
+    const nomeErrado = comImagem.filter((q) => !String(q.imagem).startsWith(`img/questoes/${q.id}-`));
+    nomeErrado.length === 0 ? ok("o arquivo de cada uma é o dela (id no nome)") : falha("imagem de outra questao", nomeErrado.map((q) => "#" + q.id).join(" "));
+    const semRev = comImagem.filter((q) => !/imagem/.test(q.revisao || ""));
+    semRev.length === 0 ? ok("toda imagem diz que foi conferida por olho") : falha("imagem sem registro de conferencia", `${semRev.length}`);
+  }
+
   console.log("\n== 4c. O DETECTOR NAO MATA QUESTAO BOA ==");
   {
     const D = await import("../assets/js/defeitos-de-questao.js");

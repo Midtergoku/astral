@@ -36,7 +36,7 @@ const chaveDe = (q) => String(q.enunciado).toLowerCase().replace(/\s+/g, " ").tr
   const todas = [];
   for (let off = 0; off < 60000; off += 1000) {
     const r = await fetch(
-      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,enunciado,texto_apoio,alternativas,gabarito,tipo&publicada=is.true&order=id&limit=1000&offset=${off}`,
+      `${BASE}/rest/v1/questoes?select=id,banca,prova,ano,numero,materia,enunciado,texto_apoio,alternativas,gabarito,tipo,imagem&publicada=is.true&order=id&limit=1000&offset=${off}`,
       { headers: admin });
     const p = await r.json();
     if (!Array.isArray(p)) { console.log("🔴 nao consegui ler:", JSON.stringify(p).slice(0, 120)); process.exit(1); }
