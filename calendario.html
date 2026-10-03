@@ -554,7 +554,8 @@ select option { background: var(--surface); color: var(--text); }
   import { carregarProgresso,
            carregarEventos as buscarEventos,
            criarEvento, atualizarEvento,
-           removerEvento as removerEventoDoBanco } from './assets/js/estado.js?v=7f17c492';
+           removerEvento as removerEventoDoBanco,
+           sincronizarProvaDoEdital, dispensarProvaDoEdital, eventosVisiveis } from './assets/js/estado.js?v=b8a199d3';
   import { icone } from './assets/js/icones.js?v=7c816270';
 
   let usuario = null;
@@ -606,28 +607,12 @@ select option { background: var(--surface); color: var(--text); }
   // array inteiro regravado a cada mexida. Quem já tinha eventos no navegador
   // tem a lista migrada na primeira leitura, dentro de buscarEventos().
   async function carregarEventos() {
-    eventos = await buscarEventos(usuario.id);
-
-    // Importa a data da prova do edital, uma vez só. O índice único em
-    // (usuario_id, origem) garante isso mesmo se duas abas tentarem juntas.
+    // 03/10/2026 (auditoria CAL-01/CAL-02): a prova do edital ACOMPANHA o
+    // edital (trocou de edital, a data muda) e a prova dispensada nao volta.
+    // Era importada uma vez so e nunca mais mudava. Ver estado.js.
     const dados = await carregarProgresso(usuario.id);
-    const jaImportada = (e) => e.origem === 'edital_prova'
-      || (e.categoria === 'prova' && e.obs === 'Importado automaticamente do edital');
-    if (dados.edital?.dataProva && !eventos.some(jaImportada)) {
-      try {
-        const novo = await criarEvento(usuario.id, {
-          nome: 'Prova — ' + (dados.edital.nome || 'Concurso'),
-          data: converterDataBR(dados.edital.dataProva),
-          categoria: 'prova',
-          obs: 'Importado automaticamente do edital',
-          origem: 'edital_prova',
-        });
-        eventos.push(novo);
-      } catch {
-        // Já existia (corrida entre abas) ou a data do edital veio inválida.
-        // Não vale interromper o calendário por causa disso.
-      }
-    }
+    const todos = await sincronizarProvaDoEdital(usuario.id, dados.edital, await buscarEventos(usuario.id));
+    eventos = eventosVisiveis(todos);
   }
 
   // ── RENDER ──
@@ -665,7 +650,9 @@ select option { background: var(--surface); color: var(--text); }
        daqui a 67 dias na mesma tela. Prefere outro evento; se nao houver, a
        prova e o proximo evento, porque e. */
     const futuros = ordenados.filter(e => { const d = calcularDias(e.data); return d !== null && d >= 0; });
-    const proximo = futuros.find(e => e.categoria !== 'prova') || futuros[0];
+    // 03/10/2026 (CAL-02): o MAIS PROXIMO, prova ou nao. "Preferir outro
+    // evento" mostrava o Resultado em 80 dias com a prova em 66.
+    const proximo = futuros[0];
     if (proximo && proximoEl) {
       const cat = CATEGORIAS[proximo.categoria] || CATEGORIAS.personalizado;
       const dias = calcularDias(proximo.data);
@@ -773,7 +760,10 @@ select option { background: var(--surface); color: var(--text); }
     if (!confirm('Remover este evento?')) return;
     const alvo = eventos[index];
     try {
-      await removerEventoDoBanco(usuario.id, alvo.id);
+      // A prova importada do edital nao some do banco: fica DISPENSADA, para
+      // nao voltar na proxima visita (CAL-02). Trocou de edital, a nova aparece.
+      if (alvo.origem === 'edital_prova') await dispensarProvaDoEdital(usuario.id, alvo);
+      else await removerEventoDoBanco(usuario.id, alvo.id);
       eventos.splice(index, 1);
       renderEventos();
     } catch (err) {

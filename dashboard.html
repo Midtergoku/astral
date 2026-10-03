@@ -1476,9 +1476,10 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     from './assets/js/astral.js?v=67af3f5c';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
-  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=7f17c492';
-  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=7f17c492';
-  import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=7f17c492';
+  import { carregarProgresso, salvarProgresso } from './assets/js/estado.js?v=b8a199d3';
+  import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=b8a199d3';
+  import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=b8a199d3';
+  import { carregarEventos, sincronizarProvaDoEdital, provaImportada, PROVA_DISPENSADA } from './assets/js/estado.js?v=b8a199d3';
   import { duracao, duracaoHoras } from './assets/js/formato.js?v=8300466c';
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=db95bc0a';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
@@ -1980,6 +1981,11 @@ function mostrarLevelUp(nomeNivel) {
     const caixa = document.getElementById('chefe');
     if (!caixa || !fatos) return;
 
+    // 03/10/2026 (CAL-01): a prova do calendario acompanha o edital ANTES de o
+    // chefe olhar -- quem trocou de edital e nao abriu o calendario via a prova
+    // antiga aqui ("66 dias") e a nova na faixa do edital ("170 dias").
+    const todos = await sincronizarProvaDoEdital(uid, estado.edital, await carregarEventos(uid));
+    const dispensada = provaImportada(todos)?.categoria === PROVA_DISPENSADA;
     const { data: provas, error } = await supabase
       .from('eventos')
       .select('nome, data, categoria')
@@ -1991,7 +1997,7 @@ function mostrarLevelUp(nomeNivel) {
        calendario. Quem nunca abriu ficava sem o chefe, com a data no edital.
        Sem prova no calendario, vale a data do proprio edital. */
     let prova = provas?.[0] || null;
-    if (!prova && estado.edital?.dataProva) {
+    if (!prova && !dispensada && estado.edital?.dataProva) {
       const m = String(estado.edital.dataProva).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
       if (m) prova = { nome: 'Prova — ' + (estado.edital.nome || 'Concurso'), data: `${m[3]}-${m[2]}-${m[1]}`, categoria: 'prova' };
     }

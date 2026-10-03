@@ -120,6 +120,63 @@ const servidor = http.createServer((q, r) => {
     a && b && a[0] === b[0] && a[1] === b[1]
       ? ok("os dois botoes tem o mesmo tamanho", `${a[0]}x${a[1]}`)
       : falha("botoes de tamanhos diferentes", JSON.stringify(tela?.botoes));
+
+    /* ── 2. A PROVA ACOMPANHA O EDITAL (03/10/2026, auditoria CAL-01/CAL-02) ──
+       Antes: importada uma vez, nunca mudava. Quem trocava de edital ficava com
+       a prova antiga, e o painel mostrava as duas. Apagar nao adiantava: ela
+       voltava na visita seguinte. */
+    console.log("\n== 2. TROCAR DE EDITAL, APAGAR A PROVA ==");
+    pg.on("dialog", (d) => d.accept());
+    const trocarEdital = (nome, dataProva) => req(`/rest/v1/progresso?usuario_id=eq.${u.id}`, { method: "PATCH",
+      headers: { ...admin, Prefer: "return=minimal" }, body: JSON.stringify({ edital: { nome, dataProva } }) });
+    const importadas = async () => (await req(`/rest/v1/eventos?usuario_id=eq.${u.id}&origem=eq.edital_prova&select=id,nome,data,categoria`, { headers: admin })) || [];
+    await trocarEdital("Teste EEAR", "20/03/2027");
+    // Um evento DEPOIS da prova: o "proximo evento" tem de ser a prova.
+    await req("/rest/v1/eventos", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+      body: JSON.stringify({ usuario_id: u.id, nome: "Resultado final", data: "2027-04-30", categoria: "resultado" }) });
+    await pg.goto(`http://localhost:${PORTA}/calendario.html`, { waitUntil: "load" });
+    await pg.waitForTimeout(3000);
+    let imp = await importadas();
+    imp.length === 1 && imp[0].data === "2027-03-20" && imp[0].nome === "Prova — Teste EEAR"
+      ? ok("🎯 trocou de edital: a prova do calendário é a NOVA", "20/03/2027, a mesma linha")
+      : falha("a prova antiga ficou no calendário", JSON.stringify(imp));
+    const proximo = await pg.evaluate(() => document.getElementById("proximo-evento")?.textContent || "");
+    /Prova/.test(proximo) ? ok("'próximo evento' é o mais próximo", proximo) : falha("'próximo evento' pulou a prova", proximo);
+
+    const pd = await ctx.newPage();
+    await pd.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
+    await pd.waitForTimeout(6000);
+    const chefe = await pd.evaluate(() => document.getElementById("chefe")?.textContent.replace(/\s+/g, " ") || "");
+    /Teste EEAR/.test(chefe) && !/Teste Bombeiro/.test(chefe)
+      ? ok("🎯 o quadro do chefe mostra a mesma prova", chefe.trim().slice(0, 60))
+      : falha("o chefe mostra outra prova", chefe.trim().slice(0, 80) || "(vazio)");
+    await pd.close();
+
+    // Apagar a prova importada: some e NAO volta
+    await pg.goto(`http://localhost:${PORTA}/calendario.html`, { waitUntil: "load" });
+    await pg.waitForTimeout(3000);
+    await pg.evaluate(() => {
+      const i = [...document.querySelectorAll(".evento-item")].findIndex((x) => /Prova/.test(x.textContent));
+      const b = document.querySelectorAll(".evento-item")[i]?.querySelector(".btn-acao.danger");
+      b?.click();
+    });
+    await pg.waitForTimeout(2000);
+    for (let i = 0; i < 2; i++) { await pg.goto(`http://localhost:${PORTA}/calendario.html`, { waitUntil: "load" }); await pg.waitForTimeout(2500); }
+    const naTela = await pg.evaluate(() => [...document.querySelectorAll(".evento-item")].map((x) => x.textContent.replace(/\s+/g, " ").trim().slice(0, 30)));
+    imp = await importadas();
+    !naTela.some((t) => /Prova/.test(t)) && imp.length === 1 && imp[0].categoria === "dispensada"
+      ? ok("🎯 a prova apagada NÃO volta", `2 visitas depois, só: ${naTela.join(" | ")}`)
+      : falha("a prova apagada voltou", `${JSON.stringify(naTela)} ${JSON.stringify(imp)}`);
+    // Edital novo: a prova dele aparece
+    await trocarEdital("Teste EsPCEx", "10/10/2027");
+    await pg.goto(`http://localhost:${PORTA}/calendario.html`, { waitUntil: "load" });
+    await pg.waitForTimeout(3000);
+    imp = await importadas();
+    const naTela2 = await pg.evaluate(() => [...document.querySelectorAll(".evento-item")].some((x) => /Teste EsPCEx/.test(x.textContent)));
+    naTela2 && imp[0]?.categoria === "prova" && imp[0]?.data === "2027-10-10"
+      ? ok("trocou de edital de novo: a prova do novo aparece") : falha("a prova do edital novo não apareceu", JSON.stringify(imp));
+    if (erros.length) falha("erro de JavaScript", erros[0].slice(0, 70));
+    else ok("nenhum erro de JavaScript em toda a sequência");
   } catch (e) {
     falha("erro no teste: " + e.message);
   } finally {

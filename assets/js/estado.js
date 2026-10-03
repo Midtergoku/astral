@@ -332,6 +332,59 @@ export async function removerEvento(uid, id) {
   if (error) throw new Error('Não consegui remover o evento.');
 }
 
+/* ── A prova do edital no calendario (03/10/2026, auditoria CAL-01 e CAL-02) ──
+   Antes a prova era importada UMA vez, na primeira visita ao calendario, e
+   nunca mais mudava: quem trocava de edital ficava com a prova antiga -- e o
+   mesmo painel dizia "faltam 170 dias" numa faixa e "66 dias restantes" no
+   quadro do chefe. E apagar a prova importada nao adiantava: ela voltava na
+   visita seguinte.
+
+   Agora:
+   - a linha de origem 'edital_prova' ACOMPANHA o edital (nome e data);
+   - apagar a prova importada a marca como DISPENSADA (nao some do banco): ela
+     sai da tela e nao volta enquanto o edital for o mesmo. Trocou de edital,
+     a prova do novo aparece. Sem coluna nova: a categoria guarda a marca. */
+export const PROVA_DISPENSADA = 'dispensada';
+const OBS_IMPORTADA = 'Importado automaticamente do edital';
+
+export const eventosVisiveis = (lista) => (lista || []).filter((e) => e.categoria !== PROVA_DISPENSADA);
+
+const ehProvaImportada = (e) => e.origem === 'edital_prova' || (e.categoria === 'prova' && e.obs === OBS_IMPORTADA);
+
+function provaDoEdital(edital) {
+  const m = String(edital?.dataProva || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  return { nome: ('Prova — ' + (edital.nome || 'Concurso')).slice(0, 200), data: `${m[3]}-${m[2]}-${m[1]}` };
+}
+
+/** Deixa a prova importada igual a do edital atual. Devolve a lista (inteira). */
+export async function sincronizarProvaDoEdital(uid, edital, eventos) {
+  const lista = [...(eventos || [])];
+  const alvo = provaDoEdital(edital);
+  if (!alvo) return lista;
+  const i = lista.findIndex(ehProvaImportada);
+  try {
+    if (i < 0) {
+      lista.push(await criarEvento(uid, { ...alvo, categoria: 'prova', obs: OBS_IMPORTADA, origem: 'edital_prova' }));
+      return lista;
+    }
+    const atual = lista[i];
+    if (atual.nome === alvo.nome && atual.data === alvo.data) return lista;   // mesma prova (ativa ou dispensada)
+    lista[i] = await atualizarEvento(uid, atual.id, { ...alvo, categoria: 'prova', obs: OBS_IMPORTADA });
+  } catch (e) {
+    // Corrida entre abas (indice unico) ou data invalida: o calendario segue.
+    console.warn('Prova do edital nao sincronizada.', e?.message);
+  }
+  return lista;
+}
+
+/** "Apagar" a prova importada: some da tela e nao volta para o MESMO edital. */
+export function dispensarProvaDoEdital(uid, evento) {
+  return atualizarEvento(uid, evento.id, { ...evento, categoria: PROVA_DISPENSADA });
+}
+
+export const provaImportada = (lista) => (lista || []).find(ehProvaImportada) || null;
+
 // ── Sessoes de estudo ───────────────────────────────────────────────────────
 /* Os tres modos, e a diferenca entre eles NAO e cosmetica:
 
