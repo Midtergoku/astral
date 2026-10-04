@@ -277,3 +277,26 @@ que importam (dia de estudo da rotina **ou** dia estudado) — folga sem estudo 
   `fatos_do_usuario` (melhor sequência; semana sem brecha = todos os dias de estudo da rotina),
   `xp_com_bonus` (seq do dia → bônus da Infantaria).
 - Regressão: `node tools/testa-folga.js` (9; `ASTRAL_DEV=1` no dev).
+
+---
+
+## 8.31. A sessão conta no dia em que COMEÇOU (04/10/2026, roadmap 3.9) ✅
+
+**Leia antes de escrever qualquer conta de dia.** `sessoes_estudo.criado_em` é o **fim** da sessão
+(`now()` na gravação). O dia de estudo é a coluna calculada **`sessoes_estudo.dia`**:
+
+```sql
+dia date generated always as (((criado_em at time zone 'America/Sao_Paulo') - make_interval(secs => segundos))::date) stored
+```
+
+- **Use `dia`, nunca `(criado_em at time zone ...)::date`.** Já usam: `dias_de_estudo`, `fatos_de_hoje`
+  (e a hora de "cedo"/"à noite" = hora do **início**), `fatos_do_usuario` (dias, meses), `xp_com_bonus`,
+  `estatisticas_do_usuario` (`'dia'` de cada sessão), `ficha_do_usuario` (Amplitude = `dia > hoje - 30`).
+- 🔴 **A ordem da expressão importa.** `timestamptz - interval` **não é imutável** e o banco recusa a
+  coluna calculada ("generation expression is not immutable"). Primeiro `timezone(texto, timestamptz)`
+  (imutável), depois menos o intervalo (`timestamp - interval`, imutável).
+- −3 fixo é seguro porque o Brasil não tem horário de verão desde 2019. **Se voltar, revisar aqui e o
+  `formato.js` (`hojeSP`) juntos.**
+- No navegador, o "hoje" é `hojeSP()` / `diaDaSemanaSP()` de `assets/js/formato.js` — nunca `getDay()`
+  ou `setHours(0)` do aparelho.
+- Regressão: `node tools/testa-dia-da-sessao.js` (10; `ASTRAL_DEV=1` no dev; `ASTRAL_RAIZ` para telas antigas).

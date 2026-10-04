@@ -46,7 +46,7 @@ const MS_DIA = 86400000;
    aceitável; errar em silêncio, num arquivo cujo trabalho é contar o passado,
    não é. Sessão com data ilegível é DESCARTADA, e o resto do diário continua
    correto. */
-function diaDe(iso) {
+function diaDe(iso, segundos = 0) {
   /* `new Date(null)` NÃO é inválido -- é 1º de janeiro de 1970, e passaria
      direto pela checagem de NaN, colocando um dia de 1969 no topo do diário.
      Foi o que o teste pegou. Entrada vazia é barrada antes. */
@@ -55,7 +55,9 @@ function diaDe(iso) {
   if (Number.isNaN(d.getTime())) return null;
   // -3h: o mesmo fuso que as funções do servidor usam. Duas convenções
   // diferentes fariam o diário discordar da ficha sobre em que dia algo foi.
-  const local = new Date(d.getTime() - 3 * 3600 * 1000);
+  // 04/10/2026 (NUM-06): menos a duracao -- o dia em que a sessao COMECOU,
+  // como o servidor (coluna sessoes_estudo.dia).
+  const local = new Date(d.getTime() - 3 * 3600 * 1000 - (Number(segundos) || 0) * 1000);
   const p = (n) => String(n).padStart(2, '0');
   return `${local.getUTCFullYear()}-${p(local.getUTCMonth() + 1)}-${p(local.getUTCDate())}`;
 }
@@ -83,7 +85,7 @@ export function montarDiario(sessoes = [], limite = 30) {
   for (const s of sessoes) {
     // 01/10/2026: o dia vem PRONTO do servidor (fonte unica de estatisticas,
     // fuso de Sao Paulo). O calculo daqui so vale para sessao sem `dia` (testes).
-    const dia = (typeof s.dia === 'string' && s.dia) || diaDe(s.criado_em);
+    const dia = (typeof s.dia === 'string' && s.dia) || diaDe(s.criado_em, s.segundos);
     if (!dia) continue;                       // data ilegível: fora, em silêncio
     if (!porDia.has(dia)) porDia.set(dia, { dia, minutos: 0, sessoes: 0, materias: new Map(), modos: new Set() });
     const d = porDia.get(dia);

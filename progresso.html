@@ -534,7 +534,7 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
     from './assets/js/astral.js?v=6073012e';
   import { carregarProgresso, carregarEstatisticas, ultimasSemanas, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
-  import { duracao, duracaoSeg, duracaoHoras } from './assets/js/formato.js?v=8300466c';
+  import { duracao, duracaoSeg, duracaoHoras } from './assets/js/formato.js?v=98782d1d';
 
   let estado = {
     usuario: null,
@@ -613,8 +613,8 @@
     if (!data.length) return;              // sem histórico, sem diário
 
     const [{ montarDiario, resumoDoDiario }, { revisoesDeHoje }] = await Promise.all([
-      import('./assets/js/diario.js?v=6dda6bba'),
-      import('./assets/js/revisao.js?v=5a41bea3'),
+      import('./assets/js/diario.js?v=0fd41147'),
+      import('./assets/js/revisao.js?v=243a3257'),
     ]);
     const dias = montarDiario(data, 30);
     if (!dias.length) return;

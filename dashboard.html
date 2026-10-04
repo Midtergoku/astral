@@ -1565,13 +1565,13 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=ab647345';
   import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
   import { carregarEventos, sincronizarProvaDoEdital, provaImportada, PROVA_DISPENSADA } from './assets/js/estado.js?v=ab647345';
-  import { duracao, duracaoHoras } from './assets/js/formato.js?v=8300466c';
-  import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=db95bc0a';
+  import { duracao, duracaoHoras } from './assets/js/formato.js?v=98782d1d';
+  import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=7ae6b785';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
   import { nivelDe } from './assets/js/divisa.js?v=3ebe4901';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
-  import { pontoFraco } from './assets/js/chefe.js?v=87797754';
+  import { pontoFraco } from './assets/js/chefe.js?v=cb156fb5';
 
   /* 28/09/2026: o cartao "Nivel atual" usava a tabela TABELAS_NIVEIS daqui,
      e o topo da pagina usa a do divisa.js -- com a conta simulada, o topo
@@ -2108,7 +2108,7 @@ function mostrarLevelUp(nomeNivel) {
     }
     if (error || !prova) return;      // sem prova marcada, sem chefe
 
-    const { chefeDe } = await import('./assets/js/chefe.js?v=87797754');
+    const { chefeDe } = await import('./assets/js/chefe.js?v=cb156fb5');
     const c = chefeDe(prova, fatos);
     if (!c) return;                            // prova já passou
 
@@ -2183,7 +2183,7 @@ function mostrarLevelUp(nomeNivel) {
     const [est, cad, { revisoesDeHoje, quando }] = await Promise.all([
       carregarEstatisticas().then((data) => ({ data }), (error) => ({ error })),
       supabase.rpc('caderno_de_erros', { p_materia: null, p_limite: 1 }),
-      import('./assets/js/revisao.js?v=5a41bea3'),
+      import('./assets/js/revisao.js?v=243a3257'),
     ]);
     if (est.error) { relatar(est.error, 'dashboard/revisao'); return; }
     const revisoes = revisoesDeHoje(est.data?.sessoes || [], est.data?.hoje?.dia).slice(0, 5);
@@ -2248,7 +2248,7 @@ function mostrarLevelUp(nomeNivel) {
     const caixa = document.getElementById('missoes');
     if (!caixa || !hoje) return;               // some, em vez de ficar vazia
 
-    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=3c8e7f8b');
+    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=bfbf55a5');
     const lista = missoesDeHoje(uid, hoje);
 
     // Missao que acabou de ser cumprida ganha aviso -- so depois do 1o desenho.

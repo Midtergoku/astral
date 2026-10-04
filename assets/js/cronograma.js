@@ -34,7 +34,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 import { necessidadeDe } from './plano.js';
-import { duracao } from './formato.js';
+import { duracao, diaDaSemanaSP } from './formato.js';
 
 export const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 export const DIAS_CURTOS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -195,7 +195,9 @@ export function montarSemana(materias = [], rotinaBruta = null, { semana: semana
 
 /** Os blocos de hoje, e quais ja foram feitos -- pelas sessoes gravadas HOJE. */
 export function blocosDeHoje(semana, sessoesDeHoje = [], agora = new Date()) {
-  const dia = semana?.[agora.getDay()];
+  // 04/10/2026 (NUM-05): o dia da semana de Sao Paulo -- o mesmo "hoje" das
+  // sessoes que pagam o bloco. No Acre, as 22h30, eram dias diferentes.
+  const dia = semana?.[diaDaSemanaSP(agora)];
   if (!dia) return [];
   // Cada sessao do cronograma de hoje "paga" um bloco da mesma materia, na ordem.
   /* 03/10/2026 (auditoria NUM-04, roadmap 2.7): o TEMPO MEDIDO tambem paga.

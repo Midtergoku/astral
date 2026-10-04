@@ -219,7 +219,7 @@ export const CONDECORACOES = [
     condicao: { tipo: 'sessaoUnica', minutosMin: 90 } },
 
   { id: 'quatro_frentes',   metal: 'prata', nome: 'Frente Ampla',
-    descricao: 'Nenhuma matéria do seu edital ficou esquecida no mês.',
+    descricao: 'Nenhuma matéria do seu edital ficou esquecida nos últimos 30 dias.',
     condicao: { tipo: 'atributo', chave: 'amplitude', min: 100 } },
 
   { id: 'primeiro_dominio', metal: 'prata', nome: 'Terreno Tomado',

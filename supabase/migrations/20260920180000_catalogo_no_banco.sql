@@ -82,7 +82,7 @@ values
   ('cinquenta_horas', 'prata', false, 'Cinquenta Horas', 'Cinquenta horas acumuladas.', '{"tipo":"horas","min":50}'::jsonb),
   ('hora_cheia', 'prata', false, 'Resistência', 'Uma sessão de uma hora inteira.', '{"tipo":"sessaoUnica","minutosMin":60}'::jsonb),
   ('hora_e_meia', 'prata', false, 'Guarda Estendida', 'Uma sessão de uma hora e meia.', '{"tipo":"sessaoUnica","minutosMin":90}'::jsonb),
-  ('quatro_frentes', 'prata', false, 'Frente Ampla', 'Nenhuma matéria do seu edital ficou esquecida no mês.', '{"tipo":"atributo","chave":"amplitude","min":100}'::jsonb),
+  ('quatro_frentes', 'prata', false, 'Frente Ampla', 'Nenhuma matéria do seu edital ficou esquecida nos últimos 30 dias.', '{"tipo":"atributo","chave":"amplitude","min":100}'::jsonb),
   ('primeiro_dominio', 'prata', false, 'Terreno Tomado', 'Uma matéria passou de 70% de domínio.', '{"tipo":"materias","dominioMin":70,"quantas":1}'::jsonb),
   ('dois_dominios', 'prata', false, 'Dois Terrenos', 'Duas matérias acima de 70% de domínio.', '{"tipo":"materias","dominioMin":70,"quantas":2}'::jsonb),
   ('meio_caminho', 'prata', false, 'Meio do Caminho', 'Média de domínio de 50% no edital.', '{"tipo":"atributo","chave":"doutrina","min":50}'::jsonb),

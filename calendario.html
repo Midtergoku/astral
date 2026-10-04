@@ -557,6 +557,7 @@ select option { background: var(--surface); color: var(--text); }
            removerEvento as removerEventoDoBanco,
            sincronizarProvaDoEdital, dispensarProvaDoEdital, eventosVisiveis } from './assets/js/estado.js?v=ab647345';
   import { icone } from './assets/js/icones.js?v=7c816270';
+  import { diasAte } from './assets/js/chefe.js?v=cb156fb5';
 
   let usuario = null;
   let eventos = [];
@@ -579,13 +580,10 @@ select option { background: var(--surface); color: var(--text); }
     return `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}`;
   }
 
-  function calcularDias(dataStr) {
-    if (!dataStr) return null;
-    const hoje = new Date();
-    hoje.setHours(0,0,0,0);
-    const data = new Date(dataStr + 'T00:00:00');
-    return Math.ceil((data - hoje) / (1000 * 60 * 60 * 24));
-  }
+  /* 04/10/2026 (auditoria NUM-05, roadmap 3.9): a MESMA conta do chefe do painel,
+     importada -- com o "hoje" de Sao Paulo. Antes eram duas copias com o relogio
+     do aparelho: no Acre, a noite, a prova ficava um dia mais longe. */
+  const calcularDias = diasAte;
 
   function formatarData(dataStr) {
     if (!dataStr) return '—';
@@ -627,7 +625,6 @@ select option { background: var(--surface); color: var(--text); }
     if (totalEl) totalEl.textContent = eventos.length;
 
     const ordenados = [...eventos].sort((a, b) => new Date(a.data) - new Date(b.data));
-    const agora = new Date(); agora.setHours(0,0,0,0);
 
     // Card dias até a prova
     const prova = ordenados.find(e => e.categoria === 'prova');

@@ -25,16 +25,15 @@
    Sem a terceira, isto seria um relogio de ansiedade com tema militar.
 */
 
+import { hojeSP, diasEntre } from './formato.js';
+
 /* Dias ate a data. Mesma conta de `calendario.html` de proposito -- duas contas
    diferentes dariam dois numeros diferentes na mesma tela, e ninguem saberia
-   qual acreditar. */
-export function diasAte(dataStr) {
+   qual acreditar. (O calendario agora IMPORTA esta, desde 04/10.)
+   04/10/2026 (NUM-05, roadmap 3.9): "hoje" e o de Sao Paulo, nao o do aparelho. */
+export function diasAte(dataStr, agora = new Date()) {
   if (!dataStr) return null;
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  const data = new Date(dataStr + 'T00:00:00');
-  if (Number.isNaN(data.getTime())) return null;
-  return Math.ceil((data - hoje) / 86400000);
+  return diasEntre(hojeSP(agora), dataStr);
 }
 
 /* As fases da campanha. O tom muda com o tempo, mas NUNCA vira panico:

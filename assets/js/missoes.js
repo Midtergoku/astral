@@ -152,7 +152,7 @@ export const CAMPANHAS = [
     texto: 'Nenhuma matéria abandonada no caminho.',
     etapas: [
       { id: 'e_2mat',    texto: '2 matérias no mesmo mês',      alvo: 40, de: (f) => f.atributos?.amplitude?.valor || 0 },
-      { id: 'e_todas',   texto: 'Todas as matérias no mês',     alvo: 100, de: (f) => f.atributos?.amplitude?.valor || 0 },
+      { id: 'e_todas',   texto: 'Todas as matérias em 30 dias', alvo: 100, de: (f) => f.atributos?.amplitude?.valor || 0 },
       { id: 'e_dom50',   texto: 'Nenhuma abaixo de 50%',        alvo: 50, de: (f) => f.dominioMinimo },
       { id: 'e_dom3',    texto: '3 matérias acima de 70%',      alvo: 3,
         de: (f) => (f.materias || []).filter((m) => Number(m?.progresso) >= 70).length },

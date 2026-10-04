@@ -28,11 +28,12 @@ export const INTERVALOS = [1, 7, 30];
 /* O dia no fuso de quem estuda (-3h), AAAA-MM-DD -- a MESMA convencao do
    diario.js e das funcoes do servidor. Duas convencoes fariam a revisao e o
    diario discordarem sobre "ontem". */
-export function diaDe(iso) {
+export function diaDe(iso, segundos = 0) {
   if (!iso || typeof iso !== 'string') return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  const local = new Date(d.getTime() - 3 * 3600 * 1000);
+  // 04/10/2026 (NUM-06): menos a duracao -- o dia em que a sessao COMECOU.
+  const local = new Date(d.getTime() - 3 * 3600 * 1000 - (Number(segundos) || 0) * 1000);
   const p = (n) => String(n).padStart(2, '0');
   return `${local.getUTCFullYear()}-${p(local.getUTCMonth() + 1)}-${p(local.getUTCDate())}`;
 }
@@ -51,7 +52,7 @@ export function revisoesDeHoje(sessoes = [], hoje = diaDe(new Date().toISOString
   for (const s of sessoes || []) {
     // 01/10/2026: o dia vem PRONTO do servidor (fonte unica de estatisticas);
     // o calculo daqui so vale para sessao sem `dia` (testes).
-    const dia = (typeof s?.dia === 'string' && s.dia) || diaDe(s?.criado_em);
+    const dia = (typeof s?.dia === 'string' && s.dia) || diaDe(s?.criado_em, s?.segundos);
     const m = typeof s?.materia === 'string' ? s.materia.trim() : '';
     if (!dia || !m) continue;
     if (!diasPorMateria.has(m)) diasPorMateria.set(m, new Set());

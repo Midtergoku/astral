@@ -317,9 +317,9 @@
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, pintarSeloDoPlano, toast }
     from './assets/js/astral.js?v=6073012e';
   import { carregarProgresso, sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=ab647345';
-  import { duracao } from './assets/js/formato.js?v=8300466c';
+  import { duracao, hojeSP, diaDaSemanaSP } from './assets/js/formato.js?v=98782d1d';
   import { montarSemana, blocosDeHoje, resumoDaRotina, normalizarRotina, xpDoBloco, DIAS, DIAS_CURTOS }
-    from './assets/js/cronograma.js?v=db95bc0a';
+    from './assets/js/cronograma.js?v=7ae6b785';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { necessidadeDe } from './assets/js/plano.js?v=b8fa3798';
 
@@ -333,8 +333,9 @@
   const hm = duracao;                        // 01/10/2026: formato unico (era "2h00")
 
   function datasDaSemana() {
-    const agora = new Date();
-    const seg = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - ((agora.getDay() + 6) % 7));
+    // 04/10/2026 (NUM-05): a semana de Sao Paulo, o mesmo "hoje" do resto do site
+    const [a, m, d] = hojeSP().split('-').map(Number);
+    const seg = new Date(a, m - 1, d - ((diaDaSemanaSP() + 6) % 7));
     // Posicao i na ordem segunda..domingo = i dias depois da segunda.
     return Array.from({ length: 7 }, (_, i) => new Date(seg.getFullYear(), seg.getMonth(), seg.getDate() + i));
   }
@@ -355,7 +356,7 @@
       ? rascunho.map((blocos, dia) => ({ dia, estuda: blocos.length > 0, blocos: blocos.map((b) => ({ ...b, xp: xpDoBloco(b.minutos) })) }))
       : montarSemana(materias, rotina);
     const agora = new Date();
-    const hojeIdx = agora.getDay();
+    const hojeIdx = diaDaSemanaSP(agora);
     const feitosHoje = blocosDeHoje(semana, hoje, agora);
     const datas = datasDaSemana();
 

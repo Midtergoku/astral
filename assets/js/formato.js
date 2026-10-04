@@ -32,3 +32,29 @@ export function duracaoSeg(segundos) {
 export function duracaoHoras(horas) {
   return duracao((Number(horas) || 0) * 60);
 }
+
+/* ── O "hoje" do site (04/10/2026, auditoria NUM-05, roadmap 3.9) ──────────
+   Um "hoje" so: o de Sao Paulo (UTC-3 fixo, sem horario de verao desde 2019),
+   o MESMO das funcoes do servidor, do diario.js e do revisao.js. Antes o
+   cronograma e a contagem ate a prova usavam o relogio do aparelho: no Acre,
+   as 22h30, o servidor ja estava no dia seguinte e o celular nao -- o bloco de
+   "hoje" era o de ontem e a prova ficava um dia mais longe. */
+const FUSO_SP = 3 * 3600 * 1000;
+
+/** 'AAAA-MM-DD' de hoje (ou de `agora`) em Sao Paulo. */
+export function hojeSP(agora = new Date()) {
+  return new Date(agora.getTime() - FUSO_SP).toISOString().slice(0, 10);
+}
+
+/** Dia da semana em Sao Paulo: 0 = domingo ... 6 = sabado. */
+export function diaDaSemanaSP(agora = new Date()) {
+  return new Date(agora.getTime() - FUSO_SP).getUTCDay();
+}
+
+/** Quantos dias de `de` ate `ate` (ambos 'AAAA-MM-DD'). Datas invalidas: null. */
+export function diasEntre(de, ate) {
+  const a = new Date(`${String(de).slice(0, 10)}T12:00:00Z`);
+  const b = new Date(`${String(ate).slice(0, 10)}T12:00:00Z`);
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return null;
+  return Math.round((b - a) / 86400000);
+}
