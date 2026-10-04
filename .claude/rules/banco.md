@@ -262,3 +262,18 @@ hoje** — é isso que impede o XP de subir sem estudar e a patente de descer no
   degrau por ramo**. **Não mudar a regra 1**: desceria a patente de quem já tem.
 - `materia_mais_fraca(uid)`: a mesma conta de sempre, agora num lugar só.
 - Regressão: `node tools/testa-bonus-instrucao.js` (5; `ASTRAL_DEV=1` no dev).
+
+---
+
+## 8.30. A folga da rotina não quebra a sequência (04/10/2026, roadmap 3.8) ✅
+
+**Leia antes de mexer em sequência.** Tudo que é "dias seguidos" passa por
+`sequencias_de_estudo(uid)` → `(d, seq, ilha)`: entre o 1º dia estudado e hoje, só contam os dias
+que importam (dia de estudo da rotina **ou** dia estudado) — folga sem estudo some da fila e vira ponte.
+
+- `dias_de_folga(uid)` espelha o `normalizarRotina` do `cronograma.js` (dias; semana editada à mão;
+  sem rotina = seg–sáb). **Mudou a regra de rotina no site? Mudar aqui junto.**
+- Usam: `sequencia_do_usuario` (viva se nenhum dia de estudo passou em branco até ontem),
+  `fatos_do_usuario` (melhor sequência; semana sem brecha = todos os dias de estudo da rotina),
+  `xp_com_bonus` (seq do dia → bônus da Infantaria).
+- Regressão: `node tools/testa-folga.js` (9; `ASTRAL_DEV=1` no dev).

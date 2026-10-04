@@ -2494,7 +2494,7 @@ function verificarBalanco() {
     if (estado.materias?.length && !estado.cronogramaHoje.length) {
       lista.innerHTML = `
         <div class="empty-state" style="padding:1.25rem 0.5rem;text-align:center;">
-          Hoje é folga na sua rotina. <a href="cronograma.html" style="color:var(--latao-c)">Ver a semana →</a>
+          Hoje é folga na sua rotina — sua sequência não quebra. <a href="cronograma.html" style="color:var(--latao-c)">Ver a semana →</a>
         </div>`;
       return;
     }
