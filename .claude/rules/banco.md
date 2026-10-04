@@ -248,3 +248,17 @@ menos de 16 → erro com `hint = 'idade_minima'` e **nada gravado** · `idade_em
 - Contas de teste: `tools/testes/aceite-de-teste.js` dá `2000-01-01` como pendente; `fingirAceite`
   devolve `nascimento: true`.
 - Regressão: `testa-consentimento` seção 8.
+
+---
+
+## 8.29. O bônus da Instrução vale da escolha em diante (03/10/2026, roadmap 3.7) ✅
+
+`sessoes_estudo` ganhou `habilidades text[]`, `alvo boolean`, `regra_bonus smallint` — o **retrato**
+do momento em que a sessão entrou, gravado pelo gatilho `sessao_habilidades` (roda depois do
+`sessao_confiavel`; ordem alfabética). **`xp_com_bonus` lê o retrato, nunca as especializações de
+hoje** — é isso que impede o XP de subir sem estudar e a patente de descer no "Recomeçar".
+
+- `bonus_gravado(...)`: regra 1 (sessões antigas) soma os degraus; regra 2 (novas) vale o **maior
+  degrau por ramo**. **Não mudar a regra 1**: desceria a patente de quem já tem.
+- `materia_mais_fraca(uid)`: a mesma conta de sempre, agora num lugar só.
+- Regressão: `node tools/testa-bonus-instrucao.js` (5; `ASTRAL_DEV=1` no dev).

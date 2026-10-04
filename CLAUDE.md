@@ -169,6 +169,8 @@ node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tel
 node tools/recorta-questoes.js --ids 1,2 | --fora-do-ar  recorta a questao do PDF como IMAGEM (img/questoes);
                                 NAO grava no banco. Toda imagem e conferida por olho antes de publicar (03/10, 3.4)
 node tools/testa-questao-imagem.js  a questao como imagem funciona no Banco em 360 px? (03/10, 3.4)
+node tools/testa-bonus-instrucao.js  o bonus da Instrucao vale so da escolha em diante? Recomecar nao desce
+                                a patente? ASTRAL_DEV=1 no dev (03/10, GAM-01)
 node tools/testa-limite-erros.js  a tabela de erros aguenta inundacao? 25 sem login -> 15; IP nao guardado.
                                 ASTRAL_DEV=1 no dev. Devolve os contadores ao fim (03/10, SEG-01)
 node tools/testa-corrigir-edital.js  o aluno corrige materia, peso e data? renomear leva as horas?
