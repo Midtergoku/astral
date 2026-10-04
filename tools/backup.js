@@ -64,7 +64,11 @@ const TABELAS = [
   'funil',                                            // 03/10/2026, o funil (NEG-01)
 ];
 // Tabela que existe e NAO vai para o backup, com o porque. Hoje: nenhuma.
-const IGNORADAS = {};
+const IGNORADAS = {
+  // 03/10/2026 (roadmap 3.5): contagem de envios de erro por hora/dia. Vive 2 dias,
+  // nao tem dado de ninguem (o IP vai embaralhado) e restaurar contagem velha nao serve.
+  erros_cliente_limite: 'contagem efemera do registrar-erro (2 dias, sem dado pessoal)',
+};
 
 /* O PostgREST so entrega ate 1.000 linhas por pedido (max-rows do Supabase).
    Sem paginar, `questoes` (1.980) sairia CORTADA, e o arquivo pareceria
