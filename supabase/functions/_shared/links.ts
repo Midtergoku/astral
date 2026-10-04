@@ -8,8 +8,9 @@
 //
 // COMO, sem chave de API nenhuma (medido em 30/09 contra o YouTube):
 //   - canal por @nome, /c/ ou /user/ inventado -> HTTP 404
-//   - canal por /channel/UC... inventado       -> a pagina da 200, mas o feed
-//     oficial (feeds/videos.xml?channel_id=) da 404; o real da 200
+//   - canal por /channel/UC... inventado       -> a pagina da 200, mas SEM o
+//     <link rel="canonical">; o real o traz (ate 30/09 se usava o feed
+//     feeds/videos.xml, que QUEBROU em 03/10: 500/404 ate para canal real)
 //   - canal real por @nome                     -> 200 e a pagina traz
 //     <link rel="canonical" href=".../channel/UC...">
 //   - video ou playlist inventado              -> a pagina da 200 sempre, mas
@@ -81,12 +82,11 @@ async function conferirUm(bruto: string, cegoNoYoutube: () => Promise<boolean>):
       if (r.status === 404 || r.status === 400) return "morto";
       return "incerto";
     }
-    const codigo = u.pathname.match(/^\/channel\/(UC[\w-]{22})/);
-    if (codigo) {
-      const f = await buscar(`https://www.youtube.com/feeds/videos.xml?channel_id=${codigo[1]}`);
-      if (typeof f === "string") return "incerto";
-      return f.status === 200 ? "ok" : f.status === 404 ? "morto" : "incerto";
-    }
+    /* 03/10/2026: o feed (feeds/videos.xml?channel_id=) QUEBROU do lado do
+       YouTube -- 500 para canal real e 404 ate para o canal oficial do proprio
+       YouTube. Com ele, todo /channel/UC... real seria cortado como "morto".
+       Medido no mesmo dia: a PAGINA do canal real traz o <link rel="canonical">
+       e a do inventado nao traz -- o mesmo criterio do @nome, logo abaixo. */
     const r = await buscar(u.toString());
     if (typeof r === "string") return "incerto";
     if (r.status === 404 || r.status === 410) return "morto";

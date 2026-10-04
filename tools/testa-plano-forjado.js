@@ -92,14 +92,33 @@ async function req(c, o) { const r = await fetch(BASE + c, o); let corpo = null;
       const fns = await sql(`select p.proname as nome,
           has_function_privilege('authenticated', p.oid, 'execute') as logado,
           has_function_privilege('anon', p.oid, 'execute') as anonimo,
-          pg_get_function_result(p.oid) as devolve
+          pg_get_function_result(p.oid) as devolve, p.prosrc as fonte
         from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname = 'public'
           and p.prosrc ~* '(update|insert\\s+into)\\s+(public\\.)?perfis'`);
-      const chamaveis = fns.filter((f) => f.devolve !== "trigger" && (f.logado || f.anonimo));
+      /* 03/10/2026 (roadmap 3.6): registrar_nascimento escreve no perfil -- e a
+         trava acusou, como devia. Em vez de desligar a trava, ela ficou PRECISA:
+         funcao chamavel pode escrever no perfil SO nas colunas liberadas aqui,
+         uma a uma, com o motivo. Insert no perfil por funcao chamavel: nunca. */
+      const COLUNAS_LIBERADAS = {
+        nascimento: "registrar_nascimento (3.6): grava a data uma vez, nada mais",
+      };
+      const colunasEscritas = (fonte) => {
+        const cols = [];
+        const re = /update\s+(?:public\.)?perfis\s+set\s+([\s\S]+?)\s+where/gi;
+        let m;
+        while ((m = re.exec(fonte))) for (const parte of m[1].split(",")) cols.push(parte.split("=")[0].trim().toLowerCase());
+        return cols;
+      };
+      const temInsert = (fonte) => /insert\s+into\s+(?:public\.)?perfis/i.test(fonte);
+      const chamaveis = fns.filter((f) => f.devolve !== "trigger" && (f.logado || f.anonimo))
+        .filter((f) => temInsert(f.fonte) || colunasEscritas(f.fonte).some((c) => !(c in COLUNAS_LIBERADAS)) || !colunasEscritas(f.fonte).length);
+      const liberadas = fns.filter((f) => f.devolve !== "trigger" && (f.logado || f.anonimo) && !chamaveis.includes(f));
+      if (liberadas.length) ok("funcao chamavel que escreve no perfil so mexe em coluna liberada",
+        liberadas.map((f) => `${f.nome} -> ${colunasEscritas(f.fonte).join(", ")}`).join("; "));
       !chamaveis.length
         ? ok("🎯 nenhuma funcao chamavel de fora escreve no perfil",
-            `${fns.length} escrevem, todas gatilho interno: ${fns.map((f) => f.nome).join(", ")}`)
+            `${fns.length} escrevem, gatilho interno ou coluna liberada: ${fns.map((f) => f.nome).join(", ")}`)
         : falha("FUNCAO CHAMAVEL ESCREVE NO PERFIL", chamaveis.map((f) => f.nome).join(", "));
 
       // O plano nunca pode vir de algo que a propria pessoa escreve (metadados
