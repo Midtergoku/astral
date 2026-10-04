@@ -181,8 +181,13 @@ COMO RESTAURAR, se um dia precisar
         node tools/recria-webhook-lista.js --projeto <ref do projeto novo>)
   3. carregar cada .json na tabela correspondente, UMA INSTRUCAO POR TABELA:
 
-       insert into public.<tabela> overriding system value
-       select * from json_populate_recordset(null::public.<tabela>, '<conteudo do json>');
+       insert into public.<tabela> (<colunas do json>) overriding system value
+       select <colunas do json> from json_populate_recordset(null::public.<tabela>, '<conteudo do json>');
+
+     <colunas do json> = os nomes que aparecem nas linhas do arquivo, entre aspas
+     ("id", "usuario_id", ...). NAO usar "select *": coluna criada DEPOIS deste
+     backup viria nula e a carga falharia (03/10/2026, sessoes_estudo.habilidades).
+     Assim ela pega o valor padrao da tabela.
 
   4. recriar as contas pela API de admin, usando _contas.json
      (as pessoas vao precisar entrar de novo -- senha nao e guardada aqui)

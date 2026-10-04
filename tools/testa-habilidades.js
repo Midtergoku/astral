@@ -136,15 +136,21 @@ async function criar(prefixo) {
     if (repetido.status >= 400) ok("não dá para escolher duas vezes", `status ${repetido.status}`);
     else falha("🚨 escolheu a mesma duas vezes");
 
-    // ── 5. 🎯 O BÔNUS APARECE NO XP ────────────────────────────────────────
-    // 40 dias seguidos, então todas as sessões estão em dias de sequência ≥ 3
-    // (menos as duas primeiras). inf_1 dá +5%.
+    // ── 5. 🎯 O BÔNUS VALE DA ESCOLHA EM DIANTE (03/10/2026, roadmap 3.7) ──
+    // Antes: escolher aumentava o XP de TODAS as sessoes passadas (a auditoria
+    // subiu de Subtenente a Aspirante sem estudar). Decisao dele: so daqui pra
+    // frente. O passado fica igual; a sessao NOVA ganha o bonus.
     const comBonus = await sinc();
-    if (comBonus.xpValidado > comBonus.xpBase) {
-      ok("🎉 gastar um ponto AUMENTA o XP", `${comBonus.xpBase} -> ${comBonus.xpValidado}`);
-    } else {
-      falha("o bônus não apareceu", `${comBonus.xpBase} -> ${comBonus.xpValidado}`);
-    }
+    if (comBonus.xpValidado === comXp.xpValidado) ok("🎯 escolher NÃO mexe no XP já estudado", `${comXp.xpValidado} -> ${comBonus.xpValidado}`);
+    else falha("o XP do passado mudou ao escolher", `${comXp.xpValidado} -> ${comBonus.xpValidado}`);
+    // uma sessao nova HOJE (dia 40 da sequencia): inf_1 da +5%
+    const sessaoNova = () => req("/rest/v1/sessoes_estudo", { method: "POST", headers: { ...a.h, Prefer: "return=representation" },
+      body: JSON.stringify({ usuario_id: a.id, materia: "Matemática", segundos: 3600, modo: "cronograma" }) });
+    const s1 = (await sessaoNova()).corpo?.[0];
+    const aposSessao = await sinc();
+    const ganho1 = aposSessao.xpValidado - comBonus.xpValidado;
+    if (s1 && ganho1 > Number(s1.xp)) ok("🎉 a sessão nova ganha o bônus", `+${ganho1} (base ${s1.xp})`);
+    else falha("o bônus não apareceu na sessão nova", `+${ganho1}, base ${s1?.xp}`);
 
     // ⚠️ E os PONTOS não podem subir junto -- seria a circularidade.
     if (comBonus.pontos === comXp.pontos && comBonus.xpBase === comXp.xpBase) {
@@ -153,14 +159,16 @@ async function criar(prefixo) {
       falha("🚨 circularidade: o bônus virou ponto", `${comXp.pontos} -> ${comBonus.pontos}`);
     }
 
-    // ── 6. Os bônus SOMAM ──────────────────────────────────────────────────
+    // ── 6. No mesmo ramo vale o MAIOR degrau (03/10/2026, GAM-12) ──────────
+    // Antes os degraus somavam (inf_1 + inf_2 = 15%). Agora: 10%, o maior.
     await escolher("inf_2");                       // +10% para sequência ≥ 7
+    const antesDaSegunda = (await sinc()).xpValidado;
+    const s2 = (await sessaoNova()).corpo?.[0];
+    const ganho2 = (await sinc()).xpValidado - antesDaSegunda;
+    const base2 = Number(s2?.xp);
+    if (s2 && Math.abs(ganho2 - base2 * 1.10) <= 1) ok("dois degraus do ramo: vale o maior (10%), não a soma", `+${ganho2} (base ${base2})`);
+    else falha("o maior degrau nao valeu sozinho", `+${ganho2}, esperado ~${(base2 * 1.10).toFixed(1)} (soma daria ${(base2 * 1.15).toFixed(1)})`);
     const doisNiveis = await sinc();
-    if (doisNiveis.xpValidado > comBonus.xpValidado) {
-      ok("dois degraus rendem mais que um", `${comBonus.xpValidado} -> ${doisNiveis.xpValidado}`);
-    } else {
-      falha("o segundo degrau não somou", `${doisNiveis.xpValidado}`);
-    }
 
     // ── 7. Gastar todos e tentar mais um ───────────────────────────────────
     await escolher("art_1");                       // 3º ponto
@@ -173,11 +181,13 @@ async function criar(prefixo) {
     if (esq.corpo?.esquecidas === 3) ok("esquecer devolve os pontos", `${esq.corpo.esquecidas} habilidades`);
     else falha("esquecer errado", JSON.stringify(esq.corpo));
 
+    // 03/10/2026 (roadmap 3.7): esquecer devolve os PONTOS, mas NAO tira o XP
+    // ja ganho -- antes a patente descia aqui.
     const depoisEsq = await sinc();
-    if (depoisEsq.gastos === 0 && depoisEsq.xpValidado === depoisEsq.xpBase) {
-      ok("depois de esquecer, o XP volta ao base", `${depoisEsq.xpValidado}`);
+    if (depoisEsq.gastos === 0 && depoisEsq.xpValidado === doisNiveis.xpValidado) {
+      ok("🎯 depois de esquecer, o XP já ganho FICA", `${doisNiveis.xpValidado} -> ${depoisEsq.xpValidado}`);
     } else {
-      falha("esquecer não limpou o bônus", `gastos ${depoisEsq.gastos}, xp ${depoisEsq.xpValidado}`);
+      falha("esquecer mexeu no XP ganho", `gastos ${depoisEsq.gastos}, xp ${doisNiveis.xpValidado} -> ${depoisEsq.xpValidado}`);
     }
 
     // E dá para reescolher em OUTRO ramo -- é a razão de esquecer existir.

@@ -188,11 +188,18 @@ const haDias = (n) => new Date(Date.now() - n * 86400000).toISOString();
       falha("a escolha não persistiu", `${recarregado.minhas} minhas, ${recarregado.livres} livres`);
     }
 
-    // ── 4. O XP com bônus subiu ────────────────────────────────────────────
+    // ── 4. O bonus vale da escolha EM DIANTE (03/10/2026, roadmap 3.7) ─────
+    // Antes esta checagem esperava o XP do passado SUBIR ao escolher -- era o
+    // defeito GAM-01. Agora: o passado fica; a sessao nova (hoje) ganha +5%.
     const sinc = (await req("/rest/v1/rpc/sincronizar_conquistas",
       { method: "POST", headers: comoEle, body: "{}" })).corpo;
-    if (sinc.xpValidado > sinc.xpBase) ok("o XP com bônus reflete a escolha", `${sinc.xpBase} -> ${sinc.xpValidado}`);
-    else falha("o bônus não chegou ao XP", `${sinc.xpBase} -> ${sinc.xpValidado}`);
+    if (sinc.xpValidado === sinc.xpBase) ok("escolher não mexe no XP já estudado", `${sinc.xpBase} -> ${sinc.xpValidado}`);
+    else falha("o XP do passado mudou ao escolher", `${sinc.xpBase} -> ${sinc.xpValidado}`);
+    const nova = (await req("/rest/v1/sessoes_estudo", { method: "POST", headers: { ...comoEle, Prefer: "return=representation" },
+      body: JSON.stringify({ usuario_id: usuario.id, materia: "Matemática", segundos: 3600, modo: "cronograma" }) })).corpo?.[0];
+    const sinc2 = (await req("/rest/v1/rpc/sincronizar_conquistas", { method: "POST", headers: comoEle, body: "{}" })).corpo;
+    if (nova && sinc2.xpValidado - sinc.xpValidado > Number(nova.xp)) ok("a sessão nova ganha o bônus da escolha", `+${sinc2.xpValidado - sinc.xpValidado} (base ${nova.xp})`);
+    else falha("o bônus não chegou à sessão nova", `+${sinc2.xpValidado - sinc.xpValidado}, base ${nova?.xp}`);
 
     // ── 5. Recomeçar devolve tudo, na tela ─────────────────────────────────
     await pg.evaluate(() => document.getElementById("btn-esquecer")?.click());

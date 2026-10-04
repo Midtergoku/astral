@@ -68,6 +68,10 @@ const servidor = http.createServer((q, r) => {
   async function abrir(pagina, { fora }) {
     const ctx = await nav.newContext({ viewport: { width: 1280, height: 900 } });
     await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);
+    // 04/10/2026: o erro provocado de proposito NAO vai para o registro de erros de
+    // verdade (erros_cliente) -- 30 linhas de robo ja tinham se misturado ao que
+    // o checa-saude e o lembrete de inicio de sessao mandam olhar.
+    await ctx.route("**/functions/v1/registrar-erro", (r) => r.fulfill({ status: 204, body: "" }));
     await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 7200, user: s.user }))});`);
     const gravacoes = [];
     if (fora) {

@@ -65,6 +65,10 @@ const servidor = http.createServer((q, r) => {
   try {
     const ctx = await nav.newContext({ viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
     await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);
+    // 04/10/2026: o erro provocado de proposito NAO vai para o registro de erros de
+    // verdade (erros_cliente) -- 30 linhas de robo ja tinham se misturado ao que
+    // o checa-saude e o lembrete de inicio de sessao mandam olhar.
+    await ctx.route("**/functions/v1/registrar-erro", (r) => r.fulfill({ status: 204, body: "" }));
     await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 7200, user: s.user }))});`);
     let campos = null;
     await ctx.route("**/rest/v1/rpc/sortear_questoes**", async (route) => {

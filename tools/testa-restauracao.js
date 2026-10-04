@@ -93,6 +93,13 @@ const nok = (t, extra) => { console.log('  FALHA ' + t.padEnd(46) + (extra ?? ''
          Se o backup nao couber aqui, tambem nao caberia num banco novo. */
       await sql(`create table "${ESQUEMA}"."${tabela}" (like public."${tabela}" including all);`);
 
+      /* 03/10/2026: so as colunas que o BACKUP tem. Uma coluna criada depois da
+         foto (ex.: sessoes_estudo.habilidades, roadmap 3.7, NOT NULL com padrao)
+         viria nula pelo json_populate_recordset e derrubaria a restauracao --
+         descoberto na bateria, com o backup feito minutos antes da migration.
+         Coluna que o arquivo nao tem pega o PADRAO da tabela. */
+      const colunas = [...new Set(linhas.flatMap((l) => Object.keys(l)))].map((c) => `"${c.replace(/"/g, '""')}"`).join(", ");
+
       if (linhas.length) {
         /* json_populate_recordset faz a conversao de tipo DE VERDADE: texto
            vira data, objeto vira jsonb, numero vira numeric. E exatamente aqui
@@ -113,8 +120,8 @@ const nok = (t, extra) => { console.log('  FALHA ' + t.padEnd(46) + (extra ?? ''
            Esta linha esta repetida no LEIA-ME de cada backup, porque quem for
            restaurar de verdade talvez nao tenha esta ferramenta em maos. */
         await sql(
-          `insert into "${ESQUEMA}"."${tabela}" overriding system value ` +
-          `select * from json_populate_recordset(null::"${ESQUEMA}"."${tabela}", '${json}'::json);`,
+          `insert into "${ESQUEMA}"."${tabela}" (${colunas}) overriding system value ` +
+          `select ${colunas} from json_populate_recordset(null::"${ESQUEMA}"."${tabela}", '${json}'::json);`,
         );
       }
 
@@ -146,9 +153,9 @@ const nok = (t, extra) => { console.log('  FALHA ' + t.padEnd(46) + (extra ?? ''
          2. Restaurado x banco de hoje: so informa quanto mudou desde a foto. */
       const fonte = `json_populate_recordset(null::"${ESQUEMA}"."${tabela}", '${JSON.stringify(linhas).replace(/'/g, "''")}'::json)`;
       const [{ n: perdidas }] = await sql(
-        `select count(*)::int as n from (select * from ${fonte} except select * from "${ESQUEMA}"."${tabela}") d;`);
+        `select count(*)::int as n from (select ${colunas} from ${fonte} except select ${colunas} from "${ESQUEMA}"."${tabela}") d;`);
       const [{ n: trocadas }] = await sql(
-        `select count(*)::int as n from (select * from "${ESQUEMA}"."${tabela}" except select * from ${fonte}) d;`);
+        `select count(*)::int as n from (select ${colunas} from "${ESQUEMA}"."${tabela}" except select ${colunas} from ${fonte}) d;`);
       if (perdidas > 0 || trocadas > 0) {
         nok(tabela, `o backup NAO voltou igual: ${perdidas} linha(s) do arquivo sumiram, ${trocadas} voltaram trocadas`);
         continue;
