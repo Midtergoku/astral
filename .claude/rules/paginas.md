@@ -528,7 +528,8 @@ Regressão: `node tools/testa-vitrine.js` (no ar) ou `--local`.
 
 - **Sem service worker, de propósito.** Cache de página no navegador já fez conserto chegar 1 hora atrasado
   (`historico/erros.md`); um service worker mal feito prende a versão velha por dias. O manifesto basta
-  para o atalho na tela inicial abrir em tela cheia.
+  para o atalho na tela inicial abrir em tela cheia. ✏️ Medido em 04/10 no ar: o Chrome diz **instalável,
+  0 erros** (`Page.getInstallabilityErrors`) — o "Instalar app" aparece mesmo sem service worker.
 - 🔴 **Domínio próprio:** trocar `SITE` no `gera-vitrine.js`, rodar, e trocar `astral-psi.vercel.app` nas 6
   páginas públicas (`og:url`, `og:image`, `canonical`). O `og:image` **tem** de ser endereço completo —
   o WhatsApp não lê caminho relativo.
