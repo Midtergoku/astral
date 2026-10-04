@@ -395,3 +395,15 @@ powershell -File tools\smtp-configura.ps1 -Aplicar -Usuario 'lherdy2003@gmail.co
 - Ler o token da CLI no Gerenciador de Credenciais foi **bloqueado pelo classificador** quando o
   script estava no diretório temporário; **funcionou** com o script em `tools/`, que é onde ele
   deve morar de qualquer forma.
+
+---
+
+## 14. Ao ligar o domínio próprio — o que leva o endereço (04/10/2026)
+
+Medido com `grep -rl astral-psi.vercel.app` em 04/10/2026. Além de Supabase (URL do site e redirecionamentos —
+`tools/confere-auth.ps1`) e da CORS em `supabase/functions/_shared/comum.ts`:
+
+- **A vitrine (roadmap 3.11):** `SITE` em `tools/gera-vitrine.js` → rodar (`previa`, `sitemap`, `robots`);
+  e `og:url` / `og:image` / `canonical` nas 6 páginas públicas. Depois: `node tools/testa-vitrine.js`.
+- `assets/js/cartao.js`, `tools/checa-saude.js`, `tools/testa-site.js`, `tools/testa-vitrine.js`.
+- O WhatsApp guarda a prévia de um link por dias: o endereço novo aparece certo; o velho pode demorar.

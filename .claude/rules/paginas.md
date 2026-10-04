@@ -510,3 +510,25 @@ import quebrado — **continuam valendo para ele**, porque provam que o arquivo 
   metal, borda) e deixe o texto em `--texto-2`/`--texto-3`. Medalha trancada e divisa enferrujada já são assim.
 - **Link só de texto** (`← Voltar`): `padding-block: .4rem; margin-block: -.4rem` — a área de toque cresce e a
   página não se mexe.
+
+---
+
+## 11. A vitrine: ícone, prévia do link, manifesto (04/10/2026, roadmap 3.11) ✅
+
+**Toda página nova precisa de duas coisas no `<head>`, e o `verifica.js` (15b) recusa sem elas:**
+
+1. **O bloco de ícone e manifesto** — copiar de qualquer página (5 linhas, logo depois do `<title>`).
+2. **Uma decisão:** é **pública** (`<meta name="description">` + canônico + `og:*` — ver `index.html`) **ou**
+   é da **área logada** (`<meta name="robots" content="noindex"/>`). Nunca os dois, nunca nenhum.
+
+**Quem gera o resto: `node tools/gera-vitrine.js`** — ícones (SVG, 180, 192, 512, máscara), `favicon.ico`,
+`img/previa.png` (desenhada pelo navegador com as fontes do site), `manifest.webmanifest`, `robots.txt`
+e `sitemap.xml` (o sitemap **se descobre** das páginas). Mudou a página pública ou o título? Rodar de novo.
+Regressão: `node tools/testa-vitrine.js` (no ar) ou `--local`.
+
+- **Sem service worker, de propósito.** Cache de página no navegador já fez conserto chegar 1 hora atrasado
+  (`historico/erros.md`); um service worker mal feito prende a versão velha por dias. O manifesto basta
+  para o atalho na tela inicial abrir em tela cheia.
+- 🔴 **Domínio próprio:** trocar `SITE` no `gera-vitrine.js`, rodar, e trocar `astral-psi.vercel.app` nas 6
+  páginas públicas (`og:url`, `og:image`, `canonical`). O `og:image` **tem** de ser endereço completo —
+  o WhatsApp não lê caminho relativo.

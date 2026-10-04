@@ -421,6 +421,34 @@ for (const p of paginas) {
 }
 
 
+/* ── 15b. A VITRINE: ICONE EM TODA PAGINA, E CADA UMA DECIDIDA ──────────────
+   04/10/2026 (roadmap 3.11, auditoria NEG-03 + UX-06). O link do Astral ia para
+   o WhatsApp sem imagem e sem descricao, e a aba sem icone. Consertado nas 24
+   paginas -- e a 25a, criada copiando outra, esqueceria. Aqui:
+     - toda pagina tem o bloco de icone e manifesto (gerado por gera-vitrine.js)
+     - toda pagina DECIDE: <meta name="description"> (publica, entra no sitemap)
+       OU <meta name="robots" content="noindex"> (area logada, fora da busca)
+     - o que esta no disco bate com o que o gerador gera (sitemap incluso) */
+{
+  for (const p of paginas) {
+    const t = fs.readFileSync(path.join(RAIZ, p), 'utf8');
+    if (!/rel="manifest"/.test(t) || !/rel="icon"/.test(t)) {
+      anota('vitrine', p, 'sem o bloco de icone/manifesto -- copie de outra pagina (ver tools/gera-vitrine.js)');
+    }
+    const desc = /<meta name="description"/.test(t), noindex = /<meta name="robots" content="[^"]*noindex/.test(t);
+    if (desc === noindex) {
+      anota('vitrine', p, desc ? 'tem descricao E noindex -- decida um so'
+        : 'decida: <meta name="description"> (publica) OU <meta name="robots" content="noindex"> (area logada)');
+    }
+  }
+  const gerador = path.join(RAIZ, 'tools', 'gera-vitrine.js');
+  if (fs.existsSync(gerador)) {
+    try { execFileSync(process.execPath, [gerador, '--conferir'], { stdio: 'pipe' }); }
+    catch { anota('vitrine', 'sitemap.xml', 'a vitrine esta defasada -- rode: node tools/gera-vitrine.js'); }
+  }
+}
+
+
 /* ── 16. A MARCA DE "VOCE ESTA AQUI" APONTA PARA OUTRA PAGINA ─────────
    Achado por ELE em 20/09/2026, com um print: clicava em Quadro ou em
    Instrucao, a pagina trocava, mas quem ficava aceso na barra era "Minhas
@@ -597,6 +625,7 @@ const GRUPOS = {
   adiado:   'Botao chama funcao que so existe depois (modulo adiado)',
   segredo:  'SEGREDO prestes a ser publicado num repositorio PUBLICO',
   catalogo: 'Catalogo do banco defasado em relacao ao catalogo.js',
+  vitrine:  'Pagina sem icone, ou sem decidir se e publica (descricao) ou fora da busca (noindex)',
   aceso:    'Barra lateral acendendo a pagina errada',
   caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
   controle: 'Caractere de controle gravado dentro do codigo',

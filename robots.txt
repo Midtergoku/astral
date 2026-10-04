@@ -1,0 +1,8 @@
+# Gerado por tools/gera-vitrine.js -- nao editar a mao.
+# As paginas da area logada pedem "noindex" no proprio <head>; aqui so o que e ferramenta interna.
+User-agent: *
+Allow: /
+Disallow: /importar.html
+Disallow: /estilo.html
+
+Sitemap: https://astral-psi.vercel.app/sitemap.xml

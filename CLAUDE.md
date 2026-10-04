@@ -169,6 +169,9 @@ node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tel
 node tools/recorta-questoes.js --ids 1,2 | --fora-do-ar  recorta a questao do PDF como IMAGEM (img/questoes);
                                 NAO grava no banco. Toda imagem e conferida por olho antes de publicar (03/10, 3.4)
 node tools/testa-questao-imagem.js  a questao como imagem funciona no Banco em 360 px? (03/10, 3.4)
+node tools/gera-vitrine.js      icones, favicon, previa do link (1200x630), manifesto, robots e sitemap -- tudo
+                                gerado. DOMINIO PROPRIO: trocar SITE nele e rodar (04/10, NEG-03/UX-06)
+node tools/testa-vitrine.js     o link chega com imagem e descricao? icone, manifesto, sitemap no ar? --local: a pasta
 node tools/testa-acessivel.js   contraste de botao/rotulo >= 4,5:1, campo >= 16 px no toque, alvo >= 24 px, nas 24
                                 paginas em 375 px. --tudo lista cada reprovado (04/10, UX-02/03/08)
 node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COMECOU? no Acre o "hoje" e o de

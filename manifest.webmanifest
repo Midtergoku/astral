@@ -1,0 +1,58 @@
+{
+  "id": "/",
+  "name": "Astral — plano de aprovação para carreira militar",
+  "short_name": "Astral",
+  "description": "Seu edital vira plano de estudo: o que vale mais na prova, a semana montada, patente, XP e conquistas.",
+  "lang": "pt-BR",
+  "start_url": "/dashboard.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1620",
+  "theme_color": "#0E1620",
+  "icons": [
+    {
+      "src": "/img/icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icone-mascara-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/img/icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cronômetro",
+      "url": "/cronometro.html",
+      "icons": [
+        {
+          "src": "/img/icone-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Banco de questões",
+      "url": "/banco.html",
+      "icons": [
+        {
+          "src": "/img/icone-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
