@@ -384,6 +384,13 @@
         <input type="password" id="senha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
       </div>
 
+      <!-- 03/10/2026 (auditoria LGL-02, roadmap 3.6): idade minima de 16 -->
+      <div class="form-group">
+        <label for="nascimento">Data de nascimento</label>
+        <input type="date" id="nascimento" min="1920-01-01" autocomplete="bday" />
+        <small style="display:block;margin-top:.35rem;color:var(--texto-3);font-size:var(--t-xs)">O Astral é para quem tem 16 anos ou mais.</small>
+      </div>
+
       <div class="consent-row">
         <input type="checkbox" id="consentimento" class="custom-checkbox" />
         <label for="consentimento" class="consent-label">
@@ -419,7 +426,7 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            montarCaptcha, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
     from './assets/js/astral.js?v=6073012e';
-  import { marcarAceiteNoCadastro, esquecerAceiteDoCadastro } from './assets/js/consentimento.js?v=1f1740b1';
+  import { marcarAceiteNoCadastro, esquecerAceiteDoCadastro, marcarNascimentoNoCadastro } from './assets/js/consentimento.js?v=8afbfaa3';
 
   olhinhoDeSenha('senha');
 
@@ -436,6 +443,18 @@
     el.style.display = 'block';
   }
 
+  /* 03/10/2026 (LGL-02): a idade e conferida aqui por gentileza (aviso antes de
+     criar a conta); quem decide e o servidor (registrar_nascimento), no portao. */
+  const campoNasc = document.getElementById('nascimento');
+  campoNasc.max = new Date().toISOString().slice(0, 10);
+  function idadeDe(iso) {
+    const [a, m, d] = String(iso || '').split('-').map(Number);
+    if (!a || !m || !d) return null;
+    const h = new Date();
+    return h.getFullYear() - a - ((h.getMonth() + 1 < m || (h.getMonth() + 1 === m && h.getDate() < d)) ? 1 : 0);
+  }
+  const MENOR_DE_16 = 'O Astral é para quem tem 16 anos ou mais. A conta não foi criada.';
+
   function esconderErro() {
     document.getElementById('error-msg').style.display = 'none';
   }
@@ -449,6 +468,14 @@
       mostrarErro('Marque "Li e aceito os Termos de Uso e a Política de Privacidade" antes de continuar com o Google.');
       document.getElementById('consentimento').focus();
       return;
+    }
+    // A data e opcional aqui (o Google nao a pede): se vier, ja vale; se nao, o portao pergunta.
+    const nascG = campoNasc.value;
+    if (nascG) {
+      const idade = idadeDe(nascG);
+      if (idade === null || idade > 100) { mostrarErro('Confira a data de nascimento.'); campoNasc.focus(); return; }
+      if (idade < 16) { mostrarErro(MENOR_DE_16); return; }
+      marcarNascimentoNoCadastro(nascG);
     }
     marcarAceiteNoCadastro('google');
     const { error } = await supabase.auth.signInWithOAuth({
@@ -469,7 +496,12 @@
     if (!nome) { mostrarErro('Informe seu nome.'); return; }
     if (!email || !email.includes('@')) { mostrarErro('Informe um e-mail válido.'); return; }
     if (senha.length < 8) { mostrarErro('A senha precisa ter pelo menos 8 caracteres.'); return; }
+    const nasc = campoNasc.value;
+    const idade = idadeDe(nasc);
+    if (!nasc || idade === null || idade > 100) { mostrarErro('Informe sua data de nascimento.'); campoNasc.focus(); return; }
+    if (idade < 16) { mostrarErro(MENOR_DE_16); return; }
     if (!consentimento) { mostrarErro('Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.'); return; }
+    marcarNascimentoNoCadastro(nasc);
     // 02/10/2026 (LGL-01): o aceite e GRAVADO no servidor quando a conta entra.
     marcarAceiteNoCadastro('cadastro_email', email);
 

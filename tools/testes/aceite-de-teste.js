@@ -13,8 +13,12 @@
    USO, em qualquer teste com Playwright, ANTES de abrir a pagina:
      await ctx.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);
 */
+/* 03/10/2026 (roadmap 3.6): o portao pede tambem a data de nascimento. A conta de
+   teste a da como o formulario de cadastro da (pendente) -- e o portao de verdade
+   a grava pelo servidor (registrar_nascimento). 2000-01-01: maior de idade. */
 module.exports.SCRIPT = `try { if (!localStorage.getItem('astral_aceite_pendente')) {
   localStorage.setItem('astral_aceite_pendente', JSON.stringify({ origem: 'google', email: null, em: Date.now() })); }
+  if (!localStorage.getItem('astral_nascimento_pendente')) localStorage.setItem('astral_nascimento_pendente', '2000-01-01');
 } catch (e) { /* pagina sem armazenamento: o teste segue */ }`;
 
 /* Para teste que FINGE o servidor (route em rest/v1/** devolvendo "[]"): o "[]"
@@ -23,7 +27,7 @@ module.exports.SCRIPT = `try { if (!localStorage.getItem('astral_aceite_pendente
    Registrar DEPOIS do route generico: no Playwright o ultimo route vence.
      await fingirAceite(pg); */
 module.exports.fingirAceite = async (pg) => {
-  const resposta = JSON.stringify({ vigentes: { termos: "2026-07-30", politica: "2026-06-20" }, aceito: true, aceito_em: "2026-10-02T00:00:00Z" });
+  const resposta = JSON.stringify({ vigentes: { termos: "2026-10-03", politica: "2026-10-03" }, aceito: true, aceito_em: "2026-10-03T00:00:00Z", nascimento: true, menor: false });
   await pg.route(/\/rest\/v1\/rpc\/(meu_consentimento|registrar_consentimento)/, (r) =>
     r.fulfill({ status: 200, contentType: "application/json", body: resposta }));
 };

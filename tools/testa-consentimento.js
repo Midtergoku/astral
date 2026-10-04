@@ -121,13 +121,14 @@ const servidor = http.createServer((q, r) => {
     if (!pw) { falha("playwright nao encontrado no cache do npx"); return; }
     await new Promise((r) => servidor.listen(PORTA, r));
     nav = await pw.chromium.launch();
-    const contexto = async (conta, pendente = null) => {
+    const contexto = async (conta, pendente = null, nascimento = null) => {
       const ctx = await nav.newContext({ viewport: { width: 390, height: 844 } });
       const t = conta.sessao;
       // A sessao entra UMA vez por aba: senao, depois de "Sair", a tela de login
       // ganharia a sessao de volta e mandaria para o painel (o teste mentiria).
       await ctx.addInitScript(`if (!sessionStorage.getItem('sessao-posta')) { localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({ access_token: t.access_token, refresh_token: t.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 3600, user: t.user }))}); sessionStorage.setItem('sessao-posta','1'); }`
-        + (pendente ? `if (!sessionStorage.getItem('pendente-posto')) { localStorage.setItem('astral_aceite_pendente', ${JSON.stringify(JSON.stringify(pendente))}); sessionStorage.setItem('pendente-posto','1'); }` : ""));
+        + (pendente ? `if (!sessionStorage.getItem('pendente-posto')) { localStorage.setItem('astral_aceite_pendente', ${JSON.stringify(JSON.stringify(pendente))}); sessionStorage.setItem('pendente-posto','1'); }` : "")
+        + (nascimento ? `if (!sessionStorage.getItem('nasc-posto')) { localStorage.setItem('astral_nascimento_pendente', '${nascimento}'); sessionStorage.setItem('nasc-posto','1'); }` : ""));
       await ctx.route("**/functions/v1/**", (r) => r.fulfill({ status: 402, body: "{}" }));
       return ctx;
     };
@@ -142,7 +143,13 @@ const servidor = http.createServer((q, r) => {
     const travado = await pg.evaluate(() => document.getElementById("aceite-ok")?.disabled);
     apareceu && travado ? ok("sem aceite: a tela de aceite aparece, e 'Aceitar' comeca travado") : falha("a tela de aceite nao apareceu (ou nao travou)", `tela=${apareceu} travado=${travado}`);
     if (apareceu) {
-      await pg.check("#aceite-caixa"); await pg.click("#aceite-ok"); await pg.waitForTimeout(2500);
+      const pedeData = await pg.evaluate(() => !!document.getElementById("aceite-nascimento"));
+      pedeData ? ok("conta sem data de nascimento: a tela pede a data junto") : falha("a tela nao pediu a data de nascimento");
+      await pg.check("#aceite-caixa");
+      const soCaixa = await pg.evaluate(() => document.getElementById("aceite-ok")?.disabled);
+      soCaixa ? ok("só a caixa não basta: falta a data") : falha("deixou continuar sem a data");
+      if (pedeData) await pg.fill("#aceite-nascimento", "2000-05-10");
+      await pg.click("#aceite-ok"); await pg.waitForTimeout(2500);
       const lc = await aceites(c.id);
       !(await temTela(pg)) && lc.length === 1 && lc[0].origem === "tela_de_aceite" ? ok("aceitar grava no servidor e a tela some", lc[0].aceito_em.slice(0, 19)) : falha("aceitar nao gravou", `linhas=${lc.length}`);
       await pg.goto(`http://localhost:${PORTA}/progresso.html`); await pg.waitForTimeout(4000);
@@ -173,10 +180,12 @@ const servidor = http.createServer((q, r) => {
 
     // 6. pendente do cadastro: gravado na conta certa; o de outra conta nao vale
     const d = await criar("d");
-    ctx = await contexto(d, { origem: "google", email: null, em: Date.now() });
+    ctx = await contexto(d, { origem: "google", email: null, em: Date.now() }, "1999-03-04");
     pg = await ctx.newPage(); await pg.goto(`http://localhost:${PORTA}/dashboard.html`); await pg.waitForTimeout(5000);
     const ld = await aceites(d.id);
     !(await temTela(pg)) && ld.length === 1 && ld[0].origem === "google" ? ok("aceite marcado no cadastro (Google) gravado ao entrar, sem perguntar", "origem google") : falha("o pendente do cadastro nao foi gravado", `tela=${await temTela(pg)} linhas=${ld.length}`);
+    const nd = (await req(`/rest/v1/perfis?id=eq.${d.id}&select=nascimento`, { headers: admin })).corpo?.[0]?.nascimento;
+    nd === "1999-03-04" ? ok("a data dada no cadastro foi gravada ao entrar", nd) : falha("a data do cadastro nao foi gravada", String(nd));
     await ctx.close();
     const e = await criar("e");
     ctx = await contexto(e, { origem: "cadastro_email", email: "outra.pessoa@exemplo.com", em: Date.now() });
@@ -188,6 +197,56 @@ const servidor = http.createServer((q, r) => {
       await pg.click("#aceite-sair"); await pg.waitForTimeout(3000);
       /login\.html/.test(pg.url()) ? ok("'Sair' na tela de aceite sai da conta", "foi para login.html") : falha("'Sair' nao saiu", pg.url());
     }
+    await ctx.close();
+
+    // ── 8. IDADE MINIMA (03/10/2026, LGL-02, roadmap 3.6) ──────────────────
+    console.log("\n== 8. IDADE MINIMA DE 16 ==");
+    const hoje = new Date();
+    const anosAtras = (n, dias = 0) => { const x = new Date(hoje); x.setFullYear(x.getFullYear() - n); x.setDate(x.getDate() + dias); return x.toISOString().slice(0, 10); };
+    const nascDe = async (id) => (await req(`/rest/v1/perfis?id=eq.${id}&select=nascimento`, { headers: admin })).corpo?.[0]?.nascimento ?? null;
+    const f = await criar("f");
+    const m15 = await rpc(f, "registrar_nascimento", { p_data: anosAtras(16, 2) });   // faz 16 daqui a 2 dias
+    m15.status >= 400 && (await nascDe(f.id)) === null ? ok("🎯 15 anos: recusado, e a data NÃO é guardada", `HTTP ${m15.status}`) : falha("menor de 16 passou ou teve a data guardada", `${m15.status} ${await nascDe(f.id)}`);
+    const m17 = await rpc(f, "registrar_nascimento", { p_data: anosAtras(17) });
+    m17.corpo?.menor === true && (await nascDe(f.id)) === anosAtras(17) ? ok("17 anos: entra, marcado como menor", "menor = true") : falha("17 anos nao entrou como menor", JSON.stringify(m17.corpo));
+    const mudar = await rpc(f, "registrar_nascimento", { p_data: "1990-01-01" });
+    mudar.corpo?.mudou === false && (await nascDe(f.id)) === anosAtras(17) ? ok("🎯 a data não muda depois (ninguém \"envelhece\" a conta)", "continua 17 anos") : falha("a data mudou", String(await nascDe(f.id)));
+    const diretoNasc = await req(`/rest/v1/perfis?id=eq.${f.id}`, { method: "PATCH", headers: { ...f.cab, Prefer: "return=minimal" }, body: JSON.stringify({ nascimento: "1980-01-01" }) });
+    (await nascDe(f.id)) === anosAtras(17) ? ok("gravar a data direto na tabela é recusado", `HTTP ${diretoNasc.status}`) : falha("🚨 a data foi trocada direto na tabela");
+    const mc = await rpc(f, "meu_consentimento");
+    mc.corpo?.nascimento === true && mc.corpo?.menor === true ? ok("o portão sabe que é menor (para o pagamento, 5.3)") : falha("meu_consentimento nao diz menor", JSON.stringify(mc.corpo).slice(0, 90));
+    const g = await criar("g");
+    const fut = await rpc(g, "registrar_nascimento", { p_data: anosAtras(-1) });
+    fut.status >= 400 && (await nascDe(g.id)) === null ? ok("data no futuro é recusada") : falha("aceitou data no futuro");
+
+    // no navegador: o bloqueio de menor de 16, e "errei a data"
+    const h = await criar("h");
+    await rpc(h, "registrar_consentimento", { p_versao_termos: v.termos, p_versao_politica: v.politica, p_origem: "tela_de_aceite" });
+    ctx = await contexto(h);
+    pg = await ctx.newPage(); await pg.goto(`http://localhost:${PORTA}/dashboard.html`); await pg.waitForTimeout(5000);
+    const soData = await pg.evaluate(() => ({ data: !!document.getElementById("aceite-nascimento"), caixa: !!document.getElementById("aceite-caixa") }));
+    soData.data && !soData.caixa ? ok("já aceitou e não deu a data: a tela pede só a data") : falha("a tela nao pediu so a data", JSON.stringify(soData));
+    if (soData.data) {
+      await pg.fill("#aceite-nascimento", anosAtras(14)); await pg.click("#aceite-ok"); await pg.waitForTimeout(2000);
+      const blq = await pg.evaluate(() => !document.getElementById("aceite-bloqueio")?.hidden && /16 anos/.test(document.getElementById("aceite-bloqueio")?.innerText || ""));
+      blq && (await nascDe(h.id)) === null ? ok("🎯 14 anos na tela: bloqueia, e nada é guardado") : falha("o bloqueio de menor de 16 nao apareceu", `blq=${blq} nasc=${await nascDe(h.id)}`);
+      await pg.click("#aceite-errei"); await pg.waitForTimeout(500);
+      await pg.fill("#aceite-nascimento", "2001-08-20"); await pg.click("#aceite-ok"); await pg.waitForTimeout(2500);
+      !(await temTela(pg)) && (await nascDe(h.id)) === "2001-08-20" ? ok("\"Errei a data\": volta, e a data certa entra") : falha("errei a data nao funcionou", `tela=${await temTela(pg)} nasc=${await nascDe(h.id)}`);
+    }
+    await ctx.close();
+
+    // o cadastro recusa menor de 16 antes de criar a conta
+    ctx = await nav.newContext({ viewport: { width: 390, height: 844 } });
+    let criou = false;
+    await ctx.route(/\/auth\/v1\/(signup|authorize)/, (r) => { criou = true; r.abort(); });
+    pg = await ctx.newPage(); await pg.goto(`http://localhost:${PORTA}/criar-conta.html`); await pg.waitForTimeout(2500);
+    await pg.fill("#nome", "Teste"); await pg.fill("#email", "menor@astral-teste.local"); await pg.fill("#senha", "SenhaLonga123");
+    await pg.fill("#nascimento", anosAtras(15)); await pg.check("#consentimento");
+    await pg.evaluate(() => window.cadastroEmail()); await pg.waitForTimeout(1000);
+    await pg.evaluate(() => window.cadastroGoogle()); await pg.waitForTimeout(1000);
+    const msg = await pg.evaluate(() => document.getElementById("error-msg")?.innerText || "");
+    !criou && /16 anos/.test(msg) ? ok("🎯 o cadastro recusa 15 anos antes de criar a conta (e-mail e Google)", msg.slice(0, 40)) : falha("o cadastro de menor de 16 seguiu", `criou=${criou} msg=${msg}`);
     await ctx.close();
   } catch (e) {
     falha("o teste quebrou", e.message.slice(0, 120));

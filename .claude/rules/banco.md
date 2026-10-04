@@ -232,3 +232,19 @@ o texto guardado (em geral o quebrado) fica só para busca; o Banco mostra botõ
   `imagem` + `publicada`. A mesma questão aparece em vários códigos da EAGS: conferir cópia pelo texto
   **e** pela imagem.
 - Regressão: `node tools/testa-questao-imagem.js` (7) e `testa-acervo-limpo` (4d).
+
+---
+
+## 8.28. Idade mínima de 16 (03/10/2026, roadmap 3.6) ✅
+
+`perfis.nascimento` (**sem grant de escrita**) · `registrar_nascimento(p_data)` grava **uma vez**;
+menos de 16 → erro com `hint = 'idade_minima'` e **nada gravado** · `idade_em_anos(date)` no fuso de SP ·
+`meu_consentimento()` devolve também `nascimento` (deu a data?) e `menor` (16–17).
+
+- O portão (`consentimento.js`) pede a data junto com o aceite. **Servidor sem o campo → não pergunta**
+  (ninguém fica preso numa ordem de publicação errada).
+- Mudou Termos/Política? Data no topo dos **dois** documentos **e** em `versoes_vigentes()`.
+- 🔴 **Pagamento (5.3):** `menor = true` só assina com confirmação do responsável.
+- Contas de teste: `tools/testes/aceite-de-teste.js` dá `2000-01-01` como pendente; `fingirAceite`
+  devolve `nascimento: true`.
+- Regressão: `testa-consentimento` seção 8.
