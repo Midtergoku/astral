@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Entrar</title>
   <style>
@@ -39,6 +39,7 @@
       color: var(--muted);
       font-size: 0.85rem;
       text-decoration: none;
+      display: inline-block; padding-block: .4rem; margin-block: -.4rem;   /* area de toque >= 24 px sem mexer na pagina (04/10, UX-08) */
     }
     .back-link:hover { color: var(--text); }
 
@@ -171,15 +172,18 @@
       font-size: 0.8rem;
       color: var(--muted);
       text-decoration: none;
-      margin-top: -0.5rem;
-      margin-bottom: 1rem;
+      /* 04/10/2026 (UX-08): 17 px de altura -- a area de toque cresce .4rem para
+         cima e para baixo, e as margens descontam o mesmo: o lugar nao muda */
+      padding-block: .4rem;
+      margin-top: -0.9rem;
+      margin-bottom: 0.6rem;
     }
     .forgot-link:hover { color: var(--purple-lt); }
 
     .btn-primary {
       width: 100%;
       background: var(--purple);
-      color: #fff;
+      color: var(--breu);
       border: none;
       padding: 0.9rem;
       border-radius: 6px;

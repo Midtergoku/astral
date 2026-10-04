@@ -61,11 +61,13 @@
 /* ── Os quatro metais ───────────────────────────────────────────────────────
    Nao e so enfeite: o metal diz quanto tempo a coisa leva, e e isso que deixa
    a pessoa escolher o que perseguir hoje e o que perseguir no mes. */
+/* 04/10/2026 (UX-02): `corTexto` e a cor do NOME do metal escrito na tela. A `cor`
+   pinta fita e barra; como letra miuda, a brasa do bronze dava 2,9:1 no cartao. */
 export const METAIS = {
-  bronze:  { nome: 'Bronze',  cor: 'var(--brasa)',   ordem: 1, ideia: 'primeiros passos — dias' },
-  prata:   { nome: 'Prata',   cor: 'var(--texto-2)', ordem: 2, ideia: 'constância — semanas' },
-  ouro:    { nome: 'Ouro',    cor: 'var(--latao)',   ordem: 3, ideia: 'compromisso — meses' },
-  platina: { nome: 'Platina', cor: 'var(--papel)',   ordem: 4, ideia: 'a condecoração máxima — tudo' },
+  bronze:  { nome: 'Bronze',  cor: 'var(--brasa)',   corTexto: 'var(--brasa-c)', ordem: 1, ideia: 'primeiros passos — dias' },
+  prata:   { nome: 'Prata',   cor: 'var(--texto-2)', corTexto: 'var(--texto-2)', ordem: 2, ideia: 'constância — semanas' },
+  ouro:    { nome: 'Ouro',    cor: 'var(--latao)',   corTexto: 'var(--latao-c)', ordem: 3, ideia: 'compromisso — meses' },
+  platina: { nome: 'Platina', cor: 'var(--papel)',   corTexto: 'var(--papel)',   ordem: 4, ideia: 'a condecoração máxima — tudo' },
 };
 
 /* ── AS CONDECORACOES ───────────────────────────────────────────────────────

@@ -487,3 +487,26 @@ barra invertida — pulam código de terceiro. As de *integridade* — sintaxe, 
 import quebrado — **continuam valendo para ele**, porque provam que o arquivo não veio truncado.
 
 > Um verificador que dá alarme falso é pior que nenhum: ensina a ignorar o alarme.
+
+---
+
+## 10. Contraste, campos e toque — os pisos do celular (04/10/2026, roadmap 3.10) ✅
+
+> ✏️ **A tabela de cor da seção 7 está defasada em um token:** `--texto-3` é **`#8494A6`** desde
+> 04/10/2026 (era `#5F7183` até 29/09 e `#7A8C9F` até 04/10). A fonte de verdade é o `base.css`.
+
+**Os três pisos, e o teste que os guarda: `node tools/testa-acessivel.js`** (24 páginas, 375 px, conta real):
+
+| Piso | Regra | Por quê |
+|---|---|---|
+| Contraste de botão e de rótulo pequeno em maiúsculas | **4,5:1** (3:1 se ≥ 24 px, ou ≥ 18,66 px em negrito) | WCAG 1.4.3 |
+| Letra de campo em tela de toque | **16 px** — piso único no fim do `base.css` (`@media (pointer: coarse)`) | menos que isso o Safari do iPhone **amplia a tela** ao tocar |
+| Alvo de toque | **24 × 24 px** (link no meio de frase é exceção; caixa/opção vale pelo rótulo clicável) | WCAG 2.5.8 |
+
+**Ao escrever CSS novo:**
+- **Fundo dourado (`--latao`) leva letra `--breu`, nunca branca** — branco dá 3,04:1, `--breu` dá 5,99:1.
+- **Metal como TEXTO usa `metalInfo.corTexto`**, não `cor` (`cor` é para fita e barra; a brasa do bronze dá 2,9:1 como letra).
+- **"Apagado" não é `opacity` no cartão inteiro** — isso derruba o texto junto. Apague o enfeite (fita,
+  metal, borda) e deixe o texto em `--texto-2`/`--texto-3`. Medalha trancada e divisa enferrujada já são assim.
+- **Link só de texto** (`← Voltar`): `padding-block: .4rem; margin-block: -.4rem` — a área de toque cresce e a
+  página não se mexe.

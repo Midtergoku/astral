@@ -76,7 +76,7 @@ function garantirEstilo() {
     .anuncio-rotulo {
       font-family: var(--dado, monospace); font-size: .62rem;
       letter-spacing: .18em; text-transform: uppercase;
-      color: var(--metal, var(--latao-c, #E0AE55)); margin-bottom: .45rem;
+      color: var(--metal-texto, var(--metal, var(--latao-c, #E0AE55))); margin-bottom: .45rem;
     }
     .anuncio-nome {
       font-family: var(--display, sans-serif); font-weight: 800;
@@ -153,6 +153,8 @@ function anunciarUma(medalha, divisa) {
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
     el.style.setProperty('--metal', cor);
+    // 04/10/2026 (UX-02): o rotulo e letra miuda -- vai na cor de TEXTO do metal
+    el.style.setProperty('--metal-texto', medalha.metalInfo?.corTexto || cor);
     el.innerHTML = `
       <div class="anuncio-rotulo">${medalha.secreta ? 'Condecoração secreta' : 'Condecoração'} · ${esc(medalha.metalInfo?.nome || '')}</div>
       <div class="anuncio-nome">${esc(medalha.nome)}</div>

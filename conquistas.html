@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Missões</title>
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
@@ -194,8 +194,14 @@
     }
 
 /* Não conquistada fica apagada, mas NÃO invisível: ver o que falta é o
-   motivo de a pessoa voltar. Quem some é só o nome das secretas. */
-    .medalha.trancada { opacity: 0.45; }
+   motivo de a pessoa voltar. Quem some é só o nome das secretas.
+   04/10/2026 (auditoria UX-02, roadmap 3.10): "apagada" era opacidade 0,45 no
+   cartão inteiro, e o texto caía para 2:1 — ninguém lia o que falta, o
+   contrário do motivo acima. Agora apaga o METAL (fita fraca, nome do metal
+   em cinza), o fundo e a borda; o texto continua legível (4,5:1 ou mais). */
+    .medalha.trancada { background: var(--breu); border-style: dashed; }
+    .medalha.trancada .medalha-nome { color: var(--texto-2); }
+    .medalha.trancada .medalha-metal { color: var(--texto-3); }
 
 .medalha.trancada::before { opacity: 0.35; }
 
@@ -220,7 +226,7 @@
       font-size: 0.62rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--metal, var(--texto-3));
+      color: var(--metal-texto, var(--metal, var(--texto-3)));
       white-space: nowrap;
     }
 
@@ -662,7 +668,7 @@
       const mostrarRegua = !c.conquistada && !oculta && c.progresso > 0;
       return `
         <div class="medalha${c.conquistada ? '' : ' trancada'}${oculta ? ' secreta' : ''}"
-             style="--metal:${att(c.metalInfo?.cor || 'var(--linha)')}">
+             style="--metal:${att(c.metalInfo?.cor || 'var(--linha)')};--metal-texto:${att(c.metalInfo?.corTexto || 'var(--texto-3)')}">
           <div class="medalha-topo">
             <span class="medalha-nome">${esc(nome)}</span>
             <span class="medalha-metal">${esc(c.metalInfo?.nome || '')}</span>
@@ -697,7 +703,7 @@
     /* Anuncia aqui também: quem abre esta página direto, sem passar pelo
        dashboard, merece o mesmo momento. O módulo sabe o que já foi mostrado,
        então não há risco de anunciar duas vezes a mesma medalha. */
-    import('./assets/js/anuncio.js?v=dd704853')
+    import('./assets/js/anuncio.js?v=8b55ba63')
       .then(({ anunciarNovidades }) => anunciarNovidades(estado.usuario?.id, { condecoracoes, divisas }))
       .catch(() => { /* o anúncio é um bônus; a sala já está desenhada */ });
 

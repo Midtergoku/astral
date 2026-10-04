@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=c0eb4da1"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Entre na lista de espera</title>
   <style>
@@ -49,6 +49,7 @@
       align-items: center;
       gap: 0.4rem;
       transition: color 0.2s;
+      padding-block: .4rem; margin-block: -.4rem;   /* area de toque >= 24 px sem mexer na pagina (04/10, UX-08) */
     }
     .back-link:hover { color: var(--text); }
 
@@ -169,7 +170,7 @@
     .btn-submit {
       width: 100%;
       background: var(--purple);
-      color: #fff;
+      color: var(--breu);
       border: none;
       padding: 1rem;
       border-radius: 6px;
@@ -217,7 +218,7 @@
       font-weight: 700;
     }
     .avatar:first-child { margin-left: 0; }
-    .av1 { background: var(--latao); color: #fff; }
+    .av1 { background: var(--latao); color: var(--breu); }
     .av2 { background: var(--latao-c); color: #000; }
     .av3 { background: var(--oliva-c); color: #000; }
     .av4 { background: var(--brasa-c); color: #fff; }
@@ -296,7 +297,7 @@
 
     .copy-btn {
       background: var(--purple);
-      color: #fff;
+      color: var(--breu);
       border: none;
       padding: 0.6rem 1rem;
       border-radius: 3px;

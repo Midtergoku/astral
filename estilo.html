@@ -215,7 +215,7 @@
 
   --texto:   #DDE4EA;
   --texto-2: #8FA0AE;   /* secundario */
-  --texto-3: #7A8C9F;   /* terciario, legendas -- era #5F7183 ate 29/09/2026 (contraste baixo) */
+  --texto-3: #8494A6;   /* terciario, legendas -- era #5F7183 ate 29/09/2026 e #7A8C9F ate 04/10/2026 (contraste baixo) */
 
   /* ── TIPO ── tres vozes, tres funcoes ── */
   --display: "Archivo", "Arial Narrow", Arial, sans-serif;
@@ -335,6 +335,11 @@ section { border-top: 1px solid var(--linha); margin-top: var(--e6); padding-top
 }
 .divisa .tag { color: var(--latao-c); border: 1px solid var(--latao); border-left: none;
                padding: .34rem .8rem; font-weight: 700; }
+/* 04/10/2026 (auditoria UX-02, roadmap 3.10): era opacidade .55 na divisa
+   inteira -- o nome da especialidade caia para 3,3:1. Enferrujada apaga o METAL
+   (a patente perde a cor, a borda some) e o nome segue legivel. */
+.divisa.enferrujada .nivel { filter: grayscale(.8) brightness(.85); }
+.divisa.enferrujada .tag { color: var(--texto-2); border-color: var(--linha); }
 .divisa .tag.vazia { color: var(--texto-3); border-color: var(--linha); font-weight: 500;
                      font-family: var(--corpo); text-transform: none; letter-spacing: 0;
                      font-size: var(--t-xs); }
@@ -351,7 +356,7 @@ section { border-top: 1px solid var(--linha); margin-top: var(--e6); padding-top
 .chip { display: inline-block; font-size: var(--t-xs); font-weight: 700; letter-spacing: .1em;
         text-transform: uppercase; padding: .25rem .6rem; border-radius: var(--r-p);
         border: 1px solid currentColor; }
-.chip-ok    { color: var(--oliva); }
+.chip-ok    { color: var(--oliva-c); }   /* oliva escuro dava 2,8:1 (04/10, UX-02) */
 .chip-aviso { color: var(--latao-c); }
 .chip-risco { color: var(--brasa-c); }
 
@@ -534,7 +539,7 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
         <button class="btn btn-2" id="b-barra">Avançar progresso</button>
       </div>
       <div class="barra"><i id="barra"></i></div>
-      <label style="display:flex;gap:var(--e2);align-items:center;font-size:var(--t-sm);color:var(--texto-2);cursor:pointer">
+      <label style="display:flex;gap:var(--e2);align-items:center;font-size:var(--t-sm);color:var(--texto-2);cursor:pointer;min-height:24px">
         <input type="checkbox" id="b-lento"/> Câmera lenta — para ver a curva
       </label>
     </div>
@@ -559,7 +564,7 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
         <span class="leg" style="margin-left:var(--e2)">em formação — falta pouco</span></div>
       <div><span class="divisa"><span class="nivel">Cabo BM</span><span class="tag">Orador de Guerra</span></span>
         <span class="leg" style="margin-left:var(--e2)">conquistada</span></div>
-      <div><span class="divisa" style="opacity:.55"><span class="nivel">Cabo BM</span><span class="tag">Orador de Guerra</span></span>
+      <div><span class="divisa enferrujada"><span class="nivel">Cabo BM</span><span class="tag">Orador de Guerra</span></span>
         <span class="leg" style="margin-left:var(--e2)">enferrujada — 7 dias parado</span></div>
     </div>
 

@@ -212,8 +212,11 @@
   /* 29/09/2026: era #5F7183 -- contraste de 2,9 a 3,6 sobre os fundos, abaixo
      dos 4,5 recomendados para letra pequena. O dono: "tem o tom quase igual ao
      do fundo, algumas pessoas nao conseguem ver". #7A8C9F da 4,7 no casco e
-     5,3 no breu, e continua mais escuro que o --texto-2 (a hierarquia fica). */
-  --texto-3:   #7A8C9F;
+     5,3 no breu, e continua mais escuro que o --texto-2 (a hierarquia fica).
+     04/10/2026 (auditoria UX-02, roadmap 3.10): #7A8C9F dava 4,16 no --casco-2
+     (rotulos pequenos em maiusculas: "SESSOES", "MATERIA"). #8494A6 da 4,64 no
+     casco-2, 5,19 no casco e 5,86 no breu -- e segue mais escuro que o texto-2. */
+  --texto-3:   #8494A6;
 
   /* ── TIPO ── tres vozes, tres funcoes ─────────────────────────────────── */
   --display:   "Archivo", "Arial Narrow", Arial, sans-serif;   /* titulo, patente, botao */
@@ -354,7 +357,11 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   color: var(--texto-3); border-color: var(--linha); font-weight: 400;
   font-family: var(--corpo); text-transform: none; letter-spacing: 0;
 }
-.divisa.enferrujada { opacity: .55; }
+/* 04/10/2026 (auditoria UX-02, roadmap 3.10): era opacidade .55 na divisa
+   inteira -- o nome da especialidade caia para 3,3:1. Enferrujada apaga o METAL
+   (a patente perde a cor, a borda some) e o nome segue legivel. */
+.divisa.enferrujada .nivel { filter: grayscale(.8) brightness(.85); }
+.divisa.enferrujada .tag { color: var(--texto-2); border-color: var(--linha); }
 
 /* ═══ ENTRADA EM CASCATA ═══ CSS puro, no lugar da biblioteca de CDN.
    Roda fora da thread principal: nao perde quadro enquanto a pagina carrega.
@@ -1809,7 +1816,7 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
       align-items: center;
       gap: 0.5rem;
       background: var(--purple);
-      color: #fff;
+      color: var(--breu);
       border: none;
       padding: 0.7rem 1.5rem;
       border-radius: 6px;
@@ -1881,4 +1888,20 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
   /* no celular a barra do topo ja e apertada: a divisa desce para a linha de
      baixo em vez de espremer o titulo */
   .main .topbar-right { width: 100%; }
+}
+
+/* ═══ CAMPOS NO TOQUE: NUNCA MENOS DE 16 PX ═══ (04/10/2026, auditoria UX-03, roadmap 3.10)
+   Campo com letra menor que 16 px faz o Safari do iPhone AMPLIAR a tela ao
+   tocar -- e a pessoa fica com a pagina torta no meio do cadastro. A auditoria
+   achou 19 (Entrar, Criar conta, Lista, Banco, TAF, Cronometro). Um piso so,
+   aqui, em vez de 19 consertos espalhados que a proxima pagina esqueceria.
+   - So em tela de toque (pointer: coarse): no computador nada muda.
+   - Especificidade alta de proposito ((0,3,3)): vence ".share-link input" e
+     "select.materia-select" das paginas sem precisar de !important.
+   - Medido em 04/10: nenhum campo do site passa de 16 px, entao o piso nao
+     encolhe ninguem. Regressao: node tools/testa-acessivel.js */
+@media (pointer: coarse) {
+  html body :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea) {
+    font-size: 16px;
+  }
 }

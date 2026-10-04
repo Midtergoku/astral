@@ -169,6 +169,8 @@ node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tel
 node tools/recorta-questoes.js --ids 1,2 | --fora-do-ar  recorta a questao do PDF como IMAGEM (img/questoes);
                                 NAO grava no banco. Toda imagem e conferida por olho antes de publicar (03/10, 3.4)
 node tools/testa-questao-imagem.js  a questao como imagem funciona no Banco em 360 px? (03/10, 3.4)
+node tools/testa-acessivel.js   contraste de botao/rotulo >= 4,5:1, campo >= 16 px no toque, alvo >= 24 px, nas 24
+                                paginas em 375 px. --tudo lista cada reprovado (04/10, UX-02/03/08)
 node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COMECOU? no Acre o "hoje" e o de
                                 Brasilia? ASTRAL_DEV=1 no dev; ASTRAL_RAIZ=pasta telas antigas (04/10, NUM-05/06/07)
 node tools/testa-folga.js       a folga da rotina nao quebra a sequencia? faltar ainda quebra? ASTRAL_DEV=1 (04/10, GAM-04)

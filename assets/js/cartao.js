@@ -71,7 +71,7 @@ export async function desenharCartao(d = {}) {
   const cor = {
     breu: token('--breu', '#0E1620'), casco: token('--casco', '#17222E'), linha: token('--linha', '#2A3947'),
     latao: token('--latao', '#C08A2E'), lataoC: token('--latao-c', '#E0AE55'),
-    papel: token('--papel', '#E7E4DB'), texto2: token('--texto-2', '#8FA0AE'), texto3: token('--texto-3', '#7A8C9F'),
+    papel: token('--papel', '#E7E4DB'), texto2: token('--texto-2', '#8FA0AE'), texto3: token('--texto-3', '#8494A6'),
   };
   // As fontes do site precisam estar prontas, senao o canvas desenha na reserva.
   try {
