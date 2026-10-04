@@ -1005,6 +1005,25 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 @media (hover: hover) and (pointer: fine) {
   .edital-remover:hover { text-decoration: underline; }
 }
+/* 03/10/2026 (roadmap 3.7b): a tela de Transferência na troca de edital */
+.transferencia {
+  width: min(460px, calc(100vw - 2rem)); padding: var(--e4); border-radius: var(--r-g);
+  background: var(--casco); color: var(--texto); border: 1px solid var(--linha);
+  border-top: 3px solid var(--latao);
+}
+.transferencia::backdrop { background: color-mix(in srgb, var(--breu) 85%, transparent); }
+.transferencia-rotulo { font-family: var(--display); font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase; color: var(--latao-c); margin-bottom: var(--e2); }
+.transferencia h2 { font-family: var(--display); font-size: var(--t-lg); line-height: 1.3; margin: 0 0 var(--e2); text-wrap: balance; }
+.transferencia h2 b { color: var(--latao-c); }
+.transferencia-antes { font-size: var(--t-sm); color: var(--texto-2); margin: 0 0 var(--e3); }
+.transferencia-bloco { border-top: 1px solid var(--linha); padding-top: var(--e2); margin-top: var(--e3); }
+.transferencia-sub { font-family: var(--display); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--texto-3); margin-bottom: var(--e1); }
+.transferencia ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; font-size: var(--t-sm); }
+.transferencia p { margin: 0; font-size: var(--t-sm); color: var(--texto-2); }
+.transferencia-ok {
+  margin-top: var(--e4); width: 100%; min-height: 44px; border: none; border-radius: var(--r-p);
+  background: var(--latao-c); color: var(--breu); font-family: var(--display); font-weight: 700; font-size: var(--t-md); cursor: pointer;
+}
 /* 03/10/2026 (EDI-02/EDI-03): corrigir a leitura */
 .edital-rodape-acoes { display: inline-flex; align-items: center; gap: var(--e3); flex-wrap: wrap; }
 .edital-link {
@@ -1541,6 +1560,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
     from './assets/js/astral.js?v=6073012e';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
+  import { arrumarNome } from './assets/js/prova.js?v=25b893ea';
   import { carregarProgresso, salvarProgresso, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=ab647345';
   import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
@@ -2761,6 +2781,9 @@ function verificarBalanco() {
       // O que o servidor ja tinha guardado deste edital (2.15): a revelacao conta a verdade.
       revelacao = { guardado: resultado.guardado === true, guiasProntos: Number(resultado.guiasProntos) || 0 };
 
+      // 03/10/2026 (3.7b): o retrato do concurso de antes, para a Transferencia
+      const antesDaTroca = retratoParaTransferencia();
+
       // Monta estado com os dados do edital
       estado.edital = {
         nome: resultado.concurso || file.name,
@@ -2812,6 +2835,10 @@ function verificarBalanco() {
       await revelarResultado(proc);
       proc.style.display = 'none';
       renderUI();
+      // O mesmo PDF de novo nao e transferencia nenhuma.
+      if (antesDaTroca && (antesDaTroca.hash !== estado.edital.hash || antesDaTroca.nome !== estado.edital.nome)) {
+        mostrarTransferencia(antesDaTroca).catch((e) => relatar(e, 'dashboard/transferencia'));
+      }
       // Antes o guia so comecava no proximo carregamento da pagina.
       montarGuiaPorTras(estado.usuario.id);
 
@@ -3186,6 +3213,75 @@ function verificarBalanco() {
   document.getElementById('edital-relato-cancelar')?.addEventListener('click', () => {
     document.getElementById('edital-relato').hidden = true;
   });
+
+  // ── TRANSFERÊNCIA (03/10/2026, roadmap 3.7b -- decisão dele, 2ª rodada) ──
+  /* Trocar de edital NAO zera a patente: ela passa ao degrau equivalente da
+     carreira nova (nivelDe). Faltava DIZER isso no momento da troca -- ele:
+     "Português e Matemática servem para os dois concursos (...) a prova pode ter
+     sido cancelada, ela não passou (...) pode ficar chateada mesmo".
+     So o que e verdade medida: XP, horas, condecoracoes e sequencia ficam; o
+     dominio das materias novas comeca agora; nas materias em comum, o que ja foi
+     respondido no Banco continua contando (os MINUTOS sao ligados ao nome exato
+     da materia -- por isso a tela nao promete que eles migram). */
+  const canonicaDe = (n) => arrumarNome(n) || String(n || '').trim().toLowerCase();
+
+  function retratoParaTransferencia() {
+    if (!estado.edital?.nome || !estado.materias.length) return null;
+    const n = nivelDaConta();
+    return { nome: estado.edital.nome, hash: estado.edital.hash || null, nivel: n.nome,
+             forca: NOME_DA_FORCA[n.tipo] || null, materias: estado.materias.map((m) => m.nome) };
+  }
+
+  async function mostrarTransferencia(antes) {
+    const depois = nivelDaConta();
+    const forcaNova = NOME_DA_FORCA[depois.tipo] || null;
+    const antigas = new Set(antes.materias.map(canonicaDe));
+    const comuns = estado.materias.filter((m) => antigas.has(canonicaDe(m.nome))).map((m) => m.nome);
+    const novas = estado.materias.filter((m) => !antigas.has(canonicaDe(m.nome))).map((m) => m.nome);
+    let condecoracoes = null;
+    try {
+      const { count } = await supabase.from('conquistas').select('id', { count: 'exact', head: true }).eq('usuario_id', estado.usuario.id);
+      condecoracoes = count ?? null;
+    } catch { /* sem o numero, a linha diz sem numero */ }
+
+    const mudouDeForca = forcaNova && antes.forca && forcaNova !== antes.forca;
+    const titulo = mudouDeForca
+      ? `Você foi transferido para ${esc(forcaNova)} como <b>${esc(depois.nome)}</b>.`
+      : `Novo concurso: ${esc(estado.edital.nome)}. Você segue como <b>${esc(depois.nome)}</b>.`;
+    const lista = (xs) => xs.slice(0, 6).map(esc).join(', ') + (xs.length > 6 ? ` e mais ${xs.length - 6}` : '');
+    const fmt = (v) => Number(v || 0).toLocaleString('pt-BR');
+
+    const caixa = document.createElement('dialog');
+    caixa.className = 'transferencia';
+    caixa.setAttribute('aria-labelledby', 'transferencia-titulo');
+    caixa.innerHTML = `
+      <div class="transferencia-rotulo">Transferência</div>
+      <h2 id="transferencia-titulo">${titulo}</h2>
+      ${antes.nivel && antes.nivel !== depois.nome ? `<p class="transferencia-antes">Antes: ${esc(antes.nivel)}${antes.forca ? ` · ${esc(antes.forca)}` : ''}. A patente passou para o degrau equivalente da carreira nova.</p>` : ''}
+      <div class="transferencia-bloco">
+        <div class="transferencia-sub">O que fica com você</div>
+        <ul>
+          <li><b>${fmt(estado.xp)} XP</b> — e a patente que eles valem</li>
+          <li><b>${esc(duracaoHoras(Number(estado.horas || 0)))}</b> de estudo</li>
+          <li>${condecoracoes === null ? 'Suas condecorações' : `<b>${fmt(condecoracoes)}</b> ${condecoracoes === 1 ? 'condecoração' : 'condecorações'}`}</li>
+          <li>Sua sequência de dias</li>
+        </ul>
+      </div>
+      ${novas.length ? `<div class="transferencia-bloco">
+        <div class="transferencia-sub">O que começa agora</div>
+        <p>O domínio das matérias novas: ${lista(novas)}.</p>
+      </div>` : ''}
+      ${comuns.length ? `<div class="transferencia-bloco">
+        <div class="transferencia-sub">O que os dois concursos têm</div>
+        <p>${lista(comuns)} — continuam no seu plano, e o que você já respondeu no Banco segue contando para o domínio.</p>
+      </div>` : ''}
+      <button type="button" class="transferencia-ok">Entendi</button>`;
+    document.body.appendChild(caixa);
+    caixa.querySelector('.transferencia-ok').addEventListener('click', () => caixa.close());
+    caixa.addEventListener('close', () => caixa.remove());
+    caixa.showModal();
+    caixa.querySelector('.transferencia-ok').focus();
+  }
 
   // ── SALVAR DADOS ──
   // Grava no navegador na hora e no banco logo em seguida. Marcar varias
