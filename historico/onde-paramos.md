@@ -1,3 +1,83 @@
+# 🔖 ONDE PARAMOS — 04/10/2026 (noite) — LER ISTO PRIMEIRO
+
+> Pedido dele, antes de abrir outro projeto: *"quero que guarde tudo que nós fizemos até agora (...)
+> quando eu voltar a abrir esse folder de novo, eu quero que você lembre de onde a gente parou e
+> prossiga de onde a gente parou."*
+>
+> A ordem do **dia do crédito na Anthropic** (logo abaixo deste bloco) **continua valendo**.
+
+## Estado: tudo publicado, nada pela metade
+
+| | |
+|---|---|
+| Último commit | `fc9e0b7` — árvore limpa, tudo no `main`, site no ar |
+| Banco (produção) | todas as migrations aplicadas; a última é `20261004110000_dia_em_que_comecou` |
+| Banco de teste (`astral-dev`) | repovoado depois da última bateria (1.906 questões, 280 sessões) |
+| Bateria | **72 testes**; a última rodada: 67 de primeira + 5 consertados e repetidos (todos OK) |
+| Backup | o diário das 21h continua; o último manual é `ASTRAL-BACKUPS\2026-10-05-00-26-25`, **restaurado e conferido** |
+| Questões no ar | **1.906** (165 delas como imagem do caderno oficial) |
+
+## Como estamos trabalhando — o ritmo que ele aprovou
+
+Seguimos o **`docs/auditoria/ROADMAP.md` item por item**. Ele lê o relatório e responde *"Pode seguir"*.
+Para cada item, sem pedir licença (regra 8.1 — tudo reversível):
+
+1. medir o defeito primeiro (com número), e ler a coluna de decisão/combinado do item
+2. consertar; **teste permanente novo** em `tools/` que **falha no código antigo** (prova com
+   `git worktree` + `ASTRAL_RAIZ`, ou contra a produção antes de publicar)
+3. o que mexe no banco: primeiro no `astral-dev` (`ASTRAL_DEV=1`), depois fotografia da produção
+   antes × depois (XP, sequência), **backup**, `supabase db push`
+4. `versiona-css` (se mexeu em `assets/`) → `verifica` → commit por `-F` → push
+5. registrar: linha ✅ no ROADMAP (tabela de registro), `banco.md`/`backend.md`/`paginas.md`,
+   `CLAUDE.md` (comando novo), `historico/erros.md` (todo erro meu)
+6. **bateria inteira** (`node tools/roda-testes.js`, ~30 min, em segundo plano); depois dela,
+   repovoar o dev, que o `testa-migrations-do-zero` apaga: `node tools/dev-acervo.js` e depois
+   `node tools/dev-semear.js` (vieram do rascunho para `tools/` em 04/10, para não se perderem).
+   Consulta rápida ao banco: `node tools/sql.js consulta.sql` (produção, só leitura) ou `--dev`
+7. **relatório em linguagem de leigo** e esperar o *"Pode seguir"*
+
+## O que foi feito nesta sequência (03 e 04/10) — detalhe de cada um no registro do ROADMAP
+
+| Item | O que mudou para o aluno | Teste novo |
+|---|---|---|
+| 3.1 | o cronômetro conta o tempo do relógio (tela bloqueada, recarregar, aba esquecida) | `testa-cronometro-tempo` |
+| 3.2 | banco fora do ar não mostra "0 dias, Recruta" nem grava vazio por cima | `testa-banco-fora` |
+| 3.3 | o aluno corrige matéria, peso e data da leitura do edital | `testa-corrigir-edital` |
+| 3.4 | 61 questões de volta + **165 como imagem do caderno** (caminho A, decisão dele) | `testa-questao-imagem`, `recorta-questoes` |
+| 3.5 | a tabela de erros com limite por origem (não dá para inundar) | `testa-limite-erros` |
+| 3.6 | idade mínima de 16 anos, com data de nascimento | (em `testa-consentimento`) |
+| 3.7 / 3.7b | bônus da Instrução vale da escolha em diante; tela de **Transferência** ao trocar de edital | `testa-bonus-instrucao`, `testa-transferencia` |
+| 3.8 | a **folga da rotina não quebra a sequência** | `testa-folga` |
+| 3.9 | a sessão conta no **dia em que começou**; um "hoje" só (Brasília), também no Acre | `testa-dia-da-sessao` |
+| 3.10 | celular: botões dourados legíveis, campo sem zoom no iPhone, alvos de toque ≥ 24 px | `testa-acessivel` |
+| 3.11 | **vitrine**: ícone (estrela sobre divisa), prévia do link no WhatsApp, manifesto, sitemap | `testa-vitrine`, `gera-vitrine` |
+
+🔴 **Achado sério da última bateria, já consertado:** a coluna calculada da 3.9 (`sessoes_estudo.dia`)
+fazia o **backup não voltar**. Consertado no `testa-restauracao` e no LEIA-ME de todo backup.
+Lição gravada em `banco.md` 8.31: **coluna nova → backup novo + `testa-restauracao` na hora.**
+
+## ▶️ PRÓXIMO PASSO: item 3.12 — "trapaça e segredo" (GAM-02, 03, 06, 09, 13)
+
+Medalha de sessão longa só com tempo cronometrado; gabarito só depois de responder; matérias do
+edital pelo servidor; divisa "Reintegrado" secreta; total de divisas só das possíveis.
+**Combinado a lembrar:** o ROADMAP diz que esses itens "voltam a S1 se houver ranking" — hoje o
+ranking é **pessoal** (decisão dele), então entram como blindagem preventiva.
+Depois: 3.13 (a mesma hora vale o mesmo XP — ✔️ 13 dele), 3.14 … 3.25, e os Lotes 4 e 5.
+
+## 🔔 Lembretes que são dele (trazer na hora certa — memória "lembrar-na-etapa")
+
+- **Senha de app do Gmail** (item 4.1) — pendente desde 30/09; o `checa-saude` avisa toda sessão.
+- **3.18** — mandar o texto novo de Termos/Política aos advogados que ele conhece.
+- **4.3** — senha do backup em 4 lugares (PC, celular dele, celular de alguém de confiança, papel).
+- **5.1** — no dia do crédito: reverter a simulação da conta dele; **o 1º edital é dele**; conferir
+  se a IA preenche `fontePeso` (3.3).
+- **5.3** — pagamento: quem tem `menor = true` (`meu_consentimento()`) precisa do responsável.
+- **Domínio próprio** (bloco que ele quer fazer junto): checklist em `astral-operacao` § 14 —
+  trocar `SITE` no `gera-vitrine.js` e o endereço nas 6 páginas públicas.
+- **Beta** parado até o 3.23 (cache por concurso) estar provado; textos públicos do beta intocados.
+
+---
+
 # 🔴 NO DIA DO CRÉDITO NA ANTHROPIC — ordem dele, 29/09/2026
 
 > *"Quando eu conseguir colocar os créditos, eu vou pedir para você retornar essa conta que eu

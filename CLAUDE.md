@@ -169,6 +169,9 @@ node tools/testa-cronometro-tempo.js  o cronometro conta o tempo do RELOGIO (tel
 node tools/recorta-questoes.js --ids 1,2 | --fora-do-ar  recorta a questao do PDF como IMAGEM (img/questoes);
                                 NAO grava no banco. Toda imagem e conferida por olho antes de publicar (03/10, 3.4)
 node tools/testa-questao-imagem.js  a questao como imagem funciona no Banco em 360 px? (03/10, 3.4)
+node tools/sql.js arq.sql [--dev]  consulta ao banco pela API (producao: SO LEITURA). --dev: astral-dev
+node tools/dev-acervo.js        DEPOIS DA BATERIA: devolve ao astral-dev as questoes (o do-zero apaga)...
+node tools/dev-semear.js        ...e depois as 8 contas f3-* da auditoria (madrugada, folga...)
 node tools/gera-vitrine.js      icones, favicon, previa do link (1200x630), manifesto, robots e sitemap -- tudo
                                 gerado. DOMINIO PROPRIO: trocar SITE nele e rodar (04/10, NEG-03/UX-06)
 node tools/testa-vitrine.js     o link chega com imagem e descricao? icone, manifesto, sitemap no ar? --local: a pasta
@@ -199,6 +202,10 @@ supabase functions deploy       edge functions NAO passam pelo git, entram no ar
 
 ## Onde estamos
 
+> 🔖 **04/10/2026 (noite) — RETOMAR PELO TOPO DE `historico/onde-paramos.md`:** roadmap da auditoria até o
+> **3.11 ✅**, tudo publicado, árvore limpa. **Próximo: 3.12** (trapaça e segredo). O ritmo de trabalho
+> de cada item está descrito lá.
+>
 > 🔖 **26/09/2026 — o estado atual mora em `historico/onde-paramos.md`.** Ele foi escrito a pedido dele, antes de uma pausa: *"guarde para quando eu voltar"*. Site no ar, arvore limpa, nada pela metade. **1.851 questoes no banco**, e duas coisas a um passo de destravar mais.
 
 **Etapa 1 (blindagem) fechada.** Etapa 2 (pagamento) parada no Mercado Pago. **Estamos na Etapa 3
