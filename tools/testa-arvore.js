@@ -136,7 +136,7 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(48)} ${d}`); fal
   const pagina = fs.readFileSync(path.join(RAIZ, "arvore.html"), "utf8");
 
   // Cor só por token. Um hex solto na página quebra a paleta inteira depois.
-  const hexes = (pagina.match(/#[0-9a-fA-F]{3,8}\b/g) || []);
+  const hexes = (pagina.replace(/<meta name="theme-color"[^>]*>/, "").match(/#[0-9a-fA-F]{3,8}\b/g) || []);   // a cor da barra do celular so aceita valor escrito (04/10, 3.11)
   if (!hexes.length) ok("🎯 nenhuma cor fora do design system", "só tokens");
   else falha("cor solta na página", hexes.slice(0, 5).join(", "));
 

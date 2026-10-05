@@ -98,7 +98,12 @@ const nok = (t, extra) => { console.log('  FALHA ' + t.padEnd(46) + (extra ?? ''
          viria nula pelo json_populate_recordset e derrubaria a restauracao --
          descoberto na bateria, com o backup feito minutos antes da migration.
          Coluna que o arquivo nao tem pega o PADRAO da tabela. */
-      const colunas = [...new Set(linhas.flatMap((l) => Object.keys(l)))].map((c) => `"${c.replace(/"/g, '""')}"`).join(", ");
+      /* 04/10/2026: e MENOS as colunas CALCULADAS pelo banco (`generated always as
+         (...) stored` -- sessoes_estudo.dia, roadmap 3.9). O banco RECUSA valor vindo
+         de fora ("cannot insert a non-DEFAULT value into column dia") e as recalcula
+         sozinho. Descoberto pela bateria no primeiro backup feito depois da 3.9. */
+      const calculadas = (await sql(`select column_name as c from information_schema.columns where table_schema = 'public' and table_name = '${tabela}' and is_generated = 'ALWAYS';`)).map((x) => x.c);
+      const colunas = [...new Set(linhas.flatMap((l) => Object.keys(l)))].filter((c) => !calculadas.includes(c)).map((c) => `"${c.replace(/"/g, '""')}"`).join(", ");
 
       if (linhas.length) {
         /* json_populate_recordset faz a conversao de tipo DE VERDADE: texto

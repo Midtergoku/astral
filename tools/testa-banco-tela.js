@@ -484,7 +484,7 @@ const MARCA = `TELA-${Date.now()}`;
     // ── 4. NENHUMA COR FORA DO SISTEMA ───────────────────────────────────
     console.log("\n== 4. A CASA ==");
     const html = fs.readFileSync(path.join(RAIZ, "banco.html"), "utf8");
-    const hexes = (html.match(/#[0-9a-fA-F]{3,8}\b/g) || []);
+    const hexes = (html.replace(/<meta name="theme-color"[^>]*>/, "").match(/#[0-9a-fA-F]{3,8}\b/g) || []);   // a cor da barra do celular so aceita valor escrito (04/10, 3.11)
     !hexes.length ? ok("nenhuma cor fora do design system", "só tokens")
                   : falha("cor solta na pagina", hexes.slice(0, 4).join(", "));
 

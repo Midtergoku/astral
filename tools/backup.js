@@ -189,6 +189,12 @@ COMO RESTAURAR, se um dia precisar
      backup viria nula e a carga falharia (03/10/2026, sessoes_estudo.habilidades).
      Assim ela pega o valor padrao da tabela.
 
+     🔴 E TIRAR da lista as colunas CALCULADAS pelo banco (04/10/2026): hoje e so
+     sessoes_estudo.dia. O banco recusa valor nelas ("cannot insert a non-DEFAULT
+     value into column dia") e as recalcula sozinho. Para listar as de agora:
+       select table_name, column_name from information_schema.columns
+        where table_schema = 'public' and is_generated = 'ALWAYS';
+
   4. recriar as contas pela API de admin, usando _contas.json
      (as pessoas vao precisar entrar de novo -- senha nao e guardada aqui)
 

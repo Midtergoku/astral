@@ -218,7 +218,7 @@ const haDias = (n) => new Date(Date.now() - n * 86400000).toISOString();
     if (/Nenhuma especializa[çc][ãa]o tira nada/i.test(html)) ok("a página diz que nada é tirado", "quem lê não hesita em escolher");
     else falha("a página não explica a trava");
 
-    const hexes = (html.match(/#[0-9a-fA-F]{3,8}\b/g) || []);
+    const hexes = (html.replace(/<meta name="theme-color"[^>]*>/, "").match(/#[0-9a-fA-F]{3,8}\b/g) || []);   // a cor da barra do celular so aceita valor escrito (04/10, 3.11)
     if (!hexes.length) ok("nenhuma cor fora do design system", "só tokens");
     else falha("cor solta na página", hexes.slice(0, 4).join(", "));
 

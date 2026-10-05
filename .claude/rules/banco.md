@@ -299,4 +299,7 @@ dia date generated always as (((criado_em at time zone 'America/Sao_Paulo') - ma
   `formato.js` (`hojeSP`) juntos.**
 - No navegador, o "hoje" é `hojeSP()` / `diaDaSemanaSP()` de `assets/js/formato.js` — nunca `getDay()`
   ou `setHours(0)` do aparelho.
+- 🔴 **Backup e restauração (descoberto em 04/10/2026, um dia depois):** a coluna calculada NÃO aceita valor
+  vindo de fora — a carga do backup tem de deixá-la de fora (o `testa-restauracao` e o LEIA-ME de cada backup
+  já fazem). **Criou coluna nova? Backup novo + `node tools/testa-restauracao.js` na hora.**
 - Regressão: `node tools/testa-dia-da-sessao.js` (10; `ASTRAL_DEV=1` no dev; `ASTRAL_RAIZ` para telas antigas).
