@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Cronômetro</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -363,8 +363,8 @@ select.materia-select:focus { border-color:var(--purple); }
 
   <div class="crono-container">
     <div class="materia-selector">
-      <span class="materia-label">Estudando:</span>
-      <select class="materia-select" id="select-materia">
+      <label class="materia-label" for="select-materia">Estudando:</label>
+      <select class="materia-select" id="select-materia" autocomplete="off">
         <option value="Geral">Geral</option>
       </select>
     </div>
@@ -399,7 +399,7 @@ select.materia-select:focus { border-color:var(--purple); }
       <button class="btn-controle" onclick="resetar()" title="Resetar">
         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.4"/></svg>
       </button>
-      <button class="btn-play" id="btn-play" onclick="togglePlay()">
+      <button class="btn-play" id="btn-play" onclick="togglePlay()" aria-label="Iniciar o cronômetro">
         <svg id="play-icon" width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
       <button class="btn-controle" onclick="pularFase()" title="Pular fase">
@@ -851,6 +851,8 @@ select.materia-select:focus { border-color:var(--purple); }
     const btn=document.getElementById('btn-play');
     const icon=document.getElementById('play-icon');
     btn.classList.toggle('rodando',playing);
+    // 08/10/2026 (3.10b, Lighthouse): so icone -- o leitor de tela dizia apenas "botao"
+    btn.setAttribute('aria-label', playing ? 'Pausar o cronômetro' : 'Iniciar o cronômetro');
     icon.innerHTML=playing?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
   }
 

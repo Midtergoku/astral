@@ -163,7 +163,9 @@ let falhas = 0;
 (async () => {
   let uid = null, nav = null;
   await new Promise((r) => servidor.listen(PORTA, r));
-  const total = { botoes: 0, rotulos: 0, campos: 0, alvos: 0, naoMedidos: 0 };
+  const total = { botoes: 0, rotulos: 0, campos: 0, alvos: 0, naoMedidos: 0, interface: 0 };
+  const porRegra = {};
+  const { regrasDeInterface } = require("./testes/regras-de-interface.js");
   try {
     const npx = path.join(process.env.LOCALAPPDATA, "npm-cache", "_npx");
     let pw = null; for (const d of fs.readdirSync(npx)) { const p = path.join(npx, d, "node_modules", "playwright"); if (fs.existsSync(p)) { pw = require(p); break; } }
@@ -211,7 +213,7 @@ let falhas = 0;
     }
 
     console.log(`\nTESTA-ACESSIVEL  ${PAGINAS.length} paginas em 375 px${process.env.ASTRAL_RAIZ ? "  (" + RAIZ + ")" : ""}\n`);
-    console.log(`  ${"pagina".padEnd(22)} botao  rotulo  campo  alvo   (reprovados)`);
+    console.log(`  ${"pagina".padEnd(22)} botao  rotulo  campo  alvo  interf. (reprovados; interf. = regras da Vercel)`);
     for (const pagina of PAGINAS) {
       // primeiro como visitante; se a pagina manda para o login, entra logado
       let { ctx, pg } = await abrir(pagina, false);
@@ -219,18 +221,22 @@ let falhas = 0;
       // pagina antiga que so redireciona (edital.html, recursos.html -> painel): o destino ja e medido
       if (!pg.url().includes(pagina)) { console.log(`  --     ${pagina.padEnd(22)} redireciona para ${pg.url().split("/").pop()}`); await ctx.close(); continue; }
       const m = await pg.evaluate(medirNaPagina).catch((e) => ({ erro: e.message }));
+      // 08/10/2026 (3.10b): as regras da Vercel que dao para medir (tools/testes/regras-de-interface.js)
+      if (!m.erro) m.interface = (await pg.evaluate(regrasDeInterface).catch((e) => [{ regra: "erro", onde: e.message.slice(0, 80) }])).map((x) => `${x.regra.padEnd(22)} ${x.onde}`);
       // ASTRAL_FOTOS=<pasta>: guarda a pagina inteira para conferir a olho (o numero nao diz se ficou bonito)
       if (process.env.ASTRAL_FOTOS) await pg.screenshot({ path: path.join(process.env.ASTRAL_FOTOS, pagina.replace(".html", ".png")), fullPage: true }).catch(() => {});
       await ctx.close();
       if (m.erro) { console.log(`  FALHA  ${pagina}: ${m.erro.slice(0, 100)}`); falhas++; continue; }
       for (const k of Object.keys(total)) total[k] += m[k].length;
       const n = (k) => String(m[k].length).padStart(5);
-      const ruim = m.botoes.length + m.rotulos.length + m.campos.length + m.alvos.length;
-      console.log(`  ${ruim ? "FALHA" : "OK   "}  ${pagina.padEnd(22)}${n("botoes")}  ${n("rotulos")}  ${n("campos")}  ${n("alvos")}${m.naoMedidos.length ? `   (${m.naoMedidos.length} botao(oes) sobre imagem, nao medidos)` : ""}`);
+      for (const x of m.interface) { const r = x.split(" ")[0]; porRegra[r] = (porRegra[r] || 0) + 1; }
+      const ruim = m.botoes.length + m.rotulos.length + m.campos.length + m.alvos.length + m.interface.length;
+      console.log(`  ${ruim ? "FALHA" : "OK   "}  ${pagina.padEnd(22)}${n("botoes")}  ${n("rotulos")}  ${n("campos")}  ${n("alvos")}  ${n("interface")}${m.naoMedidos.length ? `   (${m.naoMedidos.length} botao(oes) sobre imagem, nao medidos)` : ""}`);
       if (ruim) falhas++;
-      if (TUDO) for (const k of ["botoes", "rotulos", "campos", "alvos", "naoMedidos", "camposGrandes"]) for (const x of (m[k] || [])) console.log(`           ${k.padEnd(10)} ${x}`);
+      if (TUDO) for (const k of ["botoes", "rotulos", "campos", "alvos", "interface", "naoMedidos", "camposGrandes"]) for (const x of (m[k] || [])) console.log(`           ${k.padEnd(10)} ${x}`);
     }
-    console.log(`\n  total: ${total.botoes} botoes sem contraste · ${total.rotulos} rotulos pequenos sem contraste · ${total.campos} campos < 16 px · ${total.alvos} alvos < 24 px · ${total.naoMedidos} nao medidos`);
+    console.log(`\n  total: ${total.botoes} botoes sem contraste · ${total.rotulos} rotulos pequenos sem contraste · ${total.campos} campos < 16 px · ${total.alvos} alvos < 24 px · ${total.interface} regras da Vercel · ${total.naoMedidos} nao medidos`);
+    if (total.interface) console.log(`  regras da Vercel, por regra: ${Object.entries(porRegra).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} (${v})`).join(", ")}`);
   } catch (e) {
     console.log("  FALHA  o teste quebrou:", e.message.slice(0, 140)); falhas++;
   } finally {

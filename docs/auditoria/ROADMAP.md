@@ -20,6 +20,86 @@
 
 ---
 
+> 🧰 **Versão 3 — 08/10/2026: o roadmap com as skills novas** (pedido dele: *"adeque o roadmap que nós
+> estamos fazendo com essas skills que nós acrescentamos agora (...) nem que a gente tenha que começar de
+> novo. O que a gente já fez que não precisa, ok. Mas o que (...) é interessantíssimo para os itens tal e
+> tal, nós vamos utilizar"*). As skills e por que cada uma foi aceita: `historico/decisoes.md` § 0.6.
+> **Nada abaixo apaga as versões 1 e 2**: elas continuam valendo, este bloco acrescenta.
+
+### A ordem nova
+
+1. **3.10b e 3.11b** — refazer celular e vitrine com o Chrome DevTools (Lighthouse) e as regras da Vercel ⬅️ **agora**
+2. **O resto do Lote 3** (3.12 → 3.25), cada item com as skills da tabela abaixo
+3. **Lote D — o design** (V1 → V8), que existia só dentro da skill `astral-design` e agora entra aqui
+4. **Lote 4** (o que precisa dele em cena) e **Lote 5** (o que custa dinheiro), como antes
+
+> ❓ **A ordem 2 × 3 é sugestão minha**, e é dele decidir: o Lote 3 conserta números, trapaças e textos que
+> estão **errados hoje**; o Lote D deixa o site com cara própria. Faz sentido corrigir o que está errado
+> antes de repintar, mas o design pode vir antes se ele preferir (as duas coisas não dependem uma da outra).
+
+### O que volta (já feito, mas as skills acrescentam de verdade)
+
+| Item | Por que voltar | Skills |
+|---|---|---|
+| **3.10b** — celular | O 3.10 mediu contraste, campo e alvo de toque com ferramenta minha. O Lighthouse do Google achou na 1ª passada o que ela não pergunta: **títulos fora de ordem**, **página sem a região principal** (`<main>`), **link que só se distingue pela cor**. E as regras da Vercel cobrem foco do teclado, rótulos, formulários, `aria-live` | `chrome-devtools` + `a11y-debugging`, `web-interface-guidelines`, `testa-lighthouse.js` (novo) |
+| **3.11b** — vitrine | Conferir no Lighthouse a nota de **busca** e de **boas práticas** de cada página pública, e a **velocidade real** da página inicial e do login no 4G (o UX-04 mediu 5,0–5,7 s; o 3.19 vai mexer nisso) | `chrome-devtools`, `debug-optimize-lcp`, `copywriting` (descrição e título que aparecem no Google/WhatsApp) |
+| 3.2 — banco fora do ar | Opcional: o DevTools simula **rede caída** de verdade; o teste atual finge pela interceptação. Só vale se o 3.10b achar algo | `chrome-devtools` (emular rede) |
+| 3.4 — questão como imagem | Opcional: medir o peso e o tempo das 165 imagens no 4G | `debug-optimize-lcp` |
+
+**Não voltam** (as skills não acrescentam o que já não foi provado com teste próprio): Lote 1, Lote 2,
+3.1, 3.3, 3.5 a 3.9. Segurança já tem teste de ataque com credencial válida (regra do erro de 29/07); a
+skill `security` entra como **lista de conferência** nos itens que ainda vão mexer em login e senha.
+
+### Skill por item — o que ainda falta
+
+| Item | Skills que entram | Para quê |
+|---|---|---|
+| 3.12 trapaça e segredo | `security` | conferir cada trava pelo servidor, não pela tela |
+| 3.13 escada e XP | `brainstorming` | a escada "até a prova" é desenho de regra — propor antes de codar |
+| 3.14 cronograma e leitura | `brainstorming`, `web-interface-guidelines` | avisos e confirmações ("Voltar ao automático") |
+| 3.15 operação | `cost-reducer`, `scalability` (a parte de observabilidade) | alerta de gasto da IA e do banco |
+| 3.16 sessão e senha | `security` (autenticação e segredos), `cookie-debugging` | sessão, reautenticação, versões fixas |
+| 3.17 painel de negócio | `dataviz` (já instalada), `frontend-design` | gráficos legíveis do funil |
+| 3.18 textos legais | — (é texto jurídico; a skill de copy não serve) | — |
+| 3.19 primeiro acesso e peso | `onboarding` (já instalada), `copywriting`, `debug-optimize-lcp`, `web-interface-guidelines` | o 1º acesso que leva ao envio do edital; login/cadastro mais leves |
+| 3.20 números menores | — | — |
+| 3.21 código | `simplify` / `code-review` (já existiam) | tirar código morto sem quebrar |
+| 3.22 "Passei!" | `brainstorming`, `copywriting`, `motion-design` | o momento de comemoração |
+| 3.23 edital guardado | `cost-reducer` | reaproveitar = não pagar a IA duas vezes |
+| 3.24 links toda semana | `researcher`, `cost-reducer` | API do YouTube dentro da cota grátis |
+| 3.25 concurso por estado e cargo | `researcher` | levantar como cada estado/cargo publica o edital |
+| 4.1 / 4.2 e-mail e lembretes | `customer-support` (tom), `copywriting` | o texto dos e-mails |
+| 4.3 backup fora do PC | `security` | criptografia e as duas trancas |
+| 5.1 / 5.2 crédito e pré-carga | `cost-reducer` | medir o custo real antes de gastar |
+| 5.3 pagamento | `security`, `paywalls` e `pricing` (já instaladas), `copywriting` | checkout, tela de "seja Pro" |
+| Quando houver alunos escrevendo | `customer-support` | respostas, modelos, quando escalar |
+
+### Lote D — o design (o roadmap V0–V8 da skill `astral-design`, agora dentro deste)
+
+Estado **medido em 08/10/2026** (o CLAUDE.md dizia "faltam 3 correções no V1" — duas já estavam feitas):
+
+| Bloco | O quê | Estado | Skills |
+|---|---|---|---|
+| V0 | Direção: militar/insígnia | ✅ (01–02/08) | — |
+| V1 | Fundação: paleta, tipo, espaço, raio, movimento | 🟡 **falta 1 de 3**: as fontes mortas saíram (15/09), o `estilo.html` tem os tokens; **raios** — 104 valores escritos à mão (`6px` ×80, `3px` ×24) que já são os do padrão mas não usam a variável, e 8 valores fora do padrão | `design-system` (já instalada), `frontend-design` |
+| V2 | Casca compartilhada: barra lateral, topo, cartões, botões, campos (35 seletores divergentes) | ⏳ próximo do design | `frontend-design`, `ui-ux-pro-max`, `web-interface-guidelines`, `impeccable` (já instalada) |
+| V3 | Emojis → ícones | ✅ (0 emojis, eram 118) | — |
+| V4 | Página inicial: hierarquia e narrativa do nicho | ⏳ — **promessas da página são decisão dele** (regra 8.1) | `copywriting`, `frontend-design`, `motion-design`, `web-interface-guidelines`, Lighthouse |
+| V5 | Entrar, criar conta, lista de espera | ⏳ (junta com o 3.19) | `onboarding`, `copywriting`, `web-interface-guidelines` |
+| V6 | Telas do app, uma a uma — **Minha conta primeiro** (pedido dele) | ⏳ | `frontend-design`, `ui-ux-pro-max`, `impeccable`, `a11y-debugging` |
+| V7 | Gamificação: divisa, condecorações, quadro | ⏳ — ler `astral-gamificacao` antes (muito é de propósito) | `motion-design`, `emil-design-eng` (já instalada), `frontend-design` |
+| V8 | Celular | 🟡 boa parte feita no 3.10 / 3.10b | `chrome-devtools`, `a11y-debugging`, `testa-acessivel`, `testa-lighthouse` |
+
+> **Regra que vale para todo o Lote D** (do V0): o problema medido não é feiura, é **cara genérica de IA**.
+> Cada bloco termina com foto antes × depois e o `testa-acessivel` + `testa-lighthouse` verdes.
+
+### Skills que ele vai mandar ainda
+
+Ele avisou em 08/10 que vai mandar **mais 3 skills**. Entram do mesmo jeito: ler tudo antes de instalar,
+registrar em `historico/decisoes.md` § 0.6, e acrescentar aqui onde cada uma serve.
+
+---
+
 ## ✅ Já resolvido antes deste roadmap (01–02/10/2026)
 
 A **função única de plano** e a **fonte única de estatísticas** (pedido dele, publicado em 02/10 —

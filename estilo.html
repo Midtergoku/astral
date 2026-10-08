@@ -206,6 +206,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
+  color-scheme: dark;   /* 08/10/2026 (3.10b): o mesmo do base.css */
   /* ── COR ── seis, e nenhuma e roxa ── */
   --breu:    #0E1620;   /* campo institucional -- azul-grafite frio */
   --casco:   #17222E;   /* superficie elevada */
@@ -463,7 +464,7 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
 </style>
 </head>
 <body>
-<div class="env">
+<div class="env" role="main">
 
   <span class="rotulo">Astral · Etapa 3 · Bloco V1 · 02.08.2026</span>
   <h1>A fundação</h1>
@@ -580,7 +581,7 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
       <div class="cartao">
         <div class="campo">
           <label for="ex-email">E-mail</label>
-          <input id="ex-email" type="email" placeholder="voce@exemplo.com"/>
+          <input id="ex-email" type="email" placeholder="voce@exemplo.com" autocomplete="email" spellcheck="false"/>
         </div>
       </div>
       <div class="cartao" style="display:flex;gap:var(--e2);align-items:center;flex-wrap:wrap">
@@ -597,7 +598,7 @@ td code, .mono { font-family: var(--dado); font-size: var(--t-xs); color: var(--
     <h2>Antes e depois</h2>
     <div class="rolagem">
       <table>
-        <tr><th></th><th>Hoje</th><th>V1</th></tr>
+        <tr><th scope="col">Item</th><th scope="col">Hoje</th><th scope="col">V1</th></tr>
         <tr><td>Cor base</td><td><code>#7C5CFC</code> roxo sobre <code>#0A0A0F</code></td><td><code>#C08A2E</code> latão sobre <code>#0E1620</code></td></tr>
         <tr><td>Fonte do corpo</td><td>Inter</td><td>Source Serif 4</td></tr>
         <tr><td>Raios de borda</td><td class="num">8 diferentes</td><td class="num">2 — 3px e 6px</td></tr>

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — TAF</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -297,7 +297,7 @@
             <button class="taf-btn fantasma" type="submit">Salvar índice</button>
           </form>
           <form class="taf-form" data-registrar="${att(id)}">
-            <input type="number" inputmode="decimal" step="${p.decimal ? '0.1' : '1'}" min="${p.min}" max="${p.max}" placeholder="${esc(p.sufixo)}" aria-label="Nova marca em ${esc(p.sufixo)}" required>
+            <input type="number" inputmode="decimal" step="${p.decimal ? '0.1' : '1'}" min="${p.min}" max="${p.max}" placeholder="${esc(p.sufixo)}" aria-label="Nova marca em ${esc(p.sufixo)}" autocomplete="off" required>
             <button class="taf-btn" type="submit">Registrar</button>
           </form>
         </div>`;

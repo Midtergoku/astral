@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Banco de questões</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -482,27 +482,27 @@
         <div class="filtros-linha">
           <div class="filtro">
             <label for="f-materia">Matéria</label>
-            <select id="f-materia">
+            <select id="f-materia" autocomplete="off">
               <option value="">Todas</option>
               ${mats.map((m) => `<option value="${att(m.nome)}">${esc(m.nome)} (${m.quantas})</option>`).join('')}
             </select>
           </div>
           <div class="filtro">
             <label for="f-assunto">Assunto</label>
-            <select id="f-assunto" disabled>
+            <select id="f-assunto" autocomplete="off" disabled>
               <option value="">Escolha a matéria primeiro</option>
             </select>
           </div>
           <div class="filtro">
             <label for="f-banca">Banca</label>
-            <select id="f-banca">
+            <select id="f-banca" autocomplete="off">
               <option value="">Todas</option>
               ${bancas.map((b) => `<option value="${att(b.nome)}">${esc(b.nome)} (${b.quantas})</option>`).join('')}
             </select>
           </div>
           <div class="filtro">
             <label for="f-prova">Concurso</label>
-            <select id="f-prova">
+            <select id="f-prova" autocomplete="off">
               <option value="">Todos</option>
               ${(filtros.provas || []).map((p) =>
                 `<option value="${att(p.nome)}" data-banca="${att(p.banca)}">`
@@ -511,7 +511,7 @@
           </div>
           <div class="filtro">
             <label for="f-ano">Ano</label>
-            <select id="f-ano">
+            <select id="f-ano" autocomplete="off">
               <option value="">Todos</option>
               ${anos.map((a) => `<option value="${att(String(a))}">${esc(String(a))}</option>`).join('')}
             </select>
@@ -917,7 +917,7 @@
         <div class="filtros-linha">
           <div class="filtro">
             <label for="m-materia">Matéria</label>
-            <select id="m-materia">
+            <select id="m-materia" autocomplete="off">
               <option value="">Todas</option>
               ${[...new Set(minhas.map((q) => q.materia).filter(Boolean))].sort()
                 .map((m) => `<option value="${att(m)}">${esc(m)}</option>`).join('')}
@@ -1171,7 +1171,7 @@
         <div class="filtros-linha">
           <div class="filtro">
             <label for="k-materia">Matéria</label>
-            <select id="k-materia">
+            <select id="k-materia" autocomplete="off">
               <option value="">Todas (${caderno.total})</option>
               ${(caderno.por_materia || []).map((m) =>
                 `<option value="${att(m.nome)}">${esc(m.nome)} (${m.quantas})</option>`).join('')}

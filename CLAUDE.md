@@ -206,6 +206,9 @@ supabase functions deploy       edge functions NAO passam pelo git, entram no ar
 > **3.11 ✅**, tudo publicado, árvore limpa. **Próximo: 3.12** (trapaça e segredo). O ritmo de trabalho
 > de cada item está descrito lá.
 >
+> ✏️ **08/10/2026 — ordem nova dele:** antes do 3.12, **refazer o 3.10 e o 3.11 com o Chrome DevTools**
+> (3.10b / 3.11b) e seguir o roadmap **versão 3** (skills por item + Lote D de design) — topo do `ROADMAP.md`.
+>
 > 🔖 **26/09/2026 — o estado atual mora em `historico/onde-paramos.md`.** Ele foi escrito a pedido dele, antes de uma pausa: *"guarde para quando eu voltar"*. Site no ar, arvore limpa, nada pela metade. **1.851 questoes no banco**, e duas coisas a um passo de destravar mais.
 
 **Etapa 1 (blindagem) fechada.** Etapa 2 (pagamento) parada no Mercado Pago. **Estamos na Etapa 3
@@ -219,6 +222,10 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 > tipografia é **Archivo + Source Serif 4 + JetBrains Mono**, os tokens de movimento estão em
 > uso, e há **0 emojis** nas páginas (eram 118). Os nomes antigos (`--purple`, `--bg`) são
 > **apelidos deliberados** para a paleta nova — não são sobra.
+>
+> ✏️ **08/10/2026 — medido: das 3, duas já estavam feitas** (fontes mortas saíram em 15/09; o `estilo.html` tem
+> os tokens). Falta só a dos **raios** (104 valores à mão). O design virou o **Lote D** do
+> `docs/auditoria/ROADMAP.md` (versão 3, com as skills por bloco). O texto de 08/09 fica abaixo:
 >
 > **Faltam 3 correções para fechar o V1**, ainda não aplicadas: 3 declarações de fonte mortas em
 > `assets/css/app.css` (linhas 18, 41, 72 — pedem Inter/Space Grotesk, que não são mais

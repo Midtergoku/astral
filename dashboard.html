@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Dashboard</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -192,7 +192,9 @@
 .today-item.done { opacity: 0.5; }
 
 .today-check {
-      /* 22 -> 24 px: o minimo de alvo de toque (04/10/2026, UX-08) */
+      /* 22 -> 24 px: o minimo de alvo de toque (04/10/2026, UX-08)
+         08/10/2026 (3.10b): virou <button> -- antes era <div> e o teclado nao marcava o bloco */
+      padding: 0; font: inherit; color: inherit;
       width: 24px;
       height: 24px;
       min-width: 24px;
@@ -857,7 +859,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 .cond-conta { font-family: var(--dado); color: var(--texto); font-variant-numeric: tabular-nums; }
 .cond-proxima { font-size: var(--t-xs); color: var(--texto-2); margin-bottom: .5rem; text-align: center; }
 .cond-proxima b { color: var(--latao-c); font-weight: 600; }
-.card-link { color: var(--latao-c); text-decoration: none; }
+.card-link { color: var(--latao-c); text-decoration: underline; text-underline-offset: 2px; }   /* so a cor nao basta (08/10, Lighthouse) */
 .btn-cartao { margin-top: .75rem; width: 100%; min-height: 40px; background: transparent; color: var(--latao-c);
   border: 1px solid color-mix(in srgb, var(--latao) 40%, transparent); border-radius: var(--r-p);
   font-family: var(--display); font-weight: 700; font-size: var(--t-xs); letter-spacing: .04em; cursor: pointer; }
@@ -1534,7 +1536,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
       <div class="card bento" style="cursor:pointer;" onclick="window.location.href='progresso.html'">
         <div class="section-header" style="margin-bottom:0.75rem;">
           <div class="section-title">Cobertura do edital</div>
-          <span style="font-size:0.78rem;color:var(--purple-lt);font-weight:500;">Ver tudo →</span>
+          <a href="progresso.html" style="font-size:0.78rem;color:var(--purple-lt);font-weight:500;display:inline-block;padding-block:.4rem;margin-block:-.4rem;">Ver tudo →</a>
         </div>
         <div id="progresso-resumo">
           <!-- preenchido pelo JS -->
@@ -1545,7 +1547,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
       <div class="card bento" style="cursor:pointer;" onclick="window.location.href='conquistas.html'">
         <div class="section-header" style="margin-bottom:0.75rem;">
           <div class="section-title">Condecorações</div>
-          <span style="font-size:0.78rem;color:var(--purple-lt);font-weight:500;">Ver tudo →</span>
+          <a href="conquistas.html" style="font-size:0.78rem;color:var(--purple-lt);font-weight:500;display:inline-block;padding-block:.4rem;margin-block:-.4rem;">Ver tudo →</a>
         </div>
         <div id="conquistas-resumo">
           <!-- preenchido pelo JS -->
@@ -2510,8 +2512,8 @@ function verificarBalanco() {
     if (!estado.cronogramaHoje.length) {
       lista.innerHTML = `
         <div style="position:relative;">
-          <!-- Preview desfocado -->
-          <div style="filter:blur(3px);pointer-events:none;opacity:0.4;">
+          <!-- Preview desfocado (so enfeite: fora do leitor de tela) -->
+          <div style="filter:blur(3px);pointer-events:none;opacity:0.4;" aria-hidden="true">
             ${['Língua Portuguesa', 'Matemática', 'Raciocínio Lógico'].map((m, i) => `
               <div class="today-item" style="margin-bottom:0.65rem;">
                 <div style="font-size:0.72rem;font-weight:700;color:var(--muted);min-width:18px;text-align:center;">${i + 1}</div>
@@ -2548,9 +2550,10 @@ function verificarBalanco() {
     lista.innerHTML = estado.cronogramaHoje.map((item, i) => `
       <div class="today-item ${item.feito ? 'done' : ''}" id="item-${i}">
         <div style="font-size:0.72rem;font-weight:700;color:var(--muted);min-width:18px;text-align:center;">${i + 1}</div>
-        <div class="today-check ${item.feito ? 'checked' : ''}" onclick="marcarFeito(${i})">
-          ${item.feito ? '<svg width="12" height="12" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-        </div>
+        <button type="button" class="today-check ${item.feito ? 'checked' : ''}" onclick="marcarFeito(${i})"
+                aria-pressed="${item.feito ? 'true' : 'false'}" aria-label="${att(item.feito ? 'Desmarcar ' + item.materia : 'Marcar ' + item.materia + ' como feito')}">
+          ${item.feito ? '<svg width="12" height="12" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+        </button>
         <div class="today-info">
           <div class="today-materia">${esc(item.materia)}</div>
           <div class="today-tempo">${!item.feito && item.medido > 0

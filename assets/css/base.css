@@ -193,6 +193,9 @@
 }
 
 :root {
+  /* 08/10/2026 (3.10b, regra da Vercel): o site e escuro -- o navegador precisa saber, senao
+     a barra de rolagem, o calendario do campo de data e os controles nativos saem CLAROS */
+  color-scheme: dark;
   /* ── COR ── seis tons, e nenhum e roxo ────────────────────────────────── */
   --breu:      #0E1620;   /* campo institucional -- azul-grafite frio */
   --casco:     #17222E;   /* superficie elevada: cartao, topbar, sidebar */

@@ -4,7 +4,7 @@
 <head>
 
     <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=704dd38d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Astral — Seu edital militar vira plano de aprovação</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -805,7 +805,7 @@
             padding: 1.25rem 1.5rem;
         }
 
-        .faq-item h4 {
+        .faq-item h3 {   /* era h4 depois de um h2: o titulo pulava um nivel (08/10, Lighthouse) */
             font-family: var(--display);
             font-weight: 700;
             font-size: 0.98rem;
@@ -1049,6 +1049,8 @@
 
          Tudo em CSS: nenhuma imagem, nada para baixar.
          ══════════════════════════════════════════════════════════════════ -->
+    <!-- 08/10/2026 (3.10b, Lighthouse): a regiao principal -- o leitor de tela pula direto para ca -->
+    <main>
     <section class="hero">
       <div class="hero-grade">
 
@@ -1301,17 +1303,17 @@
         <h2 class="section-title">Perguntas frequentes</h2>
         <div class="faq-list">
             <div class="faq-item spotlight-card">
-                <h4>Funciona para qualquer concurso militar?</h4>
+                <h3>Funciona para qualquer concurso militar?</h3>
                 <p>Sim. O Astral lê editais de Exército, Marinha, Aeronáutica, PM, Bombeiros e escolas militares,
                     em PDF de até 10 MB e 150 páginas.</p>
             </div>
             <div class="faq-item spotlight-card">
-                <h4>Preciso saber de tecnologia para usar?</h4>
+                <h3>Preciso saber de tecnologia para usar?</h3>
                 <p>Não. É só fazer o upload do edital e responder algumas perguntas simples. Em menos de 5 minutos seu
                     plano está pronto.</p>
             </div>
             <div class="faq-item spotlight-card">
-                <h4>O que é o sistema de gamificação?</h4>
+                <h3>O que é o sistema de gamificação?</h3>
                 <p>Cada hora de estudo registrada gera XP. Você sobe de nível, ganha badges e mantém um streak diário.
                     Foi pensado para quem tem dificuldade de foco manter a consistência.</p>
             </div>
@@ -1324,6 +1326,8 @@
         <p>Crie seu plano de estudos em menos de 5 minutos. Grátis para começar.</p>
         <a href="login.html" class="btn-primary" style="font-size:1.05rem; padding:1rem 2.5rem;">Começar agora</a>
     </section>
+
+    </main>
 
     <!-- FOOTER -->
     <footer>
