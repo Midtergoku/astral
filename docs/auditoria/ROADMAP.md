@@ -85,19 +85,29 @@ Estado **medido em 08/10/2026** (o CLAUDE.md dizia "faltam 3 correções no V1" 
 | V1 | Fundação: paleta, tipo, espaço, raio, movimento | 🟡 **falta 1 de 3**: as fontes mortas saíram (15/09), o `estilo.html` tem os tokens; **raios** — 104 valores escritos à mão (`6px` ×80, `3px` ×24) que já são os do padrão mas não usam a variável, e 8 valores fora do padrão | `design-system` (já instalada), `frontend-design` |
 | V2 | Casca compartilhada: barra lateral, topo, cartões, botões, campos (35 seletores divergentes) | ⏳ próximo do design | `frontend-design`, `ui-ux-pro-max`, `web-interface-guidelines`, `impeccable` (já instalada) |
 | V3 | Emojis → ícones | ✅ (0 emojis, eram 118) | — |
-| V4 | Página inicial: hierarquia e narrativa do nicho | ⏳ — **promessas da página são decisão dele** (regra 8.1) | `copywriting`, `frontend-design`, `motion-design`, `web-interface-guidelines`, Lighthouse |
+| V4 | Página inicial: hierarquia e narrativa do nicho | ⏳ — **promessas da página são decisão dele** (regra 8.1) | `copywriting`, `frontend-design`, `design-taste-frontend`, `motion-design`, `web-interface-guidelines`, Lighthouse |
 | V5 | Entrar, criar conta, lista de espera | ⏳ (junta com o 3.19) | `onboarding`, `copywriting`, `web-interface-guidelines` |
 | V6 | Telas do app, uma a uma — **Minha conta primeiro** (pedido dele) | ⏳ | `frontend-design`, `ui-ux-pro-max`, `impeccable`, `a11y-debugging` |
-| V7 | Gamificação: divisa, condecorações, quadro | ⏳ — ler `astral-gamificacao` antes (muito é de propósito) | `motion-design`, `emil-design-eng` (já instalada), `frontend-design` |
+| V7 | Gamificação: divisa, condecorações, quadro | ⏳ — ler `astral-gamificacao` antes (muito é de propósito) | `motion-design`, `animate` (só CSS), `emil-design-eng` (já instalada), `frontend-design` |
+| D.marca | O kit da marca (ícone, paleta, tipo, aplicações) para o lançamento | ⏳ novo, 08/10 | `brandkit`, `frontend-design` |
 | V8 | Celular | 🟡 boa parte feita no 3.10 / 3.10b | `chrome-devtools`, `a11y-debugging`, `testa-acessivel`, `testa-lighthouse` |
 
 > **Regra que vale para todo o Lote D** (do V0): o problema medido não é feiura, é **cara genérica de IA**.
 > Cada bloco termina com foto antes × depois e o `testa-acessivel` + `testa-lighthouse` verdes.
 
-### Skills que ele vai mandar ainda
+### A 2ª leva de skills (08/10/2026 — ele mandou 5, eram "mais 3")
 
-Ele avisou em 08/10 que vai mandar **mais 3 skills**. Entram do mesmo jeito: ler tudo antes de instalar,
-registrar em `historico/decisoes.md` § 0.6, e acrescentar aqui onde cada uma serve.
+| Skill | Situação | Onde entra |
+|---|---|---|
+| `design-taste-frontend` (taste-skill) | já estava instalada, **idêntica** à que ele mandou | **V4** (página inicial) e **V5** (entrar/criar conta): é feita para página de apresentação, não para painel |
+| `impeccable` | instalada a **4.0.4**; a do autor é a **4.5.1** — ❓ **atualizar é decisão dele** (o instalador põe um gancho que roda um programa baixado da internet a cada edição no projeto) | **V2** (casca), **V6** (telas do app, uma a uma: auditar, polir, endurecer) |
+| `brandkit` | nova | **D.marca** (novo, abaixo): o quadro da marca — o ícone de estrela e divisa (3.11), cores, tipo, aplicações — para o lançamento e as redes |
+| `animate` | nova — **só a parte de CSS** serve (o resto é React); a tabela dela manda `ease-in` na saída, que a regra do Astral proíbe: **vale a regra do Astral** (aviso no topo da skill) | **V7** (gamificação: anúncio de medalha, divisa) junto com `motion-design` e `emil-design-eng` |
+| `remotion-best-practices` | nova — faz **vídeo** com código React, num projeto **separado** do site | **Lançamento** (fora do site): vídeos curtos do produto para Instagram/WhatsApp. Grátis para pessoa física e empresa pequena (licença paga só acima de 3 funcionários) |
+
+**D.marca — o kit da marca** (novo, no Lote D, depois do V4): um quadro com o ícone, a paleta, as fontes e o
+Astral aplicado (celular, prévia do link, divisa). Desenhado em HTML e fotografado pelo navegador, como a prévia
+do link (`gera-vitrine.js`) — não precisa de gerador de imagem pago.
 
 ---
 

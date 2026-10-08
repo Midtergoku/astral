@@ -512,3 +512,18 @@ outro formato. As duas contrariam a regra 3 dele (**acrescentar, nunca sobrescre
 motion-design, copywriting, frontend-design, ui-ux-pro-max, brainstorming, security, cost-reducer,
 customer-support. **Fora do Astral hoje:** 21st-ui (React), n8n (não usamos), scalability (8 usuários —
 vale quando houver carga). Detalhe no relatório daquele dia.
+
+## 0.7. A 2ª leva de skills — 08/10/2026
+
+Ele mandou 5 links (*"são mais que 3, mas faça o mesmo que eu pedi com elas"*). Lidas antes de instalar
+(todas `.md`, exemplos `.tsx`, e 2 scripts `.mjs` do Remotion que só leem e gravam arquivo local).
+
+| Skill | O que aconteceu |
+|---|---|
+| taste-skill | **já instalada** como `design-taste-frontend` — 0 diferenças com a do link |
+| impeccable | **não atualizada**: instalada a 4.0.4, a do autor é a 4.5.1. O link era o `SKILL.src.md` (molde que precisa ser "montado"); a instalação oficial (`npx impeccable install/update`) **põe um gancho no projeto** que roda o motor do Impeccable — um programa baixado para `~/.impeccable/bin` — a cada edição. Reversível, mas é programa de fora rodando sozinho: **decisão dele** |
+| brandkit | instalada — instruções de direção de arte para quadro de marca (feita para gerador de imagem; aqui vira HTML fotografado) |
+| animate | instalada — padrões de animação para React/Next.js; **aviso de precedência no topo**: a tabela dela manda `ease-in` na saída, e a regra do Astral proíbe `ease-in` |
+| remotion-best-practices | instalada — vídeo com React (projeto separado). Licença grátis para pessoa física e empresa com até 3 funcionários |
+
+Onde cada uma entra: `docs/auditoria/ROADMAP.md`, versão 3, "A 2ª leva de skills".
