@@ -479,3 +479,36 @@ Código gerado por conversa solta acumula isso — não é descuido dele.
 resíduo daquela fase, não decisão. Vale perguntar antes de preservar por respeito.
 
 ---
+
+## 0.6. Skills novas — pedido dele em 08/10/2026
+
+> *"Antes de continuarmos quero que você instale algumas skills para nos ajudar a trabalhar com mais
+> profissionalidade (...) Instale todos eles, me dê resumidamente o que cada um faz e quais são muito
+> bons para o nosso projeto e quais podem ser utilizados em todos os projetos futuros."*
+
+**Onde moram:** `~/.claude/skills/` (valem para todos os projetos). **Como foram instaladas:** cada
+repositório clonado numa pasta temporária, **lido antes** (50 arquivos `.md` nas novas; os 18 `.py` do
+ui-ux-pro-max conferidos — só leem CSV, nenhum acesso à rede; o servidor do brainstorming só escuta no
+próprio PC, com chave). Versões antigas das 4 atualizadas guardadas em
+`C:\Users\Lucas\Documents\skills-antigas-08-10-2026\`.
+
+| Skill | De onde | Situação |
+|---|---|---|
+| brainstorming | obra/superpowers | já existia — **atualizada** |
+| frontend-design | anthropics/skills | já existia — **atualizada** |
+| copywriting | coreyhaines31/marketingskills | já existia — **atualizada** (ganhou "sinais de texto de IA") |
+| ui-ux-pro-max | nextlevelbuilder | já existia — **atualizada** (61 arquivos mudaram) |
+| motion-design | LottieFiles | nova |
+| 21st-ui | 21st-dev/magic-mcp | nova — **só funciona com o servidor da 21st.dev e chave dele** (não instalado); é para React/Tailwind, **não serve ao Astral** |
+| web-interface-guidelines | vercel-labs (o vercel.com/design/guidelines) | nova — era uma página; virou skill |
+| chrome-devtools + a11y-debugging, cookie-debugging, debug-optimize-lcp, memory-leak-debugging, troubleshooting, chrome-devtools-cli | ChromeDevTools/chrome-devtools-mcp | novas, e o **servidor MCP** `chrome-devtools` instalado para todos os projetos, **com `--no-usage-statistics`** (o Google coleta estatística por padrão) |
+| cost-reducer, create-skill, customer-support, know-me, n8n, researcher, scalability, security, self-healing | huyvp/claude-skills | novas (o self-healing veio duas vezes na lista dele: uma instalação só) |
+
+**⚠️ Precedência.** `self-healing` manda "apagar memória velha" e `know-me` cria arquivos de memória em
+outro formato. As duas contrariam a regra 3 dele (**acrescentar, nunca sobrescrever**) e a regra 6
+(**na dúvida, fica**). Pus no topo das duas um aviso: regra do projeto e do usuário vencem.
+
+**O que vale para o Astral (minha leitura):** web-interface-guidelines, chrome-devtools (+ a11y e LCP),
+motion-design, copywriting, frontend-design, ui-ux-pro-max, brainstorming, security, cost-reducer,
+customer-support. **Fora do Astral hoje:** 21st-ui (React), n8n (não usamos), scalability (8 usuários —
+vale quando houver carga). Detalhe no relatório daquele dia.
