@@ -533,3 +533,26 @@ Regressão: `node tools/testa-vitrine.js` (no ar) ou `--local`.
 - 🔴 **Domínio próprio:** trocar `SITE` no `gera-vitrine.js`, rodar, e trocar `astral-psi.vercel.app` nas 6
   páginas públicas (`og:url`, `og:image`, `canonical`). O `og:image` **tem** de ser endereço completo —
   o WhatsApp não lê caminho relativo.
+
+---
+
+## 12. O Lighthouse e as regras da Vercel (08/10/2026, roadmap 3.10b / 3.11b) ✅
+
+**Dois testes a mais guardam a tela, e os dois rodam na bateria:**
+
+| Teste | O que pergunta | Onde |
+|---|---|---|
+| `node tools/testa-lighthouse.js [paginas] [--tudo]` | a auditoria do Google no celular: acessibilidade (nome de botão, rótulo, `<main>`, ordem de título, contraste de TODO texto), boas práticas, busca | contra o **site no ar**; logado com conta de teste |
+| `node tools/testa-acessivel.js` (coluna **interf.**) | as regras da Vercel que dão para medir: clique sem botão, foco invisível, `<main>`, título pulado, imagem sem tamanho, `autocomplete`, e-mail com corretor, "..." no texto, `color-scheme`, `<select>` sem cor, zoom bloqueado | `tools/testes/regras-de-interface.js` |
+
+**Ao escrever tela nova:**
+- **Coisa clicável é `<button>` ou `<a href>`**, nunca `<div onclick>` — o teclado e o leitor de tela não chegam
+  (o quadradinho de "feito" do painel era assim até 08/10). Cartão inteiro clicável **precisa** de um link de
+  verdade dentro.
+- **Botão só de ícone leva `aria-label`** (e muda junto com o estado: "Iniciar"/"Pausar").
+- **Todo campo tem rótulo** (`<label for>`); e-mail: `type="email" autocomplete="email" spellcheck="false"`;
+  filtro e campo que não é de login: `autocomplete="off"`.
+- **Link dentro de texto é sublinhado** — só a cor não basta.
+- **Aceitos, com motivo no teste:** os avisos do hCaptcha (código deles) e deslocamento de tela até 0,1.
+- O Lighthouse roda pelo **modo de linha de comando** do `chrome-devtools-mcp` (`npm i chrome-devtools-mcp@latest -g`),
+  com o Chromium do Playwright (não há Chrome instalado), e **sem enviar estatística ao Google**.
