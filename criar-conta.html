@@ -406,7 +406,7 @@
 
       <div class="form-group">
         <label for="senha">Criar senha</label>
-        <input type="password" id="senha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+        <input type="password" id="senha" placeholder="8 ou mais, com letras e números" autocomplete="new-password" />
       </div>
 
       <!-- 03/10/2026 (auditoria LGL-02, roadmap 3.6): idade minima de 16 -->
@@ -521,6 +521,8 @@
     if (!nome) { mostrarErro('Informe seu nome.'); return; }
     if (!email || !email.includes('@')) { mostrarErro('Informe um e-mail válido.'); return; }
     if (senha.length < 8) { mostrarErro('A senha precisa ter pelo menos 8 caracteres.'); return; }
+    // 09/10/2026 (auditoria SEG-05, roadmap 3.16): o servidor exige letras E numeros
+    if (!/[A-Za-z]/.test(senha) || !/[0-9]/.test(senha)) { mostrarErro('A senha precisa ter letras e números.'); return; }
     const nasc = campoNasc.value;
     const idade = idadeDe(nasc);
     if (!nasc || idade === null || idade > 100) { mostrarErro('Informe sua data de nascimento.'); campoNasc.focus(); return; }
@@ -554,6 +556,8 @@
         mostrarErro('Este e-mail já possui uma conta. Tente fazer login.');
       } else if (m.includes('email_provider_disabled') || m.includes('email signups are disabled')) {
         mostrarErro('O cadastro por e-mail ainda não está ativo. Use o botão do Google acima.');
+      } else if (m.includes('should contain')) {
+        mostrarErro('A senha precisa ter letras e números.');
       } else if (m.includes('weak') || m.includes('pwned') || m.includes('leaked')) {
         mostrarErro('Essa senha aparece em vazamentos conhecidos. Escolha outra.');
       } else if (m.includes('rate limit') || m.includes('too many')) {

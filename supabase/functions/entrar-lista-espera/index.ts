@@ -16,7 +16,7 @@
 // token com o hCaptcha -> so entao insere, com service_role.
 // ============================================================================
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2.117.3";
 import { cabecalhosCors, json, erro, FalhaHttp } from "../_shared/comum.ts";
 
 const VERIFICA_HCAPTCHA = "https://api.hcaptcha.com/siteverify";

@@ -5,7 +5,7 @@
 // real do usuario, quota por plano, CORS restrito e resposta padronizada.
 // ============================================================================
 
-import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2.117.3";
 
 // ── CORS ────────────────────────────────────────────────────────────────────
 // Antes era "*", ou seja, qualquer site na internet podia chamar estas funcoes

@@ -198,7 +198,7 @@
 
     <div class="form-group">
       <label for="senha">Nova senha</label>
-      <input type="password" id="senha" placeholder="Pelo menos 8 caracteres" autocomplete="new-password" />
+      <input type="password" id="senha" placeholder="8 ou mais, com letras e números" autocomplete="new-password" />
     </div>
 
     <div class="forca">
@@ -332,6 +332,8 @@
     el('msg-erro').style.display = 'none';
 
     if (senha.length < 8)  { erro('A senha precisa ter pelo menos 8 caracteres.'); return; }
+    // 09/10/2026 (auditoria SEG-05, roadmap 3.16): o servidor exige letras E numeros
+    if (!/[A-Za-z]/.test(senha) || !/[0-9]/.test(senha)) { erro('A senha precisa ter letras e números.'); return; }
     if (senha !== senha2)  { erro('As duas senhas não são iguais.'); return; }
 
     btn.disabled = true;
@@ -345,6 +347,11 @@
       const m = (error.message || '').toLowerCase();
       if (m.includes('different')) {
         erro('A nova senha precisa ser diferente da anterior.');
+      } else if (m.includes('should contain')) {
+        erro('A senha precisa ter letras e números.');
+      } else if (m.includes('reauthentication')) {
+        // 3.16: trocar a senha exige ter entrado ha pouco (menos de 24 h) -- o link novo resolve
+        erro('Por segurança, este link já não serve para trocar a senha. Peça um novo e tente de novo.');
       } else if (m.includes('weak') || m.includes('pwned') || m.includes('leaked')) {
         erro('Essa senha aparece em vazamentos conhecidos. Escolha outra.');
       } else if (m.includes('session') || m.includes('jwt')) {

@@ -61,7 +61,14 @@ $esperado = @(
   @{ campo = 'security_captcha_enabled'; vale = $true
      porque = 'unica protecao de forca bruta que nao se contorna' },
   @{ campo = 'mailer_autoconfirm';       vale = $true
-     porque = 'sem SMTP proprio, exigir confirmacao tranca todo mundo do lado de fora' }
+     porque = 'sem SMTP proprio, exigir confirmacao tranca todo mundo do lado de fora' },
+  # 09/10/2026 (roadmap 3.16, SEG-04/SEG-05) -- ver tools/testa-sessao-senha.js
+  @{ campo = 'jwt_exp';                  vale = 900
+     porque = 'sair de todos os aparelhos derruba a tela aberta em ate 15 min (era 1 h); a conta.html promete isso' },
+  @{ campo = 'password_required_characters'; vale = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789'
+     porque = 'senha com letras E numeros; criar-conta e redefinir-senha avisam e conferem antes' },
+  @{ campo = 'security_update_password_require_reauthentication'; vale = $true
+     porque = 'sessao com mais de 24 h nao troca a senha sem codigo (quem pega um aparelho aberto)' }
 )
 
 Write-Host "CONFERE-AUTH -- producao contra o esperado`n"

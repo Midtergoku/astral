@@ -21,7 +21,7 @@
 //     virar mais uma fonte de erro na tela do usuario
 // ============================================================================
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2.117.3";
 import { cabecalhosCors } from "../_shared/comum.ts";
 
 /* Medido em 03/10/2026: 152 erros na historia inteira, pior dia 58, maior
