@@ -528,11 +528,12 @@
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
-           SUPABASE_URL, montarCaptcha, tokenCaptcha, resetarCaptcha }
-    from './assets/js/astral.js?v=cbb0937d';
+           SUPABASE_URL, captchaSobDemanda, captchaPendente, tokenCaptcha, resetarCaptcha }
+    from './assets/js/astral.js?v=bb42703d';
 
   let widgetCaptcha = null;
-  montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
+  // 09/10/2026 (3.19, UX-04): o captcha (~764 KB) so baixa quando a pessoa toca num campo
+  const captcha = captchaSobDemanda('caixa-captcha', (id) => { widgetCaptcha = id; });
 
   window.handleSubmit = async function() {
     const nome     = document.getElementById('nome').value.trim();
@@ -548,6 +549,8 @@
     if (!consentimento) { toast('Você precisa aceitar os Termos de Uso e a Política de Privacidade.', 'error'); return; }
     if (!concurso) { toast('Por favor, selecione o tipo de concurso.', 'error'); return; }
 
+    const idCaptcha = await captcha.montar();
+    if (captchaPendente(idCaptcha)) { toast('Marque a caixa de verificação acima e toque no botão de novo.', 'error'); return; }
     // Loading
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Salvando sua vaga...';

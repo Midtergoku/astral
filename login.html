@@ -368,15 +368,16 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            segundosBloqueado, registrarFalha, limparFreio, emPortugues,
-           montarCaptcha, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
-    from './assets/js/astral.js?v=cbb0937d';
+           captchaSobDemanda, captchaPendente, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
+    from './assets/js/astral.js?v=bb42703d';
 
   olhinhoDeSenha('senha');
 
   // null enquanto o captcha estiver desligado -- e ai tokenCaptcha() devolve
   // undefined, que o supabase-js simplesmente ignora.
   let widgetCaptcha = null;
-  montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
+  // 09/10/2026 (3.19, UX-04): o captcha (~764 KB) so baixa quando a pessoa toca num campo
+  const captcha = captchaSobDemanda('caixa-captcha', (id) => { widgetCaptcha = id; });
 
   // Se o usuario chegou aqui pelo link de redefinicao de senha, o token vem no
   // fragmento da URL. Mandamos para a pagina certa ANTES de qualquer coisa --
@@ -436,6 +437,8 @@
       return;
     }
 
+    const idCaptcha = await captcha.montar();
+    if (captchaPendente(idCaptcha)) { mostrarErro('Marque a caixa de verificação acima e toque em Entrar de novo.'); return; }
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Entrando...';
 
@@ -491,7 +494,9 @@
       mostrarErro('Digite seu e-mail no campo acima e clique em "Esqueci minha senha" de novo.');
       return;
     }
-
+    const idCaptcha = await captcha.montar();
+    if (captchaPendente(idCaptcha)) { mostrarErro('Marque a caixa de verificação acima e clique em "Esqueci minha senha" de novo.'); return; }
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       // Apontava para a propria login.html, que nao sabia o que fazer com o
       // token -- o usuario acabava logado sem nunca trocar a senha.

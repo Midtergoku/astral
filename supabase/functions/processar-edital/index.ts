@@ -174,7 +174,27 @@ function validar(d: unknown): Edital {
 }
 
 Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx: Contexto) => {
-  const { pdfBase64 } = await req.json().catch(() => ({ pdfBase64: null }));
+  /* 09/10/2026 (auditoria UX-04, roadmap 3.19): o PDF pode vir CRU (Content-Type
+     application/pdf) -- 25% menos para subir do que em base64. Medido pela auditoria:
+     o edital da ESA (3,1 MB) virava ~4,1 MB e levava ~44 s so para subir num 4G fraco.
+     O JSON antigo ({ pdfBase64 }) continua aceito: pagina guardada no navegador de
+     alguem nao quebra. A impressao digital e dos BYTES -- a mesma nos dois jeitos. */
+  let pdfBase64: string | null = null;
+  if ((req.headers.get("content-type") || "").startsWith("application/pdf")) {
+    /* Le o arquivo INTEIRO antes de recusar. Medido no dev: recusar pelo tamanho declarado
+       (content-length), com o arquivo ainda chegando, cortava a conexao e o aluno via 503 sem
+       mensagem; lendo antes, ele recebe o 413 com a razao -- como no jeito antigo (base64).
+       A conferencia vem ANTES de converter: arquivo grande nao gasta CPU. */
+    const cru = new Uint8Array(await req.arrayBuffer());
+    if (cru.length > MAX_BYTES) {
+      throw new FalhaHttp(413, `O PDF tem ${(cru.length / 1024 / 1024).toFixed(1)} MB e o limite é ${MAX_BYTES / 1024 / 1024} MB. Envie só o edital, sem anexos.`);
+    }
+    let texto = "";
+    for (let i = 0; i < cru.length; i += 0x8000) texto += String.fromCharCode(...cru.subarray(i, i + 0x8000));
+    pdfBase64 = cru.length ? btoa(texto) : null;
+  } else {
+    ({ pdfBase64 } = await req.json().catch(() => ({ pdfBase64: null })));
+  }
 
   if (typeof pdfBase64 !== "string" || !pdfBase64) {
     throw new FalhaHttp(400, "O PDF não chegou. Escolha o arquivo e envie de novo.");

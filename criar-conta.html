@@ -449,14 +449,15 @@
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
-           montarCaptcha, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
-    from './assets/js/astral.js?v=cbb0937d';
+           captchaSobDemanda, captchaPendente, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
+    from './assets/js/astral.js?v=bb42703d';
   import { marcarAceiteNoCadastro, esquecerAceiteDoCadastro, marcarNascimentoNoCadastro } from './assets/js/consentimento.js?v=8afbfaa3';
 
   olhinhoDeSenha('senha');
 
   let widgetCaptcha = null;
-  montarCaptcha('caixa-captcha').then(id => { widgetCaptcha = id; });
+  // 09/10/2026 (3.19, UX-04): o captcha (~764 KB) so baixa quando a pessoa toca num campo
+  const captcha = captchaSobDemanda('caixa-captcha', (id) => { widgetCaptcha = id; });
 
   // Se já estiver logado, vai pro dashboard
   const { data: { session } } = await supabase.auth.getSession();
@@ -528,6 +529,8 @@
     if (!nasc || idade === null || idade > 100) { mostrarErro('Informe sua data de nascimento.'); campoNasc.focus(); return; }
     if (idade < 16) { mostrarErro(MENOR_DE_16); return; }
     if (!consentimento) { mostrarErro('Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.'); return; }
+    const idCaptcha = await captcha.montar();
+    if (captchaPendente(idCaptcha)) { mostrarErro('Marque a caixa de verificação acima e toque em Criar minha conta de novo.'); return; }
     marcarNascimentoNoCadastro(nasc);
     // 02/10/2026 (LGL-01): o aceite e GRAVADO no servidor quando a conta entra.
     marcarAceiteNoCadastro('cadastro_email', email);

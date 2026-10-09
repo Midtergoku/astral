@@ -144,13 +144,15 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
 
   let resposta;
   try {
+    // 09/10/2026 (UX-04, 3.19): um ARQUIVO (o PDF do edital) vai cru, sem base64 -- 25% menor
+    const ehArquivo = typeof Blob !== 'undefined' && corpo instanceof Blob;
     resposta = await fetch(`${SUPABASE_URL}/functions/v1/${rota}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': ehArquivo ? (corpo.type || 'application/pdf') : 'application/json',
         'Authorization': `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify(corpo),
+      body: ehArquivo ? corpo : JSON.stringify(corpo),
       signal: controle.signal,
     });
   } catch (e) {
@@ -490,6 +492,32 @@ export async function montarCaptcha(idDoElemento) {
     console.error('Captcha nao carregou:', e);
     return null;
   }
+}
+
+/* 09/10/2026 (auditoria UX-04, roadmap 3.19): o captcha SO QUANDO PRECISAR.
+   Medido no ar: Entrar e Criar conta baixavam ~1.050 KB, e ~764 KB (73%) eram do
+   hCaptcha -- inclusive para quem entra com o Google (6 das 7 contas), que nem
+   usa a caixinha. Agora o captcha so e baixado quando a pessoa toca num CAMPO de
+   texto (e-mail, senha, nome) ou no botao de enviar (montar() no envio).
+   O espaco de 78 px continua reservado (sem empurrao na tela, 3.11b).
+   aoMontar(id): avisa a pagina do id do widget (null se nao carregou). */
+export function captchaSobDemanda(idDoElemento, aoMontar) {
+  let promessa = null;
+  const montar = () => (promessa ||= montarCaptcha(idDoElemento).then((id) => { aoMontar?.(id); return id; }));
+  const aoTocar = (e) => {
+    if (e.target?.matches?.('input:not([type="checkbox"]):not([type="radio"]), textarea')) {
+      document.removeEventListener('focusin', aoTocar);
+      montar();
+    }
+  };
+  if (HCAPTCHA_SITEKEY) document.addEventListener('focusin', aoTocar);
+  return { montar };
+}
+
+/** O captcha esta na tela e a pessoa ainda nao marcou? (sem captcha carregado: nao barra -- o servidor decide) */
+export function captchaPendente(idDoWidget) {
+  if (!HCAPTCHA_SITEKEY || idDoWidget === null || idDoWidget === undefined) return false;
+  try { return !window.hcaptcha.getResponse(idDoWidget); } catch { return false; }
 }
 
 /** Token para mandar junto do login/cadastro. `undefined` quando desligado. */

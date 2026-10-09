@@ -948,6 +948,11 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida);
 }
 .edital-btn svg { transition: transform var(--d-menu) var(--saida); }
+/* 09/10/2026 (3.19, UX-05): o primeiro acesso mostra so o envio do edital */
+.primeiro-passo { display: none; margin: 0 0 var(--e3); font-size: var(--t-sm); color: var(--texto-2); line-height: 1.5; max-width: 62ch; }
+.primeiro-passo b { color: var(--papel); }
+body.primeiro-acesso .primeiro-passo { display: block; }
+body.primeiro-acesso .grid-3 { display: none; }
 /* 09/10/2026 (roadmap 3.14, CRO-03): a prova passou -- o que vem agora */
 .prova-passada { border-color: color-mix(in srgb, var(--latao) 40%, var(--linha)); }
 .prova-passada p { margin: .35rem 0 var(--e3); color: var(--texto-2); font-size: var(--t-sm); line-height: 1.5; max-width: 66ch; }
@@ -1344,6 +1349,9 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   <!-- Nasce escondida (30/09/2026): antes de os dados chegarem, quem ja tinha
        edital via "suba seu edital" piscar por ~0,3 s. renderUI decide. -->
   <div id="upload-section" style="display:none">
+    <!-- 09/10/2026 (3.19): so no primeiro acesso (body.primeiro-acesso) -->
+    <p class="primeiro-passo"><b>Primeiro passo:</b> envie o PDF do edital do seu concurso. O Astral lê as matérias e os pesos,
+      monta o seu cronograma, e o resto do painel aparece logo depois.</p>
     <div class="card upload-card" id="upload-area"
          ondragover="dragOver(event)"
          ondragleave="dragLeave(event)"
@@ -1593,7 +1601,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=cbb0937d';
+    from './assets/js/astral.js?v=bb42703d';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
   import { arrumarNome } from './assets/js/prova.js?v=25b893ea';
@@ -2413,8 +2421,16 @@ function mostrarLevelUp(nomeNivel) {
       document.getElementById('upload-section').style.display =
         estado.edital && estado.materias.length > 0 ? 'none' : 'block';
     }
+    /* 09/10/2026 (auditoria UX-05, roadmap 3.19; decisao 18 dele: "Concordo"): o
+       PRIMEIRO ACESSO e so o envio do edital. Medido: conta nova no celular via
+       cartoes zerados, e o envio comecava ABAIXO do fim da tela (906 px numa tela
+       de 844); depois, mais 2.056 px de painel vazio (missao impossivel, ficha
+       zerada, 0/74 condecoracoes). Primeiro acesso = sem edital E sem nenhum
+       estudo: quem estudou e removeu o edital continua vendo o proprio historico. */
+    const primeiroAcesso = !(estado.edital && estado.materias.length > 0) && !(Number(estado.xp) > 0) && !(Number(estado.horas) > 0);
+    document.body.classList.toggle('primeiro-acesso', primeiroAcesso);
     renderEdital();
-    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('main-content').style.display = primeiroAcesso ? 'none' : 'block';
     renderCronograma();
     renderProgressoResumo();
     verificarBalanco();
@@ -2827,18 +2843,9 @@ function verificarBalanco() {
     proc.scrollIntoView({ block: 'center', behavior: quieto ? 'auto' : 'smooth' });
 
     try {
-      // Lê o PDF como base64
-      const base64 = await new Promise((res, rej) => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result.split(',')[1]);
-        reader.onerror = rej;
-        reader.readAsDataURL(file);
-      });
-
-      // chamarIA manda o access_token do usuario e ja devolve o objeto
-      // validado pela edge function. O codigo anterior mandava a chave
-      // publica e ainda fazia stringify + parse do que ja era objeto.
-      const resultado = await chamarIA('processar-edital', { pdfBase64: base64 }).finally(() => clearTimeout(lendoDeVerdade));
+      /* 09/10/2026 (auditoria UX-04, roadmap 3.19): o PDF vai CRU (antes: base64, +33%), e o
+         aparelho espera 150 s -- o limite da funcao no plano gratis do Supabase (era 120). */
+      const resultado = await chamarIA('processar-edital', file, { timeoutMs: 150000 }).finally(() => clearTimeout(lendoDeVerdade));
       // O que o servidor ja tinha guardado deste edital (2.15): a revelacao conta a verdade.
       revelacao = { guardado: resultado.guardado === true, guiasProntos: Number(resultado.guiasProntos) || 0 };
 
