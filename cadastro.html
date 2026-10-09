@@ -491,7 +491,7 @@
       </div>
 
       <!-- Fica vazio enquanto HCAPTCHA_SITEKEY estiver em branco (ver astral.js). -->
-      <div id="caixa-captcha" style="margin-bottom:1rem;"></div>
+      <div id="caixa-captcha" style="margin-bottom:1rem;min-height:78px;"></div>   <!-- 78 px: a altura do captcha "normal"; reservada desde o comeco, senao ele chega depois e empurra a pagina (08/10, DevTools) -->
 
       <button class="btn-submit" id="btn-submit" onclick="handleSubmit()">
         Quero minha vaga →
