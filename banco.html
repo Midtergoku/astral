@@ -645,7 +645,7 @@
      proprio aluno cadastrou) nao inventa fonte. */
   function fonteDa(q) {
     if (!q.banca) return '';
-    const partes = [q.banca, q.prova, q.ano].filter((x) => x !== null && x !== undefined && String(x).trim() !== '').map((x) => esc(String(x)));
+    const partes = [q.banca, q.prova, q.ano].filter((x) => x != null && String(x).trim() !== '').map((x) => esc(String(x)));
     const numero = q.numero ? ` · nº ${esc(String(q.numero))}` : '';
     return `<span class="selo fonte" title="Fonte: a prova original">Fonte: ${partes.join(' · ')}${numero}</span>`;
   }
