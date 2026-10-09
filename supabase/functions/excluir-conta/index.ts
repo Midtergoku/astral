@@ -18,7 +18,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return new Response("ok", { headers: cabecalhosCors(req) });
   }
   if (req.method !== "POST") {
-    return erro(req, "Metodo nao suportado.", 405);
+    return erro(req, "Método não suportado.", 405);
   }
 
   try {
@@ -28,7 +28,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // acidental -- ou um CSRF -- destrua a conta. O texto vem do frontend.
     const corpo = await req.json().catch(() => ({}));
     if (String(corpo?.confirmacao ?? "").trim().toUpperCase() !== "EXCLUIR") {
-      throw new FalhaHttp(400, "Confirmacao invalida.");
+      throw new FalhaHttp(400, "Confirmação inválida.");
     }
 
     // Log antes de apagar: depois nao ha mais de quem falar.
@@ -41,7 +41,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const { error } = await admin().auth.admin.deleteUser(usuario.id);
     if (error) {
       console.error("Falha ao excluir usuario:", error);
-      throw new FalhaHttp(500, "Nao foi possivel excluir a conta agora. Tente de novo em alguns minutos.");
+      throw new FalhaHttp(500, "Não foi possível excluir a conta agora. Tente de novo em alguns minutos.");
     }
 
     return json(req, {
@@ -50,6 +50,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
     });
   } catch (e) {
     if (e instanceof FalhaHttp) return erro(req, e.message, e.status);
-    return erro(req, "Nao foi possivel excluir a conta.", 500, e);
+    return erro(req, "Não foi possível excluir a conta.", 500, e);
   }
 });

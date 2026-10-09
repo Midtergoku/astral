@@ -136,7 +136,7 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     window.location.href = 'login.html';
-    throw new Error('Sessao expirada.');
+    throw new Error('Sessão expirada.');
   }
 
   const controle = new AbortController();
@@ -155,8 +155,9 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
     });
   } catch (e) {
     clearTimeout(timer);
-    if (e.name === 'AbortError') throw new Error('A IA demorou demais para responder. Tente de novo.');
-    throw new Error('Sem conexao com o servidor. Verifique sua internet.');
+    // 09/10/2026 (EDI-04): o problema aqui e a CONEXAO -- dizer isso, com acento
+    if (e.name === 'AbortError') throw new Error('A resposta demorou demais — pode ser a sua internet ou o nosso servidor. Tente de novo.');
+    throw new Error('Sem conexão com o servidor. Confira a sua internet e tente de novo.');
   }
   clearTimeout(timer);
 
@@ -167,10 +168,10 @@ export async function chamarIA(rota, corpo, { timeoutMs = 120000 } = {}) {
     if (resposta.status === 401) {
       await supabase.auth.signOut();
       window.location.href = 'login.html';
-      throw new Error('Sua sessao expirou. Entre de novo.');
+      throw new Error('Sua sessão expirou. Entre de novo.');
     }
     // 429 (quota) e 413 (PDF grande) trazem texto pronto para o usuario.
-    throw new Error(json?.error || 'Nao foi possivel completar a operacao. Tente de novo.');
+    throw new Error(json?.error || 'Algo falhou do nosso lado, não na sua internet. Tente de novo em alguns minutos.');
   }
 
   if (!json?.success || json?.data === undefined) {
@@ -459,7 +460,7 @@ function carregarScriptCaptcha() {
     s.async = true;
     s.defer = true;
     s.onload = resolve;
-    s.onerror = () => reject(new Error('Nao foi possivel carregar o captcha.'));
+    s.onerror = () => reject(new Error('Não foi possível carregar o captcha.'));
     document.head.appendChild(s);
   });
   return promessaScript;

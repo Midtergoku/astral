@@ -142,7 +142,7 @@ function validarForca(v: unknown): Forca {
 function validar(d: unknown): Edital {
   const e = d as Partial<Edital>;
   if (!e || typeof e !== "object" || !Array.isArray(e.materias) || e.materias.length === 0) {
-    throw new FalhaHttp(502, "Nao consegui identificar as materias neste edital. Confira se o PDF e o edital certo.");
+    throw new FalhaHttp(502, "Não encontrei as matérias neste PDF. Confira se ele é o edital do concurso, com o conteúdo programático.");
   }
   const materias = e.materias
     .filter((m) => m && typeof m.nome === "string" && m.nome.trim())
@@ -154,7 +154,7 @@ function validar(d: unknown): Edital {
     }));
 
   if (materias.length === 0) {
-    throw new FalhaHttp(502, "Nao consegui identificar as materias neste edital.");
+    throw new FalhaHttp(502, "Não encontrei as matérias neste PDF. Confira se ele é o edital do concurso, com o conteúdo programático.");
   }
 
   return {
@@ -177,7 +177,7 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
   const { pdfBase64 } = await req.json().catch(() => ({ pdfBase64: null }));
 
   if (typeof pdfBase64 !== "string" || !pdfBase64) {
-    throw new FalhaHttp(400, "PDF nao enviado.");
+    throw new FalhaHttp(400, "O PDF não chegou. Escolha o arquivo e envie de novo.");
   }
 
   // base64 ocupa 4 caracteres a cada 3 bytes.
@@ -185,16 +185,16 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
   if (bytes > MAX_BYTES) {
     throw new FalhaHttp(
       413,
-      `O PDF tem ${(bytes / 1024 / 1024).toFixed(1)} MB e o limite e ${MAX_BYTES / 1024 / 1024} MB. Envie so o edital, sem anexos.`,
+      `O PDF tem ${(bytes / 1024 / 1024).toFixed(1)} MB e o limite é ${MAX_BYTES / 1024 / 1024} MB. Envie só o edital, sem anexos.`,
     );
   }
   if (!/^[A-Za-z0-9+/]+=*$/.test(pdfBase64.slice(0, 256))) {
-    throw new FalhaHttp(400, "Arquivo invalido. Envie um PDF.");
+    throw new FalhaHttp(400, "Este arquivo não abriu como PDF. Baixe o edital de novo no site da banca e envie.");
   }
 
   // O navegador ja checou o tipo, mas quem chama a API direto nao passa por la.
   if (!pareceMesmoPdf(pdfBase64)) {
-    throw new FalhaHttp(400, "Esse arquivo nao e um PDF. Envie o edital em PDF.");
+    throw new FalhaHttp(400, "Esse arquivo não é um PDF. Envie o edital em PDF.");
   }
 
   // Teto de paginas. Libera quando nao consegue contar -- ver comentario da
@@ -204,8 +204,8 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
   if (paginas !== null && paginas > MAX_PAGINAS) {
     throw new FalhaHttp(
       413,
-      `Esse PDF tem cerca de ${paginas} paginas e o limite e ${MAX_PAGINAS}. ` +
-        `Envie so a parte do edital com o conteudo programatico.`,
+      `Esse PDF tem cerca de ${paginas} páginas e o limite é ${MAX_PAGINAS}. ` +
+        `Envie só a parte do edital com o conteúdo programático.`,
     );
   }
 

@@ -29,7 +29,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
   // GET tambem serve: e uma leitura, e nao muda nada.
   if (req.method !== "POST" && req.method !== "GET") {
-    return erro(req, "Metodo nao suportado.", 405);
+    return erro(req, "Método não suportado.", 405);
   }
 
   try {
@@ -82,6 +82,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
     });
   } catch (e) {
     if (e instanceof FalhaHttp) return erro(req, e.message, e.status);
-    return erro(req, "Nao foi possivel ler sua quota.", 500, e);
+    return erro(req, "Não consegui ler o seu limite de uso agora. Tente de novo em instantes.", 500, e);
   }
 });

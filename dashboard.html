@@ -948,6 +948,15 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   transition: border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida);
 }
 .edital-btn svg { transition: transform var(--d-menu) var(--saida); }
+/* 09/10/2026 (roadmap 3.14, CRO-03): a prova passou -- o que vem agora */
+.prova-passada { border-color: color-mix(in srgb, var(--latao) 40%, var(--linha)); }
+.prova-passada p { margin: .35rem 0 var(--e3); color: var(--texto-2); font-size: var(--t-sm); line-height: 1.5; max-width: 66ch; }
+.prova-passada-acoes { display: flex; gap: var(--e2); flex-wrap: wrap; }
+/* 09/10/2026 (EDI-04): a falha da leitura fica escrita, nao so num aviso que some */
+.upload-falha { margin: 0 0 1rem; padding: .7rem .9rem; border-radius: var(--r-p); text-align: left;
+  border: 1px solid color-mix(in srgb, var(--brasa) 55%, var(--linha));
+  background: color-mix(in srgb, var(--brasa) 8%, transparent);
+  color: var(--texto); font-size: var(--t-sm); line-height: 1.5; }
 .edital-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
 @media (hover: hover) and (pointer: fine) {
   .edital-btn:hover { border-color: var(--latao); color: var(--latao-c); }
@@ -1347,6 +1356,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
           <line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
       </div>
+      <p class="upload-falha" id="upload-falha" role="alert" hidden></p>
       <h3>Seu edital. Seu plano.</h3>
       <p>Cole o PDF do edital aqui. O Astral extrai as matérias, calcula os pesos e monta um cronograma personalizado para você.</p>
       <button class="btn-upload" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
@@ -1485,6 +1495,17 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
       </div>
     </div>
 
+    <!-- 09/10/2026 (roadmap 3.14, CRO-03): a prova passou. O chefe some, e antes
+         nada perguntava o que vem agora -- a semana seguia igual. -->
+    <div id="prova-passada" class="card prova-passada" style="margin-bottom:1.5rem" hidden>
+      <div class="section-title">Prova realizada</div>
+      <p id="prova-passada-texto"></p>
+      <div class="prova-passada-acoes">
+        <button class="edital-btn" id="prova-proximo" type="button">Subir o próximo edital</button>
+        <button class="edital-btn" id="prova-corrigir" type="button">A data está errada</button>
+      </div>
+    </div>
+
     <!-- ── AS MISSÕES (R12) ──────────────────────────────────────────────
          Vem depois do cronograma e ANTES da ficha, de propósito: o cronograma
          é o plano, a missão é o desafio de hoje, e a ficha é quem você é.
@@ -1572,7 +1593,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=6073012e';
+    from './assets/js/astral.js?v=cbb0937d';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
   import { arrumarNome } from './assets/js/prova.js?v=25b893ea';
@@ -1580,13 +1601,13 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=ab647345';
   import { sessoesDeHoje, salvarRotina, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
   import { carregarEventos, sincronizarProvaDoEdital, provaImportada, PROVA_DISPENSADA } from './assets/js/estado.js?v=ab647345';
-  import { duracao, duracaoHoras } from './assets/js/formato.js?v=98782d1d';
-  import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=a2805c65';
+  import { duracao, duracaoHoras, hojeSP } from './assets/js/formato.js?v=98782d1d';
+  import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=eafbde2d';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
   import { nivelDe } from './assets/js/divisa.js?v=cb783a04';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
-  import { pontoFraco } from './assets/js/chefe.js?v=cb156fb5';
+  import { pontoFraco, diasAte, provaPassadaDe } from './assets/js/chefe.js?v=70026c8f';
 
   /* 28/09/2026: o cartao "Nivel atual" usava a tabela TABELAS_NIVEIS daqui,
      e o topo da pagina usa a do divisa.js -- com a conta simulada, o topo
@@ -1815,7 +1836,11 @@ function mostrarLevelUp(nomeNivel) {
     estado.hoje           = await sessoesDeHoje(session.user.id);
 
     // Primeira vez: o questionario de rotina, uma vez so (28/09/2026).
-    if (!estado.rotina) perguntarRotinaPrimeiraVez();
+    /* 09/10/2026 (auditoria EDI-04, roadmap 3.14): so com edital. Antes abria ao
+       entrar, sem materia nenhuma -- e quem subia o PDF via a falha da leitura
+       aparecer junto com o questionario por cima. Sem edital, ele abre logo
+       depois da primeira leitura que der certo. */
+    if (!estado.rotina && estado.materias?.length) perguntarRotinaPrimeiraVez();
 
     /* O grafico busca sozinho e nao bloqueia a tela: se falhar, fica o esqueleto.
 
@@ -1908,7 +1933,7 @@ function mostrarLevelUp(nomeNivel) {
     const partes = [`<b>${esc(e.nome || 'Edital')}</b>`];
     const m = String(e.dataProva || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (m) {
-      const dias = Math.round((new Date(+m[3], +m[2] - 1, +m[1]) - new Date(new Date().toDateString())) / 86400000);
+      const dias = diasAte(`${m[3]}-${m[2]}-${m[1]}`);
       partes.push(`prova em <b>${esc(e.dataProva)}</b>` + (dias >= 0 ? ` (${dias} dia${dias === 1 ? '' : 's'})` : ''));
     } else {
       partes.push('data da prova não encontrada no edital');
@@ -1918,11 +1943,12 @@ function mostrarLevelUp(nomeNivel) {
     const n = estado.materias.length;
     linhas.push({ texto: `<b>${n}</b> matéria${n === 1 ? '' : 's'} e ${n === 1 ? 'seu peso carregados' : 'seus pesos carregados'}` });
 
-    const semana = montarSemana(estado.materias, estado.rotina);
+    const semana = montarSemana(estado.materias, estado.rotina, { prova: estado.edital?.dataProva });
     const blocos = semana.flatMap((d) => d.blocos || []);
     const minutos = blocos.reduce((s, b) => s + (Number(b.minutos) || 0), 0);
     const horas = duracao(minutos);          // 01/10/2026: formato unico (formato.js)
-    const naRotina = estado.rotina && !estado.rotina.pulou ? 'na sua rotina' : 'numa rotina padrão (ajuste em Cronograma)';
+    const naRotina = estado.rotina && !estado.rotina.pulou ? 'na sua rotina'
+      : (estado.rotina ? 'numa rotina padrão (ajuste em Cronograma)' : 'numa rotina padrão — a seguir você conta a sua');
     linhas.push({ texto: `Cronograma montado ${naRotina}: <b>${blocos.length}</b> sess${blocos.length === 1 ? 'ão' : 'ões'} · <b>${horas}</b> por semana` });
 
     // 03/10/2026 (CE-09): "sendo montado agora" so quando e verdade -- o guia
@@ -2112,20 +2138,33 @@ function mostrarLevelUp(nomeNivel) {
       .eq('usuario_id', uid)
       .eq('categoria', 'prova')
       .order('data', { ascending: true })
-      .limit(1);
+      .limit(50);
     /* 28/09/2026: a prova so chegava ao calendario quando a pessoa ABRIA o
        calendario. Quem nunca abriu ficava sem o chefe, com a data no edital.
        Sem prova no calendario, vale a data do proprio edital. */
-    let prova = provas?.[0] || null;
+    /* 09/10/2026 (roadmap 3.14): era a MAIS ANTIGA (limit 1) -- uma prova velha no
+       calendario escondia a proxima. Agora: a proxima que ainda vem; sem nenhuma, a ultima. */
+    const hojeIso = hojeSP();
+    let prova = (provas || []).find((p) => String(p.data).slice(0, 10) >= hojeIso) || provas?.[provas.length - 1] || null;
     if (!prova && !dispensada && estado.edital?.dataProva) {
       const m = String(estado.edital.dataProva).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
       if (m) prova = { nome: 'Prova — ' + (estado.edital.nome || 'Concurso'), data: `${m[3]}-${m[2]}-${m[1]}`, categoria: 'prova' };
     }
     if (error || !prova) return;      // sem prova marcada, sem chefe
 
-    const { chefeDe } = await import('./assets/js/chefe.js?v=cb156fb5');
+    const { chefeDe } = await import('./assets/js/chefe.js?v=70026c8f');
     const c = chefeDe(prova, fatos);
-    if (!c) return;                            // prova já passou
+    if (!c) {                                  // prova já passou: o que vem agora?
+      const pp = provaPassadaDe(prova);
+      if (pp) {
+        document.getElementById('prova-passada-texto').textContent =
+          `${pp.nome} foi em ${pp.data}. Vai prestar outro concurso? Suba o edital novo — XP, patente e condecorações vão junto. `
+          + 'Se a data estiver errada, corrija e o cronograma volta a contar com ela.';
+        document.getElementById('prova-passada').hidden = false;
+      }
+      return;
+    }
+    document.getElementById('prova-passada').hidden = true;
 
     const cor = TONS[c.tom] || TONS.calmo;
     document.getElementById('chefe-cartao').style.setProperty('--tom', cor);
@@ -2434,7 +2473,7 @@ function verificarBalanco() {
        ajusta uma vez, toda segunda -- decisao dele); entao a frase agora CONFERE
        a semana montada antes de afirmar, e senao diz quando o ajuste vem. */
     const minutosNaSemana = {};
-    for (const d of montarSemana(estado.materias, estado.rotina)) {
+    for (const d of montarSemana(estado.materias, estado.rotina, { prova: estado.edital?.dataProva })) {
       for (const b of d.blocos || []) minutosNaSemana[b.materia] = (minutosNaSemana[b.materia] || 0) + b.minutos;
     }
     const maisTempo = Math.max(0, ...Object.values(minutosNaSemana));
@@ -2485,7 +2524,7 @@ function verificarBalanco() {
      era uma lista gravada no dia do edital, que nunca se renovava. */
   function sessaoDeHoje() {
     if (!estado.materias?.length) return [];
-    return blocosDeHoje(montarSemana(estado.materias, estado.rotina), estado.hoje || [])
+    return blocosDeHoje(montarSemana(estado.materias, estado.rotina, { prova: estado.edital?.dataProva }), estado.hoje || [])
       .map((b) => ({ materia: b.materia, tempo: b.minutos, xp: b.xp, feito: b.feito, restante: b.restante, medido: b.medido }));
   }
 
@@ -2756,6 +2795,7 @@ function verificarBalanco() {
     // e sem reabri-la o "lendo seu edital" rodaria invisivel.
     document.getElementById('upload-section').style.display = 'block';
     document.getElementById('upload-area').style.display = 'none';
+    document.getElementById('upload-falha').hidden = true;
     const proc = document.getElementById('ai-processing');
     proc.style.display = 'flex';
 
@@ -2862,12 +2902,23 @@ function verificarBalanco() {
       }
       // Antes o guia so comecava no proximo carregamento da pagina.
       montarGuiaPorTras(estado.usuario.id);
+      // 09/10/2026 (EDI-04): o questionario de rotina vem DEPOIS da leitura que deu certo
+      if (!estado.rotina) perguntarRotinaPrimeiraVez();
 
     } catch(err) {
       console.error(err);
       // chamarIA ja devolve mensagem pronta para o usuario (quota, PDF grande,
       // sessao expirada). Antes isso era um alert() com err.message cru.
-      toast(err.message || 'Erro ao processar o edital. Tente novamente.', 'error');
+      const motivo = err.message || 'Não consegui ler o edital agora. Tente de novo em alguns minutos.';
+      toast(motivo, 'error');
+      // 09/10/2026 (EDI-04): o aviso some em segundos; a razao fica escrita onde se tenta de novo
+      const falha = document.getElementById('upload-falha');
+      falha.textContent = motivo;
+      falha.hidden = false;
+      // Sem isto, escolher o MESMO arquivo para tentar de novo nao fazia nada:
+      // o campo nao muda de valor e o navegador nao avisa (achado pelo teste do 3.14)
+      const entrada = document.getElementById('file-input');
+      if (entrada) entrada.value = '';
       proc.style.display = 'none';
       // Falhou a troca: quem ja tinha edital volta para o que tinha.
       if (estado.edital && estado.materias.length) document.getElementById('upload-section').style.display = 'none';
@@ -2996,7 +3047,7 @@ function verificarBalanco() {
     partes.push(`${estado.materias.length} matérias`);
     const m = String(e.dataProva || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (m) {
-      const dias = Math.round((new Date(+m[3], +m[2] - 1, +m[1]) - new Date(new Date().toDateString())) / 86400000);
+      const dias = diasAte(`${m[3]}-${m[2]}-${m[1]}`);
       partes.push(`prova em <b>${esc(e.dataProva)}</b>` + (dias >= 0 ? ` · faltam ${dias} dia${dias === 1 ? '' : 's'}` : ' · realizada'));
     } else {
       partes.push('data da prova não identificada');
@@ -3024,6 +3075,9 @@ function verificarBalanco() {
     if (!confirm('Trocar de edital refaz as matérias e o cronograma a partir do PDF novo. Seu XP, sua patente e suas conquistas ficam. Continuar?')) return;
     document.getElementById('file-input').click();
   });
+
+  document.getElementById('prova-proximo')?.addEventListener('click', () => document.getElementById('edital-trocar')?.click());
+  document.getElementById('prova-corrigir')?.addEventListener('click', () => abrirCorrecao());
 
   document.getElementById('edital-remover')?.addEventListener('click', async () => {
     if (!confirm('Remover o edital atual? As matérias e o cronograma saem. Seu XP e suas conquistas ficam.')) return;

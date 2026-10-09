@@ -113,18 +113,18 @@ export async function autenticar(req: Request): Promise<Usuario> {
   const token = cabecalho.replace(/^Bearer\s+/i, "").trim();
 
   if (!token) {
-    throw new FalhaHttp(401, "Faca login para usar esta funcao.");
+    throw new FalhaHttp(401, "Faça login para usar esta função.");
   }
 
   // Recusa explicita da chave publica. E o caso que estava passando.
   if (chavesDoProjeto().includes(token)) {
     console.warn("Tentativa de usar a chave publica do projeto como identidade.");
-    throw new FalhaHttp(401, "Faca login para usar esta funcao.");
+    throw new FalhaHttp(401, "Faça login para usar esta função.");
   }
 
   const { data, error } = await admin().auth.getUser(token);
   if (error || !data?.user) {
-    throw new FalhaHttp(401, "Sessao invalida ou expirada. Entre de novo.");
+    throw new FalhaHttp(401, "Sua sessão expirou. Entre de novo.");
   }
 
   const { data: perfil } = await admin()
@@ -264,8 +264,8 @@ export async function conferirQuota(
     const restante = Math.max(0, limite - usado);
     throw new FalhaHttp(
       429,
-      `Voce atingiu o limite diario do plano ${usuario.plano}: ${limite} por dia. ` +
-        `Restam ${restante} e esta acao pediu ${unidades}.`,
+      `Você atingiu o limite diário do plano ${usuario.plano}: ${limite} por dia. ` +
+        `Restam ${restante} e esta ação pediu ${unidades}.`,
     );
   }
 }
@@ -296,8 +296,8 @@ export async function conferirJanelaDeEditais(usuario: Usuario): Promise<void> {
     const libera = new Date(new Date(usadas[0].criado_em).getTime() + 30 * 24 * 60 * 60 * 1000);
     const dia = libera.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
     throw new FalhaHttp(429,
-      `Voce ja leu ${usadas.length} editais nos ultimos 30 dias, o limite do plano ${usuario.plano}. ` +
-      `A proxima troca fica liberada em ${dia}.`);
+      `Você já leu ${usadas.length} editais nos últimos 30 dias, o limite do plano ${usuario.plano}. ` +
+      `A próxima troca fica liberada em ${dia}.`);
   }
 }
 
@@ -413,7 +413,7 @@ export function servir(
       return new Response("ok", { headers: cabecalhosCors(req) });
     }
     if (req.method !== "POST") {
-      return erro(req, "Metodo nao suportado.", 405);
+      return erro(req, "Método não suportado.", 405);
     }
 
     // Interruptor de custo. Vem ANTES da autenticacao de proposito: se a
@@ -421,7 +421,7 @@ export function servir(
     if (FUNCOES_DESLIGADAS.has(funcao)) {
       return erro(
         req,
-        "Este recurso esta temporariamente indisponivel. Ele volta em breve.",
+        "Este recurso está temporariamente indisponível. Ele volta em breve.",
         503,
       );
     }
@@ -497,17 +497,26 @@ export function servir(
           e,
         );
       }
+      /* 09/10/2026 (auditoria EDI-04, roadmap 3.14): a mensagem diz DE QUEM e a
+         falha. Se a resposta chegou ate aqui, a internet do aluno funcionou; o
+         arquivo ja passou pelas conferencias (tamanho, PDF, paginas). O resto e
+         nosso -- e "nada foi descontado" e verdade: a quota so conta no sucesso
+         (ou quando a IA chegou a responder, o caso EDI-01, acima). */
+      const indisponivel = "O serviço de IA está indisponível no momento — o problema é do nosso lado, " +
+        "não do seu arquivo nem da sua internet. Tente de novo mais tarde; nada foi descontado de você.";
       if (status === 401 || status === 403) {
         // Credencial da IA recusada -- e problema NOSSO, nao do usuario.
-        return erro(req, "O serviço de IA está indisponivel no momento.", 503, e);
+        return erro(req, indisponivel, 503, e);
       }
       if (/credit|billing|insufficient/i.test(texto)) {
-        return erro(req, "O serviço de IA está indisponivel no momento.", 503, e);
+        return erro(req, indisponivel, 503, e);
       }
 
       return erro(
         req,
-        "Nao foi possivel completar a operacao. Tente de novo.",
+        funcao === "processar-edital"
+          ? "Não consegui ler o edital agora. A falha foi do nosso lado, não da sua internet — tente de novo em alguns minutos."
+          : "Algo falhou do nosso lado, não na sua internet. Tente de novo em alguns minutos.",
         500,
         { upstream: status ?? "sem status", texto: texto.slice(0, 300), e },
       );

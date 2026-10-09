@@ -413,3 +413,15 @@ chave de serviço (`marcarLeitura()`). É a fonte de verdade de "qual edital est
 (`materias_para_medalhas()`, `banco.md` 8.32) — o `edital.hash` que a tela grava é do aluno, e ele escreve nele.
 Na leitura nova, só marca se a leitura ficou guardada (`editais_lidos`). Falhar ao marcar não derruba a leitura.
 Regressão: `node tools/testa-trapaca.js` (parte GAM-06, pelo caminho guardado — R$ 0).
+
+---
+
+## 8.29. Mensagens que o aluno lê: com acento, e dizendo de quem é a falha (09/10/2026, roadmap 3.14 / EDI-04)
+
+O texto de `FalhaHttp` e de `erro()` **chega à tela do aluno** — é texto de usuário, então **com acento** (o comentário do código
+continua sem). 24 mensagens corrigidas nas 8 funções. **O genérico do `servir()` diz de quem é a falha:** se a resposta chegou,
+a internet funcionou e o arquivo passou nas conferências — *"a falha foi do nosso lado, não da sua internet"*. O de crédito/credencial
+diz também *"nada foi descontado de você"* (verdade: a cota só conta no sucesso, ou quando a IA chegou a responder — EDI-01).
+O navegador (`chamarIA` em `astral.js`) cuida do que o servidor não vê: **sem conexão** e **demorou demais**.
+
+Ao escrever mensagem nova: dizer **o que fazer** e **se é o arquivo, a internet ou o serviço**. Teste: `node tools/testa-prova-no-cronograma.js` (parte 3).

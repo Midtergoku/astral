@@ -569,3 +569,26 @@ Regressão: `node tools/testa-vitrine.js` (no ar) ou `--local`.
 (`overflow-y: auto`, `overscroll-behavior: contain`) — nunca voltar para `min-height: 100vh` sem rolagem: numa tela
 baixa o fim da barra some. Em tela com menos de 720 px de altura o respiro aperta (`app.css`, no fim).
 Regressão: `node tools/testa-barra-lateral.js` (14 páginas × 3 telas baixas).
+
+---
+
+## 13. A data da prova no cronograma, e os avisos da semana (09/10/2026, roadmap 3.14) ✅
+
+**`montarSemana(materias, rotina, { prova, agora })`** — `prova` é a data do edital (`DD/MM/AAAA`). **Toda tela que monta a
+semana passa a data** (painel, cronômetro, cronograma); sem ela, a semana mostrada numa tela seria diferente da outra.
+
+| Situação | O que o plano faz | O que a tela diz |
+|---|---|---|
+| dia da prova e depois, **nesta semana** | sem sessão (`prova: 'dia' \| 'depois'`) | "dia da prova" / "depois da prova" no lugar de "folga" |
+| 1 a 7 dias antes | só matérias com domínio > 0 (`retaFinal: true`); nenhuma estudada → todas | aviso "Reta final" no Cronograma |
+| a prova passou **antes** desta semana | nada muda | cartão "Prova realizada" no painel + aviso no Cronograma |
+
+- **O chefe segue a mesma regra** (`pontoFraco(materias, { soEstudadas })`). Não escrever "Revise X" para matéria com 0%.
+- **Semana editada à mão:** `foraDaSemanaEditada()` diz o que falta; `incluirNaSemanaEditada()` inclui. **Quem grava rotina preserva
+  `rebalanceio`** (3.26) — `gravar()` do Cronograma já faz.
+- **Rotina inválida:** `correcoesDaRotina()` diz o que o `normalizarRotina` trocou.
+- **Apagar algo que a pessoa fez à mão pede `confirm()`** ("Voltar ao automático", trocar e remover edital).
+- **Campo de arquivo: zerar o `value` depois de uma falha** — senão escolher o mesmo arquivo de novo não dispara nada.
+- **O questionário de rotina só abre com edital** (sem matéria, não há cronograma para montar).
+
+Regressão: `node tools/testa-prova-no-cronograma.js` (`ASTRAL_RAIZ=pasta` contra outra cópia do site).

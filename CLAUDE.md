@@ -191,6 +191,8 @@ node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COM
                                 Brasilia? ASTRAL_DEV=1 no dev; ASTRAL_RAIZ=pasta telas antigas (04/10, NUM-05/06/07)
 node tools/testa-folga.js       a folga da rotina nao quebra a sequencia? faltar ainda quebra? ASTRAL_DEV=1 (04/10, GAM-04)
 node tools/testa-transferencia.js  trocar de edital mostra a Transferencia, e so a verdade? (03/10, 3.7b)
+node tools/testa-prova-no-cronograma.js  o cronograma usa a DATA DA PROVA (reta final, dia da prova, prova passada)? semana
+                                editada avisa? falha do edital diz o que houve? ASTRAL_RAIZ=pasta (09/10, 3.14)
 node tools/testa-bonus-instrucao.js  o bonus da Instrucao vale so da escolha em diante? Recomecar nao desce
                                 a patente? ASTRAL_DEV=1 no dev (03/10, GAM-01)
 node tools/testa-limite-erros.js  a tabela de erros aguenta inundacao? 25 sem login -> 15; IP nao guardado.

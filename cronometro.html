@@ -444,11 +444,11 @@ select.materia-select:focus { border-color:var(--purple); }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
-    from './assets/js/astral.js?v=6073012e';
+    from './assets/js/astral.js?v=cbb0937d';
   import { carregarProgresso, salvarProgresso,
            gravarSessao,
            sessoesDeHoje } from './assets/js/estado.js?v=ab647345';
-  import { montarSemana, blocosDeHoje } from './assets/js/cronograma.js?v=a2805c65';
+  import { montarSemana, blocosDeHoje } from './assets/js/cronograma.js?v=eafbde2d';
   import { duracao } from './assets/js/formato.js?v=98782d1d';
 
   const CIRCUNFERENCIA = 2 * Math.PI * 120;
@@ -520,7 +520,7 @@ select.materia-select:focus { border-color:var(--purple); }
        escolhida a PROXIMA sessao do cronograma de hoje (a mesma conta da aba
        Cronograma); "Geral" continua na lista para quem quiser. */
     try {
-      const pendente = blocosDeHoje(montarSemana(progresso.materias, progresso.rotina), doBanco || [])
+      const pendente = blocosDeHoje(montarSemana(progresso.materias, progresso.rotina, { prova: progresso.edital?.dataProva }), doBanco || [])
         .find((b) => !b.feito);
       if (pendente && [...select.options].some((o) => o.value === pendente.materia)) select.value = pendente.materia;
     } catch { /* sem cronograma: fica "Geral" */ }

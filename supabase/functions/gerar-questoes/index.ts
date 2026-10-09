@@ -24,7 +24,7 @@ const texto = (v: unknown, max: number) => (typeof v === "string" ? v.trim().sli
 function validar(d: unknown): { questoes: Questao[] } {
   const bruto = (d as { questoes?: unknown })?.questoes;
   if (!Array.isArray(bruto) || bruto.length === 0) {
-    throw new FalhaHttp(502, "A IA nao devolveu questoes utilizaveis. Tente de novo.");
+    throw new FalhaHttp(502, "A IA não devolveu questões utilizáveis. Tente de novo.");
   }
 
   const questoes = bruto
@@ -52,7 +52,7 @@ function validar(d: unknown): { questoes: Questao[] } {
     .filter((q): q is Questao => q !== null);
 
   if (questoes.length === 0) {
-    throw new FalhaHttp(502, "A IA nao devolveu questoes utilizaveis. Tente de novo.");
+    throw new FalhaHttp(502, "A IA não devolveu questões utilizáveis. Tente de novo.");
   }
   return { questoes };
 }

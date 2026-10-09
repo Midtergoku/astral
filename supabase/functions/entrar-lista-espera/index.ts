@@ -73,7 +73,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: cabecalhosCors(req) });
   }
-  if (req.method !== "POST") return erro(req, "Metodo nao suportado.", 405);
+  if (req.method !== "POST") return erro(req, "Método não suportado.", 405);
 
   try {
     const corpo = await req.json().catch(() => ({}));
@@ -92,7 +92,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (!concurso) throw new FalhaHttp(400, "Escolha o concurso.");
 
     if (!(await captchaValido(texto(corpo?.captchaToken, 4000)))) {
-      throw new FalhaHttp(400, "Nao consegui confirmar que voce nao e um robo. Tente de novo.");
+      throw new FalhaHttp(400, "Não consegui confirmar que você não é um robô. Tente de novo.");
     }
 
     const { error } = await admin()
@@ -111,6 +111,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json(req, { success: true, data: { repetido: false } });
   } catch (e) {
     if (e instanceof FalhaHttp) return erro(req, e.message, e.status);
-    return erro(req, "Nao foi possivel salvar sua vaga. Tente de novo.", 500, e);
+    return erro(req, "Não foi possível salvar sua vaga. Tente de novo.", 500, e);
   }
 });

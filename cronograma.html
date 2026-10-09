@@ -50,6 +50,19 @@
   .rebal-chave { display: inline-flex; align-items: center; gap: .45rem; min-height: 24px; cursor: pointer;
                  font-size: var(--t-sm); color: var(--texto); }
   .rebal-chave input { width: 18px; height: 18px; accent-color: var(--latao); }
+  /* 09/10/2026 (roadmap 3.14): os avisos da semana -- prova, semana editada, rotina corrigida */
+  .aviso-crono {
+    margin-top: var(--e3); padding: .75rem .9rem; border-radius: var(--r-p);
+    border: 1px solid color-mix(in srgb, var(--latao) 45%, var(--linha));
+    background: color-mix(in srgb, var(--latao) 8%, transparent);
+    display: flex; justify-content: space-between; align-items: center; gap: var(--e3); flex-wrap: wrap;
+  }
+  .aviso-crono.alerta { border-color: color-mix(in srgb, var(--brasa) 55%, var(--linha));
+                        background: color-mix(in srgb, var(--brasa) 8%, transparent); }
+  .aviso-crono p { margin: 0; font-size: var(--t-sm); color: var(--texto); line-height: 1.5; max-width: 66ch; }
+  .aviso-crono a { color: var(--latao-c); text-decoration: underline; text-underline-offset: 2px; }
+  .folga.prova { border-style: solid; border-color: color-mix(in srgb, var(--latao) 55%, var(--linha));
+                 color: var(--latao-c); background: color-mix(in srgb, var(--latao) 8%, transparent); }
   .acao {
     background: transparent; border: 1px solid var(--linha); color: var(--texto);
     border-radius: var(--r-p); padding: .55rem .9rem; cursor: pointer;
@@ -341,11 +354,12 @@
 
 <script type="module">
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, pintarSeloDoPlano, toast }
-    from './assets/js/astral.js?v=6073012e';
+    from './assets/js/astral.js?v=cbb0937d';
   import { carregarProgresso, sessoesDeHoje, salvarRotina } from './assets/js/estado.js?v=ab647345';
   import { duracao, hojeSP, diaDaSemanaSP } from './assets/js/formato.js?v=98782d1d';
-  import { montarSemana, blocosDeHoje, resumoDaRotina, normalizarRotina, xpDoBloco, DIAS, DIAS_CURTOS }
-    from './assets/js/cronograma.js?v=a2805c65';
+  import { montarSemana, blocosDeHoje, resumoDaRotina, normalizarRotina, xpDoBloco, DIAS, DIAS_CURTOS,
+           provaNaSemana, foraDaSemanaEditada, incluirNaSemanaEditada, correcoesDaRotina }
+    from './assets/js/cronograma.js?v=eafbde2d';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { necessidadeDe } from './assets/js/plano.js?v=b8fa3798';
 
@@ -353,7 +367,7 @@
   const ORDEM = [1, 2, 3, 4, 5, 6, 0];
   const MINUTOS = [20, 25, 30, 40, 45, 50, 60, 90, 120];
 
-  let uid = null, materias = [], rotina = null, hoje = [];
+  let uid = null, materias = [], rotina = null, hoje = [], edital = null;
   let rascunho = null;          // a semana sendo editada; null = fora da edicao
 
   const hm = duracao;                        // 01/10/2026: formato unico (era "2h00")
@@ -380,7 +394,7 @@
 
     const semana = rascunho
       ? rascunho.map((blocos, dia) => ({ dia, estuda: blocos.length > 0, blocos: blocos.map((b) => ({ ...b, xp: xpDoBloco(b.minutos) })) }))
-      : montarSemana(materias, rotina);
+      : montarSemana(materias, rotina, { prova: edital?.dataProva });
     const agora = new Date();
     const hojeIdx = diaDaSemanaSP(agora);
     const feitosHoje = blocosDeHoje(semana, hoje, agora);
@@ -418,6 +432,7 @@
           </div>
         </div>
         ${rascunho ? '' : rebalHTML()}
+        ${rascunho ? '' : avisosHTML()}
         <dl class="resumo">
           <div><dt>Sessões</dt><dd>${blocos.length}</dd></div>
           <div><dt>Tempo</dt><dd>${hm(totalMin)}</dd></div>
@@ -454,7 +469,9 @@
                 <div class="bloco-pe"><span class="bloco-tempo">${b.minutos} min</span>
                   <span class="bloco-xp">${b.feito ? 'feito' : `+${b.xp}`}</span></div>
               </div>`).join('')
-              : (rascunho ? '' : '<div class="folga">folga</div>')}
+              : (rascunho ? '' : dia.prova
+                  ? `<div class="folga prova">${dia.prova === 'dia' ? 'dia da prova' : 'depois da prova'}</div>`
+                  : '<div class="folga">folga</div>')}
             ${rascunho ? `<button class="por" type="button" data-por="${d}">+ bloco</button>` : ''}
           </section>`;
         }).join('')}
@@ -472,7 +489,11 @@
 
       <div class="card porMateria">
         <div class="section-title">Tempo por matéria na semana</div>
-        <p class="section-sub">Proporcional ao peso no edital e ao quanto ainda falta dominar. ${foraDaSemana.length
+        <p class="section-sub">Proporcional ao peso no edital e ao quanto ainda falta dominar. ${foraDaSemana.length && !rascunho && semana.some((d) => d.retaFinal || d.prova)
+          ? `Perto da prova, ficam fora as que você ainda não estudou: ${foraDaSemana.map(esc).join(', ')}.`
+          : foraDaSemana.length && normalizarRotina(rotina).semana && !rascunho
+          ? `Na sua semana ajustada à mão, ficaram fora: ${foraDaSemana.map(esc).join(', ')}.`
+          : foraDaSemana.length
           ? `Sua rotina tem ${blocos.length} ${blocos.length === 1 ? 'bloco' : 'blocos'} na semana e o edital ${materias.length} matérias: elas se revezam, e cada uma volta em poucas semanas. Fora desta semana: ${foraDaSemana.map(esc).join(', ')}.`
           : 'Toda matéria aparece pelo menos uma vez.'}</p>
         ${pm.map(([m, v]) => `
@@ -506,8 +527,14 @@
     });
     $('rebal-agora')?.addEventListener('click', () => rebalancear({}, 'Cronograma rebalanceado pelo seu domínio de agora.'));
     $('automatico')?.addEventListener('click', async () => {
+      // 09/10/2026 (CRO-04): apagava a semana editada com um clique, sem perguntar
+      if (!confirm('Voltar ao automático apaga a semana que você ajustou à mão, e o Astral monta a semana de novo pela sua rotina. Continuar?')) return;
       rascunho = null;
       await gravar({ ...normalizarRotina(rotina), semana: null }, 'De volta ao cronograma automático.');
+    });
+    $('incluir-faltando')?.addEventListener('click', async () => {
+      const semanaNova = incluirNaSemanaEditada(materias, rotina);
+      await gravar({ ...normalizarRotina(rotina), semana: semanaNova }, 'Matérias incluídas na sua semana. Confira os dias e ajuste se quiser.');
     });
     $('salvar')?.addEventListener('click', async () => {
       const semanaNova = rascunho;
@@ -554,6 +581,45 @@
         </div>`;
   }
 
+  /* 09/10/2026 (roadmap 3.14 -- CRO-03, CRO-04, CRO-05): o que a semana precisa dizer.
+     A prova (reta final, dia da prova, prova que ja passou), a semana editada a mao que
+     ficou sem materia do edital, e a rotina que tinha valor invalido e foi trocada. */
+  function avisosHTML() {
+    const avisos = [];
+    const dataBR = (iso) => iso.split('-').reverse().join('/');
+    const p = provaNaSemana(edital?.dataProva);
+    if (p?.passouAntes) {
+      avisos.push({ texto: `A prova do seu edital foi em <strong>${dataBR(p.data)}</strong>. Vai prestar outro concurso? `
+        + `<a href="dashboard.html#edital-faixa">Suba o edital novo no painel</a> — XP, patente e condecorações vão junto. `
+        + 'Se a data estiver errada, corrija no mesmo lugar.' });
+    } else if (p && (p.retaFinal || p.nestaSemana)) {
+      const estudou = materias.some((m) => (Number(m.progresso) || 0) > 0);
+      let t = `<strong>Reta final:</strong> a prova é em ${dataBR(p.data)}. `;
+      if (p.retaFinal) {
+        t += estudou
+          ? 'Nos 7 dias antes dela, o cronograma só traz matérias que você já estudou — é hora de reforçar, não de abrir frente nova. '
+          : 'Nenhuma matéria tem domínio ainda, então a semana segue com todas — priorize questões das de maior peso. ';
+      }
+      if (p.nestaSemana) t += 'No dia da prova e depois dela, a semana fica sem sessões.';
+      avisos.push({ texto: t });
+    }
+    const fora = foraDaSemanaEditada(materias, rotina);
+    if (fora.length) {
+      avisos.push({ alerta: true, botao: '<button class="acao" id="incluir-faltando" type="button">Incluir na semana</button>',
+        texto: `Sua semana foi ajustada à mão e não tem ${fora.length === 1 ? 'esta matéria' : 'estas matérias'} do seu edital: `
+          + `<strong>${fora.map(esc).join(', ')}</strong>.` });
+    }
+    const corrigido = correcoesDaRotina(rotina);
+    if (corrigido.length) {
+      avisos.push({ alerta: true, texto: `Parte da sua rotina estava fora do que o Astral aceita (${corrigido.map(esc).join(', ')}) `
+        + 'e foi trocada pelo padrão. Confira em <strong>Ajustar rotina</strong>.' });
+    }
+    return avisos.map((a) => `
+        <div class="aviso-crono${a.alerta ? ' alerta' : ''}" role="note">
+          <p>${a.texto}</p>${a.botao || ''}
+        </div>`).join('');
+  }
+
   async function rebalancear(muda, mensagem) {
     const atual = rotina?.rebalanceio || {};
     // desligar "congela" o plano no dominio de agora; ligar ou "agora" tira o retrato agora
@@ -596,6 +662,7 @@
 
     materias = (dados?.materias || []).filter((m) => m && m.nome);
     rotina = dados?.rotina || null;
+    edital = dados?.edital || null;
     hoje = await sessoesDeHoje(uid);
     render();
   })();

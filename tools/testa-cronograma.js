@@ -232,6 +232,9 @@ function acharPlaywright() {
     const painel = await pg.textContent(".painel-rotina");
     /à mão/.test(painel) ? ok("o painel diz que a semana foi ajustada à mão") : falha("painel", painel);
     await pg.click("#editar"); await pg.waitForTimeout(200);
+    // 09/10/2026 (3.14, CRO-04): "Voltar ao automatico" pergunta antes -- o teste confirma
+    // (a pergunta em si, e o "cancelar" que nao apaga, sao do testa-prova-no-cronograma)
+    pg.once("dialog", (d) => d.accept());
     await pg.click("#automatico"); await pg.waitForTimeout(1500);
     (await rotinaNoBanco())?.semana === null ? ok("voltar ao automático limpa a edição") : falha("automático não limpou");
 

@@ -5,16 +5,24 @@
 
 | | |
 |---|---|
-| Feito e no ar | **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
+| Feito e no ar | **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
 | Roadmap | **versão 3** no topo do `docs/auditoria/ROADMAP.md`: skill por item, **Lote D (design)** dentro do roadmap, ordem decidida por ele: **Lote 3 primeiro, design depois** |
 | Skills | ~25 instaladas a pedido dele (`historico/decisoes.md` § 0.6 e 0.7); **impeccable fica na 4.0.4** (decisão dele) |
 | Ferramentas novas | `testa-lighthouse` (precisa do CLI: `npm i chrome-devtools-mcp@latest -g`), `testa-trapaca`, `testa-escada`, `testa-barra-lateral`, `testa-rebalanceio`, `testa-materias-estudadas`; o `testa-acessivel` ganhou as regras da Vercel |
 | Ele pediu | **tudo em português do Brasil, sempre** (memória `sempre-em-portugues`) |
 
-## ▶️ PRÓXIMO: 3.14 — cronograma e leitura (CRO-03, CRO-04, CRO-05, EDI-04)
+## ▶️ PRÓXIMO: 3.15 — operação (OPS-03 + COD-02)
+
+Vigia lendo gasto de IA, tamanho do banco e erros das funções; bateria de testes no `astral-dev`.
+
+> ✅ **3.14 feito em 09/10** (cronograma pela data da prova, avisos da semana, falha do edital clara) — ver o registro no ROADMAP.
+> 🔔 **Pergunta para ele:** a promessa *"cronograma pelo tempo até a prova"* pode voltar para a página inicial? (regra 8.1: landing é decisão dele)
+
+<details><summary>O que estava aqui antes (3.14)</summary>
 
 Reta final e prova passada mudam o plano; semana manual avisa e inclui matéria nova; "Voltar ao automático"
 confirma; rotina inválida avisa; mensagem de falha clara. Skills: `brainstorming`, `web-interface-guidelines`.
+</details>
 
 ## 🔔 Pendências dele (trazer na hora)
 

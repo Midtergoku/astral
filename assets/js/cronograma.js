@@ -35,7 +35,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 import { necessidadeDe } from './plano.js';
-import { duracao, diaDaSemanaSP } from './formato.js';
+import { duracao, diaDaSemanaSP, hojeSP, diasEntre } from './formato.js';
 
 export const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 export const DIAS_CURTOS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -51,6 +51,23 @@ export const ROTINA_PADRAO = Object.freeze({
 });
 
 const BLOCOS_VALIDOS = [25, 30, 40, 50, 60];
+
+/* 09/10/2026 (auditoria CRO-05, roadmap 3.14): normalizarRotina troca valor
+   invalido pelo padrao SEM dizer nada. Pelo questionario nao acontece (ele so
+   oferece valores validos), mas uma rotina gravada por versao antiga ou pelo
+   console virava outra e a tela mostrava a outra como se fosse a dela.
+   Esta diz O QUE foi trocado -- a tela avisa. Lista vazia = nada trocado. */
+export function correcoesDaRotina(r) {
+  if (!r || typeof r !== 'object' || r.pulou) return [];
+  const fora = [];
+  const minutosOk = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= 0 && n <= 600; };
+  if (!Array.isArray(r.dias) || !r.dias.map(Number).some((d) => d >= 0 && d <= 6)) fora.push('dias de estudo');
+  if ('minutosUtil' in r && !minutosOk(r.minutosUtil)) fora.push('tempo nos dias úteis');
+  if ('minutosFds' in r && !minutosOk(r.minutosFds)) fora.push('tempo no fim de semana');
+  if ('bloco' in r && !BLOCOS_VALIDOS.includes(Number(r.bloco))) fora.push('duração da sessão');
+  if (r.semana != null && !(Array.isArray(r.semana) && r.semana.length === 7)) fora.push('semana ajustada à mão');
+  return fora;
+}
 
 /** A rotina, sempre num formato valido -- o que vem do banco pode estar velho. */
 export function normalizarRotina(r) {
@@ -127,16 +144,74 @@ function escolherNaRotinaCurta(vivas, vagas, semanaN) {
   return escolhidas;
 }
 
+/* ── A DATA DA PROVA (09/10/2026, auditoria CRO-03, roadmap 3.14) ─────────
+   O cronograma nunca lia a data da prova. Com 5 dias para a prova ele era
+   igual ao de quem tem meses, seguia montando blocos DEPOIS da prova, e o
+   chefe dizia "nao abra frente nova" ao lado de um plano que abria.
+   Agora:
+   - o DIA da prova e os dias DEPOIS dela, nesta semana, ficam sem bloco;
+   - nos 7 dias antes da prova so entram materias JA ESTUDADAS (dominio > 0) --
+     se nenhuma foi estudada ainda, entram todas (nao ha o que reforcar);
+   - prova que passou ANTES desta semana nao muda o plano: a tela pergunta
+     pelo proximo concurso (ou pela data certa), e o plano segue.
+   A data e a do edital (DD/MM/AAAA), a mesma que o aluno corrige no painel. */
+function somaDias(iso, n) {
+  const [a, m, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(a, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+/** As datas (AAAA-MM-DD, Sao Paulo) da semana de estudo de hoje, por dia (0 = domingo, o ULTIMO). */
+export function datasDaSemanaISO(agora = new Date()) {
+  const segunda = somaDias(hojeSP(agora), -((diaDaSemanaSP(agora) + 6) % 7));
+  return Array.from({ length: 7 }, (_, dia) => somaDias(segunda, (dia + 6) % 7));
+}
+
+/** 'DD/MM/AAAA' (o edital) ou 'AAAA-MM-DD' -> 'AAAA-MM-DD', ou null. */
+export function provaISO(data) {
+  const s = String(data || '');
+  let m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
+}
+
+/** Onde a prova cai em relacao a esta semana. null = sem data. */
+export function provaNaSemana(dataProva, agora = new Date()) {
+  const data = provaISO(dataProva);
+  if (!data) return null;
+  const datas = datasDaSemanaISO(agora);
+  const nestaSemana = data >= datas[1] && data <= datas[0];
+  const depois = datas.map((d) => data >= datas[1] && d >= data);          // dia da prova e os seguintes
+  const reta = datas.map((d) => { const n = diasEntre(d, data); return n >= 1 && n <= 7; });
+  return {
+    data,
+    datas,
+    dias: diasEntre(hojeSP(agora), data),
+    nestaSemana,
+    passouAntes: data < datas[1],          // acabou antes desta semana: o plano segue, a tela pergunta
+    depois,
+    reta,
+    retaFinal: reta.some(Boolean),
+  };
+}
+
 /**
  * A semana. Devolve 7 dias (0 = domingo), cada um:
  *   { dia, estuda, blocos: [{ materia, minutos, xp }] }
+ * e, quando a prova mexe no dia: prova: 'dia' | 'depois', retaFinal: true.
  * `semana` (opcional) e o numero da semana -- so muda o rodizio da rotina
- * curta. Sem ele, e a semana de hoje.
+ * curta. Sem ele, e a semana de hoje. `prova` e a data do edital (DD/MM/AAAA).
  */
-export function montarSemana(materias = [], rotinaBruta = null, { semana: semanaN = numeroDaSemana() } = {}) {
+export function montarSemana(materias = [], rotinaBruta = null, { agora = new Date(), semana: semanaN = numeroDaSemana(agora), prova = null } = {}) {
   const rotina = normalizarRotina(rotinaBruta);
   const vivas = (materias || []).filter((m) => m && m.nome);
   const nomes = new Set(vivas.map((m) => m.nome));
+  const p = provaNaSemana(prova, agora);
+  const marcaProva = (d, dia) => {
+    if (!p) return d;
+    if (p.depois[dia]) return { ...d, estuda: false, blocos: [], prova: p.datas[dia] === p.data ? 'dia' : 'depois' };
+    return p.reta[dia] ? { ...d, retaFinal: true } : d;
+  };
 
   // A semana editada a mao manda -- menos materia que saiu do edital.
   if (rotina.semana) {
@@ -147,12 +222,13 @@ export function montarSemana(materias = [], rotinaBruta = null, { semana: semana
           const minutos = Math.min(240, Math.max(5, Math.round(Number(b.minutos) || 0)));
           return { materia: b.materia, minutos, xp: xpDoBloco(minutos) };
         });
-      return { dia, estuda: limpos.length > 0, blocos: limpos, editado: true };
+      // A data da prova vale tambem aqui: depois da prova nao ha o que estudar PARA ela.
+      return marcaProva({ dia, estuda: limpos.length > 0, blocos: limpos, editado: true }, dia);
     });
   }
 
   const semana = Array.from({ length: 7 }, (_, dia) => {
-    const estuda = rotina.dias.includes(dia);
+    const estuda = rotina.dias.includes(dia) && !(p && p.depois[dia]);
     const orcamento = estuda ? (ehFimDeSemana(dia) ? rotina.minutosFds : rotina.minutosUtil) : 0;
     return { dia, estuda: estuda && orcamento > 0, vagas: blocosDoDia(orcamento, rotina.bloco), blocos: [] };
   });
@@ -174,16 +250,24 @@ export function montarSemana(materias = [], rotinaBruta = null, { semana: semana
   // Rotina curta: so as escolhidas desta semana entram (ver escolherNaRotinaCurta).
   const nestaSemana = vagas > 0 && vagas < vivas.length ? escolherNaRotinaCurta(vivas, vagas, semanaN) : null;
 
+  // Reta final (CRO-03): so o que ja foi estudado -- "nao abra frente nova".
+  const estudada = vivas.map((m) => (Number(m.progresso) || 0) > 0);
+  const algumaEstudada = estudada.some(Boolean);
+
   // Segunda primeiro: a semana de estudo comeca na segunda, e o domingo
   // (quando ha) fica com o que sobrou -- revisao do que ficou para tras.
   for (const dia of [1, 2, 3, 4, 5, 6, 0]) {
     const d = semana[dia];
     const hoje = new Set();
+    const reta = !!(p && p.reta[dia] && algumaEstudada);
+    // Quem pode entrar hoje: na reta final, as estudadas (o rodizio da rotina
+    // curta nao vale -- todas as estudadas disputam); fora dela, o rodizio.
+    const podem = vivas.map((m, i) => i).filter((i) => reta ? estudada[i] : (!nestaSemana || nestaSemana.has(i)));
+    if (p && p.reta[dia]) d.retaFinal = true;
     for (const minutos of d.vagas) {
       let melhor = -1, falta = -Infinity;
-      for (let i = 0; i < vivas.length; i++) {
-        if (nestaSemana && !nestaSemana.has(i)) continue;          // fora do rodizio desta semana
-        if (hoje.has(i) && hoje.size < (nestaSemana ? nestaSemana.size : vivas.length)) continue;   // nao repete no dia
+      for (const i of podem) {
+        if (hoje.has(i) && hoje.size < podem.length) continue;     // nao repete no dia
         const f = alvo[i] - dado[i];
         if (f > falta + 1e-9 || (Math.abs(f - falta) <= 1e-9 && (Number(vivas[i].peso) || 0) > (Number(vivas[melhor]?.peso) || 0))) {
           melhor = i; falta = f;
@@ -195,7 +279,35 @@ export function montarSemana(materias = [], rotinaBruta = null, { semana: semana
       d.blocos.push({ materia: vivas[melhor].nome, minutos, xp: xpDoBloco(minutos) });
     }
   }
-  return semana.map(({ vagas, ...d }) => d);
+  return semana.map(({ vagas, ...d }) => marcaProva(d, d.dia));
+}
+
+/* 09/10/2026 (auditoria CRO-04, roadmap 3.14): a semana editada a mao nao
+   acompanha o edital. Trocou de edital, ou a correcao trouxe materia nova: a
+   que entrou NAO aparece (e a que saiu some calada -- de 720 para 240 min no
+   teste da auditoria). Esta diz quais materias do edital estao fora da semana
+   editada; a tela avisa e oferece incluir. Sem semana editada: lista vazia. */
+export function foraDaSemanaEditada(materias = [], rotinaBruta = null) {
+  const rotina = normalizarRotina(rotinaBruta);
+  if (!rotina.semana) return [];
+  const usadas = new Set(rotina.semana.flatMap((b) => (Array.isArray(b) ? b : []).map((x) => x?.materia)));
+  return (materias || []).filter((m) => m?.nome && !usadas.has(m.nome)).map((m) => m.nome);
+}
+
+/** A semana editada com as materias que faltam: um bloco cada, no dia de estudo mais leve. */
+export function incluirNaSemanaEditada(materias = [], rotinaBruta = null) {
+  const rotina = normalizarRotina(rotinaBruta);
+  if (!rotina.semana) return rotina.semana;
+  const nomes = new Set((materias || []).map((m) => m?.nome).filter(Boolean));
+  // a que saiu do edital sai tambem da semana gravada -- a tela ja nao a mostrava
+  const semana = rotina.semana.map((b) => (Array.isArray(b) ? b : []).filter((x) => x && nomes.has(x.materia)).map((x) => ({ materia: x.materia, minutos: x.minutos })));
+  const dias = rotina.dias.length ? rotina.dias : [1, 2, 3, 4, 5, 6];
+  for (const nome of foraDaSemanaEditada(materias, rotinaBruta)) {
+    const carga = (d) => semana[d].reduce((s, x) => s + (Number(x.minutos) || 0), 0);
+    const dia = [...dias].sort((a, b) => carga(a) - carga(b) || ((a + 6) % 7) - ((b + 6) % 7))[0];
+    semana[dia].push({ materia: nome, minutos: rotina.bloco });
+  }
+  return semana;
 }
 
 /** Os blocos de hoje, e quais ja foram feitos -- pelas sessoes gravadas HOJE. */

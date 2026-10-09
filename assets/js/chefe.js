@@ -80,8 +80,12 @@ export function preparoDe(fatos) {
 /* A materia mais fraca com PESO -- a que mais custa caro deixar como esta.
    Peso vezes o que falta: uma materia de peso 3 em 40% custa mais que uma de
    peso 1 em 20%, e e nela que vale gastar a proxima hora. */
-export function pontoFraco(materias = []) {
-  const vivas = (materias || []).filter((m) => m?.nome);
+/* 09/10/2026 (auditoria CRO-03, roadmap 3.14): `soEstudadas` -- na reta final
+   o chefe dizia "nao abra frente nova" e logo abaixo "Revise Portugues", uma
+   materia com 0% que o aluno nunca tinha estudado. Na reta final o ponto fraco
+   e o mais fraco DO QUE JA FOI ESTUDADO (a mesma regra do cronograma). */
+export function pontoFraco(materias = [], { soEstudadas = false } = {}) {
+  const vivas = (materias || []).filter((m) => m?.nome && (!soEstudadas || (Number(m.progresso) || 0) > 0));
   if (!vivas.length) return null;
   const pior = vivas
     .map((m) => ({
@@ -109,7 +113,8 @@ export function chefeDe(eventoProva, fatos) {
 
   const preparo = preparoDe(fatos);
   const fase = faseDe(dias);
-  const fraco = pontoFraco(fatos?.materias);
+  const retaFinal = dias >= 1 && dias <= 7;
+  const fraco = pontoFraco(fatos?.materias, { soEstudadas: retaFinal });
 
   return {
     nome: eventoProva.nome || 'Sua prova',
@@ -122,10 +127,42 @@ export function chefeDe(eventoProva, fatos) {
     fraco,
     /* O conselho concreto. Vem por ultimo de proposito: e a unica parte que
        diz o que FAZER, e sem ela o resto e so pressao. */
-    conselho: fraco
-      ? (dias <= 30
-          ? `Revise ${fraco.nome} — é onde você mais perde ponto.`
-          : `Ataque ${fraco.nome}: peso ${fraco.peso} e ${fraco.progresso}% de domínio.`)
-      : 'Todas as matérias estão em dia. Mantenha o ritmo.',
+    conselho: conselhoDe(dias, retaFinal, fraco, fatos?.materias),
+  };
+}
+
+function conselhoDe(dias, retaFinal, fraco, materias) {
+  if (dias === 0) return 'Durma bem, chegue cedo e leve o documento. O estudo já está feito.';
+  if (retaFinal) {
+    if (fraco) return `Revise ${fraco.nome} — das que você já estudou, é onde mais perde ponto.`;
+    // nada estudado ainda: nao ha o que reforcar, e mandar "revisar" seria mentir
+    if (!(materias || []).some((m) => (Number(m?.progresso) || 0) > 0) && (materias || []).length) {
+      return 'Faça questões das matérias de maior peso — na última semana, questão rende mais que teoria nova.';
+    }
+    return 'Todas as matérias estão em dia. Mantenha o ritmo.';
+  }
+  if (!fraco) return 'Todas as matérias estão em dia. Mantenha o ritmo.';
+  if (dias <= 30) {
+    // "Revise" o que nunca foi estudado nao faz sentido -- e o caso do 0%
+    return fraco.progresso > 0
+      ? `Revise ${fraco.nome} — é onde você mais perde ponto.`
+      : `Comece ${fraco.nome}: peso ${fraco.peso} e nada estudado ainda — é onde você mais perde ponto.`;
+  }
+  return `Ataque ${fraco.nome}: peso ${fraco.peso} e ${fraco.progresso}% de domínio.`;
+}
+
+/* 09/10/2026 (CRO-03): a prova PASSOU. O chefe some (cobrar algo que ja
+   aconteceu nao faz sentido), mas antes nada perguntava o que vem agora --
+   a semana seguia igual, para uma prova que ja tinha sido feita. Este e o
+   texto do cartao que fica no lugar dele. null = a prova nao passou. */
+export function provaPassadaDe(eventoProva, agora = new Date()) {
+  if (!eventoProva?.data) return null;
+  const dias = diasAte(eventoProva.data, agora);
+  if (dias === null || dias >= 0) return null;
+  const [a, m, d] = String(eventoProva.data).slice(0, 10).split('-');
+  return {
+    nome: eventoProva.nome || 'Sua prova',
+    data: `${d}/${m}/${a}`,
+    diasDepois: -dias,
   };
 }
