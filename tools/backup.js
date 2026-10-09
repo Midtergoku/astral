@@ -34,7 +34,8 @@ const { execSync } = require('child_process');
 const REF = 'jjogmcacbdefwiwcyjxp';
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, '..');
-const DESTINO = path.resolve(RAIZ, '..', 'ASTRAL-BACKUPS');
+// ASTRAL_BACKUPS_DIR: so para o teste da faxina (tools/testa-faxina-backup.js), numa pasta de mentira
+const DESTINO = process.env.ASTRAL_BACKUPS_DIR ? path.resolve(process.env.ASTRAL_BACKUPS_DIR) : path.resolve(RAIZ, '..', 'ASTRAL-BACKUPS');
 
 /* As tabelas do schema public. Lista explicita de proposito: assim uma tabela
    nova nao entra no backup em silencio -- ela aparece como falta na conferencia
@@ -105,6 +106,8 @@ const cab = { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` };
 const kb = (n) => (n / 1024).toFixed(1) + ' KB';
 
 (async () => {
+  // --so-faxina: nao copia nada, so aplica o prazo de 90 dias (o teste usa assim)
+  if (process.argv.includes('--so-faxina')) { apagarCopiasVelhas(); return; }
   const agora = new Date();
   const carimbo = agora.toISOString().slice(0, 19).replace(/[:T]/g, '-');
   const pasta = path.join(DESTINO, carimbo);
@@ -256,7 +259,34 @@ COMO RESTAURAR, se um dia precisar
      para o checa-saude avisar quando o backup automatico parar. Backup que
      falha calado e o mesmo que backup nenhum. */
   registrarResultado({ ok: !falhas.length && !dentro, pasta, linhas, falhas: falhas.map((f) => f.t) });
+  // So depois de um backup COMPLETO a faxina roda: copia velha nunca sai se a nova falhou.
+  if (!falhas.length && !dentro) apagarCopiasVelhas();
 })().catch((e) => { console.error('\n❌ ' + e.message); registrarResultado({ ok: false, erro: e.message }); process.exitCode = 1; });
+
+/* 09/10/2026 (roadmap 3.18, decisao dele: "noventa dias e interessante (...) baseado no que as
+   outras plataformas fazem"). Cada copia e o banco INTEIRO -- contas com e-mail, progresso,
+   sessoes, respostas. Guardar para sempre contraria a LGPD (necessidade) e a Politica agora
+   promete 90 dias. Pesquisado: ferramentas como CodeFactor e Delighted guardam 90 dias; o
+   Supabase pago, 7 a 30.
+   Regras: so pastas com nome de data (AAAA-MM-DD-HH-MM-SS) -- nada mais nesta pasta e tocado;
+   a data vem do NOME, nao do relogio do arquivo; e as 7 mais novas ficam SEMPRE, mesmo velhas
+   (se o backup parar por meses, sobra com o que restaurar). */
+function apagarCopiasVelhas() {
+  // dentro da funcao: no --so-faxina ela roda antes de o arquivo terminar de carregar
+  const DIAS_DE_COPIA = 90, SEMPRE_FICAM = 7;
+  try {
+    const copias = fs.readdirSync(DESTINO)
+      .filter((n) => /^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$/.test(n) && fs.statSync(path.join(DESTINO, n)).isDirectory())
+      .sort();                                              // nome de data: ordem alfabetica = ordem de tempo
+    const limite = Date.now() - DIAS_DE_COPIA * 86400000;
+    const velhas = copias.slice(0, Math.max(0, copias.length - SEMPRE_FICAM)).filter((n) => {
+      const [a, m, d] = n.split('-').map(Number);
+      return Date.UTC(a, m - 1, d) < limite;
+    });
+    for (const n of velhas) fs.rmSync(path.join(DESTINO, n), { recursive: true, force: true });
+    console.log(`  faxina: ${velhas.length} copia(s) com mais de ${DIAS_DE_COPIA} dias apagada(s); ${copias.length - velhas.length} guardada(s)`);
+  } catch (e) { console.log('  (faxina das copias velhas nao rodou: ' + e.message + ')'); }
+}
 
 /** Grava ..\ASTRAL-BACKUPS\ultimo-backup.json: quando foi e se deu certo. */
 function registrarResultado(r) {

@@ -15,7 +15,7 @@
 
 Primeiro acesso só com o envio do edital (✔️ 18); reduzir o peso de login/cadastro.
 
-> ✅ **3.18 feito em 09/10** (Política e Termos em dia; fonte em cada questão). 🔔 **Perguntas para ele:** advogado (opcional, ele tem contatos) e **quanto tempo guardar as cópias de segurança** (sugestão 90 dias).
+> ✅ **3.18 feito em 09/10** (Política e Termos em dia; fonte em cada questão). ~~🔔 Perguntas para ele: advogado e prazo das cópias~~ ✏️ 09/10: advogado *"depois a gente vê"*; cópias **90 dias**, feito (`backup.js` + `testa-faxina-backup`).
 
 ## (feito) 3.18 — textos legais (LGL-05 + LGL-06)
 

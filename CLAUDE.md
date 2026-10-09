@@ -141,6 +141,8 @@ node tools/versiona-css.js      OBRIGATORIO ao mexer em assets/, ANTES do commit
                                 so chega ao usuario 1 HORA depois -- ja aconteceu (historico/erros.md)
 node tools/backup.js            🔴 O PLANO FREE DO SUPABASE NAO FAZ BACKUP NENHUM.
                                 Este faz: um JSON por tabela + as contas, FORA do repositorio
+                                🆕 09/10: apaga sozinho as copias com mais de 90 DIAS (as 7 mais novas ficam sempre).
+                                Decisao dele. Prova: node tools/testa-faxina-backup.js (pasta de mentira)
 node tools/testa-restauracao.js O backup volta mesmo? Restaura num esquema descartavel do
                                 proprio banco e compara linha a linha. Achou o
                                 "overriding system value" na 1a execucao
