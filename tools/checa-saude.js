@@ -157,6 +157,21 @@ async function json(url, opts) {
     else ok(`IA hoje, contra o teto global: ${linhas.join(" · ")}`);
   } catch (e) { console.log(`  (uso de IA de hoje nao conferido: ${e.message.slice(0, 60)})`); }
 
+  // 09/10/2026 (auditoria OPS-03, roadmap 3.15): os MESMOS alertas que o vigia
+  // manda por e-mail (saude_operacao: IA perto do teto, banco e arquivos perto
+  // do limite gratis, funcoes falhando, erros nos navegadores). E se o vigia
+  // esta ligado (cron + cofre) -- desligado, ninguem e avisado entre sessoes.
+  try {
+    const sk = JSON.parse(require("child_process").execSync("supabase projects api-keys --project-ref jjogmcacbdefwiwcyjxp -o json",
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })).find((k) => k.name === "service_role").api_key;
+    const r = await json(`${API}/rest/v1/rpc/saude_operacao`, { method: "POST",
+      headers: { apikey: sk, Authorization: `Bearer ${sk}`, "Content-Type": "application/json" }, body: "{}" });
+    const s = r.corpo || {};
+    if (r.status !== 200) falha(`nao consegui ler a saude da operacao (HTTP ${r.status})`, "a migration 20261009140000 esta aplicada?");
+    else if ((s.alertas || []).length) for (const a of s.alertas) falha(`VIGIA: ${a.texto}`, "o mesmo alerta foi (ou vai) por e-mail ao Lucas");
+    else ok(`operacao: banco ${s.banco_mb} MB de 500 · arquivos ${s.arquivos_mb ?? "?"} MB · falhas de funcao (24 h): ${Object.values(s.falhas_24h || {}).reduce((a, b) => a + b, 0)} · erros no navegador (24 h): ${s.erros_navegador_24h}`);
+  } catch (e) { console.log(`  (saude da operacao nao conferida: ${e.message.slice(0, 60)})`); }
+
   // 03/10/2026 (auditoria BAN-02): questao que um aluno reportou como errada.
   // Nao e falha do site -- e trabalho para fazer: AVISAR O LUCAS e revisar a
   // questao (historico/revisao-de-questoes.md). Marcar resolvido_em depois.

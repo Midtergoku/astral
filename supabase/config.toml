@@ -63,3 +63,13 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/notificar-cadastro/deno.json"
 entrypoint = "./functions/notificar-cadastro/index.ts"
+
+# 09/10/2026 (roadmap 3.15, OPS-03): o alerta da operacao por e-mail. Quem chama
+# e o despertador do banco (pg_cron -> chamar_vigia), nao um aluno: sem JWT. A
+# protecao e o cabecalho x-astral-vigia, conferido contra VIGIA_SEGREDO; sem o
+# segredo configurado a funcao recusa tudo. Ver tools/liga-vigia.js.
+[functions.vigia]
+enabled = true
+verify_jwt = false
+import_map = "./functions/vigia/deno.json"
+entrypoint = "./functions/vigia/index.ts"

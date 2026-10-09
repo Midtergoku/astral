@@ -45,8 +45,24 @@ export function erro(req: Request, mensagem: string, status: number, detalhe?: u
 }
 
 export class FalhaHttp extends Error {
-  constructor(public status: number, mensagem: string) {
+  // tipo: so para o vigia (falhas_servidor) -- hoje, "teto" quando a IA bate no teto do dia
+  constructor(public status: number, mensagem: string, public tipo?: string) {
     super(mensagem);
+  }
+}
+
+/* 09/10/2026 (auditoria OPS-03, roadmap 3.15): a falha da funcao vai para
+   falhas_servidor, alem do log. O log do Supabase ninguem le; a tabela, o
+   vigia de hora em hora le (saude_operacao) e manda e-mail se passar do
+   limite. Sem usuario e sem mensagem: so a funcao, o status e o tipo. Se
+   anotar falhar, a resposta ao aluno segue igual -- o vigia nao pode derrubar
+   quem ele vigia. */
+async function anotarFalha(funcao: string, status: number, tipo: string): Promise<void> {
+  try {
+    const { error } = await admin().from("falhas_servidor").insert({ funcao, status, tipo });
+    if (error) console.error("Nao anotei a falha para o vigia:", error.message);
+  } catch (e) {
+    console.error("Nao anotei a falha para o vigia:", e);
   }
 }
 
@@ -399,7 +415,8 @@ async function conferirTetoGlobal(funcao: Funcao, unidades: number): Promise<voi
   if (f && f.teto !== null && Number(f.usado) + unidades > Number(f.teto)) {
     console.warn("Teto global de IA atingido:", funcao, JSON.stringify(f));
     throw new FalhaHttp(429,
-      "O Astral atingiu o limite de uso de inteligência artificial de hoje. Tente de novo amanhã — nada foi descontado de você.");
+      "O Astral atingiu o limite de uso de inteligência artificial de hoje. Tente de novo amanhã — nada foi descontado de você.",
+      "teto");
   }
 }
 
@@ -475,7 +492,11 @@ export function servir(
         try { await registrarUso(usuario, funcao, unidades); }
         catch (r) { console.error("Nao registrei o uso da chamada que falhou:", r); }
       }
-      if (e instanceof FalhaHttp) return erro(req, e.message, e.status);
+      if (e instanceof FalhaHttp) {
+        // recusa normal (arquivo errado, cota do aluno) nao e falha; 5xx e o teto do dia sao
+        if (e.tipo === "teto" || e.status >= 500) await anotarFalha(funcao, e.status, e.tipo === "teto" ? "teto" : "falha");
+        return erro(req, e.message, e.status);
+      }
 
       /* ⚠️ CLASSIFICAR O ERRO DA IA (04/08/2026).
          No primeiro teste com edital de verdade, tres materias funcionaram e a
@@ -490,6 +511,7 @@ export function servir(
       const texto = String((e as Error)?.message ?? "");
 
       if (status === 429) {
+        await anotarFalha(funcao, 429, "ia_taxa");
         return erro(
           req,
           "Muitas buscas ao mesmo tempo. Espere alguns segundos e tente de novo.",
@@ -506,12 +528,15 @@ export function servir(
         "não do seu arquivo nem da sua internet. Tente de novo mais tarde; nada foi descontado de você.";
       if (status === 401 || status === 403) {
         // Credencial da IA recusada -- e problema NOSSO, nao do usuario.
+        await anotarFalha(funcao, 503, "ia_indisponivel");
         return erro(req, indisponivel, 503, e);
       }
       if (/credit|billing|insufficient/i.test(texto)) {
+        await anotarFalha(funcao, 503, "ia_indisponivel");
         return erro(req, indisponivel, 503, e);
       }
 
+      await anotarFalha(funcao, 500, "erro");
       return erro(
         req,
         funcao === "processar-edital"
