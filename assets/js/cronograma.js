@@ -27,6 +27,7 @@
    - O XP de cada bloco e a MESMA regra do servidor para sessao declarada
      (migration 20260928100000): meio por minuto, minimo 10. O que a tela
      promete e o que o servidor paga.
+     09/10/2026 (GAM-08, decisao 13): 2 por minuto -- igual ao cronometro.
    - Se a pessoa editou a semana a mao, vale a semana dela.
 
    Deterministico: mesma rotina e mesmas materias, mesma semana. Nada de
@@ -72,9 +73,13 @@ export function normalizarRotina(r) {
 }
 
 /** O XP de um bloco -- a regra do servidor para sessao do cronograma. */
+/* 09/10/2026 (auditoria GAM-08, decisao dele na pergunta 13: "a mesma hora vale o mesmo XP,
+   cronometrada ou marcada"). Era meio XP por minuto (minimo 10) -- o bloco de 40 min mostrava
+   "+20 XP" e os mesmos 40 min no cronometro davam 80. Agora 2 por minuto inteiro, a MESMA regra
+   do servidor para as duas (validar_sessao_estudo, migration 20261009110000). */
 export function xpDoBloco(minutos) {
-  const m = Number(minutos) || 0;
-  return m >= 1 ? Math.max(10, Math.round(m / 2)) : 0;
+  const m = Math.floor(Number(minutos) || 0);
+  return m >= 1 ? m * 2 : 0;
 }
 
 const ehFimDeSemana = (d) => d === 0 || d === 6;

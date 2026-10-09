@@ -273,10 +273,18 @@ export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = 
     nomes = [patenteInicial, ...carreira.slice(degrau + 1)];
   }
 
-  const tabela = nomes.map((nome, i) => ({
-    nome,
-    xp: XP_POR_DEGRAU[i] ?? (XP_POR_DEGRAU[XP_POR_DEGRAU.length - 1] + i * 20000),
-  }));
+  /* 09/10/2026 (auditoria GAM-07, decisao dele na pergunta 14: "a escada deve durar ate a
+     prova, nao 10 semanas"). O degrau i custava XP_POR_DEGRAU[i], pela POSICAO -- entao a
+     escada curta acabava cedo: edital de Cadete (8 nomes) chegava a Coronel com 14.000 XP
+     (~10 semanas), o de Soldado (14 nomes) com 70.000. Agora TODA escada chega ao topo no
+     mesmo XP da carreira completa (indice 13 = 70.000, ~10 meses a 2 h/dia): a escada curta
+     espalha os degraus pela mesma subida. A de 14 nomes fica IDENTICA (ninguem nela muda de
+     posto). Com 15 nomes (o do edital + a carreira inteira) vale o indice 14, como antes. */
+  const ULTIMO = nomes.length >= 15 ? 14 : 13;
+  const tabela = nomes.map((nome, i) => {
+    const t = nomes.length <= 1 ? 0 : Math.ceil(i * ULTIMO / (nomes.length - 1));
+    return { nome, xp: XP_POR_DEGRAU[Math.min(t, XP_POR_DEGRAU.length - 1)] };
+  });
 
   let atual = tabela[0], indice = 0;
   for (let i = 0; i < tabela.length; i++) {

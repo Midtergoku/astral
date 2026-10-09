@@ -266,7 +266,7 @@
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
     from './assets/js/astral.js?v=6073012e';
   import { carregarProgresso } from './assets/js/estado.js?v=ab647345';
-  import { aplicarDivisa } from './assets/js/divisa.js?v=a8130bbf';
+  import { aplicarDivisa } from './assets/js/divisa.js?v=cb783a04';
 
   const LEMAS = {
     infantaria:   'Constância. Premia aparecer, e aparecer de novo.',
@@ -309,7 +309,7 @@
           <div class="pontos-valor">${estado.gastos}</div>
         </div>
         <div class="pontos-nota">
-          Você ganha um ponto a cada patente que o seu XP <strong>sem bônus</strong> alcança —
+          Você ganha um ponto a cada nível de XP (são 14) que o seu XP <strong>sem bônus</strong> alcança —
           especialização não compra especialização. ${proximoPonto()}
         </div>
         ${estado.gastos > 0 ? '<button class="btn-esquecer" id="btn-esquecer">Recomeçar do zero</button>' : ''}
