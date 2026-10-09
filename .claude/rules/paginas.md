@@ -556,3 +556,11 @@ Regressão: `node tools/testa-vitrine.js` (no ar) ou `--local`.
 - **Aceitos, com motivo no teste:** os avisos do hCaptcha (código deles) e deslocamento de tela até 0,1.
 - O Lighthouse roda pelo **modo de linha de comando** do `chrome-devtools-mcp` (`npm i chrome-devtools-mcp@latest -g`),
   com o Chromium do Playwright (não há Chrome instalado), e **sem enviar estatística ao Google**.
+
+**08/10/2026 — a tela que "pulava" (deslocamento, CLS), e as duas regras que ficaram:**
+- **As fontes principais são pré-carregadas** no `<head>` (`archivo-latin.woff2` e `source-serif-4-latin.woff2`,
+  `rel="preload" as="font" crossorigin`, mesmo endereço do `@font-face`). Página nova com o `base.css`: copiar as
+  duas linhas. Sem elas, no celular lento a fonte chega depois do 1º desenho e empurra tudo (login: 0,13).
+- **Coisa que aparece depois (captcha, aviso, imagem) tem o espaço reservado desde o começo** — a caixa do captcha
+  tem `min-height: 78px` (a altura do captcha "normal").
+- **Número no limite não é aprovado.** Eu tinha aceito 0,097 (limite 0,1) e numa rodada passou. Conserta a causa.
