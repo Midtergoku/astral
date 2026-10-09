@@ -180,6 +180,8 @@ node tools/testa-acessivel.js   contraste de botao/rotulo >= 4,5:1, campo >= 16 
                                 + coluna interf.: as regras da Vercel que dao para medir (08/10, 3.10b)
 node tools/testa-lighthouse.js [paginas] [--tudo]  o LIGHTHOUSE do Google no celular, pagina por pagina, no ar,
                                 logado. Precisa do CLI: npm i chrome-devtools-mcp@latest -g (08/10, 3.10b)
+node tools/testa-rebalanceio.js  o rebalanceamento liga, desliga e acontece no "agora"? ASTRAL_DEV=1 so o servidor (09/10, 3.26)
+node tools/testa-materias-estudadas.js  a lista do edital diz o que ja foi estudado, materia e assunto? (09/10, 3.27)
 node tools/testa-escada.js      toda escada de patente chega ao topo com 70.000 XP? a completa ficou igual? ninguem
                                 desce? 40 min marcados = 80 XP? ASTRAL_DEV=1 o servidor do dev (09/10, 3.13)
 node tools/testa-barra-lateral.js  da para chegar no fim do menu numa tela baixa (notebook, zoom)? 14 paginas x 3 telas (09/10, 3.28)

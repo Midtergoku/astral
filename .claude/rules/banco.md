@@ -333,3 +333,13 @@ medida (decisão 13). O que segura a trapaça do declarado: 4 h por sessão, 12 
 "horas no dia" só com tempo MEDIDO. `xpDoBloco` (`assets/js/cronograma.js`) é o espelho na tela.
 ⚠️ Inserir sessão com a **chave de serviço** guarda o XP que se manda (é assim que os testes plantam histórico):
 teste de regra de XP tem de gravar **pela conta do aluno**. Regressão: `node tools/testa-escada.js`.
+
+## 8.34. Rebalanceamento e a lista do edital (09/10/2026, roadmap 3.26 / 3.27) ✅
+
+- **O retrato da semana (`medida.semana`) tem corte** `corte_do_rebalanceio(rotina)`: automático = segunda 0h (ou o
+  último "agora", se depois); desligado = o último "agora". A escolha mora em `progresso.rotina.rebalanceio`
+  `{ auto, em }` — a rotina já é da pessoa. `dominio_calculado(uid, materias, rotina)` recebe a rotina NOVA no gatilho
+  `progresso_do_servidor` (a de 2 parâmetros lê a guardada). 🔴 **Nunca `least(data, now())` com data que pode ser
+  nula**: o `least` ignora o nulo e devolve `now()` (o teste pegou: todo mundo rebalanceava a cada gravação).
+- **`materias_estudadas()`**: por matéria do edital, domínio, minutos, questões e os assuntos do Banco com
+  respondidas. Só contagens (regra do 3.12). Regressão: `testa-rebalanceio.js` (9) e `testa-materias-estudadas.js` (12).
