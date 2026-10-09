@@ -125,6 +125,12 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(62)} ${d}`); fal
     generica && !secretas.has(generica) ? ok("🎯 a tag genérica não usa nome de divisa secreta", generica) : falha("tag generica com nome de divisa secreta", String(generica));
 
     if (!NO_DEV) {
+      // A frase "Voce tem N divisas de M" so aparece para quem tem ALGUMA divisa (sem nenhuma, a tela e
+      // "Sua primeira tag ainda esta por vir"). A conta ganha uma de forma honesta: 100 horas -- que valem
+      // mesmo declaradas (decisao 13) -> divisa "Veterano". No codigo antigo ela "ganhava" divisas com o
+      // tempo declarado da GAM-02, e o teste passava por acaso (08/10).
+      await plantar(Array.from({ length: 23 }, (_, i) => ({ segundos: 4 * 3600 + 600, xp: 250, modo: "cronograma",
+        criado_em: new Date(Date.now() - (i + 3) * 86400000).toISOString() })));
       const npx = path.join(process.env.LOCALAPPDATA || "", "npm-cache", "_npx");
       let pw = null; if (fs.existsSync(npx)) for (const d of fs.readdirSync(npx)) { const p = path.join(npx, d, "node_modules", "playwright"); if (fs.existsSync(p)) { pw = require(p); break; } }
       if (!pw) falha("playwright nao encontrado");
@@ -140,8 +146,10 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(62)} ${d}`); fal
           await ctx.addInitScript(`localStorage.setItem("sb-${REF}-auth-token", ${JSON.stringify(JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 3600, user: s.user }))});`);
           const pg = await ctx.newPage();
           await pg.goto("http://localhost:5173/tags.html", { waitUntil: "load" });
-          await pg.waitForTimeout(6000);
-          const txt = (await pg.textContent("body")).replace(/\s+/g, " ");
+          // espera a FRASE aparecer (o painel busca no banco antes de desenhar) e le so o texto VISIVEL --
+          // textContent incluiria o codigo dos <script> da pagina, que tem as mesmas palavras
+          await pg.waitForFunction(() => /divisas? conquistadas?/.test(document.body.innerText), null, { timeout: 30000 }).catch(() => {});
+          const txt = (await pg.innerText("body")).replace(/\s+/g, " ");
           !/Voltar depois de mais de 14 dias/.test(txt) ? ok("🎯 a página de divisas não revela a regra secreta") : falha("a pagina revela a regra do Reintegrado");
           const m = txt.match(/de (\d+) possíveis no seu edital/);
           const total = (DIVISAS || []).length;

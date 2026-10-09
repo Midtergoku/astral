@@ -303,3 +303,18 @@ dia date generated always as (((criado_em at time zone 'America/Sao_Paulo') - ma
   vindo de fora — a carga do backup tem de deixá-la de fora (o `testa-restauracao` e o LEIA-ME de cada backup
   já fazem). **Criou coluna nova? Backup novo + `node tools/testa-restauracao.js` na hora.**
 - Regressão: `node tools/testa-dia-da-sessao.js` (10; `ASTRAL_DEV=1` no dev; `ASTRAL_RAIZ` para telas antigas).
+
+---
+
+## 8.32. Trapaça e segredo (08/10/2026, roadmap 3.12) — 4 de 5 ✅
+
+- **O gabarito do acervo só sai na correção.** `sortear_questoes` e `caderno_de_erros` (parte do acervo) mandam
+  `tem_gabarito`; `registrar_resposta` devolve `gabarito` e `explicacao` DEPOIS de gravar. **Função nova que
+  mostre questão do acervo: NUNCA devolver gabarito/explicacao.** Questão da própria pessoa (`questoes_minhas`) é dela.
+- **Domínio = acerto de primeira** (`vezes_errou = 0`, desde 30/09): responder de novo não infla.
+- **"Sessão seguida" e "horas no dia" são tempo MEDIDO** (`modo in ('livre','pomodoro')`): `fatos_do_usuario`
+  (`maiorSessaoMin`, `horasNoDiaMax`), `fatos_de_hoje` (`maiorSessaoMin`), `ficha_do_usuario` (Resistência).
+  Tempo declarado vale XP e horas (decisão 13), não sessão longa.
+- Divisa `reintegrado` é secreta (`catalogo_divisas`); a semente foi regerada.
+- Regressão: `node tools/testa-trapaca.js` (17; `ASTRAL_DEV=1`: só o servidor). Ele **chama `sincronizar_conquistas`**:
+  sem gravar, "nenhuma medalha errada" passaria no código antigo também.
