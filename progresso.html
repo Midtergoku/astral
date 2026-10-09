@@ -308,6 +308,26 @@
    titulo diz o que e. Valor no topo de cada coluna, grade recessiva, e o
    detalhe aparece ao passar o mouse ou focar com o teclado. */
 .grafico { margin-bottom: var(--e4); }
+/* 09/10/2026 (roadmap 3.27): as materias do edital, estudada ou nao, e os assuntos de cada uma */
+.edital-lista { list-style: none; margin: var(--e3) 0 0; padding: 0; display: grid; gap: var(--e2); }
+.edital-materia { border: 1px solid var(--linha); border-radius: var(--r-p); background: var(--casco-2); }
+.edital-materia > summary {
+  list-style: none; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto; gap: .2rem .7rem;
+  align-items: center; padding: .7rem .8rem; min-height: 44px;
+}
+.edital-materia > summary::-webkit-details-marker { display: none; }
+.edital-materia .nome { font-family: var(--display); font-weight: 700; font-size: .92rem; color: var(--texto); min-width: 0; overflow-wrap: anywhere; }
+.edital-materia .pct { font-family: var(--dado); font-size: var(--t-sm); color: var(--latao-c); font-variant-numeric: tabular-nums; }
+.edital-materia .info { grid-column: 2 / 4; font-size: var(--t-xs); color: var(--texto-3); }
+.marca-estudo { width: 12px; height: 12px; border-radius: 2px; border: 2px solid var(--linha); flex-shrink: 0; }
+.marca-estudo.ok { background: var(--latao); border-color: var(--latao); }
+.edital-assuntos { list-style: none; margin: 0; padding: 0 .8rem .7rem 2.2rem; display: grid; gap: .35rem; }
+.edital-assuntos li { display: flex; align-items: baseline; gap: .55rem; font-size: var(--t-sm); color: var(--texto-2); }
+.edital-assuntos li .marca-estudo { width: 9px; height: 9px; align-self: center; }
+.edital-assuntos li.visto { color: var(--texto); }
+.edital-assuntos .conta { margin-left: auto; font-family: var(--dado); font-size: var(--t-xs); color: var(--texto-3); white-space: nowrap; }
+.edital-sem { margin: 0; padding: 0 .8rem .7rem 2.2rem; font-size: var(--t-xs); color: var(--texto-3); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .grafico-topo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e3); flex-wrap: wrap; }
 .grafico-sub { font-size: .82rem; color: var(--texto-3); margin-top: .2rem; }
 /* padding em cima: a rolagem lateral CORTA o que passa do topo -- o rotulo
@@ -622,6 +642,7 @@
     catch (error) { relatar(error, 'progresso/diario'); return; }
     const data = est?.sessoes || [];
     desenharSemanas(est);
+    desenharMateriasDoEdital();
     if (!data.length) return;              // sem histórico, sem diário
 
     const [{ montarDiario, resumoDoDiario }, { revisoesDeHoje }] = await Promise.all([
@@ -709,6 +730,48 @@
   const hm = duracaoSeg;                     // 01/10/2026: formato unico (era "90h00")
 
   /* Horas por semana, das 8 ultimas -- das sessoes gravadas no servidor. */
+  /* 09/10/2026 (roadmap 3.27, pedido dele): "uma lista das materias para sinalizar se ja foram
+     estudadas ou nao (...) com as materias e as submaterias dela". Submateria = os ASSUNTOS que
+     o Banco tem para a materia. Estudada = tem tempo de estudo ou questao respondida; assunto
+     visto = respondeu ao menos uma questao dele. So contagens vem do servidor (materias_estudadas). */
+  async function desenharMateriasDoEdital() {
+    const caixa = document.getElementById('g-edital');
+    if (!caixa) return;
+    const { data, error } = await supabase.rpc('materias_estudadas');
+    if (error) { relatar(error, 'progresso/materias_estudadas'); return; }
+    if (!Array.isArray(data) || !data.length) return;
+    const estudada = (m) => (m.minutos || 0) > 0 || (m.respondidas || 0) > 0;
+    const feitas = data.filter(estudada).length;
+    const marca = (ok, rotulo) => `<span class="marca-estudo${ok ? ' ok' : ''}" aria-hidden="true"></span><span class="vh">${rotulo}</span>`;
+    caixa.innerHTML = `
+      <div class="section-header" style="margin-bottom:0">
+        <div>
+          <div class="section-title">Matérias do edital</div>
+          <div class="grafico-sub"><strong>${feitas} de ${data.length}</strong> ${data.length === 1 ? 'matéria já estudada' : 'matérias já estudadas'}. Toque numa matéria para ver os assuntos dela no Banco.</div>
+        </div>
+      </div>
+      <ul class="edital-lista">${data.map((m) => {
+        const ok = estudada(m);
+        const assuntos = Array.isArray(m.assuntos) ? m.assuntos : [];
+        const vistos = assuntos.filter((a) => a.respondidas > 0).length;
+        const partes = ok
+          ? [m.minutos > 0 ? hm(m.minutos * 60) : null, m.respondidas > 0 ? `${m.respondidas} ${m.respondidas === 1 ? 'questão' : 'questões'}` : null]
+          : ['ainda não estudada'];
+        if (assuntos.length) partes.push(`${vistos} de ${assuntos.length} assuntos`);
+        const dentro = assuntos.length
+          ? `<ul class="edital-assuntos">${assuntos.map((a) => `<li class="${a.respondidas > 0 ? 'visto' : ''}">
+              ${marca(a.respondidas > 0, a.respondidas > 0 ? 'assunto já visto' : 'assunto ainda não visto')}<span>${esc(a.nome)}</span>
+              <span class="conta">${a.respondidas > 0 ? `${a.respondidas} de ${a.acervo}` : `${a.acervo} no Banco`}</span></li>`).join('')}</ul>`
+          : '<p class="edital-sem">Esta matéria ainda não tem questões no Banco: o progresso dela vem do tempo de estudo.</p>';
+        return `<li><details class="edital-materia">
+          <summary>${marca(ok, ok ? 'estudada' : 'ainda não estudada')}<span class="nome">${esc(m.nome)}</span>
+            <span class="pct">${Math.round(Number(m.dominio) || 0)}%</span>
+            <span class="info">${partes.filter(Boolean).map(esc).join(' · ')}</span></summary>
+          ${dentro}</details></li>`;
+      }).join('')}</ul>`;
+    caixa.hidden = false;
+  }
+
   function desenharSemanas(est) {
     const caixa = document.getElementById('g-semanas');
     if (!caixa) return;
@@ -861,6 +924,9 @@
 
       <!-- HORAS POR SEMANA -- preenchido quando as sessoes chegam -->
       <section class="card grafico" id="g-semanas" hidden></section>
+
+      <!-- 09/10/2026 (roadmap 3.27, pedido dele): as materias do edital e os assuntos -->
+      <section class="card grafico" id="g-edital" hidden></section>
     `;
 
     // Animations after render

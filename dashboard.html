@@ -2608,7 +2608,12 @@ function verificarBalanco() {
           <div class="mat-fill" style="width:${m.progresso}%"></div>
         </div>
       </div>
-    `).join('') + `<div style="font-size:var(--t-xs);color:var(--muted);margin-top:0.5rem;text-align:right;">${estado.materias.length} matérias no total</div>`;
+    `).join('') + (() => {
+      // 09/10/2026 (roadmap 3.27, pedido dele): quantas o aluno JA estudou -- a lista completa, com os
+      // assuntos, mora em Progresso. Estudada = tem tempo ou questao respondida (medido pelo servidor).
+      const estudadas = estado.materias.filter((m) => (m.medida?.minutos || 0) > 0 || (m.medida?.respondidas || 0) > 0).length;
+      return `<div style="font-size:var(--t-xs);color:var(--muted);margin-top:0.5rem;text-align:right;"><strong style="color:var(--texto)">${estudadas} de ${estado.materias.length}</strong> matérias já estudadas</div>`;
+    })();
   }
 
   /* 30/09/2026 -- decisao dele (item 5): os 8 distintivos antigos sairam; o
