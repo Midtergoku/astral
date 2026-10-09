@@ -601,3 +601,14 @@ Regressão: `node tools/testa-prova-no-cronograma.js` (`ASTRAL_RAIZ=pasta` contr
 mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` só para não mostrar casca vazia — **quem barra
 é a função do servidor**. Todo texto que veio de fora (origem da URL, PDF) passa por `esc()`.
 **Botão "Encerrar sessão" precisa de `addEventListener('click', fazerLogout)`** — o importador ficou sem até 09/10.
+
+---
+
+## 15. Primeiro acesso, captcha sob demanda, PDF cru (09/10/2026, roadmap 3.19)
+
+- **`body.primeiro-acesso`** (painel): sem edital **e** sem XP/horas. Esconde `.grid-3` e `#main-content`, mostra `.primeiro-passo`.
+  Bloco novo no painel que não faça sentido sem edital: esconder com esta classe, não com outro `if`.
+- **Captcha:** página nova com captcha usa `captchaSobDemanda('caixa-captcha', (id) => { widgetCaptcha = id; })` e, no envio,
+  `await captcha.montar()` + `captchaPendente(id)`. **Nunca `montarCaptcha` ao abrir a página** (são ~764 KB).
+- **Arquivo para função:** `chamarIA(rota, arquivo)` com um `Blob`/`File` manda cru (`Content-Type` do arquivo). Na função,
+  **ler o corpo inteiro antes de recusar** — recusar no meio do envio vira 503 sem mensagem.
