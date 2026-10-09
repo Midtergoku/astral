@@ -236,7 +236,10 @@ function acharPlaywright() {
     // (a pergunta em si, e o "cancelar" que nao apaga, sao do testa-prova-no-cronograma)
     pg.once("dialog", (d) => d.accept());
     await pg.click("#automatico"); await pg.waitForTimeout(1500);
-    (await rotinaNoBanco())?.semana === null ? ok("voltar ao automático limpa a edição") : falha("automático não limpou");
+    // 09/10/2026: esperar a gravacao (ate 8 s) -- na bateria, 1,5 s fixo nao bastou uma vez
+    let limpou = false;
+    for (let i = 0; i < 16 && !limpou; i++) { limpou = (await rotinaNoBanco())?.semana === null; if (!limpou) await pg.waitForTimeout(500); }
+    limpou ? ok("voltar ao automático limpa a edição") : falha("automático não limpou");
 
     console.log("\n== 5. MARCAR FEITO ==");
     await abrir("dashboard.html");

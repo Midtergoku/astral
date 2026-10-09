@@ -121,8 +121,10 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
 
       await pg.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
       await pg.waitForSelector("#upload-area", { state: "visible", timeout: 15000 });
-      await pg.click("#rotina-ok", { timeout: 15000 });
-      await pg.waitForTimeout(800);
+      /* 09/10/2026 (3.14, EDI-04): o questionario de rotina NAO abre mais antes do edital --
+         abria por cima e se misturava com a falha da leitura. Ele vem depois da 1a leitura certa. */
+      await pg.waitForTimeout(1500);
+      (await pg.$(".rotina-fundo")) === null ? ok("sem edital, o questionário de rotina espera") : falha("o questionário abriu antes do edital");
       // Todo titulo que aparecer durante a espera (2.15): edital guardado nao e lido.
       await pg.evaluate(() => {
         window.__titulos = [];
@@ -149,7 +151,8 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
         ["2 matérias", "o número de matérias"],
         ["18 sessões", "as sessões da rotina dela"],
         ["12h por semana", "as horas por semana"],
-        ["na sua rotina", "que é a rotina dela"],
+        // 09/10/2026 (3.14): a rotina e perguntada DEPOIS -- a revelacao usa o padrao e diz isso
+        ["a seguir você conta a sua", "que a rotina dela vem a seguir"],
         ["Aluno-Soldado BM", "a patente inicial de bombeiro"],
       ];
       for (const [trecho, oque] of esperados) {
@@ -174,6 +177,10 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
         : falha("duração da revelação", `${(total / 1000).toFixed(1)} s, painel ${painel}`);
       const faixa = (await pg.textContent("#edital-nome").catch(() => "")) || "";
       faixa.includes(RESULTADO.concurso) ? ok("o painel mostra o edital novo") : falha("faixa do edital", faixa);
+      // e AGORA o questionario de rotina, uma vez so (3.14)
+      const pergunta = await pg.waitForSelector("#rotina-ok", { timeout: 8000 }).then(() => true).catch(() => false);
+      pergunta ? ok("🎯 depois do edital lido, o questionário de rotina abre") : falha("o questionário de rotina não abriu depois do edital");
+      if (pergunta) await pg.click("#rotina-ok");
       await pg.waitForTimeout(2500);
       guiaPedido > 0 ? ok("o guia de professores começa na hora", `${guiaPedido} pedido(s), bloqueados no teste`)
         : falha("o guia não começou depois do edital");
@@ -207,8 +214,7 @@ const RESULTADO = { concurso: "Teste Revelacao CBM 2026", dataProva: DATA, forca
       });
       await pg.goto(`http://localhost:${PORTA}/dashboard.html`, { waitUntil: "load" });
       await pg.waitForSelector("#upload-area", { state: "visible", timeout: 15000 });
-      await pg.click("#rotina-ok", { timeout: 15000 });
-      await pg.waitForTimeout(800);
+      await pg.waitForTimeout(800);       // 3.14: sem questionario antes do edital
       await pg.evaluate(() => {
         window.__titulos = [];
         const h = document.querySelector("[data-ai-titulo]");
