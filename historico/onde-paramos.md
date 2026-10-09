@@ -16,7 +16,7 @@
 Vigia lendo gasto de IA, tamanho do banco e erros das funções; bateria de testes no `astral-dev`.
 
 > ✅ **3.14 feito em 09/10** (cronograma pela data da prova, avisos da semana, falha do edital clara) — ver o registro no ROADMAP.
-> 🔔 **Pergunta para ele:** a promessa *"cronograma pelo tempo até a prova"* pode voltar para a página inicial? (regra 8.1: landing é decisão dele)
+> ~~🔔 **Pergunta para ele:** a promessa *"cronograma pelo tempo até a prova"* pode voltar para a página inicial?~~ ✏️ 09/10, ele: *"pode pôr"* — voltou (ROADMAP, registro do 3.14)
 
 <details><summary>O que estava aqui antes (3.14)</summary>
 
