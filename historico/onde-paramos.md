@@ -18,7 +18,7 @@ confirma; rotina inválida avisa; mensagem de falha clara. Skills: `brainstormin
 
 ## 🔔 Pendências dele (trazer na hora)
 
-- **Questão 8448** (EAGS 2026, nº 64): ele reportou erro no enunciado em 04/10 — revisar quando voltar ao Banco
+- ~~**Questão 8448** (EAGS 2026, nº 64): ele reportou erro no enunciado em 04/10~~ — ✏️ 09/10, ele: *"pode desconsiderar esse report, apertei só para testar"*. Aviso marcado como resolvido (não apagado)
 - **Senha de app do Gmail** (4.1) — o `checa-saude` avisa toda sessão
 - 3.18 advogados · 4.3 senha em 4 lugares · 5.1 o 1º edital é dele · 5.3 responsável para quem tem `menor = true`
 - **"Durar até a prova" (3.13):** fiz "durar o mesmo em todo edital (~10 meses a 2 h/dia)", não pela data de cada um
