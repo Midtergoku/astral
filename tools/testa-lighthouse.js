@@ -131,6 +131,13 @@ function reprovados(r) {
     await req("/rest/v1/sessoes_estudo", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
       body: JSON.stringify(Array.from({ length: 12 }, (_, i) => ({ usuario_id: uid, materia: materias[i % 3].nome, segundos: 3600, xp: 120, modo: "livre", criado_em: new Date(Date.now() - (12 - i) * 86400000).toISOString() }))) });
     await salvar();
+    /* 09/10/2026: o painel monta o GUIA de professores por tras (buscar-recursos, IA de verdade) para
+       toda materia sem guia salvo. No 1o dia do vigia (3.15) este teste gerou 18 "IA indisponivel" na
+       producao -- custo zero so porque nao ha credito. Com credito, cada rodada GASTARIA. A conta de
+       teste ja nasce com o guia salvo: o painel pula, e o site no ar nao chama a IA. */
+    await req("/rest/v1/recursos_salvos", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+      body: JSON.stringify(materias.map((m) => ({ usuario_id: uid, materia: m.nome, concurso: "Teste Lighthouse ESA", dados: { professores: [] } }))) });
+    const inicioIso = new Date().toISOString();
     const sessao = JSON.stringify({ access_token: s.access_token, refresh_token: s.refresh_token, token_type: "bearer", expires_at: Math.floor(Date.now() / 1000) + 3600, user: s.user });
 
     const paginas = fs.readdirSync(RAIZ).filter((f) => f.endsWith(".html")).sort()
@@ -176,6 +183,11 @@ function reprovados(r) {
     }
     console.log(`\n  reprovacoes por regra: ${Object.entries(total).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} (${n})`).join(", ") || "nenhuma"}`);
     console.log(`  relatorios completos (HTML): ${relatorio}`);
+    // o site no ar NAO pode ter chamado a IA para a conta de teste (o guia ja nasceu salvo)
+    const ia = await req(`/rest/v1/falhas_servidor?funcao=eq.buscar-recursos&criado_em=gte.${encodeURIComponent(inicioIso)}&select=id`, { headers: admin });
+    const chamou = Array.isArray(ia.corpo) ? ia.corpo.length : -1;
+    if (chamou === 0) console.log("  OK     a conta de teste não chamou a IA (guia já salvo)");
+    else { console.log(`  FALHA  o site chamou a IA ${chamou} vez(es) para a conta de teste -- com crédito, isto GASTA`); falhas++; }
   } catch (e) {
     console.log("  FALHA  o teste quebrou:", String(e.message || e).slice(0, 200)); falhas++;
   } finally {
