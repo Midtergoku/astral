@@ -18,7 +18,7 @@ const fs = require("fs");
 const http = require("http");
 const path = require("path");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, "..");
 const PORTA = 8893;
@@ -39,7 +39,7 @@ if (!pw) { console.log("TESTA-GUIA -- pulado: playwright nao encontrado."); proc
 
 const chaves = JSON.parse(execSync(`supabase projects api-keys --project-ref ${REF} -o json`, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }));
 const SK = chaves.find((k) => k.name === "service_role").api_key;
-const PUB = (fs.readFileSync(path.join(RAIZ, "assets/js/astral.js"), "utf8").match(/sb_publishable_[A-Za-z0-9_-]+/) || [])[0];
+const PUB = require("./testes/alvo").PUB;
 const admin = { apikey: SK, Authorization: `Bearer ${SK}`, "Content-Type": "application/json" };
 const req = async (c, o) => { const r = await fetch(BASE + c, o); const t = await r.text(); try { return JSON.parse(t); } catch { return null; } };
 
@@ -51,7 +51,7 @@ const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascrip
 const srv = http.createServer((q, r) => {
   const u = decodeURIComponent(q.url.split("?")[0]); const arq = path.join(RAIZ, u === "/" ? "/index.html" : u);
   if (!path.resolve(arq).startsWith(RAIZ) || !fs.existsSync(arq) || fs.statSync(arq).isDirectory()) { r.writeHead(404); return r.end(); }
-  r.writeHead(200, { "Content-Type": tipos[path.extname(arq)] || "text/plain" }); r.end(fs.readFileSync(arq));
+  r.writeHead(200, { "Content-Type": tipos[path.extname(arq)] || "text/plain" }); r.end(reescrever(arq, fs.readFileSync(arq)));
 });
 
 const CONCURSO = "Teste Bombeiro Guia";

@@ -3,7 +3,7 @@
 // tester hoje. Auditoria que so cobre o caminho do app nao serve.
 const { execSync } = require("child_process");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`;
 const chaves = JSON.parse(
   execSync(`supabase projects api-keys --project-ref ${REF} -o json`,
@@ -83,8 +83,7 @@ async function req(caminho, opts = {}) {
       : falha(`nao registrou a remocao: ${JSON.stringify(a4.corpo)}`);
 
     console.log("\n== 5. O USUARIO CONSEGUE LER OU APAGAR A PROPRIA AUDITORIA? ==");
-    const PUB = (require("fs").readFileSync("assets/js/astral.js", "utf8")
-      .match(/sb_publishable_[A-Za-z0-9_-]+/) || [])[0];
+    const PUB = require("./testes/alvo").PUB;
     const link = await req("/auth/v1/admin/generate_link", {
       method: "POST", body: JSON.stringify({ type: "magiclink", email }),
     });

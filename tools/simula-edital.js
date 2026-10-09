@@ -37,7 +37,9 @@ const fs = require("fs");
 const path = require("path");
 const url = require("url");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+// 09/10/2026 (COD-02): segue o alvo -- os testes que a chamam rodam no astral-dev (ASTRAL_DEV=1,
+// herdado). Sem ASTRAL_DEV, continua na producao (e assim que se simula na conta de alguem).
+const { REF } = require("./testes/alvo");
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, "..");
 const PASTA = path.resolve(RAIZ, "..", "ASTRAL-BACKUPS", "simulacao");

@@ -14,7 +14,7 @@
 //     repetem o bloco de Portugues
 const { execSync } = require("child_process");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`;
 
 const chaves = JSON.parse(execSync(`supabase projects api-keys --project-ref ${REF} -o json`,

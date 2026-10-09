@@ -16,7 +16,7 @@ const path = require("path");
 const http = require("http");
 const { pathToFileURL } = require("url");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, "..");
 const PORTA = 8888;
@@ -151,8 +151,7 @@ const emDias = (n) => {
       encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
     }));
     const SERVICE = chaves.find((k) => k.name === "service_role").api_key;
-    const PUB = (fs.readFileSync(path.join(RAIZ, "assets/js/astral.js"), "utf8")
-      .match(/sb_publishable_[A-Za-z0-9_-]+/) || [])[0];
+    const PUB = require("./testes/alvo").PUB;
     const admin = { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, "Content-Type": "application/json" };
     const req = async (caminho, opts) => {
       const r = await fetch(`${BASE}${caminho}`, opts);
@@ -168,7 +167,7 @@ const emDias = (n) => {
         r.writeHead(404); return r.end("404");
       }
       r.writeHead(200, { "Content-Type": tipos[path.extname(arq)] || "text/plain" });
-      r.end(fs.readFileSync(arq));
+      r.end(reescrever(arq, fs.readFileSync(arq)));
     });
     await new Promise((r) => servidor.listen(PORTA, r));
     const nav = await pw.chromium.launch();

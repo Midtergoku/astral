@@ -425,3 +425,15 @@ diz também *"nada foi descontado de você"* (verdade: a cota só conta no suces
 O navegador (`chamarIA` em `astral.js`) cuida do que o servidor não vê: **sem conexão** e **demorou demais**.
 
 Ao escrever mensagem nova: dizer **o que fazer** e **se é o arquivo, a internet ou o serviço**. Teste: `node tools/testa-prova-no-cronograma.js` (parte 3).
+
+---
+
+## 8.30. O servir() anota as próprias falhas; a função vigia (09/10/2026, roadmap 3.15 / OPS-03)
+
+- **`anotarFalha(funcao, status, tipo)`** no `catch` do `servir()`: `FalhaHttp` ≥ 500 → `falha`; teto do dia → `teto`
+  (o `FalhaHttp` ganhou o 3º argumento `tipo`); IA 429 → `ia_taxa`; credencial/crédito → `ia_indisponivel`; o resto → `erro`.
+  **Recusa normal (arquivo errado, cota do aluno, 4xx) não é falha.** Anotar falhou → a resposta ao aluno sai igual.
+- **`vigia`** (`verify_jwt = false`): só com o cabeçalho `x-astral-vigia` = `VIGIA_SEGREDO` (comparação em tempo constante;
+  **sem o segredo configurado, recusa tudo**). Lê `saude_operacao()`, manda pelo Resend o que não foi mandado nas últimas 24 h.
+  No dev não há `RESEND_API_KEY`: responde o que **teria** mandado (`semEmail: true`).
+- Função nova que chame a IA já entra no vigia por passar pelo `servir()`. **Função fora do `servir()` não é vigiada.**

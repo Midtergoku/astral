@@ -13,13 +13,13 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, "..");
 const chaves = JSON.parse(execSync(`supabase projects api-keys --project-ref ${REF} -o json`,
   { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }));
 const SK = chaves.find((k) => k.name === "service_role").api_key;
-const PUB = (fs.readFileSync(path.join(RAIZ, "assets/js/astral.js"), "utf8").match(/sb_publishable_[A-Za-z0-9_-]+/) || [])[0];
+const PUB = require("./testes/alvo").PUB;
 const admin = { apikey: SK, Authorization: `Bearer ${SK}`, "Content-Type": "application/json" };
 
 let falhas = 0;

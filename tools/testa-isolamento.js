@@ -10,7 +10,7 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`; // nao chamar de URL: sombreia o global
 
 const chaves = JSON.parse(
@@ -21,8 +21,7 @@ const chaves = JSON.parse(
 const SERVICE = chaves.find((k) => k.name === "service_role").api_key;
 // A chave 'anon' do CLI e o formato JWT antigo; o site usa a publishable nova.
 // Ler do astral.js garante que o teste usa exatamente o que o site usa.
-const PUB = (fs.readFileSync("assets/js/astral.js", "utf8")
-  .match(/sb_publishable_[A-Za-z0-9_-]+/) || [])[0];
+const PUB = require("./testes/alvo").PUB;
 
 let falhas = 0;
 const ok = (t) => console.log(`  OK     ${t}`);

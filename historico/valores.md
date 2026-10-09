@@ -373,6 +373,10 @@ para mudar**. Bateu no teto, a IA não é chamada e o aluno lê *"o Astral ating
 
 ---
 
+## 14. O vigia da operação (09/10/2026 — roadmap 3.15)
+
+**R$ 0.** `pg_cron` e `pg_net` já vinham no plano grátis do Supabase; o e-mail sai pelo **Resend grátis** (3.000/mês, 100/dia) — o vigia manda **no máximo 1 e-mail por tipo de alerta por dia** (6 tipos → no pior caso ~180/mês). A bateria no `astral-dev` também é R$ 0 (o dev é o 2º projeto grátis do Supabase). Os limites que **avisam antes de custar**: banco 400 de 500 MB (acima de 500, o Supabase Pro custa **US$ 25/mês**) e IA a 80% do teto do dia (§13).
+
 ## 📒 Registro de mudanças deste arquivo
 
 | Data | O que mudou |

@@ -152,7 +152,10 @@ powershell -File tools\confere-auth.ps1
                                 🔴 checa-saude NAO pega isto: ele testa a IDA ao Google, nao a VOLTA
 powershell -File tools\smtp-configura.ps1
                                 entrega de e-mail (por que ninguem recebe). So leitura por padrao
-node tools/roda-testes.js       a BATERIA INTEIRA (56 testes, ~30 min), um por vez; pula o que gasta
+node tools/roda-testes.js       a BATERIA INTEIRA (80 testes, ~35 min), um por vez; pula o que gasta
+                                🆕 09/10 (COD-02): RODA NO ASTRAL-DEV (58 no dev, 4 na producao: site no ar, vitrine,
+                                lighthouse, restauracao); do-zero por ultimo e o dev e semeado de novo. --producao: como antes.
+                                Teste NOVO que cria conta: usar tools/testes/alvo.js (REF, PUB, reescrever)
                                 credito. Com nomes: so os que casam (roda-testes dominio taf)
 node tools/testa-dominio.js     o dominio e medido pelo servidor? (desde 30/09 -- banco.md 8.22)
 node tools/testa-fonte-unica.js regras de plano e estatisticas vem de UM lugar so? (01/10 -- banco.md 8.23)
@@ -191,6 +194,9 @@ node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COM
                                 Brasilia? ASTRAL_DEV=1 no dev; ASTRAL_RAIZ=pasta telas antigas (04/10, NUM-05/06/07)
 node tools/testa-folga.js       a folga da rotina nao quebra a sequencia? faltar ainda quebra? ASTRAL_DEV=1 (04/10, GAM-04)
 node tools/testa-transferencia.js  trocar de edital mostra a Transferencia, e so a verdade? (03/10, 3.7b)
+node tools/testa-vigia.js       o vigia (IA, banco, falhas -> e-mail) esta ligado e fechado? ASTRAL_DEV=1 planta falhas (09/10, 3.15)
+node tools/liga-vigia.js --projeto <ref> [--teste]  liga o vigia (segredo novo nos Secrets e no cofre, nunca mostrado);
+                                --teste manda um e-mail de teste. Banco restaurado: rodar (09/10, 3.15)
 node tools/testa-prova-no-cronograma.js  o cronograma usa a DATA DA PROVA (reta final, dia da prova, prova passada)? semana
                                 editada avisa? falha do edital diz o que houve? ASTRAL_RAIZ=pasta (09/10, 3.14)
 node tools/testa-bonus-instrucao.js  o bonus da Instrucao vale so da escolha em diante? Recomecar nao desce

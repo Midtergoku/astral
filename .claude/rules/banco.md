@@ -343,3 +343,18 @@ teste de regra de XP tem de gravar **pela conta do aluno**. Regressão: `node to
   nula**: o `least` ignora o nulo e devolve `now()` (o teste pegou: todo mundo rebalanceava a cada gravação).
 - **`materias_estudadas()`**: por matéria do edital, domínio, minutos, questões e os assuntos do Banco com
   respondidas. Só contagens (regra do 3.12). Regressão: `testa-rebalanceio.js` (9) e `testa-materias-estudadas.js` (12).
+
+## 8.35. O vigia da operação (09/10/2026, roadmap 3.15 / OPS-03) ✅
+
+Migration `20261009140000_vigia_operacao`. **Tudo fechado: só `service_role`.**
+
+| Peça | O que é |
+|---|---|
+| `falhas_servidor` | uma linha por falha de função (`funcao, status, tipo, criado_em`). **Sem usuário, sem mensagem** — por isso fica fora do `meus_dados`. Faxina: 90 dias |
+| `vigia_alertas` | quando cada tipo de alerta foi mandado (1 e-mail por tipo por dia) |
+| `saude_operacao()` | os números **e os alertas** (os limites moram AQUI — mudar aqui muda o e-mail e o `checa-saude` juntos) |
+| `chamar_vigia(p_teste)` | o despertador `astral-vigia` (`23 * * * *`) chama a função `vigia` com o segredo do **cofre** (`astral_vigia_url`, `astral_vigia_segredo`). Cofre vazio = não chama nada |
+
+- 🔴 **O segredo NÃO mora em migration** (repo público). Banco novo/restaurado: `node tools/liga-vigia.js --projeto <ref>`
+  (sorteia, grava nos Secrets e no cofre, chama uma vez). `--teste` manda um e-mail de teste.
+- Regressão: `node tools/testa-vigia.js` (produção: só leitura; `ASTRAL_DEV=1`: planta falhas e confere o alerta).

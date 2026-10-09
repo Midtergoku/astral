@@ -19,7 +19,7 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 
-const REF = "jjogmcacbdefwiwcyjxp";
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const BASE = `https://${REF}.supabase.co`;
 const RAIZ = path.resolve(__dirname, "..");
 const PORTA = 8891;
@@ -43,8 +43,7 @@ const chaves = JSON.parse(execSync(`supabase projects api-keys --project-ref ${R
   encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
 }));
 const SERVICE = chaves.find((k) => k.name === "service_role").api_key;
-const PUB = (fs.readFileSync(path.join(RAIZ, "assets/js/astral.js"), "utf8")
-  .match(/sb_publishable_[A-Za-z0-9_-]+/) || [])[0];
+const PUB = require("./testes/alvo").PUB;
 
 let falhas = 0;
 const ok = (t, d = "") => console.log(`  OK     ${t.padEnd(48)} ${d}`);
@@ -66,7 +65,7 @@ const servidor = http.createServer((q, r) => {
     r.writeHead(404); return r.end("404");
   }
   r.writeHead(200, { "Content-Type": tipos[path.extname(arq)] || "text/plain" });
-  r.end(fs.readFileSync(arq));
+  r.end(reescrever(arq, fs.readFileSync(arq)));
 });
 
 const instante = (d, h) => {

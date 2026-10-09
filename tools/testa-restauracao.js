@@ -29,7 +29,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const REF = 'jjogmcacbdefwiwcyjxp';
+const { REF, reescrever } = require("./testes/alvo");   // 09/10/2026 (COD-02): ASTRAL_DEV=1 -> astral-dev (tools/testes/alvo.js)
 const RAIZ = path.resolve(__dirname, '..');
 const BACKUPS = path.resolve(RAIZ, '..', 'ASTRAL-BACKUPS');
 
