@@ -318,3 +318,10 @@ dia date generated always as (((criado_em at time zone 'America/Sao_Paulo') - ma
 - Divisa `reintegrado` é secreta (`catalogo_divisas`); a semente foi regerada.
 - Regressão: `node tools/testa-trapaca.js` (17; `ASTRAL_DEV=1`: só o servidor). Ele **chama `sincronizar_conquistas`**:
   sem gravar, "nenhuma medalha errada" passaria no código antigo também.
+
+- **09/10/2026 (GAM-06, decisão dele):** as medalhas usam `materias_para_medalhas()` = a lista do aluno + as
+  matérias da LEITURA (`progresso.edital_lido` → `editais_lidos`) que ele tirou, com o domínio de verdade.
+  `edital_lido` só o `processar-edital` grava; `materias_renomeadas` só o `renomear_materias` — **o aluno não
+  tem permissão em nenhuma das duas colunas** (as permissões de `progresso` são POR COLUNA: coluna nova nasce
+  fechada). **Conta nova de medalha que leia matérias: usar `materias_para_medalhas()`, nunca `p.materias`.**
+  O cronograma continua com `p.materias`.

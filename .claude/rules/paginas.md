@@ -564,3 +564,8 @@ Regressão: `node tools/testa-vitrine.js` (no ar) ou `--local`.
 - **Coisa que aparece depois (captcha, aviso, imagem) tem o espaço reservado desde o começo** — a caixa do captcha
   tem `min-height: 78px` (a altura do captcha "normal").
 - **Número no limite não é aprovado.** Eu tinha aceito 0,097 (limite 0,1) e numa rodada passou. Conserta a causa.
+
+**09/10/2026 — a barra lateral (roadmap 3.28):** `.sidebar` tem `height: 100dvh` e **rola sozinha**
+(`overflow-y: auto`, `overscroll-behavior: contain`) — nunca voltar para `min-height: 100vh` sem rolagem: numa tela
+baixa o fim da barra some. Em tela com menos de 720 px de altura o respiro aperta (`app.css`, no fim).
+Regressão: `node tools/testa-barra-lateral.js` (14 páginas × 3 telas baixas).

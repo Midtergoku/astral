@@ -405,3 +405,11 @@ hora e de dia têm de ser diferentes** (à meia-noite as duas janelas são o mes
   falsos são descartados; CF-Connecting-IP falso é recusado). Guardado só como HMAC, por 2 dias.
 - Contagem falhou → **não grava** (falha fechada, ao contrário do resto: aqui o barato é perder um erro).
 - Regressão: `node tools/testa-limite-erros.js` (9; `ASTRAL_DEV=1` no dev).
+
+## 8.28. processar-edital anota a leitura da conta (09/10/2026, roadmap 3.12 / GAM-06)
+
+Nos DOIS caminhos (edital guardado e leitura nova com a IA), a função grava `progresso.edital_lido = hash` pela
+chave de serviço (`marcarLeitura()`). É a fonte de verdade de "qual edital esta conta leu" para as medalhas
+(`materias_para_medalhas()`, `banco.md` 8.32) — o `edital.hash` que a tela grava é do aluno, e ele escreve nele.
+Na leitura nova, só marca se a leitura ficou guardada (`editais_lidos`). Falhar ao marcar não derruba a leitura.
+Regressão: `node tools/testa-trapaca.js` (parte GAM-06, pelo caminho guardado — R$ 0).

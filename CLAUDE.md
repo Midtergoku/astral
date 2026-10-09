@@ -180,6 +180,7 @@ node tools/testa-acessivel.js   contraste de botao/rotulo >= 4,5:1, campo >= 16 
                                 + coluna interf.: as regras da Vercel que dao para medir (08/10, 3.10b)
 node tools/testa-lighthouse.js [paginas] [--tudo]  o LIGHTHOUSE do Google no celular, pagina por pagina, no ar,
                                 logado. Precisa do CLI: npm i chrome-devtools-mcp@latest -g (08/10, 3.10b)
+node tools/testa-barra-lateral.js  da para chegar no fim do menu numa tela baixa (notebook, zoom)? 14 paginas x 3 telas (09/10, 3.28)
 node tools/testa-trapaca.js     os atalhos da auditoria (gabarito antes da resposta, 22 medalhas declaradas, segredo
                                 revelado) ainda funcionam? ASTRAL_DEV=1 so o servidor (08/10, 3.12)
 node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COMECOU? no Acre o "hoje" e o de
