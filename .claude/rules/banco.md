@@ -325,3 +325,11 @@ dia date generated always as (((criado_em at time zone 'America/Sao_Paulo') - ma
   tem permissão em nenhuma das duas colunas** (as permissões de `progresso` são POR COLUNA: coluna nova nasce
   fechada). **Conta nova de medalha que leia matérias: usar `materias_para_medalhas()`, nunca `p.materias`.**
   O cronograma continua com `p.materias`.
+
+## 8.33. A mesma hora, o mesmo XP (09/10/2026, roadmap 3.13) ✅
+
+`validar_sessao_estudo`: sessão **do cronograma** (declarada) vale `floor(segundos/60) * 2` — a mesma conta da
+medida (decisão 13). O que segura a trapaça do declarado: 4 h por sessão, 12 h por dia, e (3.12) "sessão seguida" e
+"horas no dia" só com tempo MEDIDO. `xpDoBloco` (`assets/js/cronograma.js`) é o espelho na tela.
+⚠️ Inserir sessão com a **chave de serviço** guarda o XP que se manda (é assim que os testes plantam histórico):
+teste de regra de XP tem de gravar **pela conta do aluno**. Regressão: `node tools/testa-escada.js`.

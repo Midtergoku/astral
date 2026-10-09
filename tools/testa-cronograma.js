@@ -71,9 +71,10 @@ function acharPlaywright() {
     semRepetir ? ok("nenhuma matéria repete no mesmo dia") : falha("matéria repetida no dia");
     const todas = new Set(s.flatMap((d) => d.blocos.map((b) => b.materia)));
     todas.size === MATERIAS.length ? ok("🎯 toda matéria aparece na semana", `${todas.size} de ${MATERIAS.length}`) : falha("matéria sumiu da semana", `${todas.size}`);
-    const xpServidor = (min) => Math.max(10, Math.round(min * 60 / 120));
+    // 09/10/2026 (3.13, decisao 13): 2 por minuto inteiro, igual ao cronometro (era meio por minuto, minimo 10)
+    const xpServidor = (min) => Math.floor(min) * 2;
     s.flatMap((d) => d.blocos).every((b) => b.xp === xpServidor(b.minutos))
-      ? ok("XP de cada bloco = a regra do servidor", "meio por minuto, mínimo 10") : falha("XP diferente do servidor");
+      ? ok("XP de cada bloco = a regra do servidor", "2 por minuto, igual ao cronômetro") : falha("XP diferente do servidor");
     JSON.stringify(C.montarSemana(MATERIAS, rot)) === JSON.stringify(s) ? ok("mesma rotina, mesma semana", "sem sorteio") : falha("semana muda sozinha");
     const porMin = {}; s.forEach((d) => d.blocos.forEach((b) => (porMin[b.materia] = (porMin[b.materia] || 0) + b.minutos)));
     porMin["Física"] > porMin["História"] ? ok("pesada e fraca ganha mais tempo que a dominada", `Física ${porMin["Física"]}′ × História ${porMin["História"]}′`) : falha("distribuição não segue a necessidade");
