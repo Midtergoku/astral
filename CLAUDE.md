@@ -194,6 +194,9 @@ node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COM
                                 Brasilia? ASTRAL_DEV=1 no dev; ASTRAL_RAIZ=pasta telas antigas (04/10, NUM-05/06/07)
 node tools/testa-folga.js       a folga da rotina nao quebra a sequencia? faltar ainda quebra? ASTRAL_DEV=1 (04/10, GAM-04)
 node tools/testa-transferencia.js  trocar de edital mostra a Transferencia, e so a verdade? (03/10, 3.7b)
+node tools/testa-sessao-senha.js  acesso de 15 min, senha com letras e numeros, troca de senha com confirmacao?
+                                ASTRAL_DEV=1 tambem o comportamento (09/10, 3.16)
+node tools/testa-versoes.js     versao EXATA em toda importacao do servidor e nenhuma falha conhecida (npm, com controle) (09/10, 3.16)
 node tools/testa-vigia.js       o vigia (IA, banco, falhas -> e-mail) esta ligado e fechado? ASTRAL_DEV=1 planta falhas (09/10, 3.15)
 node tools/liga-vigia.js --projeto <ref> [--teste]  liga o vigia (segredo novo nos Secrets e no cofre, nunca mostrado);
                                 --teste manda um e-mail de teste. Banco restaurado: rodar (09/10, 3.15)
@@ -291,6 +294,7 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 > |---|---|
 > | Réplica do banco | recurso de plano pago; só importa quando ficar fora do ar custar dinheiro |
 > | Senha vazada (HIBP) | **HTTP 402 — só no Pro, US$ 25/mês** |
+> | Expirar sessão por inatividade | **HTTP 402 — só no Pro** (medido no dev em 09/10, roadmap 3.16) |
 > | Verificação em duas etapas | vale quando houver conta paga a proteger |
 >
 > **Fechadas em 05/08:** testes automáticos a cada push (`.github/workflows/verifica.yml`),

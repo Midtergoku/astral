@@ -5,15 +5,22 @@
 
 | | |
 |---|---|
-| Feito e no ar | **3.15** (vigia por e-mail; bateria no dev) · **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
+| Feito e no ar | **3.16** (sessão e senha) · **3.15** (vigia por e-mail; bateria no dev) · **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
 | Roadmap | **versão 3** no topo do `docs/auditoria/ROADMAP.md`: skill por item, **Lote D (design)** dentro do roadmap, ordem decidida por ele: **Lote 3 primeiro, design depois** |
 | Skills | ~25 instaladas a pedido dele (`historico/decisoes.md` § 0.6 e 0.7); **impeccable fica na 4.0.4** (decisão dele) |
 | Ferramentas novas | `testa-lighthouse` (precisa do CLI: `npm i chrome-devtools-mcp@latest -g`), `testa-trapaca`, `testa-escada`, `testa-barra-lateral`, `testa-rebalanceio`, `testa-materias-estudadas`; o `testa-acessivel` ganhou as regras da Vercel |
 | Ele pediu | **tudo em português do Brasil, sempre** (memória `sempre-em-portugues`) |
 
-## ▶️ PRÓXIMO: 3.16 — sessão e senha (SEG-04 + SEG-05 + SEG-07)
+## ▶️ PRÓXIMO: 3.17 — painel de negócio (NEG-04)
+
+Página de leitura para o administrador, sobre os eventos do **2.14**.
+
+> ✅ **3.16 feito em 09/10:** acesso de 15 min, senha com letras e números, confirmação para trocar senha, versões exatas — registro no ROADMAP.
+
+<details><summary>O que estava aqui antes (3.16)</summary>
 
 Texto honesto sobre a 1 h do token (ou `jwt_exp` menor); reautenticação para trocar senha; fixar versões das bibliotecas.
+</details>
 
 > ✅ **3.15 feito em 09/10:** o vigia manda e-mail (IA, banco, falhas) e a bateria roda no `astral-dev` — registro no ROADMAP.
 > 🔔 **Para ele:** o alerta vem de `onboarding@resend.dev` e pode cair no **spam** — pedir para marcar "não é spam" no e-mail de teste de 09/10.

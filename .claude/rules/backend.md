@@ -437,3 +437,13 @@ Ao escrever mensagem nova: dizer **o que fazer** e **se é o arquivo, a internet
   **sem o segredo configurado, recusa tudo**). Lê `saude_operacao()`, manda pelo Resend o que não foi mandado nas últimas 24 h.
   No dev não há `RESEND_API_KEY`: responde o que **teria** mandado (`semEmail: true`).
 - Função nova que chame a IA já entra no vigia por passar pelo `servir()`. **Função fora do `servir()` não é vigiada.**
+
+---
+
+## 8.31. Versões exatas, sessão de 15 min, senha com letras e números (09/10/2026, roadmap 3.16)
+
+- **Toda importação `jsr:`/`npm:` das funções tem versão EXATA** (`x.y.z`) — nunca `@2` ou `^2`. O `testa-versoes.js` falha
+  na versão solta e consulta o banco de vulnerabilidades do npm (com controle). Atualizar: trocar a versão, dev, bateria, produção.
+- **Auth (produção e dev):** `jwt_exp 900` · `password_required_characters` letras+números · `security_update_password_require_reauthentication true`.
+  O `confere-auth.ps1` vigia os três. 🔴 **Mudar a config de login: telas primeiro, depois a config** (a tela velha mostraria erro em inglês).
+- A leitura logo depois do PATCH pode vir com os valores velhos (**atraso de alguns segundos, medido**) — reler antes de concluir que falhou.
