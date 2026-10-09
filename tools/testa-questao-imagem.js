@@ -78,6 +78,15 @@ const servidor = http.createServer((q, r) => {
       const modelo = campos || Object.keys(escolhidas[0]);
       route.fulfill({ response: real, body: JSON.stringify({ ...corpo, questoes: escolhidas.map((q) => Object.fromEntries(modelo.map((k) => [k, q[k] ?? null]))) }) });
     });
+    // 08/10/2026 (3.12, GAM-03): o gabarito so chega na CORRECAO do servidor. As questoes acima
+    // foram trocadas no sorteio (nao foram "servidas" a esta conta), entao a correcao tambem e
+    // respondida aqui, com o gabarito verdadeiro de cada uma -- o que este teste confere e a TELA.
+    await ctx.route("**/rest/v1/rpc/registrar_resposta**", (route) => {
+      const p = JSON.parse(route.request().postData() || "{}");
+      const q = escolhidas.find((x) => String(x.id) === String(p.p_id));
+      route.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify(q ? { registrado: true, acertou: p.p_letra === q.gabarito, gabarito: q.gabarito, explicacao: q.explicacao || null } : { registrado: false }) });
+    });
     const pg = await ctx.newPage();
     const erros = []; pg.on("pageerror", (e) => erros.push(e.message));
     await pg.goto(`http://localhost:${PORTA}/banco.html`, { waitUntil: "load" });

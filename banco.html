@@ -713,20 +713,45 @@
     caixa.textContent = 'Obrigado — esta questão vai ser revisada.';
   });
 
-  function responder(id, letra) {
+  /* 08/10/2026 (auditoria GAM-03, roadmap 3.12): o gabarito do ACERVO nao vem mais
+     junto com a questao -- quem abria o console respondia 10 de 10 de primeira. Ele
+     chega na resposta do servidor (registrar_resposta), DEPOIS de a resposta estar
+     gravada. A questao da propria pessoa (aba "Minhas") continua com o gabarito na
+     mao: e dela, nao ha o que esconder. */
+  async function responder(id, letra) {
     if (respostas[id]) return;              // já respondeu: não se muda a resposta
     const q = questoes.find((x) => String(x.id) === String(id));
     if (!q) return;
     respostas[id] = letra;
 
     const bloco = document.querySelector(`.questao[data-q="${CSS.escape(String(id))}"]`);
-    bloco.querySelectorAll('.alt').forEach((b) => {
-      b.disabled = true;
+    const botoes = bloco.querySelectorAll('.alt');
+    botoes.forEach((b) => { b.disabled = true; });
+    const v = bloco.querySelector(`[data-veredito="${CSS.escape(String(id))}"]`);
+
+    if (q._origem !== 'minha') {
+      v.textContent = 'corrigindo…';
+      v.className = 'veredito';
+      const { data, error } = await supabase.rpc('registrar_resposta',
+        { p_origem: 'acervo', p_id: q._idReal ?? q.id, p_letra: letra });
+      // (durante a troca, o servidor antigo ainda mandava o gabarito no sorteio: vale o que houver)
+      if (error || !data || !(data.gabarito || q.gabarito)) {
+        // Sem a correcao do servidor nao ha veredito: a resposta NAO conta, e a pessoa tenta de novo.
+        relatar(error || new Error('correcao sem gabarito'), 'banco/registrar');
+        delete respostas[id];
+        botoes.forEach((b) => { b.disabled = false; });
+        v.textContent = 'não consegui corrigir agora — toque de novo';
+        v.className = 'veredito ma';
+        return;
+      }
+      q.gabarito = data.gabarito || q.gabarito;
+      q.explicacao = data.explicacao ?? q.explicacao;
+    }
+
+    botoes.forEach((b) => {
       if (b.dataset.letra === q.gabarito) b.classList.add('certa');
       else if (b.dataset.letra === letra) b.classList.add('errada');
     });
-
-    const v = bloco.querySelector(`[data-veredito="${CSS.escape(String(id))}"]`);
     /* 🔴 22/09/2026: aqui saia "a certa era null". No acervo publico isso nao
        podia acontecer (questao sem gabarito nao entra), mas na aba particular
        PODE -- muita prova de banca civil publica o gabarito em arquivo
@@ -738,7 +763,7 @@
       return;
     }
     const acertou = letra === q.gabarito;
-    registrarNoCaderno(q, letra);
+    if (q._origem === 'minha') registrarNoCaderno(q, letra);   // a do acervo ja foi gravada acima
     // Multipla: "a certa era c". Certo/Errado: "o gabarito e Errado" --
     // "a certa era Certo" soaria estranho, e o que o Cebraspe publica e o
     // gabarito do item, nao uma alternativa.

@@ -306,7 +306,8 @@ export function tagDe(materias = []) {
     const nome = TAGS_POR_MATERIA[normalizar(m.nome)];
     if (nome) return { nome, materia: m.nome, dominio: Math.round(m.progresso) };
   }
-  return { nome: 'Especialista', materia: aptas[0].nome, dominio: Math.round(aptas[0].progresso) };
+  // 08/10/2026 (GAM-09): era "Especialista" -- nome de condecoracao e divisa SECRETAS.
+  return { nome: 'Perito', materia: aptas[0].nome, dominio: Math.round(aptas[0].progresso) };
 }
 
 /* Quanto falta para a proxima tag -- serve ao estado "em formacao".
@@ -337,7 +338,7 @@ export function tagsConquistadas(materias = []) {
   for (const m of (materias || [])) {
     const p = m.progresso || 0;
     if (p < 70) continue;
-    const nome = TAGS_POR_MATERIA[normalizar(m.nome)] || "Especialista";
+    const nome = TAGS_POR_MATERIA[normalizar(m.nome)] || "Perito";   // era "Especialista" (secreta) -- 08/10, GAM-09
     if (vistas.has(nome)) continue;
     vistas.add(nome);
     fora.push({ nome, materia: m.nome, dominio: Math.round(p) });

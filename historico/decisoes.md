@@ -527,3 +527,7 @@ Ele mandou 5 links (*"são mais que 3, mas faça o mesmo que eu pedi com elas"*)
 | remotion-best-practices | instalada — vídeo com React (projeto separado). Licença grátis para pessoa física e empresa com até 3 funcionários |
 
 Onde cada uma entra: `docs/auditoria/ROADMAP.md`, versão 3, "A 2ª leva de skills".
+
+**08/10/2026 — as duas respostas dele sobre o roadmap versão 3:**
+- **impeccable:** *"Vamos manter a versão atual"* — fica a 4.0.4, sem o gancho que roda programa baixado a cada edição.
+- **Ordem:** *"vamos na sua recomendação de design depois"* — o resto do Lote 3 (3.12 em diante) vem antes do Lote D.

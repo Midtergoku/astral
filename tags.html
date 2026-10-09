@@ -248,7 +248,7 @@
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast }
     from './assets/js/astral.js?v=6073012e';
   import { carregarProgresso, salvarProgresso, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
-  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=3ebe4901';
+  import { tagsConquistadas, tagVestida, divisaHTML, nivelDe } from './assets/js/divisa.js?v=a8130bbf';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { arrumarNome } from './assets/js/prova.js?v=25b893ea';
 
@@ -346,6 +346,10 @@
     /* As trancadas aparecem apagadas — ver o que falta é o que faz voltar.
        Menos as SECRETAS: essas nem entram na lista, senão deixam de ser. */
     const trancadas = doCatalogo.filter((d) => !d.conquistada && !d.secreta && materiaDoEdital(d));
+    /* 08/10/2026 (auditoria GAM-13): o total era o catalogo inteiro -- "7 de 33" contava
+       Interprete, Guardiao da Lei... de materias que o edital nao tem. Conta so as POSSIVEIS
+       (as secretas entram: existem, so nao se mostram). Conquistada sempre conta. */
+    const possiveis = doCatalogo.filter((d) => d.conquistada || materiaDoEdital(d));
 
     alvo.innerHTML = `
       <div class="vitrine-atual">
@@ -359,7 +363,7 @@
       <p class="page-sub" style="margin-bottom:0">
         Você tem <strong>${conquistadas.length}</strong>
         ${conquistadas.length === 1 ? 'divisa conquistada' : 'divisas conquistadas'}${
-          doCatalogo.length ? ` de ${doCatalogo.length}` : ''}.
+          possiveis.length ? ` de ${possiveis.length} possíveis no seu edital` : ''}.
         Clique numa para vesti-la.
       </p>
 
@@ -433,7 +437,7 @@
 
   document.getElementById('btn-sair').addEventListener('click', fazerLogout);
 </script>
-<script type="module" src="/assets/js/divisa.js?v=3ebe4901"></script>
+<script type="module" src="/assets/js/divisa.js?v=a8130bbf"></script>
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>

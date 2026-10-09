@@ -1584,7 +1584,7 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=7ae6b785';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
-  import { nivelDe } from './assets/js/divisa.js?v=3ebe4901';
+  import { nivelDe } from './assets/js/divisa.js?v=a8130bbf';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
   import { pontoFraco } from './assets/js/chefe.js?v=cb156fb5';
 
@@ -2167,7 +2167,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       const [{ abrirCartao }, { tagVestida }] = await Promise.all([
         import('./assets/js/cartao.js?v=a6dae106'),
-        import('./assets/js/divisa.js?v=3ebe4901'),
+        import('./assets/js/divisa.js?v=a8130bbf'),
       ]);
       const n = nivelDaConta();
       const t = tagVestida(estado.materias, estado.tagEscolhida);
@@ -2263,7 +2263,7 @@ function mostrarLevelUp(nomeNivel) {
     const caixa = document.getElementById('missoes');
     if (!caixa || !hoje) return;               // some, em vez de ficar vazia
 
-    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=bfbf55a5');
+    const { missoesDeHoje, campanhas } = await import('./assets/js/missoes.js?v=fa75c367');
     const lista = missoesDeHoje(uid, hoje);
 
     // Missao que acabou de ser cumprida ganha aviso -- so depois do 1o desenho.
@@ -3380,7 +3380,7 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=3ebe4901"></script>
+<script type="module" src="/assets/js/divisa.js?v=a8130bbf"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

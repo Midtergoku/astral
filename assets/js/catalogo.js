@@ -141,7 +141,7 @@ export const CONDECORACOES = [
     condicao: { tipo: 'materiasNoMes', quantas: 2 } },
 
   { id: 'meia_hora',        metal: 'bronze', nome: 'Sentinela',
-    descricao: 'Uma sessão de 30 minutos sem levantar.',
+    descricao: 'Uma sessão de 30 minutos no cronômetro, sem levantar.',
     condicao: { tipo: 'sessaoUnica', minutosMin: 30 } },
 
   { id: 'cinco_sessoes',    metal: 'bronze', nome: 'Pegando o Ritmo',
@@ -213,11 +213,11 @@ export const CONDECORACOES = [
     condicao: { tipo: 'horas', min: 50 } },
 
   { id: 'hora_cheia',       metal: 'prata', nome: 'Resistência',
-    descricao: 'Uma sessão de uma hora inteira.',
+    descricao: 'Uma sessão de uma hora inteira no cronômetro.',
     condicao: { tipo: 'sessaoUnica', minutosMin: 60 } },
 
   { id: 'hora_e_meia',      metal: 'prata', nome: 'Guarda Estendida',
-    descricao: 'Uma sessão de uma hora e meia.',
+    descricao: 'Uma sessão de uma hora e meia no cronômetro.',
     condicao: { tipo: 'sessaoUnica', minutosMin: 90 } },
 
   { id: 'quatro_frentes',   metal: 'prata', nome: 'Frente Ampla',
@@ -245,7 +245,7 @@ export const CONDECORACOES = [
     condicao: { tipo: 'sessoes', min: 50 } },
 
   { id: 'dia_cheio',        metal: 'prata', nome: 'Jornada Dupla',
-    descricao: 'Quatro horas de estudo num único dia.',
+    descricao: 'Quatro horas no cronômetro num único dia.',
     condicao: { tipo: 'horasNoDia', min: 4 } },
 
   { id: 'tres_turnos',      metal: 'prata', nome: 'Três Turnos',
@@ -287,7 +287,7 @@ export const CONDECORACOES = [
   // 30/09/2026: era RESISTENCIA 100 = uma sessao de 90 min -- o MESMO criterio da
   // Guarda Estendida (prata). Ouro pede mais: duas horas seguidas.
   { id: 'resistencia_total', metal: 'ouro', nome: 'Fôlego de Combate',
-    descricao: 'Uma sessão de duas horas seguidas.',
+    descricao: 'Uma sessão de duas horas seguidas no cronômetro.',
     condicao: { tipo: 'sessaoUnica', minutosMin: 120 } },
 
   { id: 'doutrina_total',   metal: 'ouro', nome: 'Doutrina Consolidada',
@@ -404,11 +404,11 @@ export const CONDECORACOES = [
     condicao: { tipo: 'retorno', diasSumidoMin: 30 } },
 
   { id: 'maratona',         metal: 'ouro', secreta: true, nome: 'Marcha Forçada',
-    descricao: 'Uma sessão de três horas seguidas.',
+    descricao: 'Uma sessão de três horas seguidas no cronômetro.',
     condicao: { tipo: 'sessaoUnica', minutosMin: 180 } },
 
   { id: 'maratona_dupla',   metal: 'ouro', secreta: true, nome: 'Travessia',
-    descricao: 'Oito horas de estudo num único dia.',
+    descricao: 'Oito horas no cronômetro num único dia.',
     condicao: { tipo: 'horasNoDia', min: 8 } },
 
   { id: 'ferro_em_brasa',   metal: 'ouro', secreta: true, nome: 'Ferro em Brasa',
@@ -568,8 +568,10 @@ export const DIVISAS = [
     condicao: { tipo: 'streak', min: 100 } },
 
   // ── Por condecoração — a tag que vem junto com a medalha ───────────────
+  // 08/10/2026 (auditoria GAM-09): era a unica divisa de condecoracao SECRETA que nao era secreta --
+  // a pagina de divisas mostrava o nome e a regra exatos da condecoracao "Reintegrado".
   { id: 'reintegrado',  nome: 'Reintegrado',       raridade: 'rara',    cor: 'var(--brasa-c)',
-    comoGanha: 'Voltar depois de mais de 14 dias sumido',
+    comoGanha: 'secreta',  secreta: true,
     condicao: { tipo: 'condecoracao', id: 'reintegrado' } },
 
   { id: 'vigilia',      nome: 'Vigília',           raridade: 'rara',    cor: 'var(--oliva)',

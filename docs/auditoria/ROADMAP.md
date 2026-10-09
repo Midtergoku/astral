@@ -34,7 +34,9 @@
 3. **Lote D — o design** (V1 → V8), que existia só dentro da skill `astral-design` e agora entra aqui
 4. **Lote 4** (o que precisa dele em cena) e **Lote 5** (o que custa dinheiro), como antes
 
-> ❓ **A ordem 2 × 3 é sugestão minha**, e é dele decidir: o Lote 3 conserta números, trapaças e textos que
+> ✔️ **08/10/2026 — decidido por ele:** *"vamos na sua recomendação de design depois"* — **Lote 3 primeiro, Lote D depois.**
+>
+> ❓ ~~**A ordem 2 × 3 é sugestão minha**, e é dele decidir~~ (respondida acima): o Lote 3 conserta números, trapaças e textos que
 > estão **errados hoje**; o Lote D deixa o site com cara própria. Faz sentido corrigir o que está errado
 > antes de repintar, mas o design pode vir antes se ele preferir (as duas coisas não dependem uma da outra).
 
@@ -100,7 +102,7 @@ Estado **medido em 08/10/2026** (o CLAUDE.md dizia "faltam 3 correções no V1" 
 | Skill | Situação | Onde entra |
 |---|---|---|
 | `design-taste-frontend` (taste-skill) | já estava instalada, **idêntica** à que ele mandou | **V4** (página inicial) e **V5** (entrar/criar conta): é feita para página de apresentação, não para painel |
-| `impeccable` | instalada a **4.0.4**; a do autor é a **4.5.1** — ❓ **atualizar é decisão dele** (o instalador põe um gancho que roda um programa baixado da internet a cada edição no projeto) | **V2** (casca), **V6** (telas do app, uma a uma: auditar, polir, endurecer) |
+| `impeccable` | instalada a **4.0.4**; a do autor é a **4.5.1** — ✔️ **08/10, ele: "vamos manter a versão atual"** (era ❓: atualizar é decisão dele; (o instalador põe um gancho que roda um programa baixado da internet a cada edição no projeto) | **V2** (casca), **V6** (telas do app, uma a uma: auditar, polir, endurecer) |
 | `brandkit` | nova | **D.marca** (novo, abaixo): o quadro da marca — o ícone de estrela e divisa (3.11), cores, tipo, aplicações — para o lançamento e as redes |
 | `animate` | nova — **só a parte de CSS** serve (o resto é React); a tabela dela manda `ease-in` na saída, que a regra do Astral proíbe: **vale a regra do Astral** (aviso no topo da skill) | **V7** (gamificação: anúncio de medalha, divisa) junto com `motion-design` e `emil-design-eng` |
 | `remotion-best-practices` | nova — faz **vídeo** com código React, num projeto **separado** do site | **Lançamento** (fora do site): vídeos curtos do produto para Instagram/WhatsApp. Grátis para pessoa física e empresa pequena (licença paga só acima de 3 funcionários) |

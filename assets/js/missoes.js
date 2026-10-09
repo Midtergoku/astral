@@ -91,7 +91,7 @@ export const DIARIAS = [
     alvo: 3,   de: (h) => h.materias },
 
   { id: 'd_sessao40', peso: 3, nome: 'Sem interromper',
-    texto: 'Uma sessão de 40 minutos sem parar.',
+    texto: 'Uma sessão de 40 minutos no cronômetro, sem parar.',
     alvo: 40,  de: (h) => h.maiorSessaoMin },
 
   { id: 'd_cedo',     peso: 2, nome: 'Primeiro turno',
@@ -163,10 +163,10 @@ export const CAMPANHAS = [
     nome: 'Marcha de Resistência',
     texto: 'Aguentar sentado é treino como qualquer outro.',
     etapas: [
-      { id: 'e_30min',   texto: 'Uma sessão de 30 minutos',     alvo: 30,  de: (f) => f.maiorSessaoMin },
-      { id: 'e_60min',   texto: 'Uma sessão de 1 hora',         alvo: 60,  de: (f) => f.maiorSessaoMin },
-      { id: 'e_90min',   texto: 'Uma sessão de 1h30',           alvo: 90,  de: (f) => f.maiorSessaoMin },
-      { id: 'e_4h_dia',  texto: '4 horas num único dia',        alvo: 4,   de: (f) => f.horasNoDiaMax },
+      { id: 'e_30min',   texto: '30 minutos no cronômetro',     alvo: 30,  de: (f) => f.maiorSessaoMin },
+      { id: 'e_60min',   texto: '1 hora no cronômetro',         alvo: 60,  de: (f) => f.maiorSessaoMin },
+      { id: 'e_90min',   texto: '1h30 no cronômetro',           alvo: 90,  de: (f) => f.maiorSessaoMin },
+      { id: 'e_4h_dia',  texto: '4h no cronômetro num só dia',  alvo: 4,   de: (f) => f.horasNoDiaMax },
     ],
   },
 ];
