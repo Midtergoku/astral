@@ -592,3 +592,12 @@ semana passa a data** (painel, cronômetro, cronograma); sem ela, a semana mostr
 - **O questionário de rotina só abre com edital** (sem matéria, não há cronograma para montar).
 
 Regressão: `node tools/testa-prova-no-cronograma.js` (`ASTRAL_RAIZ=pasta` contra outra cópia do site).
+
+---
+
+## 14. Telas do dono (09/10/2026, roadmap 3.17)
+
+`importar.html` e `painel.html`: `noindex`, menu igual ao das outras **mais os dois links do dono** (o `verifica` aceita link a
+mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` só para não mostrar casca vazia — **quem barra
+é a função do servidor**. Todo texto que veio de fora (origem da URL, PDF) passa por `esc()`.
+**Botão "Encerrar sessão" precisa de `addEventListener('click', fazerLogout)`** — o importador ficou sem até 09/10.

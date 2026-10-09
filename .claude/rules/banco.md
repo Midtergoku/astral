@@ -358,3 +358,12 @@ Migration `20261009140000_vigia_operacao`. **Tudo fechado: só `service_role`.**
 - 🔴 **O segredo NÃO mora em migration** (repo público). Banco novo/restaurado: `node tools/liga-vigia.js --projeto <ref>`
   (sorteia, grava nos Secrets e no cofre, chama uma vez). `--teste` manda um e-mail de teste.
 - Regressão: `node tools/testa-vigia.js` (produção: só leitura; `ASTRAL_DEV=1`: planta falhas e confere o alerta).
+
+## 8.36. O painel do negócio (09/10/2026, roadmap 3.17 / NEG-04) ✅
+
+`painel_de_negocio(p_dias)` — migration `20261009150000`. Mesmo modelo do importador: **`sou_administrador()` por
+`auth.uid()`** (nunca por parâmetro), `grant` a `authenticated` e a recusa (42501) dentro. **Só números.**
+- "Conta real" = e-mail que **não** termina em `@astral-teste.local` (o que os testes criam). Teste novo que crie conta
+  de domínio real só no **dev** (o `testa-painel` faz assim).
+- Número novo no painel: acrescentar **aqui** (uma consulta só), nunca calcular na página.
+- Regressão: `node tools/testa-painel.js` (produção: só a recusa; `ASTRAL_DEV=1`: as contas e a tela).
