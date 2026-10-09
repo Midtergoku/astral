@@ -11,6 +11,11 @@
   <link rel="apple-touch-icon" href="/img/icone-180.png"/>
   <link rel="manifest" href="/manifest.webmanifest"/>
   <meta name="theme-color" content="#0E1620"/>
+  <!-- 08/10/2026 (3.11b, DevTools): a fonte so era descoberta DEPOIS do CSS; no celular lento ela chegava
+       com a pagina ja desenhada na fonte substituta e empurrava tudo (deslocamento 0,13 no login).
+       Pedir ja no comeco tira o empurrao. Mesmo endereco do @font-face do base.css (senao baixa 2x). -->
+  <link rel="preload" href="/assets/fontes/archivo-latin.woff2" as="font" type="font/woff2" crossorigin/>
+  <link rel="preload" href="/assets/fontes/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <meta name="robots" content="noindex"/>   <!-- area logada / ferramenta: fora da busca -->
   <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
 <style>
