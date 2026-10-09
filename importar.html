@@ -275,6 +275,12 @@
       </svg>
       Importar provas
     </a>
+    <a class="nav-link" href="painel.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>
+      </svg>
+      Painel do negócio
+    </a>
   </nav>
   <div class="sidebar-bottom">
     <a class="nav-link" href="conta.html">
@@ -588,6 +594,8 @@
   })();
 
   window.fazerLogout = fazerLogout;
+  // 09/10/2026 (achado no 3.17): o botao "Encerrar sessao" desta tela nao tinha clique ligado -- nao fazia nada
+  document.getElementById('btn-sair')?.addEventListener('click', fazerLogout);
 </script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

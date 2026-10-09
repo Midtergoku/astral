@@ -62,6 +62,8 @@ const TABELAS = [
   'questoes_reportadas',                              // 03/10/2026, "reportar erro" (BAN-02)
   'editais_reportados',                               // 03/10/2026, "a leitura esta errada" (EDI-03)
   'funil',                                            // 03/10/2026, o funil (NEG-01)
+  // 09/10/2026, o vigia (3.15). Esqueci de declarar no dia -- a trava deste script pegou no 3.17.
+  'falhas_servidor', 'vigia_alertas',
 ];
 // Tabela que existe e NAO vai para o backup, com o porque. Hoje: nenhuma.
 const IGNORADAS = {
