@@ -169,15 +169,23 @@ function conferir(titulo, condicao, detalhe) {
     }
     conferir('quem entra por concurso de sargento NÃO vira soldado depois',
       !sarg.some((p) => /Soldado|Recruta|Cabo/.test(p)), sarg.join(' > '));
+    /* 09/10/2026 (3.13, decisao 14): a escada curta passou a se espalhar ate 70.000 XP -- o 2o
+       degrau nao chega mais com 500 XP. O que se confere e a ORDEM dos postos, de 0 ao topo. */
+    const ordemSarg = [];
+    for (let x = 0; x <= 70000; x += 250) {
+      const n = nivelDe(x, 'x', 'exercito', 'Aluno-Sargento').nome;
+      if (ordemSarg[ordemSarg.length - 1] !== n) ordemSarg.push(n);
+    }
     conferir('e a sequência dele é de sargento para cima',
-      sarg[0] === 'Aluno-Sargento' && sarg[1] === '3º Sargento' && sarg[2] === '2º Sargento',
-      sarg.slice(0, 4).join(' > '));
+      ordemSarg[0] === 'Aluno-Sargento' && ordemSarg[1] === '3º Sargento' && ordemSarg[2] === '2º Sargento',
+      ordemSarg.slice(0, 4).join(' > '));
 
     /* Entrando por concurso de oficial. */
     const of = nivelDe(0, 'x', 'exercito', 'Cadete');
     conferir('quem entra por concurso de oficial começa como oficial',
       /Cadete|Aspirante/.test(of.nome), of.nome);
-    const of2 = nivelDe(2500, 'x', 'exercito', 'Cadete');
+    // 09/10/2026 (3.13): a escada do Cadete agora vai ate 70.000 XP -- no meio do caminho ja e oficial formado
+    const of2 = nivelDe(25000, 'x', 'exercito', 'Cadete');
     conferir('e sobe pela carreira de oficial',
       /Tenente|Capitão/.test(of2.nome), of2.nome);
 

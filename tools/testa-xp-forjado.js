@@ -111,7 +111,9 @@ async function lerProgresso(token) {
     const r1 = await sessaoNova({ segundos: 1800, xp: 999999, modo: "cronograma" });
     const s1 = aceita(r1);
     if (!s1) vuln("🔴 o estudo HONESTO do cronograma foi recusado", `HTTP ${r1.status} ${JSON.stringify(r1.corpo).slice(0, 80)}`);
-    else if (s1.xp === 15) ok("cronograma honesto aceito, XP do servidor", "pediu 999999, gravou 15");
+    // 09/10/2026 (3.13, decisao 13): 2 por minuto, igual ao cronometro (era 0,5 -> 15). O que este
+    // teste prova continua: o XP e o do SERVIDOR, nao o que o navegador manda.
+    else if (s1.xp === 60) ok("cronograma honesto aceito, XP do servidor", "pediu 999999, gravou 60 (2 por minuto)");
     else vuln("XP da sessao e o que o navegador manda", `xp=${s1.xp}`);
 
     // 2. Sessao "no passado".
