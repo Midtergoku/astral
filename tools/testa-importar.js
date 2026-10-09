@@ -367,9 +367,12 @@ const servidor = http.createServer((q, r) => {
         ? ok("o usuário comum recebe questão da amostra", `${q.length} de ${linhas.length}, plano ${r.corpo.plano}`)
         : falha("não recebeu questão nenhuma", JSON.stringify(r.corpo).slice(0, 120));
 
-      q.every((x) => x.gabarito)
-        ? ok("cada questão vem com o gabarito", "dá para corrigir na hora")
-        : falha("questão sem gabarito");
+      // 08/10/2026 (3.12, GAM-03): esta linha conferia o comportamento que a auditoria condenou --
+      // "cada questao vem com o gabarito" (quem abria o console respondia 10 de 10). Agora a questao
+      // diz que TEM gabarito, sem dizer qual; ele chega na correcao (registrar_resposta).
+      q.every((x) => x.tem_gabarito === true && !("gabarito" in x))
+        ? ok("cada questão tem gabarito — e ele só vem na correção", "tem_gabarito, sem a letra")
+        : falha("questao sem a marca tem_gabarito, ou com o gabarito antes da resposta", JSON.stringify(Object.keys(q[0] || {})));
 
       const filtros = await req("/rest/v1/rpc/filtros_de_questoes",
         { method: "POST", headers: comoZe, body: "{}" });
