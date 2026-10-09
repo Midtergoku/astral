@@ -273,6 +273,12 @@ const MARCA = `TELA-${Date.now()}`;
       ? ok("🎯 o filtro valeu — só veio o assunto pedido", rodada.selos.join(", "))
       : falha("veio assunto de fora do filtro", rodada.selos.join(", "));
 
+    // 09/10/2026 (auditoria LGL-06, roadmap 3.18): cada questao mostra a FONTE -- banca, prova e ano
+    const fontes = await pg.evaluate(() => [...document.querySelectorAll('.questao')].map((q) => q.querySelector('.selo.fonte')?.textContent.trim() || ''));
+    fontes.length && fontes.every((f) => /^Fonte: .+ · .+ · \d{4}/.test(f))
+      ? ok("🎯 toda questão mostra a fonte (banca · prova · ano)", fontes[0])
+      : falha("questão sem a fonte completa", fontes.find((f) => !/^Fonte: .+ · .+ · \d{4}/.test(f)) || "(nenhuma)");
+
     // Responder errado de proposito: a tela tem de mostrar a certa.
     await pg.evaluate(() => {
       const b = document.querySelector('.questao .alt[data-letra="a"]');

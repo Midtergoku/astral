@@ -638,13 +638,25 @@
       + lista.map((a) => `<option value="${att(a.nome)}">${esc(a.nome)} (${a.quantas})</option>`).join('');
   }
 
+  /* 09/10/2026 (auditoria LGL-06, roadmap 3.18): a FONTE de cada questao -- banca,
+     prova, ano e numero. Mostrava so "banca ano". Citar a origem e o que a Lei
+     9.610 (art. 8o, IV) pede de quem reproduz texto de prova oficial, e e o que
+     deixa o aluno conferir no caderno original. Questao sem banca (a que o
+     proprio aluno cadastrou) nao inventa fonte. */
+  function fonteDa(q) {
+    if (!q.banca) return '';
+    const partes = [q.banca, q.prova, q.ano].filter((x) => x !== null && x !== undefined && String(x).trim() !== '').map((x) => esc(String(x)));
+    const numero = q.numero ? ` · nº ${esc(String(q.numero))}` : '';
+    return `<span class="selo fonte" title="Fonte: a prova original">Fonte: ${partes.join(' · ')}${numero}</span>`;
+  }
+
   // ── A rodada ──────────────────────────────────────────────────────────────
   function desenharQuestao(q, i) {
     const alts = Object.entries(q.alternativas || {}).sort();
     return `
       <div class="questao" data-q="${att(String(q.id))}">
         <div class="questao-topo">
-          <span class="selo">${esc(q.banca)} ${esc(String(q.ano))}</span>
+          ${fonteDa(q)}
           <span class="selo">${esc(q.materia)}</span>
           ${q.assunto ? `<span class="selo assunto">${esc(q.assunto)}</span>` : ''}
           <span class="selo">questão ${esc(String(i + 1))} de ${questoes.length}</span>
