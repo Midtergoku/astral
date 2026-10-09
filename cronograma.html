@@ -41,6 +41,15 @@
     color: var(--papel); margin-top: .2rem;
   }
   .painel-acoes { display: flex; gap: var(--e2); flex-wrap: wrap; }
+  /* 09/10/2026 (roadmap 3.26): o rebalanceamento -- liga/desliga, "agora" e o aviso de segunda */
+  .rebal {
+    margin-top: var(--e3); padding-top: var(--e3); border-top: 1px solid var(--linha);
+    display: flex; justify-content: space-between; align-items: center; gap: var(--e3); flex-wrap: wrap;
+  }
+  .rebal-texto { margin: 0; font-size: var(--t-sm); color: var(--texto-2); line-height: 1.5; max-width: 62ch; }
+  .rebal-chave { display: inline-flex; align-items: center; gap: .45rem; min-height: 24px; cursor: pointer;
+                 font-size: var(--t-sm); color: var(--texto); }
+  .rebal-chave input { width: 18px; height: 18px; accent-color: var(--latao); }
   .acao {
     background: transparent; border: 1px solid var(--linha); color: var(--texto);
     border-radius: var(--r-p); padding: .55rem .9rem; cursor: pointer;
@@ -408,6 +417,7 @@
               <button class="acao" id="editar" type="button">Editar semana</button>`}
           </div>
         </div>
+        ${rascunho ? '' : rebalHTML()}
         <dl class="resumo">
           <div><dt>Sessões</dt><dd>${blocos.length}</dd></div>
           <div><dt>Tempo</dt><dd>${hm(totalMin)}</dd></div>
@@ -488,6 +498,13 @@
       render();
     });
     $('cancelar')?.addEventListener('click', () => { rascunho = null; render(); });
+    $('rebal-auto')?.addEventListener('change', async (e) => {
+      const auto = e.target.checked;
+      await rebalancear({ auto }, auto
+        ? 'Rebalanceamento automático ligado: toda segunda, sozinho.'
+        : 'Rebalanceamento automático desligado: a semana só muda quando você pedir.');
+    });
+    $('rebal-agora')?.addEventListener('click', () => rebalancear({}, 'Cronograma rebalanceado pelo seu domínio de agora.'));
     $('automatico')?.addEventListener('click', async () => {
       rascunho = null;
       await gravar({ ...normalizarRotina(rotina), semana: null }, 'De volta ao cronograma automático.');
@@ -515,10 +532,52 @@
     }));
   }
 
+  /* 09/10/2026 (roadmap 3.26, pedido dele): o rebalanceamento.
+     A semana usa o RETRATO do dominio (medida.semana). Automatico: o retrato e tirado toda
+     segunda (ou no ultimo "Rebalancear agora", se for depois). Desligado: so quando a pessoa
+     pede. Quem decide o corte e o servidor (corte_do_rebalanceio); aqui so se grava a escolha
+     em rotina.rebalanceio = { auto, em } e se relê as materias com o retrato novo. */
+  function rebalHTML() {
+    const rb = rotina?.rebalanceio || {};
+    const auto = rb.auto !== false;
+    const quando = rb.em ? new Date(rb.em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : null;
+    const texto = auto
+      ? `Toda segunda o cronograma se rebalanceia sozinho pelo seu domínio: a matéria mais fraca ganha mais tempo.${quando ? ` Último ajuste feito por você: ${quando}.` : ''}`
+      : `O rebalanceamento automático está desligado: a semana só muda quando você tocar em <strong>Rebalancear agora</strong>.${quando ? ` Último ajuste: ${quando}.` : ''}`;
+    return `
+        <div class="rebal">
+          <p class="rebal-texto">${texto}</p>
+          <div class="painel-acoes">
+            <label class="rebal-chave"><input type="checkbox" id="rebal-auto"${auto ? ' checked' : ''}> Rebalancear sozinho toda segunda</label>
+            <button class="acao" id="rebal-agora" type="button">Rebalancear agora</button>
+          </div>
+        </div>`;
+  }
+
+  async function rebalancear(muda, mensagem) {
+    const atual = rotina?.rebalanceio || {};
+    // desligar "congela" o plano no dominio de agora; ligar ou "agora" tira o retrato agora
+    const rb = { auto: muda.auto ?? (atual.auto !== false), em: new Date().toISOString() };
+    try {
+      await salvarRotina(uid, { ...normalizarRotina(rotina), ...(rotina || {}), rebalanceio: rb,
+        respondidoEm: rotina?.respondidoEm || new Date().toISOString() });
+      rotina = { ...(rotina || {}), rebalanceio: rb };
+      // o servidor recalculou o retrato na mesma gravacao: rele as materias
+      const dados = await carregarProgresso(uid);
+      materias = (dados?.materias || []).filter((m) => m && m.nome);
+      toast(mensagem);
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+    render();
+  }
+
   async function gravar(nova, mensagem) {
     try {
-      await salvarRotina(uid, { ...nova, respondidoEm: nova.respondidoEm || rotina?.respondidoEm || new Date().toISOString() });
-      rotina = nova;
+      // a escolha do rebalanceamento NAO se perde ao ajustar a rotina ou editar a semana
+      await salvarRotina(uid, { ...nova, rebalanceio: nova.rebalanceio ?? rotina?.rebalanceio,
+        respondidoEm: nova.respondidoEm || rotina?.respondidoEm || new Date().toISOString() });
+      rotina = { ...nova, rebalanceio: nova.rebalanceio ?? rotina?.rebalanceio };
       toast(mensagem);
     } catch (e) {
       toast(e.message, 'error');
