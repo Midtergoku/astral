@@ -17,7 +17,7 @@
   <link rel="preload" href="/assets/fontes/archivo-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="preload" href="/assets/fontes/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <meta name="robots" content="noindex"/>   <!-- area logada / ferramenta: fora da busca -->
-  <link rel="stylesheet" href="assets/css/app.css?v=023f3137" />
+  <link rel="stylesheet" href="assets/css/app.css?v=101e8d05" />
 <style>
 
 
@@ -3081,6 +3081,10 @@ function verificarBalanco() {
       <div id="ef-linhas">${estado.materias.map(linhaDaCorrecao).join('')}</div>
       <button type="button" class="ef-mais" id="ef-mais">+ Adicionar matéria</button>
       <div class="ef-soma" id="ef-soma"></div>
+      <!-- 09/10/2026 (auditoria GAM-06, decisao dele): tirar materia muda o cronograma, nao as
+           condecoracoes -- elas contam as materias da LEITURA do edital (materias_para_medalhas). -->
+      <p class="ef-dica" style="margin:0">Tirar uma matéria muda o seu <strong>cronograma</strong>, não as suas
+        <strong>condecorações</strong>: elas continuam contando todas as matérias que vieram na leitura do edital.</p>
       <div class="ef-erro" id="ef-erro" role="alert"></div>
       <div class="ef-acoes">
         <button type="submit" class="edital-btn ef-salvar">Salvar correção</button>

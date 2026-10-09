@@ -30,9 +30,19 @@ body {
   display: flex;
 }
 
+/* 09/10/2026 (roadmap 3.28, pedido dele): era min-height: 100vh, SEM rolagem propria. A barra
+   e fixa: numa tela baixa (notebook, ou zoom do Windows no PC do servico dele) o que passava da
+   altura ficava cortado -- "sumiram algumas opcoes, nao podendo rolar para baixo". Agora a altura
+   e a da tela e, se nao couber, a BARRA rola sozinha (a pagina nao rola junto). */
 .sidebar {
   width: var(--sidebar-w);
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--linha) transparent;
   background: var(--surface);
   border-right: 1px solid var(--border);
   border-top: 2px solid var(--purple);
@@ -284,4 +294,12 @@ body.saindo .main { animation: pageExit 150ms var(--saida) forwards; }
   font-size: .84rem;
   line-height: 1.6;
   color: var(--muted, #8a8a99);
+}
+
+/* 09/10/2026 (roadmap 3.28): tela baixa -- aperta o espaco da barra antes de precisar rolar.
+   So o respiro muda; o alvo de toque de cada item continua acima de 24 px. */
+@media (max-height: 720px) and (min-width: 769px) {
+  .sidebar { padding-top: 1rem; padding-bottom: .75rem; }
+  .sidebar-logo { margin-bottom: 1rem; }
+  .sidebar .nav-link { padding-top: .45rem; padding-bottom: .45rem; }
 }

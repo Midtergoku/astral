@@ -112,6 +112,56 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(62)} ${d}`); fal
       ? ok("🎯 gravadas: Sentinela (35 min medidos) — nenhuma de sessão longa", "sincronizar_conquistas")
       : falha("condecoracoes de sessao longa gravadas sem cronometro (ou Sentinela nao gravada)", longasGravadas.join(", ") || lista.slice(0, 120));
 
+    // ── GAM-06: tirar materia nao ajuda nas medalhas (decisao dele, 09/10: opcao 1) ──
+    console.log("\n  matérias do edital (GAM-06):");
+    const pdf = Buffer.from(`%PDF-1.4\n% trapaca-${Date.now()}\n1 0 obj << /Type /Pages /Count 3 >> endobj\n%%EOF\n`);
+    const hashPdf = crypto.createHash("sha256").update(pdf).digest("hex");
+    const LIDAS = ["Português", "Matemática", "História", "Geografia"];
+    try {
+      await req("/rest/v1/editais_lidos", { method: "POST", headers: { ...admin, Prefer: "return=minimal" },
+        body: JSON.stringify({ hash: hashPdf, paginas: 3, resultado: { concurso: "Teste Trapaca GAM-06", dataProva: null, forca: "exercito", patenteInicial: null,
+          materias: LIDAS.map((nome) => ({ nome, questoes: 10, peso: 25 })) } }) });
+      const leu = await fetch(`${BASE}/functions/v1/processar-edital`, { method: "POST", headers: cab, body: JSON.stringify({ pdfBase64: pdf.toString("base64") }) });
+      const lido = (await req(`/rest/v1/progresso?usuario_id=eq.${uid}&select=edital_lido`, { headers: admin })).corpo?.[0]?.edital_lido;
+      leu.ok && lido === hashPdf ? ok("🎯 o servidor anota qual leitura a conta recebeu", "edital_lido = hash da leitura")
+        : falha("o servidor nao anotou a leitura", `HTTP ${leu.status}, edital_lido ${lido}`);
+      // o aluno tenta apagar a anotacao pela API (a coluna nao e dele)
+      const forja = await req(`/rest/v1/progresso?usuario_id=eq.${uid}`, { method: "PATCH", headers: { ...cab, Prefer: "return=minimal" }, body: JSON.stringify({ edital_lido: "f".repeat(64) }) });
+      const depois = (await req(`/rest/v1/progresso?usuario_id=eq.${uid}&select=edital_lido`, { headers: admin })).corpo?.[0]?.edital_lido;
+      depois === hashPdf ? ok("🎯 o aluno NÃO consegue trocar a leitura anotada", `HTTP ${forja.status}`) : falha("o aluno trocou a leitura anotada", String(depois));
+
+      // a lista do aluno: as 4, depois so Portugues (tirou 3)
+      const gravar = (lista) => rpc("salvar_progresso", { p_xp: 0, p_streak: 0, p_horas: 0, p_edital: { nome: "Teste Trapaca GAM-06", forca: "exercito", patenteInicial: null, hash: hashPdf },
+        p_materias: lista.map((nome) => ({ nome, peso: Math.round(100 / lista.length), progresso: 0 })), p_cronograma_hoje: [], p_badges: [], p_tag_escolhida: null });
+      await gravar(["Português"]);
+      const f6 = (await rpc("fatos_do_usuario")).corpo;
+      const tiradas = (f6?.materias || []).filter((m) => m.tirada);
+      (f6?.materias || []).length === 4 && tiradas.length === 3
+        ? ok("🎯 tirou 3 matérias: as medalhas continuam contando as 4", `${tiradas.map((m) => m.nome).join(", ")} (tiradas)`)
+        : falha("tirar materia encolheu a lista das medalhas", JSON.stringify((f6?.materias || []).map((m) => m.nome)));
+      const amp = f6?.atributos?.amplitude?.porque || "";
+      /de 4 matéria/.test(amp) ? ok("a Amplitude conta as 4 do edital lido", amp) : falha("a Amplitude conta so a lista do aluno", amp);
+      const minha = (await req(`/rest/v1/progresso?usuario_id=eq.${uid}&select=materias`, { headers: admin })).corpo?.[0]?.materias || [];
+      minha.length === 1 ? ok("o cronograma segue a lista do aluno (1 matéria)", "tirar muda o plano") : falha("a lista do aluno mudou", JSON.stringify(minha.map((m) => m.nome)));
+
+      // renomear nao e tirar
+      await gravar(LIDAS);
+      await rpc("renomear_materias", { p_trocas: [{ de: "Português", para: "Língua Portuguesa" }] });
+      const f7 = (await rpc("fatos_do_usuario")).corpo;
+      const nomes7 = (f7?.materias || []).map((m) => `${m.nome}${m.tirada ? "*" : ""}`);
+      nomes7.length === 4 && !nomes7.some((n) => n.endsWith("*"))
+        ? ok("🎯 renomear (Português → Língua Portuguesa) não conta como tirar", nomes7.join(", "))
+        : falha("renomear virou materia tirada", nomes7.join(", "));
+      // renomear e DEPOIS tirar: continua contando, com o nome novo
+      await gravar(["Matemática", "História", "Geografia"]);
+      const f8 = (await rpc("fatos_do_usuario")).corpo;
+      const t8 = (f8?.materias || []).filter((m) => m.tirada).map((m) => m.nome);
+      t8.length === 1 && t8[0] === "Língua Portuguesa" ? ok("renomear e depois tirar: continua contando, com o nome novo", t8[0])
+        : falha("renomear e depois tirar escapou", JSON.stringify(t8));
+    } finally {
+      await req(`/rest/v1/editais_lidos?hash=eq.${hashPdf}`, { method: "DELETE", headers: admin });
+    }
+
     // ── GAM-09 e GAM-13: o segredo e o total de divisas ─────────────────────
     console.log("\n  divisas (GAM-09, GAM-13):");
     const div = (await req(`/rest/v1/catalogo_divisas?id=eq.reintegrado&select=secreta,como_ganha`, { headers: admin })).corpo[0];
