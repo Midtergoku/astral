@@ -646,6 +646,11 @@ for (const p of paginas) {
   if (!/assets\/js\/divisa\.js/.test(html)) {
     anota('divisa', p, 'tem o lugar da divisa (data-divisa) mas nao carrega assets/js/divisa.js -- a patente nunca aparece');
   }
+  /* e o canto direito tem de ser IRMAO do bloco do titulo. Em 4 telas ele foi colado logo depois do
+     subtitulo, ainda DENTRO do bloco da esquerda -- a divisa saia embaixo do subtitulo, a esquerda. */
+  if (/class="page-sub"[^>]*>[^<]*<\/(?:div|p)>\s*<div class="topbar-right"/.test(html)) {
+    anota('divisa', p, 'o topbar-right esta DENTRO do bloco do titulo (logo depois do page-sub) -- a divisa sai fora do canto');
+  }
 }
 
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
