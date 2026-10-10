@@ -41,12 +41,12 @@ main {
   gap: 0.65rem;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--r-g);
+  border-radius: var(--r-p);
   padding: 0.85rem;
   color: var(--text);
-  font-family: var(--corpo);
+  font-family: var(--display);
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s;
   margin-bottom: 1.25rem;
@@ -111,9 +111,13 @@ input:focus {
   color: var(--breu);
   border: none;
   padding: 0.9rem;
-  border-radius: var(--r-g);
-  font-family: var(--corpo);
-  font-weight: 600;
+  border-radius: var(--r-p);
+  /* 10/10/2026 (V5): botao e --display (Archivo), como no app -- era a letra do texto corrido. A tabela de
+     tipos do sistema (paginas.md 7) diz: Archivo para titulo, patente e BOTAO. Grande e de largura toda fica:
+     na tela de entrada ele e a acao unica. */
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: .02em;
   font-size: var(--t-md);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
