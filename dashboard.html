@@ -957,6 +957,27 @@ body.primeiro-acesso .grid-3 { display: none; }
 .prova-passada { border-color: color-mix(in srgb, var(--latao) 40%, var(--linha)); }
 .prova-passada p { margin: .35rem 0 var(--e3); color: var(--texto-2); font-size: var(--t-sm); line-height: 1.5; max-width: 66ch; }
 .prova-passada-acoes { display: flex; gap: var(--e2); flex-wrap: wrap; }
+/* 10/10/2026 (roadmap 3.22): o "Passei!" -- fundo de latao leva letra --breu (contraste, paginas.md 10) */
+.btn-passei {
+  background: var(--latao-c); color: var(--breu); border: none; border-radius: var(--r-p);
+  padding: .5rem 1rem; min-height: 40px; cursor: pointer;
+  font-family: var(--display); font-weight: 700; font-size: .85rem;
+}
+.prova-passada.aprovado { border-color: var(--latao); }
+.passei label { display: block; font-size: var(--t-sm); color: var(--texto-2); margin: var(--e3) 0 var(--e1); }
+.passei input[type="text"], .passei textarea {
+  width: 100%; background: var(--casco-2); border: 1px solid var(--linha); border-radius: var(--r-p);
+  color: var(--texto); font: inherit; font-size: var(--t-sm); padding: .55rem .65rem; min-height: 40px;
+}
+.passei textarea { min-height: 6rem; resize: vertical; }
+.passei .passei-autoriza { display: flex; gap: .5rem; align-items: flex-start; font-size: var(--t-xs); color: var(--texto-2); margin-top: var(--e2); line-height: 1.45; }
+.passei .passei-autoriza input { width: 18px; height: 18px; margin-top: .1rem; accent-color: var(--latao); flex-shrink: 0; }
+.passei-acoes { display: grid; gap: var(--e2); margin-top: var(--e4); }
+.passei-acoes .transferencia-ok { margin-top: 0; }
+.passei-secundario {
+  min-height: 44px; border: 1px solid var(--linha); border-radius: var(--r-p); background: transparent;
+  color: var(--texto); font-family: var(--display); font-weight: 600; font-size: var(--t-sm); cursor: pointer;
+}
 /* 09/10/2026 (EDI-04): a falha da leitura fica escrita, nao so num aviso que some */
 .upload-falha { margin: 0 0 1rem; padding: .7rem .9rem; border-radius: var(--r-p); text-align: left;
   border: 1px solid color-mix(in srgb, var(--brasa) 55%, var(--linha));
@@ -1502,6 +1523,8 @@ body.primeiro-acesso .grid-3 { display: none; }
       <div class="section-title">Prova realizada</div>
       <p id="prova-passada-texto"></p>
       <div class="prova-passada-acoes">
+        <!-- 10/10/2026 (roadmap 3.22, decisao 17): o fim da jornada -->
+        <button class="btn-passei" id="prova-passei" type="button">Passei!</button>
         <button class="edital-btn" id="prova-proximo" type="button">Subir o próximo edital</button>
         <button class="edital-btn" id="prova-corrigir" type="button">A data está errada</button>
       </div>
@@ -2083,6 +2106,7 @@ function mostrarLevelUp(nomeNivel) {
           `${pp.nome} foi em ${pp.data}. Vai prestar outro concurso? Suba o edital novo — XP, patente e condecorações vão junto. `
           + 'Se a data estiver errada, corrija e o cronograma volta a contar com ela.';
         document.getElementById('prova-passada').hidden = false;
+        await mostrarSeJaPassou();
       }
       return;
     }
@@ -3009,6 +3033,80 @@ function verificarBalanco() {
   });
 
   document.getElementById('prova-proximo')?.addEventListener('click', () => document.getElementById('edital-trocar')?.click());
+
+  /* ── "PASSEI!" (10/10/2026, roadmap 3.22 -- jornada 7; decisao 17 dele: "Concordo") ──────────
+     O fim da jornada: quem passou ganha um momento seu, conta como foi (se quiser) e escolhe o que
+     vem agora. O depoimento e PRIVADO -- aprovacoes, RLS so do dono. `pode_publicar` nasce falso e
+     so muda se a pessoa marcar. Mostrar depoimento em pagina publica e decisao do dono do Astral
+     (guardado para ele) -- aqui nada e publicado. */
+  const concursoAtual = () => String(estado.edital?.nome || '').slice(0, 200);
+  async function mostrarSeJaPassou() {
+    const nome = concursoAtual();
+    if (!nome) return false;
+    const { data } = await supabase.from('aprovacoes').select('concurso').eq('concurso', nome).maybeSingle();
+    if (!data) return false;
+    const cartao = document.getElementById('prova-passada');
+    cartao.classList.add('aprovado');
+    cartao.querySelector('.section-title').textContent = 'Aprovado';
+    document.getElementById('prova-passada-texto').textContent =
+      `Você passou em ${data.concurso}. Vai prestar outro concurso? Suba o edital novo — XP, patente e condecorações vão junto.`;
+    document.getElementById('prova-passei').hidden = true;
+    return true;
+  }
+  document.getElementById('prova-passei')?.addEventListener('click', () => abrirPassei().catch((e) => relatar(e, 'dashboard/passei')));
+  async function abrirPassei() {
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!quieto && typeof dispararConfete === 'function') dispararConfete();
+    const caixa = document.createElement('dialog');
+    caixa.className = 'transferencia passei';
+    caixa.setAttribute('aria-labelledby', 'passei-titulo');
+    caixa.innerHTML = `
+      <div class="transferencia-rotulo">Fim da jornada</div>
+      <h2 id="passei-titulo">Aprovado.</h2>
+      <p>Cada sessão no cronômetro, cada questão respondida, cada semana de cronograma — trouxe você até aqui. Parabéns.</p>
+      <label for="passei-concurso">Concurso</label>
+      <input type="text" id="passei-concurso" maxlength="200" autocomplete="off" value="${att(concursoAtual())}"/>
+      <label for="passei-depoimento">Quer contar como foi? (opcional)</label>
+      <textarea id="passei-depoimento" maxlength="1000" placeholder="O que mais ajudou, o que você faria diferente…"></textarea>
+      <label class="passei-autoriza"><input type="checkbox" id="passei-autoriza"/>
+        <span>Autorizo o Astral a mostrar este depoimento, com o meu primeiro nome, para quem está estudando. Sem marcar, só você lê.</span></label>
+      <div class="passei-acoes">
+        <button type="button" class="transferencia-ok" id="passei-guardar">Guardar minha aprovação</button>
+        <button type="button" class="passei-secundario" id="passei-fechar">Agora não</button>
+      </div>`;
+    document.body.appendChild(caixa);
+    caixa.showModal();
+    const fechar = () => { caixa.close(); caixa.remove(); };
+    caixa.querySelector('#passei-fechar').addEventListener('click', fechar);
+    caixa.addEventListener('cancel', () => caixa.remove());
+    caixa.querySelector('#passei-guardar').addEventListener('click', async () => {
+      const concurso = caixa.querySelector('#passei-concurso').value.trim().slice(0, 200);
+      const depoimento = caixa.querySelector('#passei-depoimento').value.trim().slice(0, 1000) || null;
+      const pode_publicar = caixa.querySelector('#passei-autoriza').checked && !!depoimento;
+      if (!concurso) { toast('Diga em qual concurso você passou.', 'error'); return; }
+      // grava; se este concurso ja foi guardado, muda so o depoimento e a autorizacao (as duas colunas
+      // que o aluno pode alterar -- upsert pediria permissao nas outras tambem e o banco recusa)
+      let { error } = await supabase.from('aprovacoes').insert({ usuario_id: estado.usuario.id, concurso, depoimento, pode_publicar });
+      if (error && error.code === '23505') {
+        ({ error } = await supabase.from('aprovacoes').update({ depoimento, pode_publicar })
+          .eq('usuario_id', estado.usuario.id).eq('concurso', concurso));
+      }
+      if (error) { relatar(error, 'dashboard/passei-gravar'); toast('Não consegui guardar agora. Tente de novo em instantes.', 'error'); return; }
+      // o que vem agora
+      caixa.innerHTML = `
+        <div class="transferencia-rotulo">Guardado</div>
+        <h2 id="passei-titulo">E agora?</h2>
+        <p>Sua aprovação em <b>${esc(concurso)}</b> fica na sua conta. Se for prestar outro concurso, o Astral começa de onde você está —
+          XP, patente e condecorações vão junto.</p>
+        <div class="passei-acoes">
+          <button type="button" class="transferencia-ok" id="passei-proximo">Vou prestar outro concurso</button>
+          <button type="button" class="passei-secundario" id="passei-fim">Só queria comemorar</button>
+        </div>`;
+      caixa.querySelector('#passei-proximo').addEventListener('click', () => { fechar(); document.getElementById('edital-trocar')?.click(); });
+      caixa.querySelector('#passei-fim').addEventListener('click', fechar);
+      mostrarSeJaPassou().catch(() => {});
+    });
+  }
   document.getElementById('prova-corrigir')?.addEventListener('click', () => abrirCorrecao());
 
   document.getElementById('edital-remover')?.addEventListener('click', async () => {
