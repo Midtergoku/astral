@@ -64,6 +64,8 @@ O que falta é só o que ele mandou deixar por último (Lote 5: crédito, pagame
 Lote 4: e-mail) e o canal de suporte (guardado, item 4). **Bateria 10/10: 91 de 92** — a falha (contraste das
 divisas oliva em Minhas tags) foi consertada e medida de novo: 100. Contas de teste na produção: **0**.
 
+**Depois disso (10/10, ~04h–05h):** V5 fechado (botões das telas de entrada na letra do sistema, © 2025 → 2026); "hoje" de São Paulo no campo de nascimento (verifica item 22); testa-ficha e testa-consentimento sem alarme falso; velocidade das telas públicas medida (todas "bom"). **Lote D: só faltam o V4 (dele) e o D.marca (criação nova, ele precisa ver).**
+
 **Gamificação:** do painel do RPG só faltam o R4 (simulado — guardado, item 5) e o R14 (raridade — adiado por ele,
 dispara sozinho com 200 usuários). V7 está, na prática, feito pelos R0–R15.
 
