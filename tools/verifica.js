@@ -638,6 +638,15 @@ for (const p of paginas) {
   if (!/assets\/js\/transicao\.js/.test(html)) {
     anota('recolher', p, 'tem barra lateral mas nao carrega assets/js/transicao.js -- a troca de pagina da um pulo seco');
   }
+  /* 10/10/2026: e o "Encerrar sessao" tem de estar LIGADO -- onclick="fazerLogout()" no botao, ou o id btn-sair com
+     addEventListener('click', fazerLogout). Quadro, Questoes, Instrucao e TAF tinham o botao solto: clicar nao fazia
+     nada (medido clicando nas 15 telas). O importar teve a mesma falha em 09/10. */
+  const botaoSair = (html.match(/<button[^>]*class="btn-logout"[^>]*>/) || [])[0] || '';
+  const ligado = /onclick="fazerLogout\(\)"/.test(botaoSair)
+    || (/id="btn-sair"/.test(botaoSair) && /getElementById\('btn-sair'\)\??\.addEventListener\('click',\s*fazerLogout\)/.test(html));
+  if (botaoSair && !ligado) {
+    anota('recolher', p, 'o botao "Encerrar sessao" nao esta ligado a fazerLogout -- clicar nao faz nada');
+  }
 }
 
 /* ── 21. QUEM RESERVA O LUGAR DA DIVISA CARREGA O divisa.js ─────────────────
@@ -695,7 +704,7 @@ const GRUPOS = {
   caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
   controle: 'Caractere de controle gravado dentro do codigo',
   ordem:    'Menu lateral em ordem diferente entre paginas',
-  recolher: 'Pagina com barra lateral sem menu.js (botao de recolher) ou sem transicao.js (pulo seco)',
+  recolher: 'Barra lateral incompleta: sem menu.js, sem transicao.js ou com o Encerrar sessao solto',
   divisa:   'Lugar da divisa sem o divisa.js (a patente nunca aparece)',
   hojesp:   '"Hoje" calculado no dia de Londres em vez do de Sao Paulo',
 };
