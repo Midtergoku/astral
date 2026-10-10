@@ -63,7 +63,16 @@ const servidor = http.createServer((q, r) => {
   r.end(reescrever(arq, fs.readFileSync(arq)));
 });
 
+/* 10/10/2026: entre 00h e 01h de SP, a sessao que o teste marca agora (40 min) COMECOU ontem e conta
+   para ontem (regra do 3.9) -- as missoes de HOJE nao mudam. Falso alarme visto as 00h15. */
+const pertoDaMeiaNoite = () => ((Date.now() - 3 * 3600e3) % 86400000) / 60000 < 60;
+
 (async () => {
+  // quase tudo aqui e "estudou HOJE": entre 00h e 01h de SP o teste inteiro nao prova nada (ver acima)
+  if (pertoDaMeiaNoite()) {
+    console.log("\nTESTA-MISSOES-TELA -- pulado: entre 00h e 01h de São Paulo as sessões de agora contam para ontem. Rode depois das 01h.");
+    process.exit(0);
+  }
   let usuario = null, nav = null, ctx = null;
   await new Promise((r) => servidor.listen(PORTA, r));
   nav = await pw.chromium.launch();
@@ -179,7 +188,8 @@ const servidor = http.createServer((q, r) => {
       const b = await lerAqui();
       if (b.passosFeitos > a.passosFeitos) ok("🎯 marcar a sessão avança a campanha na hora", `${a.passosFeitos} -> ${b.passosFeitos} etapas, sem recarregar`);
       else falha("a campanha só avançou recarregando", `${a.passosFeitos} -> ${b.passosFeitos} · ${String(b.campanha).slice(0, 40)}`);
-      if (b.contas.some((c, i) => c !== a.contas[i])) ok("as contagens das missões mudam na hora", `${a.contas.join(" · ")}  ->  ${b.contas.join(" · ")}`);
+      if (pertoDaMeiaNoite()) ok("(pulado: entre 00h e 01h a sessão de agora conta para ontem)");
+      else if (b.contas.some((c, i) => c !== a.contas[i])) ok("as contagens das missões mudam na hora", `${a.contas.join(" · ")}  ->  ${b.contas.join(" · ")}`);
       else falha("as contagens não mudaram sem recarregar", b.contas.join(" · "));
       if (erros.length) falha("erro de JavaScript ao marcar", erros[0].slice(0, 60));
       await pg.close();
@@ -204,7 +214,8 @@ const servidor = http.createServer((q, r) => {
     if (depois.textos.join() === antes.textos.join()) ok("🔁 as missões do dia NÃO mudaram", "mesmo dia, mesmo sorteio");
     else falha("as missões trocaram no mesmo dia", `${antes.textos.join()} -> ${depois.textos.join()}`);
 
-    if (depois.feitas > 0) ok("🎯 estudar de verdade cumpre missão", `${depois.placar?.trim()} — ${depois.contas.join(" · ")}`);
+    if (pertoDaMeiaNoite()) ok("(pulado: entre 00h e 01h as sessões plantadas agora contam para ontem)");
+    else if (depois.feitas > 0) ok("🎯 estudar de verdade cumpre missão", `${depois.placar?.trim()} — ${depois.contas.join(" · ")}`);
     else falha("estudou e nenhuma missão avançou", depois.contas.join(" · "));
 
     const avancou = depois.contas.some((c, i) => c !== antes.contas[i]);

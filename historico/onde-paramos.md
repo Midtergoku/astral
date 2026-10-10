@@ -1,3 +1,15 @@
+# 🔔 GUARDADO PARA ELE — noite de 09 → 10/10/2026
+
+> Ele foi dormir e mandou seguir sozinho: *"se tiver alguma coisa (...) que necessita da minha autorização, você
+> guarda ela, e pula para frente"*. Cada item abaixo **não foi feito** — espera o "pode" dele. A minha recomendação
+> vem junto.
+
+| # | O que | Por que precisa dele | Minha recomendação |
+|---|---|---|---|
+| 1 | **Apagar do banco** as colunas `progresso.badges` e `progresso.cronograma_hoje` e a função `meu_dominio()` (3.21, COD-03) | Apagar coluna/função é **destrutivo** (regra 8.1). Medido: nenhuma tela e nenhuma função do servidor LÊ essas colunas (só o `salvar_progresso` grava); `meu_dominio` não é chamada por ninguém (só um teste) | **Apagar**, com backup antes e o `salvar_progresso` ajustado na mesma migration. Custo R$ 0. Ganho pequeno (limpeza) — pode esperar |
+
+---
+
 # 🔖 ONDE PARAMOS — 09/10/2026 — LER ISTO PRIMEIRO
 
 > Continua valendo tudo do bloco de 04/10 logo abaixo (o ritmo de trabalho, os lembretes dele).

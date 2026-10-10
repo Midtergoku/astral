@@ -152,9 +152,21 @@ export function conferir(fatos, gravadas = null) {
   const diretas = CONDECORACOES.filter((c) => !['condecoracao', 'todas'].includes(c.condicao?.tipo));
   const dependentes = CONDECORACOES.filter((c) => ['condecoracao', 'todas'].includes(c.condicao?.tipo));
 
+  /* 10/10/2026 (auditoria COD-01, roadmap 3.21): QUEM MANDA E O SERVIDOR. fatos_do_usuario() devolve
+     `progresso` e `progressoDivisas` (0 a 1), calculados por avaliar_condicao -- a mesma conta que
+     concede. A tela usa esses numeros; progressoDe() abaixo so roda quando eles NAO vem (o
+     testa-motor, que testa o motor puro com fatos inventados). O testa-paridade-medalhas confere,
+     numa conta de verdade, que as duas contas dao o mesmo numero -- se alguem consertar so um lado,
+     ele acusa. */
+  const doServidor = fatos && fatos.progresso && typeof fatos.progresso === 'object' ? fatos.progresso : null;
+  const divisasDoServidor = fatos && fatos.progressoDivisas && typeof fatos.progressoDivisas === 'object' ? fatos.progressoDivisas : null;
+  const progressoDaCondecoracao = (c) => (doServidor && c.id in doServidor)
+    ? Math.max(0, Math.min(1, Number(doServidor[c.id]) || 0))
+    : progressoDe(c.condicao, fatos, jaTem);
+
   const avaliadas = new Map();
   for (const c of diretas) {
-    const p = progressoDe(c.condicao, fatos, jaTem);
+    const p = progressoDaCondecoracao(c);
     if (p >= 1) jaTem.add(c.id);
     avaliadas.set(c.id, p);
   }
@@ -175,7 +187,9 @@ export function conferir(fatos, gravadas = null) {
 
   const divisas = DIVISAS.map((d) => {
     const gravada = divisasGravadas.has(d.id);
-    const p = gravada ? 1 : progressoDe(d.condicao, fatos, jaTem);
+    const p = gravada ? 1 : (divisasDoServidor && d.id in divisasDoServidor)
+      ? Math.max(0, Math.min(1, Number(divisasDoServidor[d.id]) || 0))
+      : progressoDe(d.condicao, fatos, jaTem);
     return {
       ...d,
       raridadeInfo: RARIDADES[d.raridade],
