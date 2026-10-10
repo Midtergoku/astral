@@ -29,6 +29,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const PENDENTE = 'astral_aceite_pendente';
+import { hojeSP } from './formato.js';
 const NASC_PENDENTE = 'astral_nascimento_pendente';   // AAAA-MM-DD, do formulario de cadastro
 const VALIDADE_PENDENTE_MS = 3600 * 1000;           // marcou no cadastro ha menos de 1 hora
 /* Uma chave por usuario, com as versoes aceitas como valor. Serve so para a
@@ -108,7 +109,8 @@ export async function garantirConsentimento(supabase, session, { sair } = {}) {
     if (!r.error && r.data?.aceito) { lembrar(uid, v); precisaAceite = false; }
   }
   if (!precisaAceite && !precisaData && !bloqueio) return true;
-  const hoje = new Date().toISOString().slice(0, 10);
+  // 10/10/2026: o dia de SAO PAULO (era o de Londres: das 21h a meia-noite o campo aceitava "amanha")
+  const hoje = hojeSP();
 
   // A tela de aceite.
   return await new Promise((resolver) => {

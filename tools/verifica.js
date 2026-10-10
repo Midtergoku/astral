@@ -653,6 +653,21 @@ for (const p of paginas) {
   }
 }
 
+/* ── 22. O "HOJE" E O DE SAO PAULO ──────────────────────────────────────────
+   10/10/2026. `new Date().toISOString().slice(0, 10)` e o dia de LONDRES (UTC):
+   das 21h a meia-noite no Brasil ja e amanha. O campo de nascimento (Criar conta
+   e a tela de aceite) aceitava "amanha" como data maxima. O servidor usa
+   America/Sao_Paulo; a tela usa hojeSP() de assets/js/formato.js. Recusa o
+   padrao quando ele vira "hoje" ou o maximo de um campo de data. */
+{
+  const UTC_COMO_HOJE = /(?:\bhoje\w*\s*=|\.max\s*=)\s*new Date\(\)\.toISOString\(\)\.(?:slice\(0,\s*10\)|split\(['"]T['"]\)\[0\])/;
+  const alvos = [...paginas, ...fs.readdirSync(path.join(RAIZ, 'assets', 'js')).filter((f) => f.endsWith('.js') && !/supabase-|pdf-/.test(f)).map((f) => 'assets/js/' + f)];
+  for (const p of alvos) {
+    const txt = ler(p);
+    if (UTC_COMO_HOJE.test(txt)) anota('hojesp', p, 'usa o dia de Londres (toISOString) como "hoje" -- das 21h a meia-noite ja e amanha. Usar hojeSP() de formato.js');
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -677,6 +692,7 @@ const GRUPOS = {
   ordem:    'Menu lateral em ordem diferente entre paginas',
   recolher: 'Pagina com barra lateral sem o botao de recolher (menu.js)',
   divisa:   'Lugar da divisa sem o divisa.js (a patente nunca aparece)',
+  hojesp:   '"Hoje" calculado no dia de Londres em vez do de Sao Paulo',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');

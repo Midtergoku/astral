@@ -196,7 +196,8 @@
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            captchaSobDemanda, captchaPendente, tokenCaptcha, resetarCaptcha, olhinhoDeSenha }
     from './assets/js/astral.js?v=224dc907';
-  import { marcarAceiteNoCadastro, esquecerAceiteDoCadastro, marcarNascimentoNoCadastro } from './assets/js/consentimento.js?v=25b8c37d';
+  import { marcarAceiteNoCadastro, esquecerAceiteDoCadastro, marcarNascimentoNoCadastro } from './assets/js/consentimento.js?v=5235c8d3';
+  import { hojeSP } from './assets/js/formato.js?v=98782d1d';
 
   olhinhoDeSenha('senha');
 
@@ -217,12 +218,13 @@
   /* 03/10/2026 (LGL-02): a idade e conferida aqui por gentileza (aviso antes de
      criar a conta); quem decide e o servidor (registrar_nascimento), no portao. */
   const campoNasc = document.getElementById('nascimento');
-  campoNasc.max = new Date().toISOString().slice(0, 10);
+  // 10/10/2026: o dia de SAO PAULO (era o de Londres: das 21h a meia-noite o campo aceitava "amanha")
+  campoNasc.max = hojeSP();
   function idadeDe(iso) {
     const [a, m, d] = String(iso || '').split('-').map(Number);
     if (!a || !m || !d) return null;
-    const h = new Date();
-    return h.getFullYear() - a - ((h.getMonth() + 1 < m || (h.getMonth() + 1 === m && h.getDate() < d)) ? 1 : 0);
+    const [ha, hm, hd] = hojeSP().split('-').map(Number);   // o mesmo dia que o servidor usa
+    return ha - a - ((hm < m || (hm === m && hd < d)) ? 1 : 0);
   }
   const MENOR_DE_16 = 'O Astral é para quem tem 16 anos ou mais. A conta não foi criada.';
 
