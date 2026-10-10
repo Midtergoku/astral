@@ -25,7 +25,26 @@
 | Ferramentas novas | `testa-lighthouse` (precisa do CLI: `npm i chrome-devtools-mcp@latest -g`), `testa-trapaca`, `testa-escada`, `testa-barra-lateral`, `testa-rebalanceio`, `testa-materias-estudadas`; o `testa-acessivel` ganhou as regras da Vercel |
 | Ele pediu | **tudo em português do Brasil, sempre** (memória `sempre-em-portugues`) |
 
-## ▶️ PRÓXIMO: Lote D (design) ou Lote 4 — ver o topo do ROADMAP (ordem decidida por ele: Lote 3 primeiro, design depois)
+## ▶️ 10/10/2026 (manhã, sozinho) — Lote D andando: V1 ✅ · V2 ✅ · V5 parte 1 e 2
+
+| Commit | O quê |
+|---|---|
+| `3f8c6d9` | **V1 ✅** — 125 raios de borda viraram os 2 tokens |
+| `164c87c` | **V2 parte 1** — `.main/.topbar/.page-sub/.card` saem de 7 páginas; cascata de cartões nas 15 telas; **achado: o aviso "não consegui carregar" do painel nunca teve a borda vermelha** (cópia do `.card` apagava) |
+| `d661136` | **V2 parte 2** — um toast só: pedia a fonte morta 'Inter', o do painel mostrava "✓" em erro, o da conta aparecia 6 px |
+| `b0d07fa` | **V2 parte 3** — botão principal do app é `.btn .btn-roxo`; a casca ganhou o estado *desligado* |
+| `79afe3c`, `91182d1` | **V5 partes 1 e 2** — `assets/css/entrada.css`: 37 regras das telas de entrada num lugar só, 0 diferença na tela |
+
+**Régua nova:** `node tools/compara-estilo.js [--resumo] [--controle] [-- paginas]` — estilo calculado de cada elemento,
+disco × ref. Controle: 0 em 4.712. É a prova de toda refatoração de CSS daqui em diante (paginas.md 17).
+
+**Ficou para decisão com olho (não é urgente):** o botão principal das telas de entrada (`.btn-primary` largo, letra do
+corpo) é diferente do `.btn-roxo` do app. Trocar muda a cara da 1ª tela que o aluno vê — anotei no ROADMAP (V5).
+
+**Próximo do design:** V6 (telas do app, uma a uma — **Minha conta primeiro**, pedido dele) e V7 (gamificação — ler a
+skill antes: muito é de propósito). V4 (página inicial) espera ele: o que a página promete é decisão dele.
+
+## (anterior) PRÓXIMO: Lote D (design) ou Lote 4 — ver o topo do ROADMAP (ordem decidida por ele: Lote 3 primeiro, design depois)
 
 > ✅ **3.25 feito em 10/10** (o Banco respeita estado e cargo). **O Lote 3 terminou** (3.23 parado pela P6).
 
