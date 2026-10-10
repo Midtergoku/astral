@@ -380,3 +380,10 @@ Regressão: `testa-numeros-menores.js` (`ASTRAL_DEV=1`) e `testa-ficha` (Doutrin
 `progresso_das_conquistas(fatos)` (só lê o catálogo) e `fatos_do_usuario()` devolvendo `progresso` (73 condecorações — sem as
 de tipo `condecoracao`/`todas`, que dependem do que já caiu) e `progressoDivisas` (21). ~65 ms no dev.
 **Mudou `avaliar_condicao`? Rodar `testa-paridade-medalhas`** (dev, contas f3-*).
+
+## 8.39. "Passei!" — aprovacoes (10/10/2026, roadmap 3.22) ✅
+
+`aprovacoes` (`usuario_id, concurso, depoimento, pode_publicar, criado_em`; único por pessoa+concurso). RLS do dono; o aluno
+só ALTERA `depoimento` e `pode_publicar` (por isso a tela grava com insert e, se já existe, update — **upsert é recusado**).
+`pode_publicar` nasce falso. Entra em `meus_dados`, no backup e no `painel_de_negocio` (`aprovados`, `depoimentos_autorizados`).
+**Nada mostra depoimento em página pública** — decisão do dono, guardada. Regressão: `testa-passei.js` (dev).
