@@ -116,6 +116,18 @@ function reprovados(r) {
     try { cdt(["stop"], 30000); } catch { /* nao estava rodando */ }
     cdt(["start", "--executablePath", exe, "--headless", "--isolated", "--no-usage-statistics", "--no-performance-crux"], 90000);
 
+    /* 10/10/2026: a conta e apagada no fim (finally) -- mas quando a bateria MATA o teste pelo tempo, o finally
+       nao roda e a conta fica na PRODUCAO (achado no checklist de lancamento: 1 de 09/10, "Teste Lighthouse ESA").
+       Antes de criar a de hoje, apaga as SOBRAS DESTE TESTE: so este padrao de e-mail, e com mais de 30 min
+       (uma rodada em andamento noutro terminal nao e tocada). */
+    const lista = await req("/auth/v1/admin/users?per_page=1000", { headers: admin });
+    for (const v of (lista.corpo && lista.corpo.users) || []) {
+      if (!/^lighthouse-\d+@astral-teste\.local$/.test(v.email || "")) continue;
+      if (Date.now() - new Date(v.created_at).getTime() < 30 * 60e3) continue;
+      const del = await req(`/auth/v1/admin/users/${v.id}`, { method: "DELETE", headers: admin });
+      console.log(`  (sobra de rodada interrompida apagada: ${v.email.split("@")[0]}, criada ${String(v.created_at).slice(0, 10)} -- HTTP ${del.status})`);
+    }
+
     // conta de verdade com edital, materias, rotina e sessoes: as telas cheias
     const email = `lighthouse-${Date.now()}@astral-teste.local`;
     const u = await req("/auth/v1/admin/users", { method: "POST", headers: admin, body: JSON.stringify({ email, password: "T!" + crypto.randomUUID(), email_confirm: true }) });
