@@ -428,3 +428,12 @@ coluna (`estado.js`, commit `2dd8d87`, no ar); (2) a migration `20261010160000`;
 do `testa-catalogo` só aceitou o tipo por causa das horas). É divisa, não condecoração: a platina não muda.
 Migration `20261010170000` (gerada das definições no ar de `fatos_do_usuario` e `avaliar_condicao`). Tela: `progressoDe`
 (paridade). Regressão: `testa-passei` seção 5 (dev), `testa-catalogo`, `testa-motor`, `testa-paridade-medalhas`.
+
+## 8.44. Depoimentos na página inicial (10/10/2026, guardado 2 — decisão dele, que a 8.39 deixava guardada)
+
+`depoimentos_publicos()` (anon, security definer): **só o que a pessoa autorizou** na caixa do "Passei!" — o TEXTO e o
+PRIMEIRO NOME (nem concurso, nem sobrenome, nem e-mail). Só com **3 ou mais** autorizados; antes, `[]` e a seção da página
+nem aparece. Fora: conta de teste, não autorizado, depoimento com menos de 10 letras. Os 6 mais recentes, até 400 caracteres.
+Página: `assets/js/depoimentos.js` (sem supabase-js; texto por `textContent`). Regressão: `node tools/testa-depoimentos.js` (dev).
+- 💡 Na próxima revisão dos textos legais, citar o depoimento autorizado na Política (hoje o consentimento é a própria caixa,
+  específico; mudar a Política agora pediria o aceite de novo de todo mundo).

@@ -824,6 +824,13 @@
         }
 
         /* ── CTA FINAL ── */
+        /* 10/10/2026: os depoimentos (so com 3+ autorizados) */
+        .dep-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; margin-top: 2rem; }
+        .dep-cartao { margin: 0; background: var(--casco); border: 1px solid var(--linha); border-left: 3px solid var(--latao);
+          border-radius: var(--r-g); padding: 1.25rem 1.35rem; display: flex; flex-direction: column; gap: .85rem; }
+        .dep-cartao blockquote { margin: 0; color: var(--texto); font-size: .98rem; line-height: 1.6; overflow-wrap: anywhere; }
+        .dep-cartao figcaption { font-family: var(--display); font-weight: 700; font-size: .8rem; letter-spacing: .06em;
+          text-transform: uppercase; color: var(--latao-c); }
         .cta-section {
             padding: 6rem 1.5rem;
             text-align: center;
@@ -1327,6 +1334,14 @@
     </section>
 
     <!-- CTA FINAL -->
+    <!-- 10/10/2026 (guardado 2): depoimentos de quem passou. Nasce ESCONDIDA e so aparece com 3 ou mais autorizados
+         (assets/js/depoimentos.js + depoimentos_publicos()). Mostra so o que a pessoa autorizou: o texto e o primeiro nome. -->
+    <section class="section depoimentos" id="depoimentos" hidden aria-labelledby="dep-titulo">
+        <p class="section-label">Quem já passou</p>
+        <h2 class="section-title" id="dep-titulo">Aprovados que estudaram com o Astral</h2>
+        <div class="dep-grade" id="dep-grade"></div>
+    </section>
+
     <section class="cta-section">
         <h2>Seu próximo edital militar merece mais que uma planilha</h2>
         <p>Crie seu plano de estudos em menos de 5 minutos. Grátis para começar.</p>
@@ -1479,6 +1494,7 @@
 <script type="module" src="/assets/js/botoes.js?v=49f97805"></script>
 <!-- 03/10/2026 (NEG-01): anota de onde a pessoa veio, na 1a visita -->
 <script type="module" src="assets/js/origem.js?v=21c1c75f"></script>
+<script type="module" src="assets/js/depoimentos.js?v=58005178"></script>
 </body>
 
 </html>
