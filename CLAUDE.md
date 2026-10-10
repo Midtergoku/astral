@@ -16,7 +16,7 @@ Nicho: concurseiro de carreira militar. Preço anunciado: **R$ 19,90/mês**. Fas
 - **Não há build. Não há npm, `package.json`, React, Next.js ou bundler.** 19 HTMLs com CSS e JS
   inline. É por isso que a CSP precisa de `'unsafe-inline'`, e por isso exemplo em React não cola
   aqui sem tradução.
-- Compartilhado: `assets/css/app.css` · `assets/js/astral.js` (escape, sessão, captcha, toast) ·
+- Compartilhado: `assets/css/app.css` (área logada) · `assets/css/entrada.css` (telas de entrada, desde 10/10) · `assets/js/astral.js` (escape, sessão, captcha, toast) ·
   `estado.js` · `transicao.js`. **`supabase/functions/_shared/comum.ts` afeta as 8 funções.**
 - Supabase (`jjogmcacbdefwiwcyjxp`, sa-east-1) · Vercel (deploy automático do `main`) ·
   Anthropic (`claude-sonnet-4-6`) · Resend · **Mercado Pago** (não Stripe — ele não tem CNPJ).

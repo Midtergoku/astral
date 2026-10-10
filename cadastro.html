@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
 <link rel="stylesheet" href="/assets/css/base.css?v=acb17e6e"/>
+<link rel="stylesheet" href="/assets/css/entrada.css?v=93cc73d9"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Entre na lista de espera</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -30,8 +31,6 @@
   <meta property="og:image:alt" content="Astral — seu edital vira plano de estudo em poucos minutos"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 
     html { scroll-behavior: smooth; }
 
@@ -47,13 +46,6 @@
     }
 
     /* ── NAV ── */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2rem;
-      border-bottom: 1px solid var(--border);
-    }
 
     .logo {
       font-family: var(--display);
@@ -63,7 +55,6 @@
       letter-spacing: -0.02em;
       text-decoration: none;
     }
-    .logo span { color: var(--purple); }
 
     .back-link {
       color: var(--muted);
@@ -75,17 +66,8 @@
       transition: color 0.2s;
       padding-block: .4rem; margin-block: -.4rem;   /* area de toque >= 24 px sem mexer na pagina (04/10, UX-08) */
     }
-    .back-link:hover { color: var(--text); }
 
     /* ── MAIN ── */
-    main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem 1.5rem;
-      position: relative;
-    }
 
     main::before {
       content: '';
@@ -151,12 +133,6 @@
       margin-bottom: 1.1rem;
     }
 
-    label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
     input, select {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -170,8 +146,6 @@
       outline: none;
       appearance: none;
     }
-
-    input::placeholder { color: var(--muted); }
 
     input:focus, select:focus {
       border-color: var(--purple);
@@ -248,13 +222,6 @@
     .av4 { background: var(--brasa-c); color: #fff; }
 
     /* ── SUCCESS STATE ── */
-    .success-state {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 1rem 0;
-    }
 
     .success-icon {
       width: 72px;
@@ -345,13 +312,6 @@
     .back-home:hover { color: var(--text); }
 
     /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 1.5rem;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
 
     /* ── PRIVACY NOTICE ── */
     .privacy-notice {
@@ -384,42 +344,6 @@
     @media (max-width: 520px) {
       .card { padding: 1.75rem 1.25rem; border-radius: var(--r-g); }
       nav { padding: 1rem; }
-    }
-
-    .custom-checkbox {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      min-width: 18px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-p);
-      background: var(--bg);
-      cursor: pointer;
-      position: relative;
-      margin-top: 0.15rem;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .custom-checkbox:hover {
-      border-color: var(--purple-lt);
-    }
-
-    .custom-checkbox:checked {
-      background: var(--purple);
-      border-color: var(--purple);
-    }
-
-    .custom-checkbox:checked::after {
-      content: '';
-      position: absolute;
-      left: 5px;
-      top: 1px;
-      width: 5px;
-      height: 9px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
     }
   </style>
 <script src="/assets/js/movimento.js?v=0396e37b"></script>

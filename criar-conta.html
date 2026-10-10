@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
 <link rel="stylesheet" href="/assets/css/base.css?v=acb17e6e"/>
+<link rel="stylesheet" href="/assets/css/entrada.css?v=93cc73d9"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Criar conta</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -30,8 +31,6 @@
   <meta property="og:image:alt" content="Astral — seu edital vira plano de estudo em poucos minutos"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 
     body {
       background: var(--bg);
@@ -42,14 +41,6 @@
       flex-direction: column;
     }
 
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2rem;
-      border-bottom: 1px solid var(--border);
-    }
-
     .logo {
       font-family: var(--display);
       font-weight: 800;
@@ -57,23 +48,12 @@
       color: var(--white);
       text-decoration: none;
     }
-    .logo span { color: var(--purple); }
 
     .back-link {
       color: var(--muted);
       font-size: 0.85rem;
       text-decoration: none;
       display: inline-block; padding-block: .4rem; margin-block: -.4rem;   /* area de toque >= 24 px sem mexer na pagina (04/10, UX-08) */
-    }
-    .back-link:hover { color: var(--text); }
-
-    main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem 1.5rem;
-      position: relative;
     }
 
     main::before {
@@ -121,48 +101,6 @@
       letter-spacing: -0.02em;
     }
 
-    .card p.subtitle {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 1.75rem;
-    }
-
-    .btn-google {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.65rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-g);
-      padding: 0.85rem;
-      color: var(--text);
-      font-family: var(--corpo);
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      margin-bottom: 1.25rem;
-    }
-    .btn-google:hover { border-color: var(--purple-lt); }
-
-    .google-icon { width: 18px; height: 18px; flex-shrink: 0; }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    .divider span { color: var(--muted); font-size: 0.8rem; }
-
     .form-group {
       display: flex;
       flex-direction: column;
@@ -170,66 +108,11 @@
       margin-bottom: 1rem;
     }
 
-    label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    input {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--r-g);
-      padding: 0.8rem 1rem;
-      color: var(--text);
-      font-family: var(--corpo);
-      font-size: 0.95rem;
-      width: 100%;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input::placeholder { color: var(--muted); }
-    input:focus {
-      border-color: var(--purple);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 15%, transparent);
-    }
-
     .consent-row {
       display: flex;
       align-items: flex-start;
       gap: 0.55rem;
       margin-bottom: 1.25rem;
-    }
-
-    .custom-checkbox {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      min-width: 18px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-p);
-      background: var(--bg);
-      cursor: pointer;
-      position: relative;
-      margin-top: 0.15rem;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .custom-checkbox:hover { border-color: var(--purple-lt); }
-    .custom-checkbox:checked {
-      background: var(--purple);
-      border-color: var(--purple);
-    }
-    .custom-checkbox:checked::after {
-      content: '';
-      position: absolute;
-      left: 5px;
-      top: 1px;
-      width: 5px;
-      height: 9px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
     }
 
     .consent-label {
@@ -240,25 +123,6 @@
     }
     .consent-label a { color: var(--purple-lt); text-decoration: none; }
     .consent-label a:hover { text-decoration: underline; }
-
-    .error-msg {
-      background: color-mix(in srgb, var(--brasa-c) 8%, transparent);
-      border: 1px solid color-mix(in srgb, var(--brasa-c) 25%, transparent);
-      color: var(--red);
-      border-radius: var(--r-p);
-      padding: 0.7rem 1rem;
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-      display: none;
-    }
-
-    .success-state {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 1rem 0;
-    }
 
     .success-icon {
       width: 64px;
@@ -283,30 +147,6 @@
 
     .success-state p { color: var(--muted); font-size: 0.9rem; }
 
-    .btn-primary {
-      width: 100%;
-      background: var(--purple);
-      color: var(--breu);
-      border: none;
-      padding: 0.9rem;
-      border-radius: var(--r-g);
-      font-family: var(--corpo);
-      font-weight: 600;
-      font-size: var(--t-md);
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px color-mix(in srgb, var(--latao) 35%, transparent);
-    }
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
     .spinner {
       display: inline-block;
       width: 14px;
@@ -319,27 +159,6 @@
       margin-right: 0.4rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .bottom-link {
-      text-align: center;
-      margin-top: 1.25rem;
-      font-size: var(--t-sm);
-      color: var(--muted);
-    }
-    .bottom-link a {
-      color: var(--purple-lt);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .bottom-link a:hover { text-decoration: underline; }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 1.5rem;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
 
     /* Celular. Esta pagina era a unica tela de entrada SEM nenhuma media query
        -- medido em 15/09/2026 com navegador de verdade em 360, 375 e 390px.

@@ -81,7 +81,6 @@ const SESSAO = `(() => {
     user:{ id:"00000000-0000-0000-0000-000000000001", email:"t@e.com",
            user_metadata:{ full_name:"Teste Silva" }, aud:"authenticated" },
   }));
-  Math.random = () => 0.42;   // o dashboard sorteia um raio; os dois lados sorteiam igual
 })()`;
 
 // o que a pessoa ve. Animacao e transicao ficam de fora: o estado final e o que importa
@@ -96,7 +95,11 @@ async function medir(nav, lado, pagina, larg) {
   const ctx = await nav.newContext({ viewport: { width: larg.w, height: larg.h }, isMobile: larg.movel, hasTouch: larg.movel, reducedMotion: "reduce" });
   const pg = await ctx.newPage();
   await pg.addInitScript(require("./testes/aceite-de-teste.js").SCRIPT);
-  await pg.addInitScript(SESSAO);
+  await pg.addInitScript("Math.random = () => 0.42;");   // o dashboard sorteia um raio; os dois lados sorteiam igual
+  // sessao falsa so na area logada: entrar/criar conta com sessao aberta pulam para o painel (V5, 10/10)
+  if (/class="sidebar/.test(String(lado.ler(pagina) || ""))) await pg.addInitScript(SESSAO);
+  // nada de fora (captcha, Google): o que vem de terceiro muda sozinho e nao e o que se compara
+  await pg.route((u) => !/^(localhost|127\.0\.0\.1)$/.test(u.hostname) && !/supabase\.co$/.test(u.hostname), (r) => r.abort());
   await pg.route("**/rest/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
   await pg.route("**/functions/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"success":true,"data":{}}' }));
   await pg.route("**/auth/v1/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"id":"00000000-0000-0000-0000-000000000001","email":"t@e.com","user_metadata":{"full_name":"Teste Silva"},"aud":"authenticated"}' }));

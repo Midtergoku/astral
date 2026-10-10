@@ -644,3 +644,6 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
 - **Botão: `class="btn btn-roxo"` (principal) ou `class="btn btn-fantasma"` (secundário)** — aparência, subir, brilho,
   afundar e desligado vêm do `base.css`. Página não redesenha botão; só ajusta largura/alinhamento do dela (`#btn-gerar`).
   `.btn-primary` sobrou só nas telas de entrada (V5) e como 3ª classe no Banco.
+- **Telas de entrada (entrar, criar conta, redefinir senha, lista de espera) carregam `assets/css/entrada.css`** logo depois
+  do `base.css`. Regra repetida entre elas vai para lá — prova com `node tools/compara-estilo.js -- login criar-conta
+  redefinir-senha cadastro` (a régua só finge sessão em página com barra lateral; terceiros são bloqueados).
