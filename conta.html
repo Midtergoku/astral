@@ -42,6 +42,8 @@
 .aviso li { margin-bottom: 0.25rem; }
 .aviso p { margin: 0 0 0.5rem; max-width: 68ch; }
 .aviso p:last-child { margin-bottom: 0; }
+/* link no meio de texto: sublinhado (so a cor nao basta -- paginas.md 12) */
+.section-sub .inline-link { color: var(--latao-c); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
 
 .confirmacao { display: none; margin-top: 1.15rem; }
 .confirmacao input {
@@ -238,6 +240,17 @@
       <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Baixar meus dados
     </button>
+  </div>
+
+  <!-- Ajuda (10/10/2026): o canal de suporte visivel, do checklist de lancamento. Mesmo e-mail dos Termos;
+       com dominio proprio, trocar aqui, no rodape da pagina inicial e nos textos legais. -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="section-title">Precisa de ajuda?</div>
+    <p class="section-sub">
+      Algo não funcionou, uma questão está errada, ou você ficou com dúvida? Escreva para
+      <a class="inline-link" href="mailto:lherdy2003@gmail.com">lherdy2003@gmail.com</a> — quem responde é
+      quem faz o Astral. Conte o que aconteceu e em qual tela; um print ajuda muito.
+    </p>
   </div>
 
   <!-- Excluir -->

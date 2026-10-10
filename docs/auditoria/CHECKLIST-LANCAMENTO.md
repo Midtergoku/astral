@@ -11,10 +11,10 @@
 
 | | Itens |
 |---|---|
-| ✅ provado | **20** |
+| ✅ provado | **21** (o canal de suporte entrou em 10/10, de manhã) |
 | ⏳ depende de dinheiro (Lote 5) | **4** — 1º edital lido, pagamento, Vercel Pro, preço igual ao checkout |
 | ⏳ depende dele em cena (Lote 4) | **1** — e-mail que chega (senha de app do Gmail) |
-| ❓ decisão dele (guardado) | **1** — canal de suporte visível |
+| ❓ decisão dele (guardado) | **0** — o canal de suporte foi feito com o "pode" dele |
 | ✅ com ressalva | **2** — ver as notas |
 
 **O que falta é exatamente o que ele mandou deixar por último:** dinheiro (Lote 5) e o que precisa dele em
@@ -63,7 +63,7 @@ cena (Lote 4). Fora isso, o produto está pronto pela régua da própria auditor
 |---|---|---|
 | ✅ com ressalva | Toda frase da página inicial existe no produto (PRO-02, PRO-03, PRO-04) | 2.12 tirou as 5 promessas sem entrega (03/10); a do "cronograma pelo tempo até a prova" voltou em 09/10 **porque passou a existir** (3.14, com teste). **Ressalva:** "lembretes" só volta com o 4.2, que depende do e-mail (4.1) — e hoje não está prometido |
 | ⏳ | Preço e planos na página inicial iguais aos do checkout | Não há checkout ainda (5.3). Conferir no dia, lado a lado |
-| ❓ | Um canal de suporte visível | **Não há.** O único contato é o e-mail dele, dentro dos Termos. **Guardado para ele** (onde-paramos, item 4): qual endereço e onde aparece. Recomendação: "Precisa de ajuda?" em Minha conta e no rodapé |
+| ✅ | Um canal de suporte visível | **Feito em 10/10, com o "pode" dele:** "Precisa de ajuda?" em Minha conta e no rodapé da página inicial, com o e-mail dos Termos. *Antes:* **Não há.** O único contato é o e-mail dele, dentro dos Termos. **Guardado para ele** (onde-paramos, item 4): qual endereço e onde aparece. Recomendação: "Precisa de ajuda?" em Minha conta e no rodapé |
 | ✅ | Descrição, imagem de prévia e ícone (NEG-03) | `testa-vitrine` (no ar) na bateria |
 | ✅ | Botões principais com contraste ≥ 4,5:1; campos com 16 px (UX-02, UX-03) | `testa-acessivel` (24 páginas, 375 px) + `testa-lighthouse` — **100 de acessibilidade** em todas as telas medidas em 10/10 |
 
