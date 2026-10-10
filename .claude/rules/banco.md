@@ -367,3 +367,10 @@ Migration `20261009140000_vigia_operacao`. **Tudo fechado: só `service_role`.**
   de domínio real só no **dev** (o `testa-painel` faz assim).
 - Número novo no painel: acrescentar **aqui** (uma consulta só), nunca calcular na página.
 - Regressão: `node tools/testa-painel.js` (produção: só a recusa; `ASTRAL_DEV=1`: as contas e a tela).
+
+## 8.37. Uma média de domínio só (09/10/2026, roadmap 3.20 / NUM-08) ✅
+
+**"Domínio médio" no Astral = média PONDERADA pelo peso do edital** (`sum(progresso x peso) / sum(peso)`; sem peso, a simples).
+Usam: `ficha_do_usuario` (Doutrina → Preparo do chefe, "Meio do Caminho"), `fatos_do_usuario.dominioNoTeto` (Doutrina
+Consolidada) e o Progresso ("Domínio pelo peso"). **Conta nova de média de domínio: ponderada.** Peso que não é número vale 0.
+Regressão: `testa-numeros-menores.js` (`ASTRAL_DEV=1`) e `testa-ficha` (Doutrina 38).

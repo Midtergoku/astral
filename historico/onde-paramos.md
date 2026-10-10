@@ -5,13 +5,19 @@
 
 | | |
 |---|---|
-| Feito e no ar | **3.19** (primeiro acesso) · **3.18** (textos legais) · **3.17** (painel do negócio) · **3.16** (sessão e senha) · **3.15** (vigia por e-mail; bateria no dev) · **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
+| Feito e no ar | **3.20** (números menores) · **3.19** (primeiro acesso) · **3.18** (textos legais) · **3.17** (painel do negócio) · **3.16** (sessão e senha) · **3.15** (vigia por e-mail; bateria no dev) · **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
 | Roadmap | **versão 3** no topo do `docs/auditoria/ROADMAP.md`: skill por item, **Lote D (design)** dentro do roadmap, ordem decidida por ele: **Lote 3 primeiro, design depois** |
 | Skills | ~25 instaladas a pedido dele (`historico/decisoes.md` § 0.6 e 0.7); **impeccable fica na 4.0.4** (decisão dele) |
 | Ferramentas novas | `testa-lighthouse` (precisa do CLI: `npm i chrome-devtools-mcp@latest -g`), `testa-trapaca`, `testa-escada`, `testa-barra-lateral`, `testa-rebalanceio`, `testa-materias-estudadas`; o `testa-acessivel` ganhou as regras da Vercel |
 | Ele pediu | **tudo em português do Brasil, sempre** (memória `sempre-em-portugues`) |
 
-## ▶️ PRÓXIMO: 3.20 — números menores (NUM-08 + NUM-11 + NUM-12 + NUM-13)
+## ▶️ PRÓXIMO: 3.21 — código (COD-01 + COD-03 resto + UX-09 + RED-02)
+
+As regras só no servidor; tirar código morto; aba "Missões" → "Conquistas"; o Quadro vira aba de Conquistas, **sem esconder nada no grátis** (✔️ P11).
+
+> ✅ **3.20 feito em 09/10** (uma média de domínio, pelo peso; revisão, gráfico e tag sem ambiguidade).
+
+## (feito) 3.20 — números menores (NUM-08 + NUM-11 + NUM-12 + NUM-13)
 
 Uma média de domínio (ponderada); "estudada há N dias" pelo estudo mais recente; letras da semana sem ambiguidade; tag "em formação" com rótulo.
 
