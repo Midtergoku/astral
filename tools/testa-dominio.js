@@ -129,11 +129,12 @@ const falha = (t, d = "") => { console.log(`  FALHA  ${t.padEnd(58)} ${d}`); fal
 
     console.log("\n== 7. O DOMINIO E SO DE QUEM E ==");
     const outro = await criar("outro");
-    const r1 = await rpc(outro, "meu_dominio");
-    Array.isArray(r1.corpo) && r1.corpo.length === 0 ? ok("meu_dominio devolve so o seu (vazio para quem não tem edital)") : falha("meu_dominio", JSON.stringify(r1.corpo).slice(0, 80));
+    // 10/10/2026: meu_dominio() saiu do banco (ninguem a chamava); quem entrega o dominio a tela e materias_estudadas()
+    const r1 = await rpc(outro, "materias_estudadas");
+    Array.isArray(r1.corpo) && r1.corpo.length === 0 ? ok("materias_estudadas devolve so o seu (vazio para quem não tem edital)") : falha("materias_estudadas", JSON.stringify(r1.corpo).slice(0, 80));
     const r2 = await rpc(outro, "dominio_calculado", { p_uid: aluno.id, p_materias: MATERIAS });
     r2.status >= 400 ? ok("🎯 calcular o dominio de OUTRA pessoa é recusado", `HTTP ${r2.status}`) : falha("🚨 leu o dominio de outra pessoa", JSON.stringify(r2.corpo).slice(0, 80));
-    const r3 = await req("/rest/v1/rpc/meu_dominio", { method: "POST", headers: { apikey: PUB, "Content-Type": "application/json" }, body: "{}" });
+    const r3 = await req("/rest/v1/rpc/materias_estudadas", { method: "POST", headers: { apikey: PUB, "Content-Type": "application/json" }, body: "{}" });
     r3.status >= 400 ? ok("sem login, recusado", `HTTP ${r3.status}`) : falha("respondeu sem login", String(r3.status));
   } catch (e) {
     falha("erro no teste: " + e.message);

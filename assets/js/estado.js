@@ -140,7 +140,10 @@ function lerDoBanco(uid) {
 
     // Primeira vez neste usuário: migra o que houver no navegador.
     const inicial = local ? normalizar(local) : VAZIO();
-    const { error: erroCriar } = await supabase.from('progresso').insert(paraBanco(uid, inicial));
+    // 10/10/2026: sem cronograma_hoje e badges -- as duas colunas sairam do banco (ninguem as lia; o cronograma
+    // e as condecoracoes moram em outro lugar). O salvar_progresso ainda aceita os dois parametros e os ignora.
+    const { cronograma_hoje: _c, badges: _b, ...linhaInicial } = paraBanco(uid, inicial);
+    const { error: erroCriar } = await supabase.from('progresso').insert(linhaInicial);
     if (erroCriar) console.error('Falha ao criar o progresso inicial.', erroCriar);
     else if (local) console.info('Progresso do navegador migrado para a conta.');
 
