@@ -125,6 +125,7 @@ const { pathToFileURL } = require("url");
     diasEstudados: 9999, meses: 9999, sessoesNoDiaMax: 99, horasNoDiaMax: 24,
     materiasNoDiaMax: 99, semanasPerfeitas: 999, materiaSeguidaMax: 999,
     maiorRetornoDias: 999, temEdital: true, dominioMinimo: 100, dominioMenosEstudada: 100,
+    aprovado: true,   // 10/10/2026: a divisa secreta "Aprovado" (Passei! + horas)
     /* TODAS as matérias que alguma divisa cita. Na primeira versão deste teste
        eu listei só seis, e ele acusou "divisa que nunca cai" para História,
        Química, Biologia e outras quatro -- alarme falso: elas não caíam porque

@@ -131,6 +131,26 @@ async function conta(prefixo) {
     conferir("🎯 o painel conta aprovados e depoimentos autorizados (só contas reais)",
       depois?.aprovados === (antes?.aprovados || 0) + 1 && depois?.depoimentos_autorizados === (antes?.depoimentos_autorizados || 0) + 1,
       `aprovados ${antes?.aprovados}→${depois?.aprovados} · autorizados ${antes?.depoimentos_autorizados}→${depois?.depoimentos_autorizados}`);
+
+    // 10/10/2026 (guardado 3): a divisa secreta "Aprovado" = "Passei!" E 20 h de estudo (o clique sozinho nao vale)
+    console.log("\n== 5. A DIVISA SECRETA \"APROVADO\" ==");
+    const temAprovado = async (c) => {
+      await req("/rest/v1/rpc/sincronizar_conquistas", { method: "POST", headers: c.cab, body: "{}" });
+      const l = (await req(`/rest/v1/conquistas?usuario_id=eq.${c.id}&tipo=eq.divisa&item_id=eq.aprovado&select=item_id`, { headers: admin })).corpo || [];
+      return l.length > 0;
+    };
+    const so = await conta("passei-so-clique"); contas.push(so.id);
+    await req("/rest/v1/aprovacoes", { method: "POST", headers: { ...so.cab, Prefer: "return=minimal" }, body: JSON.stringify({ usuario_id: so.id, concurso: "Só clicou" }) });
+    conferir("🎯 \"Passei!\" sem estudo NÃO dá a divisa (nada se ganha com clique)", !(await temAprovado(so)));
+    const estudou = await conta("passei-estudou"); contas.push(estudou.id);
+    const sess = Array.from({ length: 30 }, (_, i) => ({ usuario_id: estudou.id, materia: "Português", segundos: 2400, xp: 80, modo: "pomodoro",
+      criado_em: new Date(Date.now() - (i + 1) * 86400e3).toISOString() }));   // 30 x 40 min = 20 h
+    await req("/rest/v1/sessoes_estudo", { method: "POST", headers: { ...admin, Prefer: "return=minimal" }, body: JSON.stringify(sess) });
+    conferir("20 h de estudo SEM \"Passei!\" não dá a divisa", !(await temAprovado(estudou)));
+    await req("/rest/v1/aprovacoes", { method: "POST", headers: { ...estudou.cab, Prefer: "return=minimal" }, body: JSON.stringify({ usuario_id: estudou.id, concurso: "Estudou e passou" }) });
+    conferir("🎯 \"Passei!\" + 20 h de estudo DÁ a divisa \"Aprovado\"", await temAprovado(estudou));
+    const cat = (await req("/rest/v1/catalogo_divisas?id=eq.aprovado&select=secreta,raridade", { headers: estudou.cab })).corpo?.[0];
+    conferir("ela é secreta e lendária", cat?.secreta === true && cat?.raridade === "lendaria", JSON.stringify(cat));
   } catch (e) {
     falha("o teste quebrou", e.message.slice(0, 140));
   } finally {

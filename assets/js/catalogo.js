@@ -578,6 +578,12 @@ export const DIVISAS = [
     comoGanha: 'secreta',  secreta: true,
     condicao: { tipo: 'condecoracao', id: 'madrugador' } },
 
+  // 10/10/2026: quem marca "Passei!" (3.22) E tem 20 h de estudo (o clique sozinho nao vale). Divisa, nao
+  // condecoracao -- a platina conta condecoracoes e nao muda.
+  { id: 'aprovado',     nome: 'Aprovado',          raridade: 'lendaria', cor: 'var(--latao-c)',
+    comoGanha: 'secreta',  secreta: true,
+    condicao: { tipo: 'aprovado', horasMin: 20 } },
+
   { id: 'turno_noite',  nome: 'Turno da Noite',    raridade: 'rara',    cor: 'var(--oliva)',
     comoGanha: 'secreta',  secreta: true,
     condicao: { tipo: 'condecoracao', id: 'coruja' } },

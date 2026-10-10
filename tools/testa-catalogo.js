@@ -51,6 +51,8 @@ const { pathToFileURL } = require("url");
     // 03/10/2026 (GAM-05): o dominio de cada materia sobre o teto dela
     "dominioNoTeto",
     "condecoracao", "todas",
+    // 10/10/2026: "Passei!" sozinho e um clique -- entra na lista PORQUE exige horasMin de estudo junto
+    "aprovado",
   ]);
 
   /* 🔴 O QUE NAO ENTRA, e por que -- registrado em 19/09/2026 depois de esta

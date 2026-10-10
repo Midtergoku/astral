@@ -420,3 +420,11 @@ coluna (`estado.js`, commit `2dd8d87`, no ar); (2) a migration `20261010160000`;
 - Condecorações: tabela `conquistas`. Cronograma: montado da rotina (`assets/js/cronograma.js`).
 - `testa-concorrencia`: saíram as 3 checagens de badges. O modo `--upsert` (o defeito antigo) **não roda mais** — o banco
   recusa o upsert direto em `progresso` desde as permissões por coluna; é proteção, não teste quebrado.
+
+## 8.43. A divisa secreta "Aprovado" (10/10/2026, guardado 3)
+
+`catalogo_divisas` 'aprovado' (lendária, **secreta**), condição `{"tipo":"aprovado","horasMin":20}` = marcou "Passei!"
+(`fatos.aprovado`) **E** 20 h de estudo registradas. O clique sozinho não vale — **"nada se ganha com clique"** (a lista branca
+do `testa-catalogo` só aceitou o tipo por causa das horas). É divisa, não condecoração: a platina não muda.
+Migration `20261010170000` (gerada das definições no ar de `fatos_do_usuario` e `avaliar_condicao`). Tela: `progressoDe`
+(paridade). Regressão: `testa-passei` seção 5 (dev), `testa-catalogo`, `testa-motor`, `testa-paridade-medalhas`.

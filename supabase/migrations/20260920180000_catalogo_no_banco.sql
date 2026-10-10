@@ -13,7 +13,7 @@
 -- `catalogo.js` continua sendo o unico lugar que se escreve; esta tabela e
 -- derivada dele, e o `verifica.js` falha se as duas sairem de sincronia.
 --
--- 74 condecoracoes . 33 divisas
+-- 74 condecoracoes . 34 divisas
 
 create table if not exists public.catalogo_condecoracoes (
   id          text primary key,
@@ -162,6 +162,7 @@ values
   ('inquebrantavel', 'lendaria', false, 'Inquebrantável', 'Cem dias seguidos de estudo', 'var(--papel)', '{"tipo":"streak","min":100}'::jsonb),
   ('reintegrado', 'rara', true, 'Reintegrado', 'secreta', 'var(--brasa-c)', '{"tipo":"condecoracao","id":"reintegrado"}'::jsonb),
   ('vigilia', 'rara', true, 'Vigília', 'secreta', 'var(--oliva)', '{"tipo":"condecoracao","id":"madrugador"}'::jsonb),
+  ('aprovado', 'lendaria', true, 'Aprovado', 'secreta', 'var(--latao-c)', '{"tipo":"aprovado","horasMin":20}'::jsonb),
   ('turno_noite', 'rara', true, 'Turno da Noite', 'secreta', 'var(--oliva)', '{"tipo":"condecoracao","id":"coruja"}'::jsonb),
   ('marcha', 'lendaria', true, 'Marcha Forçada', 'secreta', 'var(--papel)', '{"tipo":"condecoracao","id":"maratona"}'::jsonb),
   ('ferro', 'lendaria', true, 'Ferro em Brasa', 'secreta', 'var(--papel)', '{"tipo":"condecoracao","id":"ferro_em_brasa"}'::jsonb),

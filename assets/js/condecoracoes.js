@@ -51,6 +51,8 @@ function progressoDe(cond, f, jaTem) {
     case 'materiaSeguida': return frac(f.materiaSeguidaMax, cond.dias);
     case 'retorno':        return frac(f.maiorRetornoDias, cond.diasSumidoMin);
     case 'edital':         return f.temEdital ? 1 : 0;
+    // 10/10/2026: a divisa secreta "Aprovado" -- "Passei!" E horas de estudo (o clique sozinho nao vale)
+    case 'aprovado':       return f.aprovado ? frac(f.horas, cond.horasMin) : 0;
 
     case 'atributo':
       return frac(f.atributos?.[cond.chave]?.valor, cond.min);
