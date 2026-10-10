@@ -477,7 +477,9 @@ for (const p of paginas) {
       })
       .map((a) => (a.match(/href\s*=\s*"([^"]*)"/) || [])[1] || '(sem href)');
 
-    if (ativos.length === 1 && ativos[0] === p) continue;
+    // 09/10/2026 (3.21): pagina que e ABA de outra (<meta name="aba-de" content="x.html">) acende a outra
+    const abaDe = (html.match(/<meta name="aba-de" content="([^"]+)"/) || [])[1];
+    if (ativos.length === 1 && ativos[0] === (abaDe || p)) continue;
 
     anota('aceso', p, ativos.length === 0
       ? 'a barra lateral nao acende nenhum link — quem abre esta pagina nao ve onde esta'

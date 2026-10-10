@@ -2,9 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=5dc4b49d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Quadro de operações</title>
+  <!-- 09/10/2026 (roadmap 3.21, RED-02): o Quadro e uma ABA de Conquistas -- quem acende no menu e Conquistas (o verifica le esta marca) -->
+  <meta name="aba-de" content="conquistas.html"/>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
   <link rel="icon" href="/favicon.ico" sizes="32x32"/>
   <link rel="icon" href="/img/icone.svg" type="image/svg+xml"/>
@@ -312,16 +314,9 @@
       </svg>
       TAF
     </a>
-    <a class="nav-link" href="conquistas.html">
+    <a class="nav-link active" href="conquistas.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
       Conquistas
-    </a>
-    <a class="nav-link active" href="arvore.html">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
-        <path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3z"/>
-        <path d="M12 3v18M4 7.5l8 4.5 8-4.5"/>
-      </svg>
-      Quadro
     </a>
     <a class="nav-link" href="habilidades.html">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
@@ -355,6 +350,11 @@
     <div>
       <h1 class="page-title">Quadro de operações</h1>
       <p class="page-sub">Suas condecorações, organizadas pelas frentes em que se conquistam.</p>
+  <!-- 09/10/2026 (roadmap 3.21, RED-02): Condecoracoes e Quadro sao as mesmas 74, em duas vistas -- uma secao, duas abas -->
+  <nav class="abas" aria-label="Vistas das conquistas">
+    <a href="conquistas.html">Condecorações</a>
+    <a href="arvore.html" aria-current="page">Quadro de operações</a>
+  </nav>
     </div>
       <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
   </div>
@@ -367,7 +367,7 @@
 
 <script type="module">
   import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, relatar }
-    from './assets/js/astral.js?v=bb42703d';
+    from './assets/js/astral.js?v=e25c429c';
   import { carregarProgresso, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
   import { aplicarDivisa } from './assets/js/divisa.js?v=b3ffe355';
 

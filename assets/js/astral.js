@@ -633,7 +633,11 @@ function iniciarMenuMobile() {
       color: var(--text, #E8E8F0);
       cursor: pointer;
       box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      transition: transform var(--d-menu, 200ms) var(--saida, ease-out), opacity var(--d-menu, 200ms) var(--saida, ease-out);
     }
+    /* 09/10/2026 (auditoria UX-09, roadmap 3.21): o botao e FIXO -- rolando, ele cobria o que
+       passava embaixo (a etiqueta da questao no Banco). Some rolando para baixo, volta para cima. */
+    #astral-menu-btn.astral-menu-some { transform: translateY(-140%); opacity: 0; pointer-events: none; }
     #astral-menu-fundo {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.6);
@@ -652,7 +656,7 @@ function iniciarMenuMobile() {
       /* Abre espaco para o botao nao cobrir o titulo da pagina. */
       .main { padding-top: 4.25rem !important; }
     }
-    @media (prefers-reduced-motion: reduce) { #astral-menu-fundo { transition: none; } }
+    @media (prefers-reduced-motion: reduce) { #astral-menu-fundo, #astral-menu-btn { transition: none; } }
   `;
   document.head.appendChild(style);
 
@@ -681,6 +685,17 @@ function iniciarMenuMobile() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') definir(false); });
   // Navegou para outra pagina: fecha, senao o menu fica aberto por cima.
   sidebar.querySelectorAll('a[href]').forEach(a => a.addEventListener('click', () => definir(false)));
+
+  // 09/10/2026 (UX-09): rolou para baixo, o botao sai da frente; rolou para cima (ou esta no
+  // topo), ele volta. Com o menu aberto, nunca some. 8 px de folga para tremida de dedo nao piscar.
+  let ultimoY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (Math.abs(y - ultimoY) < 8) return;
+    const some = y > ultimoY && y > 80 && !sidebar.classList.contains('astral-aberta');
+    btn.classList.toggle('astral-menu-some', some);
+    ultimoY = y;
+  }, { passive: true });
 }
 
 if (document.readyState === 'loading') {

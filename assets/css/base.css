@@ -934,6 +934,15 @@ input:focus, textarea:focus, select:focus {
   font-weight: 500;
 }
 /* 09/10/2026 (NUM-13): a palavra que diz que ainda nao foi conquistada */
+/* 09/10/2026 (roadmap 3.21, RED-02): abas de uma secao (Conquistas: Condecoracoes | Quadro) */
+.abas { display: flex; gap: var(--e1); flex-wrap: wrap; margin-top: var(--e3); border-bottom: 1px solid var(--linha); }
+.abas a {
+  padding: .55rem .9rem; min-height: 40px; display: inline-flex; align-items: center;
+  font-family: var(--display); font-weight: 600; font-size: .85rem; color: var(--texto-2);
+  text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.abas a[aria-current="page"] { color: var(--papel); border-bottom-color: var(--latao); }
+@media (hover: hover) { .abas a:hover { color: var(--papel); } }
 .divisa .tag.emformacao .tag-rotulo { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--texto-3); }
 
 /* ═══ CABECALHO DE PAGINA ═══ V6, 02/08/2026
