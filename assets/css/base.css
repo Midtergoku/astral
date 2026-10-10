@@ -861,6 +861,9 @@ body.astral-saindo { pointer-events: none; }
 input, textarea, select {
   transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
+/* 10/10/2026 (V6): caixa de marcar e botao de opcao saiam no AZUL do navegador (TAF, calendario...) --
+   a unica cor fora da paleta no site. Tres paginas ja corrigiam a sua a mao; agora e uma regra so. */
+input[type="checkbox"], input[type="radio"], progress, input[type="range"] { accent-color: var(--latao); }
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--latao) !important;

@@ -635,6 +635,19 @@ for (const p of paginas) {
   }
 }
 
+/* ── 21. QUEM RESERVA O LUGAR DA DIVISA CARREGA O divisa.js ─────────────────
+   10/10/2026 (Lote D, V6). Banco, TAF, Importar e Painel tinham o
+   <span data-divisa> no topo e NUNCA carregavam o divisa.js -- a patente e a
+   tag nao apareciam nessas 4 telas. Mesma raiz do item 20: pagina copiada sem
+   o que a copia deixou de fora. Vale import, <script src> ou import(). */
+for (const p of paginas) {
+  const html = ler(p);
+  if (!/\bdata-divisa\b/.test(html)) continue;
+  if (!/assets\/js\/divisa\.js/.test(html)) {
+    anota('divisa', p, 'tem o lugar da divisa (data-divisa) mas nao carrega assets/js/divisa.js -- a patente nunca aparece');
+  }
+}
+
 /* ── RELATORIO ─────────────────────────────────────────────────────────────── */
 const GRUPOS = {
   residuo:  'Residuo de substituicao / texto corrompido',
@@ -658,6 +671,7 @@ const GRUPOS = {
   controle: 'Caractere de controle gravado dentro do codigo',
   ordem:    'Menu lateral em ordem diferente entre paginas',
   recolher: 'Pagina com barra lateral sem o botao de recolher (menu.js)',
+  divisa:   'Lugar da divisa sem o divisa.js (a patente nunca aparece)',
 };
 
 console.log('VERIFICA — rede de seguranca do Astral\n');
