@@ -71,6 +71,19 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 /* o toast vem do astral.js -- um so no site inteiro (Lote D, V2, 10/10/2026) */
 
+/* Duas etapas (4.4): o QR precisa de fundo claro -- o aplicativo nao le QR escuro sobre escuro */
+.de-lista { margin: 0 0 0.75rem 1.1rem; color: var(--texto-2); line-height: 1.6; }
+.de-lista strong { color: var(--texto); }
+.de-qr { display: block; background: #fff; padding: 10px; border-radius: var(--r-p); margin: 0 0 0.75rem; }
+.de-manual code { font-family: var(--dado); color: var(--texto); overflow-wrap: anywhere; }
+.de-rotulo { display: block; font-size: var(--t-sm); color: var(--texto-2); margin-bottom: 0.35rem; }
+.de-campo {
+  width: 100%; max-width: 220px; padding: 0.6rem 0.8rem; border-radius: var(--r-p);
+  border: 1px solid var(--linha); background: var(--breu); color: var(--texto);
+  font-family: var(--dado); font-size: 1.25rem; letter-spacing: 0.3em; text-align: center;
+}
+.de-campo:focus { outline: 2px solid var(--latao); outline-offset: 2px; }
+
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
   .main { margin-left: 0; padding: 1.25rem; }
@@ -227,6 +240,37 @@
     </button>
   </div>
 
+  <!-- Duas etapas (10/10/2026, roadmap 4.4): por ora SO para o dono. Aluno comum que perde o celular ficaria
+       trancado -- o Supabase nao da codigo de recuperacao -- e abrir para todos pede esse caminho antes.
+       A logica mora em assets/js/duas-etapas.js; o portao do codigo (astral.js) vale para qualquer conta. -->
+  <div class="card" id="card-duas-etapas" style="margin-bottom:1.25rem;" hidden>
+    <div class="section-title">Verificação em duas etapas</div>
+    <p class="section-sub" id="de-situacao">
+      Além da senha, o Astral pede um código de 6 números que muda a cada 30 segundos no aplicativo
+      autenticador do seu celular. Quem descobrir sua senha não entra sem o celular.
+    </p>
+    <button class="btn btn-roxo" id="btn-de-ativar" hidden>Ativar</button>
+    <div id="de-passos" hidden>
+      <ol class="de-lista">
+        <li>Instale no celular o <strong>Google Authenticator</strong> ou o <strong>Microsoft Authenticator</strong> (grátis).</li>
+        <li>No aplicativo, toque em <strong>+</strong> e escolha <strong>ler código QR</strong>. Aponte para a imagem:</li>
+      </ol>
+      <img id="de-qr" class="de-qr" alt="Código QR para o aplicativo autenticador" width="180" height="180">
+      <p class="section-sub de-manual">Não consegue ler? Escolha <strong>inserir chave</strong> e digite:
+        <code id="de-segredo"></code></p>
+      <ol class="de-lista" start="3">
+        <li>Digite aqui o código de 6 números que apareceu no aplicativo:</li>
+      </ol>
+      <label class="de-rotulo" for="de-codigo-novo">Código do aplicativo</label>
+      <input id="de-codigo-novo" class="de-campo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*">
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.75rem;">
+        <button class="btn btn-roxo" id="btn-de-confirmar" disabled>Confirmar e ativar</button>
+        <button class="btn btn-fantasma" id="btn-de-cancelar">Cancelar</button>
+      </div>
+    </div>
+    <button class="btn btn-fantasma" id="btn-de-desativar" hidden>Desativar</button>
+  </div>
+
   <!-- Exportar -->
   <div class="card" style="margin-bottom:1.25rem;">
     <div class="section-title">Baixar meus dados</div>
@@ -292,7 +336,7 @@
 
 <script type="module">
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL, buscarQuota, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=224dc907';
+    from './assets/js/astral.js?v=74ba4be2';
 
   window.fazerLogout = fazerLogout;
 
@@ -352,6 +396,7 @@
     `).join('');
 
     mostrarPlano();
+    pintarDuasEtapas().catch((e) => relatar(e, 'pintar duas etapas'));
   }
 
   // ── Meu plano ───────────────────────────────────────────────────────────────
@@ -441,6 +486,88 @@
       return;
     }
     window.location.href = 'login.html';
+  });
+
+  // ── Duas etapas (10/10/2026, roadmap 4.4) ─────────────────────────────────────
+  // So o dono ve o cartao (ver o comentario no HTML). Quem barra de verdade e o servidor:
+  // sou_administrador() so reconhece o dono com o codigo confirmado nesta sessao.
+  let fatorNovo = null;
+  async function pintarDuasEtapas() {
+    const { data: souAdmin } = await supabase.rpc('sou_administrador');
+    if (!souAdmin) return;
+    const de = await import('./assets/js/duas-etapas.js?v=bda8930a');
+    const ativa = await de.duasEtapasAtivas(supabase).catch(() => null);
+    if (ativa === null) return;
+    el('card-duas-etapas').hidden = false;
+    el('de-passos').hidden = true;
+    el('btn-de-ativar').hidden = ativa;
+    el('btn-de-desativar').hidden = !ativa;
+    el('de-situacao').innerHTML = ativa
+      ? '<strong>Ligada.</strong> Cada vez que você entrar, o Astral pede o código do aplicativo autenticador. Perdeu o celular? Avise antes de trocar: sem o código não dá para desligar por aqui.'
+      : 'Além da senha, o Astral pede um código de 6 números que muda a cada 30 segundos no aplicativo autenticador do seu celular. Quem descobrir sua senha não entra sem o celular.';
+  }
+
+  el('btn-de-ativar').addEventListener('click', async () => {
+    const btn = el('btn-de-ativar');
+    btn.disabled = true;
+    try {
+      const de = await import('./assets/js/duas-etapas.js?v=bda8930a');
+      fatorNovo = await de.comecarAtivacao(supabase);
+      el('de-qr').src = fatorNovo.qr;
+      el('de-segredo').textContent = fatorNovo.segredo;
+      el('de-codigo-novo').value = '';
+      el('btn-de-confirmar').disabled = true;
+      el('de-passos').hidden = false;
+      btn.hidden = true;
+    } catch (e) {
+      relatar(e, 'ativar duas etapas');
+      toast('Não consegui começar a ativação. Tente de novo em instantes.', 'error');
+    }
+    btn.disabled = false;
+  });
+
+  el('de-codigo-novo').addEventListener('input', () => {
+    const c = el('de-codigo-novo');
+    c.value = c.value.replace(/\D/g, '').slice(0, 6);
+    el('btn-de-confirmar').disabled = c.value.length !== 6;
+  });
+
+  el('btn-de-confirmar').addEventListener('click', async () => {
+    const btn = el('btn-de-confirmar');
+    btn.disabled = true;
+    const de = await import('./assets/js/duas-etapas.js?v=bda8930a');
+    if (fatorNovo && await de.confirmarCodigo(supabase, fatorNovo.id, el('de-codigo-novo').value)) {
+      fatorNovo = null;
+      toast('Verificação em duas etapas ligada.', 'success');
+      await pintarDuasEtapas();
+      return;
+    }
+    toast('Código errado ou vencido. Digite o código que está no aplicativo agora.', 'error');
+    el('de-codigo-novo').value = '';
+    el('de-codigo-novo').focus();
+  });
+
+  el('btn-de-cancelar').addEventListener('click', async () => {
+    // o fator nao confirmado fica sem uso; a proxima ativacao o apaga (comecarAtivacao)
+    fatorNovo = null;
+    el('de-passos').hidden = true;
+    el('btn-de-ativar').hidden = false;
+  });
+
+  el('btn-de-desativar').addEventListener('click', async () => {
+    if (!confirm('Desligar a verificação em duas etapas?\n\nDepois disso, só a senha basta para entrar.')) return;
+    const btn = el('btn-de-desativar');
+    btn.disabled = true;
+    try {
+      const de = await import('./assets/js/duas-etapas.js?v=bda8930a');
+      await de.desativar(supabase);
+      toast('Verificação em duas etapas desligada.', 'success');
+      await pintarDuasEtapas();
+    } catch (e) {
+      relatar(e, 'desativar duas etapas');
+      toast('Não consegui desligar agora. Saia, entre de novo com o código e tente outra vez.', 'error');
+    }
+    btn.disabled = false;
   });
 
   el('btn-exportar').addEventListener('click', async () => {

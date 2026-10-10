@@ -73,7 +73,12 @@ $esperado = @(
   @{ campo = 'password_required_characters'; vale = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789'
      porque = 'senha com letras E numeros; criar-conta e redefinir-senha avisam e conferem antes' },
   @{ campo = 'security_update_password_require_reauthentication'; vale = $true
-     porque = 'sessao com mais de 24 h nao troca a senha sem codigo (quem pega um aparelho aberto)' }
+     porque = 'sessao com mais de 24 h nao troca a senha sem codigo (quem pega um aparelho aberto)' },
+  # 10/10/2026 (roadmap 4.4) -- ver tools/liga-duas-etapas.js e tools/testa-duas-etapas.js
+  @{ campo = 'mfa_totp_enroll_enabled';  vale = $true
+     porque = 'o dono ativa o codigo do aplicativo em Minha conta; desligado, o botao Ativar falha' },
+  @{ campo = 'mfa_totp_verify_enabled';  vale = $true
+     porque = 'DESLIGADO COM O DONO JA ATIVADO = O DONO FORA DO PAINEL (o servidor exige o codigo e ninguem consegue conferir)' }
 )
 
 Write-Host "CONFERE-AUTH -- producao contra o esperado`n"

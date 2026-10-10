@@ -89,7 +89,7 @@ export function escJs(valor) {
 
 /** Guarda de pagina logada. Devolve a sessao ou manda para o login. */
 export async function exigirSessao() {
-  const { data: { session } } = await supabase.auth.getSession();
+  let { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     window.location.href = 'login.html';
     return null;
@@ -103,6 +103,16 @@ export async function exigirSessao() {
     const conferencia = garantirConsentimento(supabase, session, { sair: fazerLogout });
     if (!jaAceitouAlgumaVez(session.user.id)) await conferencia;
   } catch (e) { console.error('Conferencia do aceite falhou.', e); }
+  /* 10/10/2026 (roadmap 4.4): quem ativou as duas etapas digita o codigo do aplicativo antes de usar o app.
+     A conferencia e LOCAL (le a sessao): quem nao ativou passa na hora. Ver assets/js/duas-etapas.js. */
+  try {
+    const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (nivel && nivel.nextLevel === 'aal2' && nivel.currentLevel !== 'aal2') {
+      const { garantirSegundaEtapa } = await import('./duas-etapas.js');
+      await garantirSegundaEtapa(supabase, { sair: fazerLogout });
+      session = (await supabase.auth.getSession()).data.session || session;   // o token novo, de nivel 2
+    }
+  } catch (e) { console.error('Conferencia das duas etapas falhou.', e); }
   /* 03/10/2026 (auditoria NEG-01): a origem anotada na 1a visita vai para o
      funil, uma vez por conta. Por tras, sem esperar: nunca atrasa a pagina. */
   import('./origem.js').then((m) => m.enviarOrigem(supabase, session.user.id)).catch(() => {});

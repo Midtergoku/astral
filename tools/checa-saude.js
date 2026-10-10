@@ -201,6 +201,22 @@ async function json(url, opts) {
     else ok("nenhuma leitura de edital contestada");
   } catch (e) { console.log(`  (avisos de edital nao conferidos: ${e.message.slice(0, 60)})`); }
 
+  // 10/10/2026 (roadmap 4.4): o dono ja ativou as duas etapas? Enquanto nao, quem tiver a senha dele abre o
+  // painel do negocio e o importador. Nao e falha do site -- e um passo DELE (Minha conta > Ativar, ler o QR).
+  // auth.mfa_factors nao sai pela API REST: vai pela API de gerenciamento (so leitura).
+  try {
+    const tk = require("child_process").execFileSync("powershell", ["-NoProfile", "-File", require("path").join(__dirname, "token-supabase.ps1")],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+    const r = await fetch("https://api.supabase.com/v1/projects/jjogmcacbdefwiwcyjxp/database/query", {
+      method: "POST", headers: { Authorization: `Bearer ${tk}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ query: "select count(*)::int as sem from public.administradores a where not exists (select 1 from auth.mfa_factors f where f.user_id = a.usuario_id and f.status = 'verified')" }),
+    });
+    const sem = r.ok ? (await r.json())[0]?.sem : null;
+    if (sem === null) console.log(`  (duas etapas do dono nao conferidas: HTTP ${r.status})`);
+    else if (sem > 0) console.log(`  🔔 o dono ainda NAO ativou as duas etapas -- AVISAR O LUCAS: Minha conta > Verificacao em duas etapas > Ativar (ler o QR no Google Authenticator)`);
+    else ok("o dono entra com senha + codigo do aplicativo (duas etapas ativas)");
+  } catch (e) { console.log(`  (duas etapas do dono nao conferidas: ${e.message.slice(0, 60)})`); }
+
   // 02/10/2026 (auditoria OPS-02): o backup diario agendado
   // (tools/agenda-backup.ps1) esta rodando? Backup que para calado e o mesmo
   // que backup nenhum -- o plano gratis do Supabase nao faz o dele.
