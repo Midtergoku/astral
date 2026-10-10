@@ -227,7 +227,11 @@ const servidor = http.createServer((q, r) => {
     const soData = await pg.evaluate(() => ({ data: !!document.getElementById("aceite-nascimento"), caixa: !!document.getElementById("aceite-caixa") }));
     soData.data && !soData.caixa ? ok("já aceitou e não deu a data: a tela pede só a data") : falha("a tela nao pediu so a data", JSON.stringify(soData));
     if (soData.data) {
-      await pg.fill("#aceite-nascimento", anosAtras(14)); await pg.click("#aceite-ok"); await pg.waitForTimeout(2000);
+      await pg.fill("#aceite-nascimento", anosAtras(14)); await pg.click("#aceite-ok");
+      /* 10/10/2026: era espera FIXA de 2 s -- falhou na bateria de 10/10 (00h40, "blq=false nasc=null") e passou
+         na rodada seguinte. A tela nao depende da hora (so confere o formato; quem diz "menor de 16" e o servidor):
+         o servidor demorou. Agora espera o bloqueio aparecer, ate 10 s. */
+      await pg.waitForFunction(() => !document.getElementById("aceite-bloqueio")?.hidden, null, { timeout: 10000 }).catch(() => {});
       const blq = await pg.evaluate(() => !document.getElementById("aceite-bloqueio")?.hidden && /16 anos/.test(document.getElementById("aceite-bloqueio")?.innerText || ""));
       blq && (await nascDe(h.id)) === null ? ok("🎯 14 anos na tela: bloqueia, e nada é guardado") : falha("o bloqueio de menor de 16 nao apareceu", `blq=${blq} nasc=${await nascDe(h.id)}`);
       await pg.click("#aceite-errei"); await pg.waitForTimeout(500);

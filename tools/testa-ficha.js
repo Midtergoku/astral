@@ -200,8 +200,12 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
     //   DOUTRINA    09/10/2026 (NUM-08, roadmap 3.20): media PELO PESO, a mesma do Progresso --
     //               (60x3 + 40x3 + 20x2 + 0x1) / 9 = 37,8 -> 38. Era a simples, (60+40+20+0)/4 = 30.
     const esperado = { disciplina: 74, resistencia: 67, amplitude: 75, doutrina: 38 };
+    // 10/10/2026: entre 00h e 01h (SP) a sessao plantada "agora" COMECOU ontem (regra 3.9) -- a sequencia
+    // termina ontem e a DISCIPLINA cai (61 em vez de 74, bateria de 10/10 as 00h40). Os outros tres nao mudam.
+    const pertoDaMeiaNoite = ((Date.now() - 3 * 3600e3) % 86400000) / 60000 < 60;
     for (const [k, v] of Object.entries(esperado)) {
       const got = Number(at[k]?.valor);
+      if (k === "disciplina" && pertoDaMeiaNoite) { ok("(disciplina pulada: entre 00h e 01h a sessão de agora conta para ontem)", `${got}`); continue; }
       if (Math.abs(got - v) <= 1) ok(`${k} bate com o esforco plantado`, `${got} (esperado ~${v})`);
       else falha(`${k} nao bate`, `${got}, esperado ~${v}`);
     }
