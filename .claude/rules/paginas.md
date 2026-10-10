@@ -612,3 +612,14 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
   `await captcha.montar()` + `captchaPendente(id)`. **Nunca `montarCaptcha` ao abrir a página** (são ~764 KB).
 - **Arquivo para função:** `chamarIA(rota, arquivo)` com um `Blob`/`File` manda cru (`Content-Type` do arquivo). Na função,
   **ler o corpo inteiro antes de recusar** — recusar no meio do envio vira 503 sem mensagem.
+
+---
+
+## 16. Abas de uma seção; condecorações pelo servidor (10/10/2026, roadmap 3.21)
+
+- **Página que é aba de outra** declara `<meta name="aba-de" content="outra.html">`, acende a outra no menu e mostra
+  `<nav class="abas">` com `aria-current="page"` na atual. Hoje: `arvore.html` (Quadro) é aba de `conquistas.html`.
+- **Progresso de condecoração/divisa vem do servidor** (`fatos.progresso`, `fatos.progressoDivisas`). Tipo novo de condição:
+  escrever em `avaliar_condicao` (servidor) **e** em `progressoDe` (tela, só para o testa-motor) — o
+  `testa-paridade-medalhas` falha se os dois discordarem.
+- **O botão ≡ do celular some ao rolar para baixo** (`astral-menu-some`, em `astral.js`). Não pôr nada fixo no mesmo canto.

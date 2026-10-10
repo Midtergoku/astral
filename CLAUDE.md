@@ -196,6 +196,8 @@ node tools/testa-dia-da-sessao.js  a sessao 23h30->00h10 conta no dia em que COM
                                 Brasilia? ASTRAL_DEV=1 no dev; ASTRAL_RAIZ=pasta telas antigas (04/10, NUM-05/06/07)
 node tools/testa-folga.js       a folga da rotina nao quebra a sequencia? faltar ainda quebra? ASTRAL_DEV=1 (04/10, GAM-04)
 node tools/testa-transferencia.js  trocar de edital mostra a Transferencia, e so a verdade? (03/10, 3.7b)
+node tools/testa-paridade-medalhas.js  servidor e tela dao o MESMO progresso em cada medalha? (dev, contas f3-*) (10/10, 3.21)
+node tools/testa-abas-conquistas.js  Quadro e aba de Conquistas? nada escondido no gratis? menu sai da frente? (10/10, 3.21)
 node tools/testa-numeros-menores.js  uma media de dominio (pelo peso)? grafico e tag sem ambiguidade? ASTRAL_DEV=1 (09/10, 3.20)
 node tools/testa-primeiro-acesso.js  conta nova ve so o envio do edital? captcha so quando toca num campo? PDF sobe cru?
                                 ASTRAL_DEV=1 (o roda-testes ja liga) (09/10, 3.19)

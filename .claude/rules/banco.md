@@ -374,3 +374,9 @@ Migration `20261009140000_vigia_operacao`. **Tudo fechado: só `service_role`.**
 Usam: `ficha_do_usuario` (Doutrina → Preparo do chefe, "Meio do Caminho"), `fatos_do_usuario.dominioNoTeto` (Doutrina
 Consolidada) e o Progresso ("Domínio pelo peso"). **Conta nova de média de domínio: ponderada.** Peso que não é número vale 0.
 Regressão: `testa-numeros-menores.js` (`ASTRAL_DEV=1`) e `testa-ficha` (Doutrina 38).
+
+## 8.38. O progresso das conquistas sai nos fatos (10/10/2026, roadmap 3.21 / COD-01) ✅
+
+`progresso_das_conquistas(fatos)` (só lê o catálogo) e `fatos_do_usuario()` devolvendo `progresso` (73 condecorações — sem as
+de tipo `condecoracao`/`todas`, que dependem do que já caiu) e `progressoDivisas` (21). ~65 ms no dev.
+**Mudou `avaliar_condicao`? Rodar `testa-paridade-medalhas`** (dev, contas f3-*).
