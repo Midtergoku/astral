@@ -1,3 +1,11 @@
+# ▶️ ATUALIZAÇÃO 10/10/2026 (depois do fim do dia) — a lista dos vídeos
+
+Ele trouxe a lista de segurança/engenharia (de vídeos do Instagram/TikTok). Conferida item a item: **docs/auditoria/CHECKLIST-VIDEOS.md**
+(o que já temos, com prova; o que falta; o que não precisa agora). Os itens novos entraram no ROADMAP (bloco "lista dos
+vídeos", Lote 5.3 e o Lote 6). **Ordem dele: primeiro o e-mail (4.1)**, depois o resto grátis (MFA do dono, dia das provas
+com roteiro meu, SSRF, plano de recuperação, 404, biblioteca), dinheiro por último, limpeza de código no fim de tudo.
+❓ Pendente dele: o que é "PMP" na lista.
+
 # 🔖 ONDE PARAMOS — 10/10/2026 (fim do dia) — LER ISTO PRIMEIRO
 
 > Pedido dele ao fechar o projeto para abrir outro: *"depois que terminar, eu quero que você grave tudo. É importante.

@@ -206,6 +206,23 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 
 ---
 
+## 🆕 10/10/2026 — a lista dos vídeos dele (`docs/auditoria/CHECKLIST-VIDEOS.md`)
+
+Ele juntou o que vários vídeos dizem que um site precisa antes de lançar. Conferido item a item em 10/10: **quase tudo já
+existe** (com prova no documento). O que falta entrou aqui, **na ordem dele**: primeiro o e-mail (4.1), depois o resto
+grátis, o dinheiro por último (Lote 5), e a limpeza de código no fim de tudo (Lote 6).
+
+| # | O quê | Quem | Custo |
+|---|---|---|---|
+| **4.1** ⬆️ **o próximo** | E-mail que chega (senha de app do Gmail) — fecha também a "enumeração" do cadastro | ele + eu | R$ 0 |
+| **4.4** | **Verificação em duas etapas (MFA/TOTP) na conta do dono** — a que abre o painel e o importador | ele escaneia; eu ligo | R$ 0 |
+| **4.5** | **Dia das provas** — baixar provas antigas para o Banco, com um **roteiro meu antes** (o que baixar, onde, como conferir que veio com gabarito oficial e do cargo certo) | ele baixa; eu confiro e publico | R$ 0 |
+| **4.6** | Trava de **SSRF** no conferidor de links (só `https`, sem IP, sem endereço interno) | eu | R$ 0 |
+| **4.7** | **Plano de recuperação** escrito (site caiu / banco sumiu / chave vazou — passo a passo, com o rollback) | eu | R$ 0 |
+| **4.8** | **Página 404 própria** | eu | R$ 0 |
+| **4.9** | Atualizar a biblioteca do Supabase no site + bateria | eu | R$ 0 |
+| depois do domínio | Search Console e **Bing** com o sitemap · **JSON-LD (schema.org)** · **llms.txt** | eu (+ conta dele no Google/Bing) | R$ 0 |
+
 ## Lote 4 — o que precisa dele em cena (por último, ordem dele)
 
 > ✔️ 21: *"primeiro fazemos o que você pode fazer e depois eu entro em cena e você me ajuda a criar."*
@@ -226,7 +243,15 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 |---|---|---|---|---|
 | **5.1** | **PRO-01** (era o 1.5) | Ele avisa do crédito → reverter a simulação da conta dele → **o 1º edital é dele** → medir custo e tempo reais → `valores.md` → rever os números do teto (1.4) com o custo medido | 💰 crédito US$ 5 | 🚀 |
 | **5.2** | **Pré-carga dos concursos** (era parte do 3.23) | Deixar edital **e** guia de professores guardados antes de os alunos chegarem. Ele: *"para mim é o mesmo você enviar os editais. Aí eu só coloco o dinheiro"* — eu subo, por ferramenta minha que não esbarra nas travas de aluno (2 editais em 30 dias, teto de 10 por dia); ele põe o crédito conforme tiver. Depois do 3.23, para que o reaproveitamento já reconheça o edital | 💰 ~R$ 4,00 a 6,75 por concurso, **estimado** (`valores.md` §3) — medir no 5.1 | — |
-| **5.3** | **PAG-01** (era o 1.6) | Pagamento pelo Mercado Pago (webhook com assinatura, planos, trial, arrependimento, cancelar). Antes dele, o **3.6** — ✅ **feito em 03/10**: `meu_consentimento().menor` diz quem tem 16–17; o checkout **tem de** exigir a confirmação do responsável para esses (o mecanismo de confirmação nasce aqui) | 💰 Vercel Pro US$ 20/mês na 1ª cobrança + taxa do MP por venda (`valores.md` §9) | 🚀 |
+| **5.3** | **PAG-01** (era o 1.6) — ✏️ 10/10 (lista dos vídeos): junto, a **página de obrigado da compra**, o **webhook idempotente** e a **identificação de quem vende no rodapé** (nome e CPF/CNPJ, contato — Decreto 7.962/2013; conferir com contador/advogado) | Pagamento pelo Mercado Pago (webhook com assinatura, planos, trial, arrependimento, cancelar). Antes dele, o **3.6** — ✅ **feito em 03/10**: `meu_consentimento().menor` diz quem tem 16–17; o checkout **tem de** exigir a confirmação do responsável para esses (o mecanismo de confirmação nasce aqui) | 💰 Vercel Pro US$ 20/mês na 1ª cobrança + taxa do MP por venda (`valores.md` §9) | 🚀 |
+
+---
+
+## Lote 6 — por último de tudo (pedido dele, 10/10/2026)
+
+| # | O quê |
+|---|---|
+| **6.1** | **Limpeza do código**: achar o que foi criado e nunca usado (funções nunca chamadas, imports sobrando, variáveis que nunca mudam, código comentado sem explicação), sugerir a remoção e montar tarefas e subtarefas de refatoração. Regra 6 do projeto: só sai o que não serve para nada; na dúvida, fica |
 
 ---
 
