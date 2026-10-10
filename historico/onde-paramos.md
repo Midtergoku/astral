@@ -41,8 +41,21 @@ disco × ref. Controle: 0 em 4.712. É a prova de toda refatoração de CSS daqu
 **Ficou para decisão com olho (não é urgente):** o botão principal das telas de entrada (`.btn-primary` largo, letra do
 corpo) é diferente do `.btn-roxo` do app. Trocar muda a cara da 1ª tela que o aluno vê — anotei no ROADMAP (V5).
 
-**Próximo do design:** V6 (telas do app, uma a uma — **Minha conta primeiro**, pedido dele) e V7 (gamificação — ler a
-skill antes: muito é de propósito). V4 (página inicial) espera ele: o que a página promete é decisão dele.
+**V6 (telas do app) — feito em 10/10, varredura das 15 telas com foto em 1280 e 375 px:**
+
+| Commit | O quê |
+|---|---|
+| `69a64e1` | **Minha conta** (pedido dele): grade de dados com fios finos (tinha faixas cinzas), botões do app, quadro de exclusão com hierarquia |
+| `7a57906` | **Painel:** fio solto no "Guia de estudo" (todo aluno via, com a IA desligada); nível em cima e Tempo/Domínio lado a lado no celular |
+| `b4db3b6` | **Cronograma:** "SÁB · HOJE" quebrava a coluna; "+ bônus" partido no celular |
+| `cf459b0` | **Banco, TAF, Importar, Painel nunca mostraram a divisa** (sem `divisa.js`) — verifica item 21; caixas de marcar azuis → latão |
+| `dd6efb5` | **Divisa no mesmo canto** nas 15 telas (em 4 ela saía embaixo do subtítulo) |
+
+Ferramentas de foto ficaram no rascunho da sessão (`foto.js` com banco fingido); **o que depende do servidor (ficha,
+gráfico, condecorações, Instrução) não deu para julgar com banco fingido** — próximo passo do V6 é olhar com conta real
+no astral-dev.
+
+**Próximo do design:** V7 (gamificação — ler a skill antes: muito é de propósito). V4 (página inicial) espera ele.
 
 ## (anterior) PRÓXIMO: Lote D (design) ou Lote 4 — ver o topo do ROADMAP (ordem decidida por ele: Lote 3 primeiro, design depois)
 

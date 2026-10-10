@@ -136,6 +136,9 @@ node tools/valida-css.js        CSS resolvido igual ao ref (muda de papel no V1 
 node tools/compara-estilo.js [ref] [--resumo] [--controle]  a TELA ficou igual? estilo calculado de cada
                                 elemento, disco x ref, 1280 e 375 px. E a prova de refatoracao de CSS que
                                 MOVE regra de lugar (o valida-css acusa falso). --controle tem de dar 0 (10/10, V2)
+node tools/foto-tela.js [paginas] [--so 375|1280] [--pasta X]  FOTO das telas com dado de VERDADE: conta nova no
+                                astral-dev estuda 30 dias, a tela abre logada, foto em %TEMP%\astral-fotos, conta
+                                apagada. So no dev; nao gasta credito. Para olhar design (V6) e mostrar antes/depois
 node tools/verifica.js          🔴 OBRIGATORIO ANTES DE TODO COMMIT. 14 checagens, cada uma nascida
                                 de um erro real: residuo de replace, tags desbalanceadas, id
                                 duplicado, chave de CSS aberta, sintaxe de JS, carimbo defasado,
