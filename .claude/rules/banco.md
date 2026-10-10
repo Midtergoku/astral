@@ -387,3 +387,11 @@ de tipo `condecoracao`/`todas`, que dependem do que já caiu) e `progressoDivisa
 só ALTERA `depoimento` e `pode_publicar` (por isso a tela grava com insert e, se já existe, update — **upsert é recusado**).
 `pode_publicar` nasce falso. Entra em `meus_dados`, no backup e no `painel_de_negocio` (`aprovados`, `depoimentos_autorizados`).
 **Nada mostra depoimento em página pública** — decisão do dono, guardada. Regressão: `testa-passei.js` (dev).
+
+## 8.40. Estado e cargo nas questões (10/10/2026, roadmap 3.25) ✅
+
+`questoes.estado` (UF; null = nacional) e `questoes.cargo`. **Matéria regional** = `materia_regional()` (legislação, história,
+geografia): de prova de **outro** estado **nunca** sai no `sortear_questoes`. O estado do aluno é `meu_estado()` =
+`estado_do_concurso(edital.nome)`. `publicar_questoes` deduz estado e cargo quando não vierem (`cargo_da_prova`).
+🔴 **Ordenar por comparação que pode dar NULO:** em `desc` o nulo vem ANTES do verdadeiro — usar `is not distinct from`.
+Regressão: `testa-estado-e-cargo.js` (dev).

@@ -108,7 +108,9 @@ const LEMBRETES = [
              + 'depois lembre de me avisar qual vale mais a pena." Medir nos editais reais: '
              + 'quantos sao o MESMO edital com arquivo diferente (outro site, salvo de novo) e '
              + 'quanto isso custou de IA repetida. Se o desperdicio for pequeno, fica o arquivo. '
-             + 'Pesa tambem no beta: ele so vale quando o edital e lido uma vez para todos.',
+             + 'Pesa tambem no beta: ele so vale quando o edital e lido uma vez para todos. '
+             + 'REGRA (10/10/2026, roadmap 3.25): o reconhecimento por texto NUNCA junta editais de estados '
+             + 'ou cargos diferentes (estado_do_concurso / cargo_da_prova) -- editais estaduais parecidos sao concursos diferentes.',
     gatilho: 20,
     unidade: "editais diferentes lidos pela IA",
     porque: "com menos de 20 editais reais nao da para medir repeticao; abaixo disso "

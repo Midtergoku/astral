@@ -107,3 +107,13 @@ aluno de outro estado. Ver `docs/auditoria/ROADMAP.md` 3.25.
   ("according to the text") precisa do texto importado junto — imagem só da questão não basta.
 - **Gabarito pintado no caderno:** alguns PDFs trazem a alternativa certa em vermelho. O recorte
   repinta de cinza, e a conferência por olho confirma que não sobrou marca.
+
+
+---
+
+## 14ª conferência — estado e cargo (10/10/2026, roadmap 3.25)
+
+Toda prova importada sai com **estado** (UF, ou vazio se for nacional) e **cargo**, deduzidos da banca e da prova
+(`publicar_questoes`). **Conferir depois de importar:** `select banca, prova, estado, cargo, count(*) from questoes group by 1,2,3,4`.
+Prova estadual com estado vazio = Legislação/História/Geografia dela vão aparecer para outros estados. Corrigir com
+`update questoes set estado = 'XX' where banca = '...'`. Banca nova de estado: conferir se `estado_do_concurso` a reconhece.
