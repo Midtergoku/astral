@@ -274,7 +274,11 @@
   }
 
   function pecaHTML(t, n, vestida, conquistada) {
-    const cor = t.cor || 'var(--latao-c)';
+    /* 10/10/2026 (bateria, Lighthouse): a cor da peca vira LETRA aqui (o nome da tag e o "RARA"). O oliva e a
+       brasa escuros dao 2,8:1 e 3,2:1 sobre o cartao -- abaixo de 4,5. Letra usa a versao clara do mesmo metal
+       (a regra do 3.10: metal como texto e o "-c"). O catalogo nao muda: a cor escura serve para fita e borda. */
+    const CLARA = { 'var(--oliva)': 'var(--oliva-c)', 'var(--brasa)': 'var(--brasa-c)' };
+    const cor = CLARA[t.cor] || t.cor || 'var(--latao-c)';
     const rar = { comum: 'Comum', incomum: 'Incomum', rara: 'Rara', lendaria: 'Lendária' }[t.raridade] || '';
     const vestindo = conquistada && t.nome === vestida?.nome;
     return `
