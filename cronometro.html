@@ -17,19 +17,15 @@
   <link rel="preload" href="/assets/fontes/archivo-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="preload" href="/assets/fontes/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <meta name="robots" content="noindex"/>   <!-- area logada / ferramenta: fora da busca -->
-  <link rel="stylesheet" href="assets/css/app.css?v=101e8d05" />
+  <link rel="stylesheet" href="assets/css/app.css?v=66b8d489" />
 <style>
 
 *, body { box-sizing: border-box; }
 
-
-
-
-.main { margin-left:var(--sidebar-w); flex:1; padding:2rem 2.5rem; max-width:calc(100vw - var(--sidebar-w)); display:flex; flex-direction:column; align-items:center; }
-
-.topbar { width:100%; display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:2rem; }
-
-.page-sub { font-size:0.85rem; color:var(--muted); margin-top:0.2rem; }
+/* 10/10/2026 (Lote D, V2): a casca (.main, .topbar, .card) vem do base.css/app.css. Aqui fica so o que
+   o cronometro tem de proprio: o relogio no meio da tela. */
+.main { display:flex; flex-direction:column; align-items:center; }
+.topbar { width:100%; }
 
 .modo-selector { display:flex; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:0.35rem; margin-bottom:2rem; }
 
@@ -148,13 +144,6 @@ select.materia-select:focus { border-color:var(--purple); }
 /* animacao de entrada do .main removida: o elemento tem
      view-transition-name e quem o anima e o navegador. Ter as duas fazia
      a tela piscar na troca de pagina. */
-
-.card {
-    animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-
-
 
 /* ══ RELÓGIO ════════════════════════════════════════════════════════════════
    Pedido dele em 27/09/2026: "muitas pessoas gostam de estudar assim, elas

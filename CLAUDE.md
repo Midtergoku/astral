@@ -133,6 +133,9 @@ node tools/varre-xss.js         dado nao confiavel sem escape
 node tools/testa-isolamento.js  um usuario alcanca o dado de outro?
 node tools/testa-auditoria.js   o log de eventos criticos funciona?
 node tools/valida-css.js        CSS resolvido igual ao ref (muda de papel no V1 -- ver skill design)
+node tools/compara-estilo.js [ref] [--resumo] [--controle]  a TELA ficou igual? estilo calculado de cada
+                                elemento, disco x ref, 1280 e 375 px. E a prova de refatoracao de CSS que
+                                MOVE regra de lugar (o valida-css acusa falso). --controle tem de dar 0 (10/10, V2)
 node tools/verifica.js          🔴 OBRIGATORIO ANTES DE TODO COMMIT. 14 checagens, cada uma nascida
                                 de um erro real: residuo de replace, tags desbalanceadas, id
                                 duplicado, chave de CSS aberta, sintaxe de JS, carimbo defasado,

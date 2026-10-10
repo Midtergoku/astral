@@ -17,34 +17,10 @@
   <link rel="preload" href="/assets/fontes/archivo-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="preload" href="/assets/fontes/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin/>
   <meta name="robots" content="noindex"/>   <!-- area logada / ferramenta: fora da busca -->
-  <link rel="stylesheet" href="assets/css/app.css?v=101e8d05" />
+  <link rel="stylesheet" href="assets/css/app.css?v=66b8d489" />
 <style>
 
-
-
-
-
-
-
-
-
-
 /* ── MAIN ── */
-    .main {
-      margin-left: var(--sidebar-w);
-      flex: 1;
-      padding: 2rem 2.5rem;
-      max-width: calc(100vw - var(--sidebar-w));
-    }
-
-.topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-    }
-
-
 
 /* 03/10/2026 (UX-01) */
 .falha-de-carga { border-color: color-mix(in srgb, var(--brasa) 45%, var(--linha)); margin-bottom: var(--e3); }
@@ -78,18 +54,6 @@
     }
 
 /* ── CARDS ── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-g);
-      padding: 1.5rem;
-    }
-
-
-
-
-
-
 
 /* XP card */
     .xp-card {
@@ -158,8 +122,6 @@
     }
 
 .upload-card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
-
-
 
 .btn-upload:hover { opacity: 0.87; transform: translateY(-1px); }
 
@@ -879,13 +841,6 @@ a.balanco-banner-btn { text-decoration: none; display: inline-block; }
 /* animacao de entrada do .main removida: o elemento tem
      view-transition-name e quem o anima e o navegador. Ter as duas fazia
      a tela piscar na troca de pagina. */
-
-.card {
-    animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-
-
 
 /* ── O EDITAL, DENTRO DO DASHBOARD (28/09/2026) ──────────────────────────────
    Pedido dele: "a aba meu edital e bem simples e facilmente caberia no

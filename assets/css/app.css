@@ -234,6 +234,11 @@ body.saindo .main { animation: pageExit 150ms var(--saida) forwards; }
    ela parece ter FICADO no lugar enquanto so o conteudo trocou. */
 .sidebar { animation: none !important; }
 
+/* 10/10/2026 (Lote D, V2): os cartoes entram em cascata em TODAS as telas do app. Antes so 5 paginas
+   declaravam isto (cada uma com a sua copia), e as 8 mais novas entravam paradas -- os atrasos abaixo
+   ja existiam aqui para todas. Com movimento reduzido o base.css encurta para quase zero. */
+.card { animation: fadeUp 0.4s var(--saida) both; }
+
 .card:nth-child(1) { animation-delay: 0.05s; }
 
 .card:nth-child(2) { animation-delay: 0.10s; }

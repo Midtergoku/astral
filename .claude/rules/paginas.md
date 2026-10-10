@@ -623,3 +623,19 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
   escrever em `avaliar_condicao` (servidor) **e** em `progressoDe` (tela, só para o testa-motor) — o
   `testa-paridade-medalhas` falha se os dois discordarem.
 - **O botão ≡ do celular some ao rolar para baixo** (`astral-menu-some`, em `astral.js`). Não pôr nada fixo no mesmo canto.
+
+---
+
+## 17. A casca mora no base.css; a página só declara o que é DELA (10/10/2026, Lote D V2)
+
+- **`.main`, `.topbar`, `.page-title`, `.page-sub`, `.card`, `.section-title` já existem no `base.css`** (e a entrada em
+  cascata do `.card`, no `app.css`). Página nova **não copia** essas regras. Variação de verdade (relógio no meio,
+  respiro maior) entra como regra curta só com a propriedade diferente, e com o motivo no comentário.
+- 🔴 **Por que copiar é perigoso, e não só feio:** a cópia do `.card` no painel vinha DEPOIS de
+  `.falha-de-carga { border-color: brasa }` com a mesma força — e apagava a borda vermelha do aviso de banco fora
+  do ar desde 03/10. Ninguém via, porque o aviso quase nunca aparece.
+- **Mexeu em CSS movendo regra de lugar? Provar com `node tools/compara-estilo.js --resumo`** (estilo calculado,
+  elemento por elemento). O `valida-css` compara regra por regra e acusa diferença onde a tela não mudou.
+  O `--controle` (ref contra ele mesmo) deu **0 em 4.712 elementos** — a régua é confiável aqui, ao contrário
+  do print (seção 7).
+- A régua mede com movimento reduzido: **animação ela não vê**. Mudança de animação se confere à parte.

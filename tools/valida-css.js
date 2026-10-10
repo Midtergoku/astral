@@ -9,7 +9,9 @@ const { execSync } = require('child_process');
    nao e ferramenta. */
 const RAIZ = path.resolve(__dirname, '..');
 const GIT = process.env.LOCALAPPDATA + '\\Programs\\PortableGit\\cmd\\git.exe';
-const APP = ['dashboard','progresso','conquistas','edital','calendario','recursos','questoes','cronometro'];
+/* 10/10/2026 (Lote D, V2): a lista era escrita a mao (8 paginas) e ja havia 15 com barra lateral -- a regra da
+   casa e perguntar aos arquivos (paginas.md 8.11). Agora: toda pagina que carrega o app.css. */
+const APP = fs.readdirSync(RAIZ).filter((f) => f.endsWith('.html') && /assets\/css\/app\.css/.test(fs.readFileSync(path.join(RAIZ, f), 'utf8'))).map((f) => f.replace(/\.html$/, '')).sort();
 
 function splitRules(css) {
   const rules = []; let depth = 0, start = 0, inC = false;
@@ -95,4 +97,4 @@ for (const f of APP) {
   soA.slice(0, 3).forEach(d => console.log('        so no original: ' + d.slice(0, 110)));
   soB.slice(0, 3).forEach(d => console.log('        so no novo:     ' + d.slice(0, 110)));
 }
-console.log(`\n${ok ? 'CSS RESOLVIDO IDENTICO AO ORIGINAL EM TODAS AS 8 PAGINAS' : 'DIVERGENCIA DETECTADA'}`);
+console.log(`\n${ok ? `CSS RESOLVIDO IDENTICO AO ORIGINAL EM TODAS AS ${APP.length} PAGINAS` : 'DIVERGENCIA DETECTADA'}`);
