@@ -456,3 +456,11 @@ Despertador `astral-revisar-links` (segunda 09h UTC) → `chamar_revisao_links()
 (`x-astral-vigia` = `VIGIA_SEGREDO`; o endereço vem do cofre trocando `/vigia` por `/revisar-links`). Usa o `conferirLinks` de 30/09
 (**sem chave de API**). 12 guias por tabela por rodada, `revisado_em` mais antigo primeiro. **Só tira o morto com certeza.**
 Banco restaurado: `node tools/liga-vigia.js --projeto <ref>` liga os dois (o cofre é o mesmo).
+
+## 8.33. A leitura do edital traz os ASSUNTOS de cada matéria (10/10/2026)
+
+`processar-edital`: cada matéria ganhou `assuntos: string[]` (conteúdo programático, até 30, ≤ 80 caracteres, sem
+repetir — `validarAssuntos`). Regra no prompt: **não inventar tópico que o edital não lista**; matéria sem detalhe = `[]`.
+`max_tokens` 1500 → **4000** (paga-se só o que a resposta usa; estimado **+US$ 0,04 ≈ R$ 0,20 por edital**, uma vez por
+concurso — `historico/valores.md`). O painel guarda `assuntos` em `progresso.materias` (o `mesclar_materias` e o gatilho do
+domínio preservam o campo). Leituras antigas (cache `editais_lidos`) não têm o campo: a tela usa os assuntos comuns.

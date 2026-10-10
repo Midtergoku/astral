@@ -2763,6 +2763,8 @@ function verificarBalanco() {
         questoes: m.questoes,
         peso: m.peso,
         progresso: 0,
+        // 10/10/2026: os assuntos do conteudo programatico (Progresso > Materias do edital)
+        assuntos: Array.isArray(m.assuntos) ? m.assuntos.filter((a) => typeof a === 'string').slice(0, 30) : [],
       }));
 
       // Gera cronograma de hoje (2 matérias mais pesadas ainda não estudadas)

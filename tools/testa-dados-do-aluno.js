@@ -68,6 +68,8 @@ const SEMENTES = (u) => ({
   editais_reportados: `insert into public.editais_reportados (usuario_id, edital_hash, detalhe) values ('${u}', repeat('ab', 32), 'teste dados-do-aluno')`,
   // 10/10/2026 (3.22): o "Passei!" -- a aprovacao e o depoimento
   aprovacoes: `insert into public.aprovacoes (usuario_id, concurso, depoimento) values ('${u}', 'Teste dados-do-aluno', 'depoimento de teste')`,
+  // 10/10/2026: os assuntos marcados como estudados (Progresso > Materias do edital)
+  assuntos_estudados: `insert into public.assuntos_estudados (usuario_id, materia, assunto) values ('${u}', 'Química', 'Estequiometria')`,
 });
 
 const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".svg": "image/svg+xml" };

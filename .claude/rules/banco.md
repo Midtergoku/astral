@@ -395,3 +395,18 @@ geografia): de prova de **outro** estado **nunca** sai no `sortear_questoes`. O 
 `estado_do_concurso(edital.nome)`. `publicar_questoes` deduz estado e cargo quando não vierem (`cargo_da_prova`).
 🔴 **Ordenar por comparação que pode dar NULO:** em `desc` o nulo vem ANTES do verdadeiro — usar `is not distinct from`.
 Regressão: `testa-estado-e-cargo.js` (dev).
+
+## 8.41. Os assuntos de cada matéria, e o aluno marca o que estudou (10/10/2026, pedido dele) ✅
+
+Migration `20261010150000_assuntos_estudados`. **Fonte dos assuntos, em ordem:** (1) o EDITAL — `progresso.materias[].assuntos`,
+que a IA lê do conteúdo programático (`processar-edital`, desde 10/10); (2) senão, os **comuns** da matéria
+(`assets/js/assuntos-comuns.js`, e a tela DIZ que são os comuns); (3) mais os assuntos que o Banco tem.
+
+| Peça | O que é |
+|---|---|
+| `assuntos_estudados` | `(usuario_id, materia, assunto)` — o que o aluno MARCOU. RLS: só lê o seu; **sem grant de escrita** |
+| `marcar_assunto(materia, assunto, estudado)` | a única escrita. Matéria tem de estar no edital; teto de 2.000 marcas |
+| `materias_estudadas()` | agora devolve também `assuntos_edital` e `marcados` |
+
+- 🔴 **A marca NÃO dá XP, domínio nem medalha** — é declaração (o atalho que o 3.12 fechou). Organiza e mostra progresso.
+- Entra em `meus_dados`, no backup e no `testa-dados-do-aluno` (semente). Regressão: `node tools/testa-assuntos-edital.js` (20, dev).

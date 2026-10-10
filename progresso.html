@@ -282,6 +282,13 @@
 .edital-assuntos li.visto { color: var(--texto); }
 .edital-assuntos .conta { margin-left: auto; font-family: var(--dado); font-size: var(--t-xs); color: var(--texto-3); white-space: nowrap; }
 .edital-sem { margin: 0; padding: 0 .8rem .7rem 2.2rem; font-size: var(--t-xs); color: var(--texto-3); }
+/* 10/10/2026 (pedido dele): cada assunto e uma caixa de marcar de verdade -- "ja estudei". A marca NAO da XP
+   nem dominio (seria o atalho fechado no 3.12); ela organiza e mostra o progresso. */
+.edital-fonte { margin: 0 0 .5rem; padding: 0 .8rem 0 2.2rem; font-size: var(--t-xs); color: var(--texto-3); max-width: 68ch; }
+.edital-assuntos label { display: flex; align-items: center; gap: .6rem; flex: 1; min-height: 32px; cursor: pointer; }
+.edital-assuntos input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; margin: 0; }
+.edital-assuntos li.visto label > span:first-of-type { color: var(--texto); }
+.edital-assuntos .pelo-banco { font-size: var(--t-xs); color: var(--oliva-c); }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .grafico-topo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e3); flex-wrap: wrap; }
 .grafico-sub { font-size: .82rem; color: var(--texto-3); margin-top: .2rem; }
@@ -517,6 +524,7 @@
     from './assets/js/astral.js?v=224dc907';
   import { carregarProgresso, carregarEstatisticas, ultimasSemanas, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
   import { duracao, duracaoSeg, duracaoHoras } from './assets/js/formato.js?v=98782d1d';
+  import { assuntosDaMateria } from './assets/js/assuntos-comuns.js?v=7544da3f';
 
   let estado = {
     usuario: null,
@@ -693,26 +701,48 @@
     const estudada = (m) => (m.minutos || 0) > 0 || (m.respondidas || 0) > 0;
     const feitas = data.filter(estudada).length;
     const marca = (ok, rotulo) => `<span class="marca-estudo${ok ? ' ok' : ''}" aria-hidden="true"></span><span class="vh">${rotulo}</span>`;
+    /* 10/10/2026 (pedido dele): "nao e porque nao tem uma questao no banco que nao vai ter ali mostrando a
+       submateria (...) aquilo ali e para a pessoa se organizar, poder marcar se ela ja estudou ou nao".
+       A lista sai do EDITAL (a IA le o conteudo programatico) -- ou, se ele nao tem os assuntos lidos, dos
+       assuntos COMUNS da materia --, mais os que o Banco tem. Estudado = marcado pelo aluno OU respondeu
+       questao dele no Banco. Com 0 questoes no Banco, o assunto aparece do mesmo jeito. */
+    const chave = (s) => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     caixa.innerHTML = `
       <div class="section-header" style="margin-bottom:0">
         <div>
           <div class="section-title">Matérias do edital</div>
-          <div class="grafico-sub"><strong>${feitas} de ${data.length}</strong> ${data.length === 1 ? 'matéria já estudada' : 'matérias já estudadas'}. Toque numa matéria para ver os assuntos dela no Banco.</div>
+          <div class="grafico-sub"><strong>${feitas} de ${data.length}</strong> ${data.length === 1 ? 'matéria já estudada' : 'matérias já estudadas'}. Toque numa matéria para ver os assuntos e marcar o que você já estudou.</div>
         </div>
       </div>
-      <ul class="edital-lista">${data.map((m) => {
+      <ul class="edital-lista">${data.map((m, i) => {
         const ok = estudada(m);
-        const assuntos = Array.isArray(m.assuntos) ? m.assuntos : [];
-        const vistos = assuntos.filter((a) => a.respondidas > 0).length;
+        const doBanco = Array.isArray(m.assuntos) ? m.assuntos : [];
+        const porNome = new Map(doBanco.map((a) => [chave(a.nome), a]));
+        const marcados = new Set((Array.isArray(m.marcados) ? m.marcados : []).map(chave));
+        const { lista, fonte } = assuntosDaMateria({
+          edital: Array.isArray(m.assuntos_edital) ? m.assuntos_edital : [],
+          banco: doBanco.map((a) => a.nome), materiaBanco: m.banco || '', nome: m.nome });
+        const linhas = lista.map((nome) => {
+          const b = porNome.get(chave(nome));
+          const respondidas = b ? b.respondidas : 0;
+          return { nome, b, respondidas, marcado: marcados.has(chave(nome)), visto: marcados.has(chave(nome)) || respondidas > 0 };
+        });
+        const vistos = linhas.filter((l) => l.visto).length;
         const partes = ok
           ? [m.minutos > 0 ? hm(m.minutos * 60) : null, m.respondidas > 0 ? `${m.respondidas} ${m.respondidas === 1 ? 'questão' : 'questões'}` : null]
           : ['ainda não estudada'];
-        if (assuntos.length) partes.push(`${vistos} de ${assuntos.length} assuntos`);
-        const dentro = assuntos.length
-          ? `<ul class="edital-assuntos">${assuntos.map((a) => `<li class="${a.respondidas > 0 ? 'visto' : ''}">
-              ${marca(a.respondidas > 0, a.respondidas > 0 ? 'assunto já visto' : 'assunto ainda não visto')}<span>${esc(a.nome)}</span>
-              <span class="conta">${a.respondidas > 0 ? `${a.respondidas} de ${a.acervo}` : `${a.acervo} no Banco`}</span></li>`).join('')}</ul>`
-          : '<p class="edital-sem">Esta matéria ainda não tem questões no Banco: o progresso dela vem do tempo de estudo.</p>';
+        if (linhas.length) partes.push(`${vistos} de ${linhas.length} assuntos estudados`);
+        const aviso = fonte === 'edital' ? 'Os assuntos do conteúdo programático do seu edital.'
+          : fonte === 'comuns' ? 'Seu edital não detalhou os assuntos desta matéria: estes são os mais cobrados em provas militares.'
+          : fonte === 'banco' ? 'Os assuntos que o Banco de questões tem para esta matéria.' : '';
+        const dentro = linhas.length
+          ? `<p class="edital-fonte">${esc(aviso)}</p><ul class="edital-assuntos">${linhas.map((l, k) => `<li class="${l.visto ? 'visto' : ''}">
+              <label><input type="checkbox" data-materia="${att(m.nome)}" data-assunto="${att(l.nome)}" ${l.marcado ? 'checked' : ''}
+                ${l.respondidas > 0 && !l.marcado ? 'aria-describedby="pb-' + i + '-' + k + '"' : ''}>
+                <span>${esc(l.nome)}</span></label>
+              ${l.respondidas > 0 ? `<span class="pelo-banco" id="pb-${i}-${k}">${l.respondidas} no Banco</span>` : ''}
+              <span class="conta">${l.b ? (l.respondidas > 0 ? `${l.respondidas} de ${l.b.acervo}` : `${l.b.acervo} no Banco`) : ''}</span></li>`).join('')}</ul>`
+          : '<p class="edital-sem">O edital não detalhou os assuntos desta matéria. O progresso dela vem do tempo de estudo no cronômetro.</p>';
         return `<li><details class="edital-materia">
           <summary>${marca(ok, ok ? 'estudada' : 'ainda não estudada')}<span class="nome">${esc(m.nome)}</span>
             <span class="pct">${Math.round(Number(m.dominio) || 0)}%</span>
@@ -720,6 +750,30 @@
           ${dentro}</details></li>`;
       }).join('')}</ul>`;
     caixa.hidden = false;
+
+    // marcar / desmarcar: grava no servidor; se falhar, a caixa volta e a pessoa sabe
+    caixa.querySelectorAll('.edital-assuntos input[type="checkbox"]').forEach((cx) => {
+      cx.addEventListener('change', async () => {
+        const quer = cx.checked;
+        cx.disabled = true;
+        const { error: e } = await supabase.rpc('marcar_assunto', { p_materia: cx.dataset.materia, p_assunto: cx.dataset.assunto, p_estudado: quer });
+        cx.disabled = false;
+        if (e) {
+          cx.checked = !quer;
+          relatar(e, 'progresso/marcar_assunto');
+          toast('Não consegui guardar a marcação agora. Tente de novo.', 'error');
+          return;
+        }
+        const li = cx.closest('li');
+        li.classList.toggle('visto', quer || !!li.querySelector('.pelo-banco'));
+        // o resumo da materia acompanha sem recarregar
+        const det = cx.closest('details');
+        const todos = det.querySelectorAll('.edital-assuntos li');
+        const feitosAgora = det.querySelectorAll('.edital-assuntos li.visto').length;
+        const info = det.querySelector('.info');
+        if (info) info.textContent = info.textContent.replace(/\d+ de \d+ assuntos estudados/, `${feitosAgora} de ${todos.length} assuntos estudados`);
+      });
+    });
   }
 
   function desenharSemanas(est) {

@@ -61,7 +61,10 @@ function paginasAproximadas(bytes: Uint8Array): number | null {
   }
 }
 
-interface Materia { nome: string; questoes: number; peso: number }
+/* 10/10/2026 (pedido dele): os ASSUNTOS de cada materia, do conteudo programatico. Ele: "nao e porque nao
+   tem questao no banco que nao vai mostrar a submateria (...) aquilo ali e para a pessoa se organizar".
+   Lista vazia quando o edital nao detalha a materia. */
+interface Materia { nome: string; questoes: number; peso: number; assuntos: string[] }
 /* 30/09/2026 (item 10, o TAF): o edital tambem diz se ha teste fisico, quais
    provas e o indice minimo de cada sexo. `existe` e null quando o edital nao
    fala do assunto -- diferente de false ("este concurso nao tem TAF"). */
@@ -139,6 +142,24 @@ function validarForca(v: unknown): Forca {
  * Valida o formato antes de devolver. Sem isso, uma resposta estranha do modelo
  * so aparecia como tela quebrada no navegador do usuario.
  */
+/* Texto que veio da IA e vai para a tela: so string, curta, sem repetir, no maximo 30 por materia.
+   A tela ainda escapa (esc) -- isto aqui e o limite de tamanho, nao a defesa contra HTML. */
+function validarAssuntos(x: unknown): string[] {
+  if (!Array.isArray(x)) return [];
+  const vistos = new Set<string>();
+  const out: string[] = [];
+  for (const item of x) {
+    if (typeof item !== "string") continue;
+    const s = item.replace(/\s+/g, " ").trim().slice(0, 80);
+    const chave = s.toLowerCase();
+    if (!s || vistos.has(chave)) continue;
+    vistos.add(chave);
+    out.push(s);
+    if (out.length >= 30) break;
+  }
+  return out;
+}
+
 function validar(d: unknown): Edital {
   const e = d as Partial<Edital>;
   if (!e || typeof e !== "object" || !Array.isArray(e.materias) || e.materias.length === 0) {
@@ -151,6 +172,7 @@ function validar(d: unknown): Edital {
       nome: String(m.nome).trim().slice(0, 120),
       questoes: Number.isFinite(Number(m.questoes)) ? Math.max(0, Math.round(Number(m.questoes))) : 10,
       peso: Number.isFinite(Number(m.peso)) ? Math.max(0, Number(m.peso)) : 0,
+      assuntos: validarAssuntos((m as { assuntos?: unknown }).assuntos),
     }));
 
   if (materias.length === 0) {
@@ -275,7 +297,10 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
     // 30/09/2026: 1000 -> 1500. O TAF acrescenta ~100-150 tokens de saida; com
     // 30+ materias o JSON encostava em 1000 e cortaria no meio. O teto nao cobra
     // nada por si: paga-se so o que a resposta usa (ver historico/valores.md).
-    max_tokens: 1500,
+    // 10/10/2026: 1500 -> 4000, pelos ASSUNTOS de cada materia (~10 materias x ~15 assuntos = ~2.500 tokens a
+    // mais). Estimado: ~US$ 0,04 (~R$ 0,20) a mais por edital lido -- uma vez por concurso (o edital lido fica
+    // guardado). O primeiro edital real mede (historico/valores.md).
+    max_tokens: 4000,
     messages: [{
       role: "user",
       content: [
@@ -290,7 +315,7 @@ Deno.serve(servir("processar-edital", async (req: Request, usuario: Usuario, ctx
   "forca": "exercito",
   "patenteInicial": "Soldado",
   "materias": [
-    { "nome": "Nome da Matéria", "questoes": 10, "peso": 12.5 }
+    { "nome": "Nome da Matéria", "questoes": 10, "peso": 12.5, "assuntos": ["Assunto 1", "Assunto 2"] }
   ],
   "taf": {
     "existe": true,
@@ -317,6 +342,11 @@ Regras:
 - "fontePeso" diz QUAL dos três caminhos acima você usou, com EXATAMENTE um destes
   valores: "formula" (1), "questoes" (2) ou "igual" (3). Seja honesto: o aluno vê
   isso na tela, e um peso suposto apresentado como lido engana quem estuda.
+
+- "assuntos" são os tópicos do CONTEÚDO PROGRAMÁTICO daquela matéria, como o edital os lista — nomes
+  curtos (até ~8 palavras), na ordem do edital, no máximo 30 por matéria. Agrupe subitens miúdos no tópico
+  de cima (ex.: "Concordância verbal e nominal", não cada regra). Se o edital não detalhar a matéria,
+  use []. NÃO invente tópicos que o edital não lista: o aluno usa esta lista para marcar o que já estudou.
 
 - Ordene do maior para o menor peso
 

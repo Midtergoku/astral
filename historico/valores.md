@@ -390,3 +390,10 @@ para mudar**. Bateu no teto, a IA não é chamada e o aluno lê *"o Astral ating
 | 29/09/2026 | **8 editais reais medidos** (páginas, texto, matérias lidas no edital). Custo por aluno calculado sobre eles: **R$ 4,00 a R$ 6,75** (ainda estimativa: a IA não rodou). Descoberta: o Bombeiro do Rio tem 11 disciplinas — o guia pesa mais que o edital |
 | 30/09/2026 | §11: a "cara de feito na hora" (12 s) saiu, decisão dele. §12 novo: o custo das peças de 30/09 — tudo R$ 0, exceto o TAF lido do edital (~R$ 0,01 por edital, estimado) |
 | 02/10/2026 | §13 novo: o teto global de IA por dia (10 editais, 60 guias, 100 questões) e a leitura que falha depois de a IA responder passando a contar. Backup diário agendado no PC: R$ 0, ~2 MB por cópia (~730 MB/ano) |
+
+## 16. A leitura do edital com os assuntos (10/10/2026) — ESTIMATIVA
+
+A IA passou a devolver os assuntos do conteúdo programático de cada matéria (pedido dele, Progresso > Matérias do edital).
+Saída a mais estimada: ~10 matérias × ~15 assuntos ≈ **2.500 tokens** → **US$ 0,0375 ≈ R$ 0,20 por edital** (saída do
+Sonnet a US$ 15/milhão; câmbio ~R$ 5,6). **Uma vez por concurso** — o edital lido fica guardado e é reaproveitado (3.23).
+O teto subiu de 1.500 para 4.000 tokens, mas teto não cobra: paga-se o que a resposta usa. **O 1º edital real mede.**
