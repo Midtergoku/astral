@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=5dc4b49d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Progresso</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -647,7 +647,7 @@
 
     const [{ montarDiario, resumoDoDiario }, { revisoesDeHoje }] = await Promise.all([
       import('./assets/js/diario.js?v=0fd41147'),
-      import('./assets/js/revisao.js?v=243a3257'),
+      import('./assets/js/revisao.js?v=8dc9030c'),
     ]);
     const dias = montarDiario(data, 30);
     if (!dias.length) return;
@@ -886,7 +886,7 @@
         <div class="card stat-green">
           <div class="card-label">Domínio pelo peso</div>
           <div class="card-value">${ponderada}%</div>
-          <div class="card-sub">média ponderada pelo edital · simples ${media}%</div>
+          <div class="card-sub">a mesma conta da Doutrina e das medalhas · média simples: ${media}%</div>
         </div>
       </div>
 
@@ -975,7 +975,7 @@
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=cb783a04"></script>
+<script type="module" src="/assets/js/divisa.js?v=b3ffe355"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>

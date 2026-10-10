@@ -197,8 +197,9 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
     //      em p_streak, e o esperado era 64. Ver a migration 20260928100000.)
     //   RESISTENCIA 60 min de 90 = 0,667 -> 67
     //   AMPLITUDE   3 materias de 4 do edital = 75
-    //   DOUTRINA    media(60,40,20,0) = 30
-    const esperado = { disciplina: 74, resistencia: 67, amplitude: 75, doutrina: 30 };
+    //   DOUTRINA    09/10/2026 (NUM-08, roadmap 3.20): media PELO PESO, a mesma do Progresso --
+    //               (60x3 + 40x3 + 20x2 + 0x1) / 9 = 37,8 -> 38. Era a simples, (60+40+20+0)/4 = 30.
+    const esperado = { disciplina: 74, resistencia: 67, amplitude: 75, doutrina: 38 };
     for (const [k, v] of Object.entries(esperado)) {
       const got = Number(at[k]?.valor);
       if (Math.abs(got - v) <= 1) ok(`${k} bate com o esforco plantado`, `${got} (esperado ~${v})`);
@@ -316,7 +317,7 @@ const diasAtras = (n) => new Date(Date.now() - n * 24 * 3600 * 1000).toISOString
          disco (ver historico/erros.md). Comparar valor a valor nao tem
          barra invertida nenhuma, entao nao tem como se perder. */
       const valoresNaTela = naTela.valores.map((v) => String(v).trim());
-      const esperadoNaTela = ["74", "67", "75", "30", "—"];
+      const esperadoNaTela = ["74", "67", "75", "38", "—"];   // 09/10/2026 (NUM-08): Doutrina pelo peso (era 30)
       const iguais = esperadoNaTela.every((v, i) => valoresNaTela[i] === v);
       if (iguais) ok("os numeros da tela batem com o banco", valoresNaTela.join(" "));
       else falha("numeros da tela nao batem",

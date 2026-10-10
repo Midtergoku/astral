@@ -66,12 +66,19 @@ export function revisoesDeHoje(sessoes = [], hoje = diaDe(new Date().toISOString
     if (!bate.length) continue;
     const haDias = Math.max(...bate);
     const estudadaEm = [...dias].find((d) => distancia(d, hoje) === haDias);
-    revisoes.push({ materia, haDias, estudadaEm, feita: dias.has(hoje) });
+    // 09/10/2026 (NUM-11, roadmap 3.20): o estudo MAIS RECENTE antes de hoje. A tela dizia
+    // "estudada ha 30 dias" para quem estudou ha 30 E ha 3 -- verdade tecnica, leitura errada.
+    const recente = Math.min(...[...dias].map((d) => distancia(d, hoje)).filter((n) => n > 0));
+    revisoes.push({ materia, haDias, estudadaEm, recente, feita: dias.has(hoje) });
   }
   return revisoes.sort((a, b) => b.haDias - a.haDias || a.materia.localeCompare(b.materia, 'pt-BR'));
 }
 
 /** O texto curto do intervalo, para a tela. */
-export function quando(haDias) {
-  return haDias === 1 ? 'estudada ontem' : `estudada há ${haDias} dias`;
+export function quando(haDias, recente = haDias) {
+  const ha = (n) => (n === 1 ? 'ontem' : `há ${n} dias`);
+  // o intervalo da revisao e o ultimo estudo sao o mesmo dia: a frase de sempre
+  if (!Number.isFinite(recente) || recente === haDias) return `estudada ${ha(haDias)}`;
+  // 09/10/2026 (NUM-11): sao dias diferentes -- dizer os dois
+  return `revisão de ${haDias} dias · último estudo ${ha(recente)}`;
 }

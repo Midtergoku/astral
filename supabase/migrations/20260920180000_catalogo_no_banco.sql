@@ -85,7 +85,7 @@ values
   ('quatro_frentes', 'prata', false, 'Frente Ampla', 'Nenhuma matéria do seu edital ficou esquecida nos últimos 30 dias.', '{"tipo":"atributo","chave":"amplitude","min":100}'::jsonb),
   ('primeiro_dominio', 'prata', false, 'Terreno Tomado', 'Uma matéria passou de 70% de domínio.', '{"tipo":"materias","dominioMin":70,"quantas":1}'::jsonb),
   ('dois_dominios', 'prata', false, 'Dois Terrenos', 'Duas matérias acima de 70% de domínio.', '{"tipo":"materias","dominioMin":70,"quantas":2}'::jsonb),
-  ('meio_caminho', 'prata', false, 'Meio do Caminho', 'Média de domínio de 50% no edital.', '{"tipo":"atributo","chave":"doutrina","min":50}'::jsonb),
+  ('meio_caminho', 'prata', false, 'Meio do Caminho', 'Média de domínio de 50% no edital, pelo peso das matérias.', '{"tipo":"atributo","chave":"doutrina","min":50}'::jsonb),
   ('trinta_sessoes', 'prata', false, 'Veterano de Campo', 'Trinta sessões registradas.', '{"tipo":"sessoes","min":30}'::jsonb),
   ('cinquenta_sessoes', 'prata', false, 'Serviço Prolongado', 'Cinquenta sessões registradas.', '{"tipo":"sessoes","min":50}'::jsonb),
   ('dia_cheio', 'prata', false, 'Jornada Dupla', 'Quatro horas no cronômetro num único dia.', '{"tipo":"horasNoDia","min":4}'::jsonb),

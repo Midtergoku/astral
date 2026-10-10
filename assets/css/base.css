@@ -933,6 +933,8 @@ input:focus, textarea:focus, select:focus {
   border-style: dashed;
   font-weight: 500;
 }
+/* 09/10/2026 (NUM-13): a palavra que diz que ainda nao foi conquistada */
+.divisa .tag.emformacao .tag-rotulo { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--texto-3); }
 
 /* ═══ CABECALHO DE PAGINA ═══ V6, 02/08/2026
    Medido antes: a barra do topo tinha SEIS aparencias diferentes entre as 10

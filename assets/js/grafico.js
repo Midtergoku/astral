@@ -13,7 +13,9 @@
 
 import { duracaoSeg } from './formato.js';
 
-const DIAS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+/* 09/10/2026 (auditoria NUM-12, roadmap 3.20): era uma letra por dia -- "S S D S T Q Q",
+   tres S e dois Q, ninguem sabia qual era qual. Tres letras, como no Cronograma. */
+const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 // 01/10/2026: o formato de tempo e um so, para o site inteiro (formato.js).
 const formatar = duracaoSeg;

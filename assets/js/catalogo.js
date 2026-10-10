@@ -233,7 +233,7 @@ export const CONDECORACOES = [
     condicao: { tipo: 'materias', dominioMin: 70, quantas: 2 } },
 
   { id: 'meio_caminho',     metal: 'prata', nome: 'Meio do Caminho',
-    descricao: 'Média de domínio de 50% no edital.',
+    descricao: 'Média de domínio de 50% no edital, pelo peso das matérias.',   // 09/10/2026 (NUM-08): a ponderada
     condicao: { tipo: 'atributo', chave: 'doutrina', min: 50 } },
 
   { id: 'trinta_sessoes',   metal: 'prata', nome: 'Veterano de Campo',

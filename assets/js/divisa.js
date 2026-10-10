@@ -462,7 +462,10 @@ export function divisaHTML({ xp = 0, edital = '', materias = [], tagEscolhida = 
   if (p) {
     return `<span class="divisa" title="Faltam ${p.faltam}% em ${esc(p.materia)} para virar ${esc(p.nome)}">`
          + nivel
-         + `<span class="tag emformacao">${esc(p.nome)} · ${p.dominio}%</span></span>`;
+         /* 09/10/2026 (auditoria NUM-13, roadmap 3.20): "LEGISLADOR · 19%" no topo de toda pagina, sem
+            dizer que ainda NAO e a tag dela -- parecia conquistada. A versao cheia diz "em formacao";
+            a curta (barra lateral, estreita) fica so com o titulo ao passar o mouse. */
+         + `<span class="tag emformacao">${compacta ? '' : '<span class="tag-rotulo">em formação:</span> '}${esc(p.nome)} · ${p.dominio}%</span></span>`;
   }
   return `<span class="divisa">` + nivel
        + `<span class="tag vazia">sem tag</span></span>`;

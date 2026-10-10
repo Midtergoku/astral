@@ -54,6 +54,12 @@ const s = (materia, dia, hora = "23:00") => ({ materia, criado_em: `${dia}T${hor
   // 7. O texto da tela.
   quando(1) === "estudada ontem" && quando(7) === "estudada há 7 dias" ? ok("o texto: 'estudada ontem' / 'estudada há 7 dias'") : falha("texto", quando(1));
 
+  // 8. 09/10/2026 (NUM-11, roadmap 3.20): estudou ha 30 E ha 3 -- a tela dizia "estudada ha 30 dias"
+  r = revisoesDeHoje([s("Geografia", "2026-09-15"), s("Geografia", "2026-10-12")], HOJE);
+  const frase = r[0] ? quando(r[0].haDias, r[0].recente) : "";
+  frase === "revisão de 30 dias · último estudo há 3 dias"
+    ? ok("🎯 30 e 3 dias: diz a revisão E o último estudo", frase) : falha("a frase esconde o estudo recente", frase);
+
   console.log("\n" + "=".repeat(70));
   console.log(falhas ? `🔴 ${falhas} FALHA(S).` : "A REVISÃO ESPAÇADA PEGA O DIA CERTO.");
   process.exit(falhas ? 1 : 0);

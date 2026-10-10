@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=dac3309d"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=5dc4b49d"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Dashboard</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -1612,8 +1612,8 @@ body.primeiro-acesso .grid-3 { display: none; }
   import { duracao, duracaoHoras, hojeSP } from './assets/js/formato.js?v=98782d1d';
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=eafbde2d';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
-  import { aplicarGrafico } from './assets/js/grafico.js?v=20b646ad';
-  import { nivelDe } from './assets/js/divisa.js?v=cb783a04';
+  import { aplicarGrafico } from './assets/js/grafico.js?v=d19f5ed6';
+  import { nivelDe } from './assets/js/divisa.js?v=b3ffe355';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
   import { pontoFraco, diasAte, provaPassadaDe } from './assets/js/chefe.js?v=70026c8f';
 
@@ -1861,7 +1861,7 @@ function mostrarLevelUp(nomeNivel) {
        de montar a chamada acontece antes de existir promessa, e escapa dele --
        foi por isso que a rede de seguranca nao segurou. */
     sessoesDaSemana(session.user.id)
-      .then(s => aplicarGrafico(s, "Sua semana de estudo"))
+      .then(s => aplicarGrafico(s, "Seus últimos 7 dias"))
       .catch(() => {});
 
     /* A FICHA busca sozinha e NAO segura a tela, pela mesma razao do grafico
@@ -2010,7 +2010,7 @@ function mostrarLevelUp(nomeNivel) {
     disciplina:  '100 = 20 dias de estudo nos últimos 30 e uma sequência de 7',
     resistencia: '100 = uma sessão de 1h30 nos últimos 90 dias',
     amplitude:   '100 = todas as matérias do edital estudadas nos últimos 30 dias',
-    doutrina:    '100 = domínio médio de 100% no edital',
+    doutrina:    '100 = domínio médio de 100% no edital, pelo peso das matérias',
     precisao:    '100 = todas as questões do Banco acertadas de primeira',
   };
 
@@ -2214,7 +2214,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       const [{ abrirCartao }, { tagVestida }] = await Promise.all([
         import('./assets/js/cartao.js?v=a6dae106'),
-        import('./assets/js/divisa.js?v=cb783a04'),
+        import('./assets/js/divisa.js?v=b3ffe355'),
       ]);
       const n = nivelDaConta();
       const t = tagVestida(estado.materias, estado.tagEscolhida);
@@ -2245,7 +2245,7 @@ function mostrarLevelUp(nomeNivel) {
     const [est, cad, { revisoesDeHoje, quando }] = await Promise.all([
       carregarEstatisticas().then((data) => ({ data }), (error) => ({ error })),
       supabase.rpc('caderno_de_erros', { p_materia: null, p_limite: 1 }),
-      import('./assets/js/revisao.js?v=243a3257'),
+      import('./assets/js/revisao.js?v=8dc9030c'),
     ]);
     if (est.error) { relatar(est.error, 'dashboard/revisao'); return; }
     const revisoes = revisoesDeHoje(est.data?.sessoes || [], est.data?.hoje?.dia).slice(0, 5);
@@ -2264,7 +2264,7 @@ function mostrarLevelUp(nomeNivel) {
     document.getElementById('revisao-status').textContent = revisoes.length ? `${feitas} de ${revisoes.length}` : '';
     document.getElementById('revisao-lista').innerHTML = revisoes.map((r) => `
       <div class="revisao-item${r.feita ? ' feita' : ''}">
-        <div><div class="revisao-materia">${esc(r.materia)}</div><div class="revisao-quando">${esc(quando(r.haDias))}</div></div>
+        <div><div class="revisao-materia">${esc(r.materia)}</div><div class="revisao-quando">${esc(quando(r.haDias, r.recente))}</div></div>
         ${acao(r)}
       </div>`).join('') + (noCaderno ? `
       <div class="revisao-item caderno">
@@ -3453,7 +3453,7 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=cb783a04"></script>
+<script type="module" src="/assets/js/divisa.js?v=b3ffe355"></script>
 <script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>
