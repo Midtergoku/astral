@@ -649,3 +649,20 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
   redefinir-senha cadastro` (a régua só finge sessão em página com barra lateral; terceiros são bloqueados).
 - **Grade de dados (`.dados-grid` > `.dado` > `.dado-label` + `.dado-valor`)**: painel de fios finos do `base.css` —
   cada peça desenha o próprio fio, então vaga na última linha fica da cor do painel. Página não redeclara (V6, 10/10).
+
+---
+
+## 18. Velocidade das telas públicas no celular — medida em 10/10/2026
+
+No ar, celular 375 px, **4G lenta (1,6 Mbps, 150 ms) e processador 4× mais lento**, sem cache, pior de 2 rodadas:
+
+| Tela | LCP | CLS | Baixado | O mais pesado |
+|---|---|---|---|---|
+| index | 2,1 s | 0 | 234 KB | fonte Source Serif 4 (120 KB) |
+| login | 1,7 s | 0 | 288 KB | fonte (120 KB), supabase-js (73 KB) |
+| criar-conta | 1,8 s | 0 | 296 KB | idem |
+| cadastro | 1,7 s | 0 | 288 KB | idem |
+
+**Todas na faixa "bom" do Google (LCP ≤ 2,5 s; CLS ≤ 0,1).** A fonte do texto é o maior arquivo; enxugá-la pede
+ferramenta de fonte que o projeto não tem, para ganhar décimos — **não vale enquanto o LCP estiver bom**.
+Se uma tela nova passar de 2,5 s nessa régua, olhar primeiro imagem sem tamanho e script que bloqueia.
