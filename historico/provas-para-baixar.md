@@ -1,5 +1,87 @@
 # 📥 Provas para você baixar — lista organizada, testada uma por uma
 
+## 🎯 10/10/2026 — ROTEIRO DO DIA DAS PROVAS (roadmap 4.5) — ler isto antes de baixar
+
+> Pedido dele: *"o dia das provas, com uma orientação muito boa para baixar as provas com as respostas
+> corretamente"*. Tudo abaixo foi **medido hoje** (links abertos um por um, Banco contado na produção).
+
+### O que o Banco tem hoje (medido na produção, 10/10)
+
+| Banca | Anos | Questões no ar |
+|---|---|---|
+| EEAR (Aeronáutica, sargento) | 2017–2026 | **1.682** |
+| CBMES (Bombeiro ES) | 2022 | 96 |
+| Cebraspe (PRF) | 2021 | 73 |
+| ESA (Exército, sargento) | 2023 | 55 |
+| **Marinha · PM · AFA/EPCAR · EsPCEx** | — | **0** |
+
+Quem estuda para Marinha ou PM hoje abre o Banco e quase não acha prova da carreira dele. **É isso que o dia das
+provas resolve.**
+
+### Passo 1 — o que baixar, em ordem
+
+| # | O quê | Onde (aberto por mim hoje) | Por que nesta ordem |
+|---|---|---|---|
+| — | ✅ **EsPCEx 2025 e 2026** | **eu já baixei** (12 arquivos: 8 cadernos, 4 gabaritos). O site mudou para <https://www.espcex.eb.mil.br/index.php/concurso/provas-anteriores> | — |
+| 1 | **Marinha: EAM e Colégio Naval** | <https://www.marinha.mil.br/sspm/provasegabaritos/provag_princ> — prova e gabarito **na mesma página** | 0 no Banco, e só você consegue (bloqueio anti-robô; no seu navegador abre) |
+| 2 | **PM-SP (soldado, Vunesp)** | [Vunesp](https://www.vunesp.com.br/PMES2502) — procure "provas e gabaritos" na página do concurso | 0 de PM no Banco; Vunesp bloqueia robô |
+| 3 | **AFA e EPCAR** | <https://ingresso.afaepcar.fab.mil.br/> | idem, bloqueio anti-robô |
+| 4 | **CBMERJ 2024 — só o caderno** | [FGV](https://conhecimento.fgv.br/concursos/cbmerj23) | o gabarito eu já tenho: **um arquivo e entram 100 questões** |
+| 5 | **ESA — um gabarito em LETRAS** (qualquer ano) | [ESA](https://esa.eb.mil.br/index.php/pt/concurso?view=article&id=830:provas-anteriores&catid=45) ou agregadores | as provas eu já leio; falta a tabela "1-A, 2-C…". É o maior ganho parado |
+
+Pode parar em qualquer ponto: **cada prova que entra já vale sozinha.**
+
+### Passo 2 — as 5 conferências, em cada prova, antes de baixar
+
+| # | Confira | Como se vê | Exemplo real |
+|---|---|---|---|
+| 1 | **Baixou os DOIS: caderno e gabarito** | dois arquivos, quase sempre lado a lado na página | sem gabarito a prova não entra; é o gargalo nº 1 |
+| 2 | **Mesmo concurso e mesmo ano** nos dois | olhe o título no topo de cada PDF | "Concurso de Admissão **2026/2027**" no caderno e no gabarito |
+| 3 | **O cargo certo** | o nome do cargo na capa | no CBMMG tem Soldado, Cadete, **Enfermagem, Psicologia**… Só os de **combatente** (soldado, cadete, sargento, oficial de linha). Saúde, música, psicologia: **não baixe** |
+| 4 | **O mesmo tipo / modelo / versão / cor** | escrito na capa ("Tipo A", "Modelo B", "Versão 1", "Caderno Azul") | a EsPCEx 2025 tem **6 modelos (A a F)** com as questões embaralhadas. O gabarito do Modelo A **não serve** no Modelo B |
+| 5 | **Gabarito DEFINITIVO**, não o preliminar | o nome diz "definitivo", "final", "após recursos" | o "final" da EsPCEx 2025 já traz **"Anulada"** em algumas questões; o preliminar ainda não. Se só achar o preliminar, **baixe mesmo assim e me avise** |
+
+> 💡 **Se a capa não diz o tipo** (acontece: o caderno da EsPCEx 2026 não escreve a versão no texto), **baixe
+> assim mesmo.** Eu provo o casamento resolvendo questões; se não bater, a prova não entra. **Eu nunca chuto.**
+
+### Passo 3 — onde pôr
+
+Clique com o botão direito no link do PDF → **"Salvar link como…"** → salve em:
+
+```
+C:\Users\Lucas\Documents\ASTRAL-provas\_chegada\
+```
+
+**Não precisa renomear nada.** "prova (3).pdf" serve.
+
+### O que NÃO baixar
+
+| Não baixe | Por quê |
+|---|---|
+| Prova **"comentada"** ou **"resolvida"** de cursinho (Estratégia, Qconcursos com marca d'água…) | o texto é do cursinho, não da banca. E o gabarito deles às vezes erra. **Só o PDF oficial**, com o brasão/logo da banca |
+| Prova só de **redação** ou **discursiva** | o Banco é de múltipla escolha (ou Certo/Errado, como a PRF) |
+| **TAF**, exame de saúde, psicológico | não são questões |
+| Prova de cargo **de saúde, música, capelão, psicologia** | não é o público do Astral |
+
+Agregador (PCI Concursos, Qconcursos) **só quando o site oficial tirou a prova do ar**, e só o PDF oficial que eles
+guardam.
+
+### O que eu faço depois (você não faz nada)
+
+| Etapa | Ferramenta |
+|---|---|
+| Abro cada PDF e digo o que é: caderno ou gabarito, órgão, ano, tipo | `node tools/tria-provas.js` |
+| Caso o caderno com o gabarito do mesmo tipo e **resolvo pelo menos 5 questões na mão** para provar o casamento | à mão |
+| Importo; questão com símbolo perdido, figura faltando ou alternativas trocadas entra **fora do ar** | `tools/importa-provas.js` |
+| Passo as 14 conferências antes de publicar | `historico/revisao-de-questoes.md` |
+| Marco estado e cargo, para matéria regional não aparecer para aluno de outro estado | conferência 14 |
+
+✏️ **Correção a este arquivo:** mais abaixo está escrito que *"Cebraspe usa Certo/Errado, formato que o acervo
+ainda não guarda"*. **Já guarda**: são as 73 questões da PRF 2021 no ar (medido em 10/10). O link antigo da EsPCEx
+(`/index.php/provas-anteriores`) deu **404** hoje; o novo está na tabela acima.
+
+---
+
 ## 🆕 29/09/2026 — o jeito novo: você só baixa, eu organizo
 
 > Proposta dele: *"eu baixo, coloco numa outra pasta tudo, e você entra nos arquivos, vê,

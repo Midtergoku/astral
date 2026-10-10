@@ -1,3 +1,11 @@
+# ▶️ 10/10/2026 (noite) — ELE ATIVOU AS DUAS ETAPAS; 4.5 COM ROTEIRO PRONTO
+
+Medido: a conta do dono tem **1 fator verificado** na produção (o `checa-saude` diz "o dono entra com senha + codigo").
+**4.5:** o roteiro do dia das provas está no topo de `historico/provas-para-baixar.md` (o que baixar em ordem, as 5
+conferências, onde pôr, o que não baixar). A EsPCEx mudou de endereço e **liberou os PDFs: eu baixei 2025 (modelos A–F +
+gabarito final) e 2026 (1º e 2º dia + gabarito)** para `ASTRAL-provas/_chegada`. **Próximo: importar a EsPCEx** (casar
+modelo com gabarito resolvendo questões; o caderno de 2026 não escreve a versão no texto). Ele baixa o resto quando quiser.
+
 # ✅ 10/10/2026 (fim da tarde) — DUAS ETAPAS NA CONTA DO DONO (4.4 feito; falta ele escanear)
 
 TOTP ligado na produção (`tools/liga-duas-etapas.js`) · cartão "Verificação em duas etapas" em Minha conta (só o dono) ·
