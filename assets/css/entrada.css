@@ -12,7 +12,7 @@ nav {
   justify-content: space-between;
   padding: 1.25rem 2rem;
   border-bottom: 1px solid var(--border);
-    }
+}
 
 .logo span { color: var(--purple); }
 
@@ -25,13 +25,13 @@ main {
   justify-content: center;
   padding: 3rem 1.5rem;
   position: relative;
-    }
+}
 
 .card p.subtitle {
   color: var(--muted);
   font-size: 0.9rem;
   margin-bottom: 1.75rem;
-    }
+}
 
 .btn-google {
   width: 100%;
@@ -50,7 +50,7 @@ main {
   cursor: pointer;
   transition: border-color 0.2s;
   margin-bottom: 1.25rem;
-    }
+}
 
 .btn-google:hover { border-color: var(--purple-lt); }
 
@@ -58,32 +58,32 @@ main {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-    }
+}
 
 .divider {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
-    }
+}
 
 .divider::before, .divider::after {
   content: '';
   flex: 1;
   height: 1px;
   background: var(--border);
-    }
+}
 
 .divider span {
   color: var(--muted);
   font-size: 0.8rem;
-    }
+}
 
 label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text);
-    }
+}
 
 input {
   background: var(--bg);
@@ -96,14 +96,14 @@ input {
   width: 100%;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-    }
+}
 
 input::placeholder { color: var(--muted); }
 
 input:focus {
   border-color: var(--purple);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--latao) 15%, transparent);
-    }
+}
 
 .btn-primary {
   width: 100%;
@@ -117,19 +117,19 @@ input:focus {
   font-size: var(--t-md);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
-    }
+}
 
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px color-mix(in srgb, var(--latao) 35%, transparent);
-    }
+}
 
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-    }
+}
 
 .error-msg {
   background: color-mix(in srgb, var(--brasa-c) 8%, transparent);
@@ -140,20 +140,20 @@ input:focus {
   font-size: 0.85rem;
   margin-bottom: 1rem;
   display: none;
-    }
+}
 
 .bottom-link {
   text-align: center;
   margin-top: 1.25rem;
   font-size: var(--t-sm);
   color: var(--muted);
-    }
+}
 
 .bottom-link a {
   color: var(--purple-lt);
   text-decoration: none;
   font-weight: 500;
-    }
+}
 
 .bottom-link a:hover { text-decoration: underline; }
 
@@ -163,7 +163,7 @@ footer {
   text-align: center;
   color: var(--muted);
   font-size: 0.82rem;
-    }
+}
 
 .custom-checkbox {
   appearance: none;
@@ -178,14 +178,14 @@ footer {
   position: relative;
   margin-top: 0.15rem;
   transition: border-color 0.2s, background 0.2s;
-    }
+}
 
 .custom-checkbox:hover { border-color: var(--purple-lt); }
 
 .custom-checkbox:checked {
   background: var(--purple);
   border-color: var(--purple);
-    }
+}
 
 .custom-checkbox:checked::after {
   content: '';
@@ -197,7 +197,7 @@ footer {
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-    }
+}
 
 .success-state {
   display: none;
@@ -205,4 +205,81 @@ footer {
   align-items: center;
   text-align: center;
   padding: 1rem 0;
-    }
+}
+
+/* ── 10/10/2026 (V5, parte 2): a versao comum a entrar, criar conta e redefinir senha. A lista de espera
+   (cadastro.html) tem a propria, um pouco maior -- formulario mais longo -- e ela continua vencendo. ── */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--corpo);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.back-link {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-block; padding-block: .4rem; margin-block: -.4rem;   /* area de toque >= 24 px sem mexer na pagina (04/10, UX-08) */
+}
+
+main::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--latao) 12%, transparent) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-g);
+  padding: 2.25rem;
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
+}
+
+.card h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+}

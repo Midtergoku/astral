@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
 <link rel="stylesheet" href="/assets/css/base.css?v=acb17e6e"/>
-<link rel="stylesheet" href="/assets/css/entrada.css?v=93cc73d9"/>
+<link rel="stylesheet" href="/assets/css/entrada.css?v=61af0ea5"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Entrar</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -32,72 +32,11 @@
   <meta name="twitter:card" content="summary_large_image"/>
   <style>
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--corpo);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo {
-      font-family: var(--display);
-      font-weight: 800;
-      font-size: 1.4rem;
-      color: var(--white);
-      text-decoration: none;
-    }
-
-    .back-link {
-      color: var(--muted);
-      font-size: 0.85rem;
-      text-decoration: none;
-      display: inline-block; padding-block: .4rem; margin-block: -.4rem;   /* area de toque >= 24 px sem mexer na pagina (04/10, UX-08) */
-    }
-
-    main::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 400px;
-      background: radial-gradient(circle, color-mix(in srgb, var(--latao) 12%, transparent) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-g);
-      padding: 2.25rem;
-      width: 100%;
-      max-width: 440px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .card h1 {
-      font-family: var(--display);
-      font-weight: 800;
-      font-size: 1.6rem;
-      color: var(--white);
-      margin-bottom: 0.4rem;
-      letter-spacing: -0.02em;
-    }
-
     /* Google Button */
 
     /* Divider */
 
     /* Form */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.45rem;
-      margin-bottom: 1rem;
-    }
 
     .forgot-link {
       display: block;
@@ -112,18 +51,6 @@
       margin-bottom: 0.6rem;
     }
     .forgot-link:hover { color: var(--purple-lt); }
-
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 0.4rem;
-    }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .ok-msg {
