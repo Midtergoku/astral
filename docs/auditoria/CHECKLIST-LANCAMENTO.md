@@ -73,10 +73,19 @@ cena (Lote 4). Fora isso, o produto está pronto pela régua da própria auditor
 |---|---|---|
 | ✅ | Bateria de testes rodando no `astral-dev`, não na produção (COD-02) | `roda-testes` liga `ASTRAL_DEV=1` sozinho; só `testa-site`, `testa-vitrine`, `testa-lighthouse` e `testa-restauracao` olham o site no ar |
 | ✅ com ressalva | `checa-saude` verde; `erros_cliente` sem erro novo nas últimas 24 h | Produção: **0 erros de aluno nas últimas 24 h**. Nos últimos 7 dias, 30 — **todos de um único episódio em 04/10, 02h17–02h35** (o servidor do Supabase fora do ar por minutos). **Ressalva:** o `checa-saude` mostra o alerta do vigia com 20 falhas de `buscar-recursos` — **são dos meus testes de 09/10** (já consertados) e saem da janela de 24 h em 10/10 à tarde |
-| ✅ | Contas de teste e simulação: 0 na produção | Produção em 10/10: **1 conta de teste** (`lighthouse-…@astral-teste.local`, de 09/10) — sobra de uma rodada que a bateria matou pelo tempo. **Consertado na raiz:** o `testa-lighthouse` agora apaga as próprias sobras ao começar (commit `b165751`). A "SIMULAÇÃO — teste do dono" na conta dele é **de propósito**: ele quer ver o produto cheio, e ela é revertida no dia do crédito, antes do 1º edital dele (memória `primeiro-edital-e-do-lucas`) |
+| ✅ | Contas de teste e simulação: 0 na produção | **Medido depois da bateria: 0 contas de teste.** Antes dela havia **1** (`lighthouse-…@astral-teste.local`, de 09/10) — sobra de uma rodada que a bateria matou pelo tempo. **Consertado na raiz:** o `testa-lighthouse` agora apaga as próprias sobras ao começar (commit `b165751`). A "SIMULAÇÃO — teste do dono" na conta dele é **de propósito**: ele quer ver o produto cheio, e ela é revertida no dia do crédito, antes do 1º edital dele (memória `primeiro-edital-e-do-lucas`) |
 
 ---
 
 ## Resultado da bateria de 10/10
 
-*(preenchido quando a bateria terminar)*
+`node tools/roda-testes.js`, 10/10/2026, das 03h10 às 03h52 (medido pela hora do arquivo de saída): **91 de 92 passaram** — 67 no `astral-dev`,
+4 na produção (site, vitrine, Lighthouse, restauração), 21 só de tela. Pulado de propósito: `testa-edital-real`
+(gasta crédito de verdade).
+
+| Falha | O que era | Destino |
+|---|---|---|
+| `testa-lighthouse` — Minhas tags com 95 de acessibilidade | O nome e o "RARA" das divisas verde-oliva saíam no oliva **escuro**: 2,79:1 sobre o cartão (piso 4,5). Defeito desde 19/09, que só apareceu porque a conta de teste ganhou a "Vigília" | **Consertado** (commit `604f96b`) e medido de novo no ar: **100** |
+
+**Depois da bateria, na produção:** contas de teste = **0** (a sobra de 09/10 foi apagada pela varredura nova
+na rodada do Lighthouse), contas = 7.

@@ -59,6 +59,14 @@ no astral-dev.
 
 **Próximo do design:** V7 (gamificação — ler a skill antes: muito é de propósito). V4 (página inicial) espera ele.
 
+**Checklist de lançamento conferido (10/10):** `docs/auditoria/CHECKLIST-LANCAMENTO.md` — **22 de 28 com prova**.
+O que falta é só o que ele mandou deixar por último (Lote 5: crédito, pagamento, Vercel Pro, preço = checkout;
+Lote 4: e-mail) e o canal de suporte (guardado, item 4). **Bateria 10/10: 91 de 92** — a falha (contraste das
+divisas oliva em Minhas tags) foi consertada e medida de novo: 100. Contas de teste na produção: **0**.
+
+**Gamificação:** do painel do RPG só faltam o R4 (simulado — guardado, item 5) e o R14 (raridade — adiado por ele,
+dispara sozinho com 200 usuários). V7 está, na prática, feito pelos R0–R15.
+
 ## (anterior) PRÓXIMO: Lote D (design) ou Lote 4 — ver o topo do ROADMAP (ordem decidida por ele: Lote 3 primeiro, design depois)
 
 > ✅ **3.25 feito em 10/10** (o Banco respeita estado e cargo). **O Lote 3 terminou** (3.23 parado pela P6).
