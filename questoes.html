@@ -3,7 +3,7 @@
 <head>
 
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=acb17e6e"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Questões</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -95,27 +95,8 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
 
 .aviso-quota a { color: var(--purple-lt); font-weight: 600; }
 
-.btn-primary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      background: var(--purple);
-      color: var(--breu);
-      border: none;
-      padding: 0.85rem 2rem;
-      border-radius: var(--r-g);
-      font-family: var(--corpo);
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-      width: 100%;
-    }
-
-.btn-primary:hover { opacity: 0.87; transform: translateY(-1px); }
-
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+/* o botao principal e o .btn .btn-roxo do base.css (Lote D, V2, 10/10/2026); aqui so: o de gerar ocupa a linha */
+#btn-gerar { width: 100%; justify-content: center; }
 
 .btn-secondary {
       display: inline-flex;
@@ -676,7 +657,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
       traz provas militares antigas, que são documento público — as mesmas que já caíram,
       com o gabarito oficial. Não dependem de IA, então não dependem de o projeto se pagar.
     </div>
-    <a class="btn-primary" href="banco.html" style="width:auto;display:inline-flex;margin-top:1.25rem;text-decoration:none;">
+    <a class="btn btn-roxo" href="banco.html" style="width:auto;display:inline-flex;margin-top:1.25rem;text-decoration:none;">
       Ir para o banco de questões</a>
   </div>
 
@@ -716,7 +697,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
       <!-- Preenchido por mostrarQuota(). Fica vazio se a consulta falhar: um
            aviso que nao carregou nao pode impedir a pessoa de usar o produto. -->
       <div class="aviso-quota" id="aviso-quota" role="status" aria-live="polite"></div>
-      <button class="btn-primary" id="btn-gerar" onclick="gerarQuestoes()">
+      <button class="btn btn-roxo" id="btn-gerar" onclick="gerarQuestoes()">
         Gerar questões</button>
     </div>
   </div>
@@ -745,7 +726,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     <div id="questoes-container"></div>
 
     <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
-      <button class="btn-primary" id="btn-proxima" style="width:auto;display:none;" onclick="proximaQuestao()">
+      <button class="btn btn-roxo" id="btn-proxima" style="width:auto;display:none;" onclick="proximaQuestao()">
         Próxima questão</button>
     </div>
   </div>
@@ -775,7 +756,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
     </div>
     <div class="resultado-acoes">
       <button class="btn-secondary" onclick="novaConfiguracao()">Nova sessão</button>
-      <button class="btn-primary" style="width:auto;" onclick="repetirSessao()">Repetir esta sessão</button>
+      <button class="btn btn-roxo" style="width:auto;" onclick="repetirSessao()">Repetir esta sessão</button>
     </div>
   </div>
 

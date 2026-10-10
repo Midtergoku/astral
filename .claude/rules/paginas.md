@@ -641,3 +641,6 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
 - A régua mede com movimento reduzido: **animação ela não vê**. Mudança de animação se confere à parte.
 - **Toast: um só, no `astral.js`** (injetado ao carregar o módulo, não só no 1º aviso). Página **não declara `.toast`**.
   Ícone opcional: `<span class="toast-icon" aria-hidden="true">` — aparece só no sucesso. Regressão: `node tools/testa-toast.js`.
+- **Botão: `class="btn btn-roxo"` (principal) ou `class="btn btn-fantasma"` (secundário)** — aparência, subir, brilho,
+  afundar e desligado vêm do `base.css`. Página não redesenha botão; só ajusta largura/alinhamento do dela (`#btn-gerar`).
+  `.btn-primary` sobrou só nas telas de entrada (V5) e como 3ª classe no Banco.

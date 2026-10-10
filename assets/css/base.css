@@ -514,6 +514,12 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
 .btn-roxo    { background: var(--latao); color: #121A24; border-color: var(--latao); }
 .btn-fantasma{ background: transparent; color: var(--texto); border-color: var(--linha); }
 .zona-perigo .btn-fantasma { color: var(--brasa-c); border-color: color-mix(in srgb, var(--brasa) 50%, transparent); }
+/* 10/10/2026 (Lote D, V2): a casca nao tinha estado DESLIGADO -- o "Comecar" do Banco, travado enquanto
+   carrega, parecia identico ao que se pode apertar. Apagado e sem subir/brilhar. Opacidade so no botao,
+   que e peca unica (a regra do 3.10 fala de cartao inteiro, onde ela derruba o texto de dentro). */
+.btn:disabled, .btn:disabled:hover, .btn:disabled:active,
+.btn[aria-disabled="true"], .btn[aria-disabled="true"]:hover { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn:disabled::before, .btn:disabled::after { display: none; }
 @media (hover: hover) and (pointer: fine) {
   .btn-roxo:hover     { background: var(--latao-c); border-color: var(--latao-c); }
   .btn-fantasma:hover { border-color: var(--latao); color: var(--latao-c); }
