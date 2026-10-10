@@ -19,13 +19,19 @@
 
 | | |
 |---|---|
-| Feito e no ar | **3.22** (Passei!) · **3.21** (código) · **3.20** (números menores) · **3.19** (primeiro acesso) · **3.18** (textos legais) · **3.17** (painel do negócio) · **3.16** (sessão e senha) · **3.15** (vigia por e-mail; bateria no dev) · **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
+| Feito e no ar | **3.24** (links toda semana) · **3.22** (Passei!) · **3.21** (código) · **3.20** (números menores) · **3.19** (primeiro acesso) · **3.18** (textos legais) · **3.17** (painel do negócio) · **3.16** (sessão e senha) · **3.15** (vigia por e-mail; bateria no dev) · **3.14** (prova no cronograma) · **3.10b, 3.11b** (refeitos com o Chrome DevTools/Lighthouse e as regras da Vercel) · **3.12** (trapaça e segredo, 5 de 5 — GAM-06 pela leitura do edital) · **3.13** (escada e XP) · **3.26, 3.27, 3.28** (os 3 pedidos dele de 09/10) |
 | Roadmap | **versão 3** no topo do `docs/auditoria/ROADMAP.md`: skill por item, **Lote D (design)** dentro do roadmap, ordem decidida por ele: **Lote 3 primeiro, design depois** |
 | Skills | ~25 instaladas a pedido dele (`historico/decisoes.md` § 0.6 e 0.7); **impeccable fica na 4.0.4** (decisão dele) |
 | Ferramentas novas | `testa-lighthouse` (precisa do CLI: `npm i chrome-devtools-mcp@latest -g`), `testa-trapaca`, `testa-escada`, `testa-barra-lateral`, `testa-rebalanceio`, `testa-materias-estudadas`; o `testa-acessivel` ganhou as regras da Vercel |
 | Ele pediu | **tudo em português do Brasil, sempre** (memória `sempre-em-portugues`) |
 
-## ▶️ PRÓXIMO: 3.23 — edital guardado, reaproveitar sem o aluno perceber
+## ▶️ PRÓXIMO: 3.25 — cada estado e cada cargo é um concurso diferente
+
+Ver a linha do 3.25 no ROADMAP.
+
+> ⏸ **3.23 parado pela P6** (espera 20 editais reais; o lembrete dispara sozinho). ✅ **3.24 feito em 10/10** (links do guia toda semana).
+
+## (parado) 3.23 — edital guardado, reaproveitar sem o aluno perceber
 
 Ver a linha do 3.23 no ROADMAP (reescrita em 03/10, correção dele: não existe lista para escolher).
 

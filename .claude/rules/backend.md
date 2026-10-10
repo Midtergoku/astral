@@ -447,3 +447,12 @@ Ao escrever mensagem nova: dizer **o que fazer** e **se é o arquivo, a internet
 - **Auth (produção e dev):** `jwt_exp 900` · `password_required_characters` letras+números · `security_update_password_require_reauthentication true`.
   O `confere-auth.ps1` vigia os três. 🔴 **Mudar a config de login: telas primeiro, depois a config** (a tela velha mostraria erro em inglês).
 - A leitura logo depois do PATCH pode vir com os valores velhos (**atraso de alguns segundos, medido**) — reler antes de concluir que falhou.
+
+---
+
+## 8.32. revisar-links — o guia conferido toda semana (10/10/2026, roadmap 3.24 / CE-08)
+
+Despertador `astral-revisar-links` (segunda 09h UTC) → `chamar_revisao_links()` → função `revisar-links`, com o **segredo do vigia**
+(`x-astral-vigia` = `VIGIA_SEGREDO`; o endereço vem do cofre trocando `/vigia` por `/revisar-links`). Usa o `conferirLinks` de 30/09
+(**sem chave de API**). 12 guias por tabela por rodada, `revisado_em` mais antigo primeiro. **Só tira o morto com certeza.**
+Banco restaurado: `node tools/liga-vigia.js --projeto <ref>` liga os dois (o cofre é o mesmo).

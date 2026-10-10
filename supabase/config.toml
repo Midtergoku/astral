@@ -73,3 +73,12 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/vigia/deno.json"
 entrypoint = "./functions/vigia/index.ts"
+
+# 10/10/2026 (roadmap 3.24, CE-08): os links do guia conferidos toda semana. Quem chama
+# e o despertador do banco (pg_cron -> chamar_revisao_links), com o MESMO segredo do
+# vigia (x-astral-vigia = VIGIA_SEGREDO). Sem o segredo configurado, recusa tudo.
+[functions.revisar-links]
+enabled = true
+verify_jwt = false
+import_map = "./functions/revisar-links/deno.json"
+entrypoint = "./functions/revisar-links/index.ts"
