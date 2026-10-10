@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=acb17e6e"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=5a800a23"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Minha conta</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -30,46 +30,18 @@
 }
 .section-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.6; }
 
-.dados-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-.dado { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-g); padding: 0.9rem 1rem; }
-.dado-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.3rem; }
-.dado-valor { font-size: 0.95rem; color: var(--white); font-weight: 500; word-break: break-word; }
+/* 10/10/2026 (Lote D, V6): a grade de dados, os botoes (.btn .btn-roxo .btn-fantasma) e a zona de perigo
+   vem do base.css -- esta pagina tinha copia de todos, com outra letra e outro canto, e a copia da grade
+   misturada com a do base deixava faixas cinzas entre os dados. Aqui fica so o que e DELA. */
+.btn-perigo { background: var(--brasa); color: #fff; border-color: var(--brasa); }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: var(--r-g);
-  padding: 0.75rem 1.15rem;
-  font-family: var(--corpo);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.2s, border-color 0.2s;
-}
-.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
-.btn-roxo { background: var(--purple); color: var(--breu); }
-.btn-roxo:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px color-mix(in srgb, var(--latao) 30%, transparent); }
-.btn-fantasma { background: transparent; color: var(--text); border-color: var(--border); }
-.btn-fantasma:hover:not(:disabled) { border-color: var(--purple-lt); }
-.btn-perigo { background: var(--red); color: #fff; }
-.btn-perigo:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px color-mix(in srgb, var(--brasa-c) 30%, transparent); }
-
-.zona-perigo { border-color: color-mix(in srgb, var(--brasa-c) 28%, transparent); }
-.zona-perigo .section-title { color: var(--red); }
-
-.aviso {
-  background: color-mix(in srgb, var(--brasa-c) 7%, transparent);
-  border: 1px solid color-mix(in srgb, var(--brasa-c) 22%, transparent);
-  border-radius: var(--r-g);
-  padding: 0.9rem 1rem;
-  font-size: 0.85rem;
-  line-height: 1.65;
-  margin-bottom: 1.15rem;
-}
-.aviso ul { margin: 0.5rem 0 0 1.1rem; }
+/* o quadro "o que some junto": o miolo em cinza, o que importa em claro -- tudo em claro pesava como negrito */
+.aviso { line-height: 1.65; color: var(--texto-2); }
+.aviso strong { color: var(--texto); }
+.aviso ul { margin: 0.5rem 0 0.75rem 1.1rem; }
 .aviso li { margin-bottom: 0.25rem; }
+.aviso p { margin: 0 0 0.5rem; max-width: 68ch; }
+.aviso p:last-child { margin-bottom: 0; }
 
 .confirmacao { display: none; margin-top: 1.15rem; }
 .confirmacao input {
@@ -100,7 +72,6 @@
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
   .main { margin-left: 0; padding: 1.25rem; }
-  .dados-grid { grid-template-columns: 1fr; }
 }
 </style>
 <!-- Segura o clique que chega antes do modulo carregar. NAO pode ser module.
@@ -283,9 +254,9 @@
         <li>Histórico do cronômetro e eventos do calendário</li>
         <li>Sua inscrição na lista de espera, se houver</li>
       </ul>
-      Do histórico de troca de plano fica só o fato (de qual plano para qual, e quando), sem seu
-      e-mail. Registros técnicos de erro ficam no máximo 12 meses, sem ligação com você.<br>
-      Se quiser guardar alguma coisa, <strong>baixe seus dados antes</strong>.
+      <p>Do histórico de troca de plano fica só o fato (de qual plano para qual, e quando), sem seu
+      e-mail. Registros técnicos de erro ficam no máximo 12 meses, sem ligação com você.</p>
+      <p>Se quiser guardar alguma coisa, <strong>baixe seus dados antes</strong>.</p>
     </div>
 
     <button class="btn btn-fantasma" id="btn-quero-excluir">Quero excluir minha conta</button>

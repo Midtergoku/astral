@@ -647,3 +647,5 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
 - **Telas de entrada (entrar, criar conta, redefinir senha, lista de espera) carregam `assets/css/entrada.css`** logo depois
   do `base.css`. Regra repetida entre elas vai para lá — prova com `node tools/compara-estilo.js -- login criar-conta
   redefinir-senha cadastro` (a régua só finge sessão em página com barra lateral; terceiros são bloqueados).
+- **Grade de dados (`.dados-grid` > `.dado` > `.dado-label` + `.dado-valor`)**: painel de fios finos do `base.css` —
+  cada peça desenha o próprio fio, então vaga na última linha fica da cor do painel. Página não redeclara (V6, 10/10).

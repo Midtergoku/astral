@@ -458,18 +458,20 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   margin-right: .6rem;
   vertical-align: -.06em;
 }
+/* 10/10/2026 (Lote D, V6): os fios eram o FUNDO aparecendo pela fenda de 1px -- e onde a ultima linha
+   tinha vaga (6 dados em 4 colunas), a vaga inteira virava um bloco cinza. Agora cada peca desenha o
+   proprio fio (direita e embaixo) e a vaga fica da cor do painel. O que passa da borda o overflow corta. */
 .dados-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 1px;
-  background: var(--linha);
+  background: var(--casco-2);
   border: 1px solid var(--linha);
   border-radius: var(--r-p);
   overflow: hidden;
   margin-top: var(--e3);
 }
-.dados-grid > * { background: var(--casco-2); padding: var(--e3); }
-.dados-grid dt, .dados-grid .rotulo, .dados-grid strong {
+.dados-grid > * { padding: var(--e3); box-shadow: 1px 0 0 var(--linha), 0 1px 0 var(--linha); min-width: 0; }
+.dados-grid dt, .dados-grid .rotulo, .dados-grid strong, .dados-grid .dado-label {
   display: block;
   font-family: var(--dado);
   font-size: var(--t-xs);
@@ -479,7 +481,7 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   margin-bottom: var(--e1);
   font-weight: 700;
 }
-.dados-grid dd { margin: 0; font-size: var(--t-md); color: var(--texto); }
+.dados-grid dd, .dados-grid .dado-valor { margin: 0; font-size: var(--t-md); color: var(--texto); overflow-wrap: anywhere; }
 
 /* ZONA DE PERIGO: fundo levemente quente e faixa de brasa. Ela tem que
    PARECER diferente do resto, nao so estar escrita no fim da pagina. */
