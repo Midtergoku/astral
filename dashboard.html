@@ -658,14 +658,18 @@
     }
 
 /* ── RESPONSIVE ── */
+    /* 10/10/2026 (V6): o nivel ocupa a linha e os dois numeros dividem a de baixo. Antes, ate 1100px o
+       "Dominio" ficava sozinho com meia linha vazia, e no celular os tres empilhavam -- quase uma tela de
+       rolagem para mostrar dois numeros curtos ("31h", "1/9"). */
     @media (max-width: 1100px) {
       .grid-3 { grid-template-columns: 1fr 1fr; }
+      .grid-3 > .xp-card { grid-column: 1 / -1; }
     }
 
 @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .main { margin-left: 0; padding: 1.25rem; }
-      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
     }
 
 @keyframes pulseGreen {
@@ -1078,6 +1082,9 @@ body.primeiro-acesso .grid-3 { display: none; }
   border-bottom: 1px solid var(--linha); margin-bottom: var(--e3);
   scrollbar-width: thin;
 }
+/* 10/10/2026 (V6): sem guia pronto a fileira fica vazia -- e o fio de baixo aparecia solto no topo do cartao,
+   com um vao em cima. Com a IA desligada, era o que TODO aluno via. */
+.guia-chips:empty { display: none; }
 .guia-chip {
   flex-shrink: 0; background: transparent; border: 1px solid var(--linha);
   color: var(--texto-2); border-radius: var(--r-p); padding: .4rem .7rem; cursor: pointer;
