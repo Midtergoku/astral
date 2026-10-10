@@ -76,7 +76,8 @@ let uid = null;
       { nome: 'Português', peso: 30, progresso: 40 },
       { nome: 'Matemática', peso: 25, progresso: 20 },
     ],
-    cronograma_hoje: [], badges: ['primeiro_edital'], tag_escolhida: null,
+    // 10/10/2026: sem cronograma_hoje e badges -- as duas colunas sairam do banco (ninguem as lia)
+    tag_escolhida: null,
   };
 
   const gravar = async (corpo) => {
@@ -92,7 +93,7 @@ let uid = null;
       body: JSON.stringify({
         p_xp: corpo.xp, p_streak: corpo.streak, p_horas: corpo.horas,
         p_edital: corpo.edital, p_materias: corpo.materias,
-        p_cronograma_hoje: corpo.cronograma_hoje, p_badges: corpo.badges,
+        p_cronograma_hoje: [], p_badges: [],
         p_tag_escolhida: corpo.tag_escolhida,
       }),
     });
@@ -122,7 +123,6 @@ let uid = null;
       { nome: 'Português', peso: 30, progresso: 70 },
       { nome: 'Matemática', peso: 25, progresso: 20 },
     ],
-    badges: ['primeiro_edital', 'maratonista'],
   };
 
   /* ── TELA B: partiu do MESMO estado inicial, estudou Matemática ────────── */
@@ -133,7 +133,6 @@ let uid = null;
       { nome: 'Português', peso: 30, progresso: 40 },
       { nome: 'Matemática', peso: 25, progresso: 60 },
     ],
-    badges: ['primeiro_edital', 'madrugador'],
   };
 
   await gravar(telaA);
@@ -145,10 +144,9 @@ let uid = null;
   if (!d) throw new Error('nao achei o progresso gravado');
 
   const prog = (nome) => (d.materias || []).find((m) => m.nome === nome)?.progresso ?? -1;
-  const temBadge = (b) => (d.badges || []).includes(b);
 
-  console.log('  A tela A estudou Português (40→70) e ganhou "maratonista".');
-  console.log('  A tela B estudou Matemática (20→60) e ganhou "madrugador", e salvou DEPOIS.\n');
+  console.log('  A tela A estudou Português (40→70).');
+  console.log('  A tela B estudou Matemática (20→60) e salvou DEPOIS.\n');
 
   const checagens = [
     ['o XP é o das sessões, não o da última tela', d.xp === 1500,              'xp = ' + d.xp + ' (A mandou 1500, B mandou 1200)'],
@@ -159,9 +157,8 @@ let uid = null;
        sem questao respondida -> 0,4 x 360/600 = 24. */
     ['o domínio de Português é o medido, não o de uma tela',  prog('Português') === 24,  prog('Português') + '% (A mandou 70, B mandou 40)'],
     ['o domínio de Matemática é o medido, não o de uma tela', prog('Matemática') === 24, prog('Matemática') + '% (A mandou 20, B mandou 60)'],
-    ['a conquista da tela A não se perdeu',  temBadge('maratonista'),         JSON.stringify(d.badges)],
-    ['a conquista da tela B também está lá', temBadge('madrugador'),          ''],
-    ['nenhuma conquista duplicada',          new Set(d.badges).size === (d.badges || []).length, (d.badges || []).length + ' badge(s)'],
+    /* 10/10/2026: sairam as 3 checagens de "badges" -- a coluna saiu do banco. As condecoracoes moram em
+       `conquistas`, uma linha por medalha, e duas telas nao tem como apagar a linha uma da outra. */
   ];
   for (const [t, bom, extra] of checagens) (bom ? ok : nok)(t, extra);
 

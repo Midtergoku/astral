@@ -410,3 +410,13 @@ que a IA lê do conteúdo programático (`processar-edital`, desde 10/10); (2) s
 
 - 🔴 **A marca NÃO dá XP, domínio nem medalha** — é declaração (o atalho que o 3.12 fechou). Organiza e mostra progresso.
 - Entra em `meus_dados`, no backup e no `testa-dados-do-aluno` (semente). Regressão: `node tools/testa-assuntos-edital.js` (20, dev).
+
+## 8.42. Saíram do banco: `progresso.badges`, `progresso.cronograma_hoje`, `meu_dominio()` (10/10/2026, guardado 1)
+
+Medido antes (`pg_proc`): só o `salvar_progresso` citava as duas colunas, e só para GRAVAR; nenhuma visão dependia;
+`meu_dominio()` só um teste chamava. **Ordem feita, e é a que vale para tirar coluna:** (1) a página para de mandar a
+coluna (`estado.js`, commit `2dd8d87`, no ar); (2) a migration `20261010160000`; (3) backup novo + `testa-restauracao`.
+- `salvar_progresso` **mantém a assinatura** (`p_cronograma_hoje`, `p_badges`) e ignora os dois: página velha aberta não quebra.
+- Condecorações: tabela `conquistas`. Cronograma: montado da rotina (`assets/js/cronograma.js`).
+- `testa-concorrencia`: saíram as 3 checagens de badges. O modo `--upsert` (o defeito antigo) **não roda mais** — o banco
+  recusa o upsert direto em `progresso` desde as permissões por coluna; é proteção, não teste quebrado.
