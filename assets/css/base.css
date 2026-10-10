@@ -351,10 +351,15 @@ button:active, .btn:active, [role="button"]:active { transform: scale(.97); }
   background: linear-gradient(180deg, var(--latao-c), var(--latao));
   color: #121A24; padding: .34rem .75rem .34rem 1.15rem;
   clip-path: polygon(0 0, 100% 0, calc(100% - .5rem) 50%, 100% 100%, 0 100%, .5rem 50%);
+  /* 10/10/2026 (V6): no celular, "3º SARGENTO BM" ao lado de "em formacao: ORADOR DE GUERRA · 64%" se partia
+     em TRES linhas. A patente e insignia -- nao parte; quem cede espaco e o texto da tag. */
+  white-space: nowrap; flex: 0 0 auto; display: flex; align-items: center;
 }
+.divisa { max-width: 100%; }
 .divisa .tag {
   color: var(--latao-c); border: 1px solid var(--latao); border-left: none;
   padding: .34rem .8rem; font-weight: 700;
+  min-width: 0;
 }
 .divisa .tag.vazia {
   color: var(--texto-3); border-color: var(--linha); font-weight: 400;
