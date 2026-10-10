@@ -214,7 +214,7 @@ grátis, o dinheiro por último (Lote 5), e a limpeza de código no fim de tudo 
 
 | # | O quê | Quem | Custo |
 |---|---|---|---|
-| **4.1** ⬆️ **o próximo** | E-mail que chega (senha de app do Gmail) — fecha também a "enumeração" do cadastro | ele + eu | R$ 0 |
+| **4.1** ✅ **10/10** | E-mail que chega — **feito**: Gmail dele como SMTP (senha de app, só no Supabase), entrega provada num endereço de fora (`tools/testa-email-chega.js`, 6 s), os 7 e-mails em português (`tools/emails-em-portugues.js`), limite 2 → 20 por hora, **confirmação de cadastro ligada** (fecha a enumeração) | ele + eu | R$ 0 |
 | **4.4** | **Verificação em duas etapas (MFA/TOTP) na conta do dono** — a que abre o painel e o importador | ele escaneia; eu ligo | R$ 0 |
 | **4.5** | **Dia das provas** — baixar provas antigas para o Banco, com um **roteiro meu antes** (o que baixar, onde, como conferir que veio com gabarito oficial e do cargo certo) | ele baixa; eu confiro e publico | R$ 0 |
 | **4.6** | Trava de **SSRF** no conferidor de links (só `https`, sem IP, sem endereço interno) | eu | R$ 0 |

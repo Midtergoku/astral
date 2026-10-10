@@ -60,8 +60,13 @@ $esperado = @(
      porque = 'os outros 2 usuarios entram por senha' },
   @{ campo = 'security_captcha_enabled'; vale = $true
      porque = 'unica protecao de forca bruta que nao se contorna' },
-  @{ campo = 'mailer_autoconfirm';       vale = $true
-     porque = 'sem SMTP proprio, exigir confirmacao tranca todo mundo do lado de fora' },
+  # 10/10/2026 (roadmap 4.1): SMTP proprio (Gmail) ligado e a ENTREGA provada (tools/testa-email-chega.js) -- agora
+  # o cadastro EXIGE confirmar o e-mail. Antes era $true, porque sem SMTP proprio exigir confirmacao trancava todo
+  # mundo do lado de fora. Se o SMTP cair, VOLTAR para $true antes de qualquer outra coisa (smtp-configura.ps1).
+  @{ campo = 'mailer_autoconfirm';       vale = $false
+     porque = 'cadastro por e-mail confirma o endereco (e o Supabase para de dizer "este e-mail ja existe")' },
+  @{ campo = 'smtp_host';                vale = 'smtp.gmail.com'
+     porque = 'sem SMTP proprio o Supabase so manda 2 e-mails por hora e so para a organizacao: ninguem confirmaria' },
   # 09/10/2026 (roadmap 3.16, SEG-04/SEG-05) -- ver tools/testa-sessao-senha.js
   @{ campo = 'jwt_exp';                  vale = 900
      porque = 'sair de todos os aparelhos derruba a tela aberta em ate 15 min (era 1 h); a conta.html promete isso' },

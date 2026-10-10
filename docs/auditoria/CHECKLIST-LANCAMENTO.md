@@ -11,9 +11,9 @@
 
 | | Itens |
 |---|---|
-| ✅ provado | **21** (o canal de suporte entrou em 10/10, de manhã) |
+| ✅ provado | **22** (o canal de suporte e o e-mail entraram em 10/10) |
 | ⏳ depende de dinheiro (Lote 5) | **4** — 1º edital lido, pagamento, Vercel Pro, preço igual ao checkout |
-| ⏳ depende dele em cena (Lote 4) | **1** — e-mail que chega (senha de app do Gmail) |
+| ⏳ depende dele em cena (Lote 4) | **0** — o e-mail foi feito em 10/10 |
 | ❓ decisão dele (guardado) | **0** — o canal de suporte foi feito com o "pode" dele |
 | ✅ com ressalva | **2** — ver as notas |
 
@@ -38,7 +38,7 @@ cena (Lote 4). Fora isso, o produto está pronto pela régua da própria auditor
 
 | | Item | Prova |
 |---|---|---|
-| ⏳ | E-mail de confirmação e "esqueci a senha" **chega** a um endereço de fora; confirmação automática desligada (SEG-02, SEG-03) | **Lote 4 (4.1)** — ele cria a senha de app do Gmail; eu rodo `smtp-configura.ps1 -Aplicar`, provo a entrega, e só então `-ExigirConfirmacao`. O lembrete dispara toda sessão (`lembretes.js`) |
+| ✅ | E-mail de confirmação e "esqueci a senha" **chega** a um endereço de fora; confirmação automática desligada (SEG-02, SEG-03) | **Feito em 10/10:** `tools/testa-email-chega.js` — convite da produção chegou numa caixa de fora em 6 s, em português; `mailer_autoconfirm = false` conferido pelo `confere-auth.ps1`. *Antes:* **Lote 4 (4.1)** — ele cria a senha de app do Gmail; eu rodo `smtp-configura.ps1 -Aplicar`, provo a entrega, e só então `-ExigirConfirmacao`. O lembrete dispara toda sessão (`lembretes.js`) |
 | ✅ | Decisão sobre menores aplicada; Política e Termos dizendo a mesma coisa (LGL-02, LGL-05) | 3.6 (idade mínima 16, responsável para 16–17) + 3.18 (textos em dia, versão 2026-10-09). `testa-consentimento` na bateria |
 | ✅ | "Baixar meus dados" com todas as tabelas; excluir a conta sem rastro (LGL-03, LGL-04) | `testa-dados-do-aluno` — **falha se uma tabela nova com `usuario_id` ficar de fora**. Rodado de novo em 10/10 depois da repaginação da Minha conta: passou |
 | ✅ | A tabela de erros tem limite por origem (SEG-01) | `testa-limite-erros` na bateria. Produção: `erros_cliente_limite` vazia (ninguém bateu no limite) |

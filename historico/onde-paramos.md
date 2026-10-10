@@ -1,3 +1,12 @@
+# ✅ 10/10/2026 (tarde) — O E-MAIL FUNCIONA (4.1 feito)
+
+Ele criou a senha de app no Gmail DELE (lherdy2003@gmail.com — "a senha normal não muda", expliquei; trocar para um
+e-mail do Astral quando houver domínio). Feito: SMTP do Gmail (a senha só no Supabase, nunca em arquivo) · entrega
+provada numa caixa de FORA em 6 s (`tools/testa-email-chega.js`) · os 7 e-mails em português com a cara do Astral
+(`tools/emails-em-portugues.js`; demoram ~10 min para valer) · limite 2 → 20/hora · **confirmação de cadastro LIGADA**
+(`confere-auth.ps1` espera isso agora). Checklist de lançamento: 24/28. **Próximo da lista dele: 4.4 (MFA na conta do
+dono)**, depois 4.5 (dia das provas, com roteiro meu antes).
+
 # ▶️ ATUALIZAÇÃO 10/10/2026 (depois do fim do dia) — a lista dos vídeos
 
 Ele trouxe a lista de segurança/engenharia (de vídeos do Instagram/TikTok). Conferida item a item: **docs/auditoria/CHECKLIST-VIDEOS.md**
