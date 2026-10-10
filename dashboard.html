@@ -647,32 +647,7 @@
   .ai-revela li { transition: none; transform: none; }
 }
 
-/* ── TOAST ── */
-    .toast {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-g);
-      padding: 0.85rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      font-size: 0.88rem;
-      color: var(--text);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: transform var(--d-painel) var(--saida), opacity var(--d-painel) var(--saida), border-color var(--d-painel) var(--saida), color var(--d-painel) var(--saida);
-      z-index: 100;
-    }
-
-.toast.show { transform: translateY(0); opacity: 1; }
-
-.toast.success { border-color: color-mix(in srgb, var(--oliva-c) 30%, transparent); }
-
-.toast.success .toast-icon { color: var(--green); }
+/* ── TOAST ── vem do astral.js, um so no site inteiro (Lote D, V2, 10/10/2026) */
 
 /* ── EMPTY STATE ── */
     .empty-state {
@@ -1565,14 +1540,14 @@ body.primeiro-acesso .grid-3 { display: none; }
 </main>
 
 <!-- TOAST -->
-<div class="toast" id="toast">
-  <span class="toast-icon">✓</span>
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="toast-icon" aria-hidden="true">✓</span>
   <span id="toast-msg"></span>
 </div>
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=08ecd54f';
+    from './assets/js/astral.js?v=224dc907';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=74a57c33';
   import { arrumarNome } from './assets/js/prova.js?v=25b893ea';

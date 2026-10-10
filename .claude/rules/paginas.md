@@ -639,3 +639,5 @@ mais; a ordem dos comuns é a do dashboard). A tela confere `sou_administrador` 
   O `--controle` (ref contra ele mesmo) deu **0 em 4.712 elementos** — a régua é confiável aqui, ao contrário
   do print (seção 7).
 - A régua mede com movimento reduzido: **animação ela não vê**. Mudança de animação se confere à parte.
+- **Toast: um só, no `astral.js`** (injetado ao carregar o módulo, não só no 1º aviso). Página **não declara `.toast`**.
+  Ícone opcional: `<span class="toast-icon" aria-hidden="true">` — aparece só no sucesso. Regressão: `node tools/testa-toast.js`.

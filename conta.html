@@ -95,25 +95,7 @@
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.toast {
-  position: fixed;
-  bottom: 1.5rem; left: 50%;
-  transform: translateX(-50%) translateY(140%);
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-g);
-  padding: 0.85rem 1.35rem;
-  font-size: 0.88rem;
-  color: var(--white);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-  z-index: 200;
-  max-width: 90vw;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: color-mix(in srgb, var(--oliva-c) 40%, transparent); }
-.toast.error   { border-color: color-mix(in srgb, var(--brasa-c) 45%, transparent); }
+/* o toast vem do astral.js -- um so no site inteiro (Lote D, V2, 10/10/2026) */
 
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
@@ -322,11 +304,11 @@
 
 </main>
 
-<div class="toast" id="toast"><span id="toast-msg"></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-msg"></span></div>
 
 <script type="module">
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL, buscarQuota, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=08ecd54f';
+    from './assets/js/astral.js?v=224dc907';
 
   window.fazerLogout = fazerLogout;
 

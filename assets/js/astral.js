@@ -719,32 +719,49 @@ function garantirCssDoToast() {
   if (document.getElementById('astral-toast-css')) return;
   const style = document.createElement('style');
   style.id = 'astral-toast-css';
+  /* 10/10/2026 (Lote D, V2): o UNICO toast do site. Conta e painel tinham copia propria (o painel no canto,
+     a conta no meio) e saiu. Aqui ainda pedia 'Inter' -- fonte que nao e carregada desde o V1, entao o aviso
+     saia na letra generica do sistema -- e o verde/vermelho da paleta antiga. Agora: tokens, com o valor
+     do token como reserva (login e cadastro tambem usam). O icone (.toast-icon, so o painel tem) aparece
+     so no sucesso: um "✓" ao lado de "nao consegui salvar" diz o contrario da frase. */
   style.textContent = `
     .toast {
       position: fixed;
       bottom: 1.5rem; left: 50%;
-      transform: translateX(-50%) translateY(160%);
-      background: var(--surface2, #1A1A24);
-      border: 1px solid var(--border, #1E1E2E);
+      transform: translateX(-50%) translateY(calc(100% + 1.5rem));
+      opacity: 0;
+      pointer-events: none;
+      display: flex; align-items: center; justify-content: center; gap: 0.65rem;
+      background: var(--casco-2, #1E2B39);
+      border: 1px solid var(--linha, #2A3947);
       border-radius: var(--r-g, 6px);
       padding: 0.85rem 1.35rem;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--corpo, Georgia, serif);
       font-size: 0.88rem;
       line-height: 1.5;
-      color: var(--white, #FFFFFF);
+      color: var(--texto, #DDE4EA);
       box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+      transition: transform 300ms var(--saida, cubic-bezier(.23,1,.32,1)), opacity 200ms var(--saida, cubic-bezier(.23,1,.32,1));
       z-index: 9999;
       max-width: min(92vw, 460px);
       text-align: center;
     }
-    .toast.show  { transform: translateX(-50%) translateY(0); }
-    .toast.success { border-color: rgba(52,211,153,0.45); }
-    .toast.error   { border-color: rgba(248,113,113,0.5); }
+    /* escondido: some (opacidade) E desce a propria altura mais a margem. So "160% da altura" deixava 6px
+       a mostra quando a mensagem estava vazia (medido em 10/10). Opacidade nao cala o leitor de tela. */
+    .toast.show  { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+    .toast.success { border-color: color-mix(in srgb, var(--oliva-c, #8CA06B) 40%, transparent); }
+    .toast.error   { border-color: color-mix(in srgb, var(--brasa-c, #E0705A) 45%, transparent); }
+    .toast-icon { color: var(--oliva-c, #8CA06B); }
+    .toast:not(.success) .toast-icon { display: none; }
     @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
   `;
   document.head.insertBefore(style, document.head.firstChild);
 }
+
+/* 10/10/2026: ja ao carregar, nao so no primeiro toast() -- conta e painel trazem o <div class="toast"> no
+   HTML, e sem o CSS ele ficaria a mostra (o "✓" do painel solto no pe da pagina) ate o primeiro aviso.
+   Modulo roda depois do <head> pronto; o try cobre pagina sem document (nao ha, mas nao custa). */
+try { garantirCssDoToast(); } catch { /* sem document: nada a fazer */ }
 
 /** Substitui os alert() espalhados pelo app. Cria o elemento se nao existir. */
 export function toast(mensagem, tipo = 'success') {
