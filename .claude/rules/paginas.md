@@ -666,3 +666,18 @@ No ar, celular 375 px, **4G lenta (1,6 Mbps, 150 ms) e processador 4× mais lent
 **Todas na faixa "bom" do Google (LCP ≤ 2,5 s; CLS ≤ 0,1).** A fonte do texto é o maior arquivo; enxugá-la pede
 ferramenta de fonte que o projeto não tem, para ganhar décimos — **não vale enquanto o LCP estiver bom**.
 Se uma tela nova passar de 2,5 s nessa régua, olhar primeiro imagem sem tamanho e script que bloqueia.
+
+---
+
+## 19. A troca de página não pula (10/10/2026, pedido dele)
+
+Ele: *"de Minhas tags até Questões as páginas dão esse pulo; de Cronograma até o Dashboard é liso"*. Três causas, medidas:
+
+| Causa | Onde | Conserto |
+|---|---|---|
+| Sem `transicao.js` — a troca era um corte seco | Questões, TAF, Instrução, Quadro, Importar, Painel do dono | script acrescentado; **verifica** recusa tela com barra lateral sem ele |
+| A sala de condecorações nascia escondida e aparecia pronta **acima** das habilidades | Conquistas (deslocamento 0,31) | a sala nasce visível com **esqueleto** (24 blocos) e se preenche no lugar |
+| O botão de recolher chega depois da 1ª pintura e empurra o pé do menu 42 px | quase toda tela | o lugar dele fica reservado (`.sidebar-bottom:not(:has(> .btn-recolher))::before`, mesma altura) |
+
+**Regra:** bloco que carrega depois **nasce no lugar, com esqueleto** — nunca escondido para aparecer pronto em cima de
+outra coisa. Regressão: `node tools/testa-pulo.js` (conta real no dev, reprova acima de 0,05).

@@ -633,6 +633,11 @@ for (const p of paginas) {
   if (!/assets\/js\/menu\.js/.test(html)) {
     anota('recolher', p, 'tem barra lateral mas nao carrega assets/js/menu.js -- fica sem o botao de recolher');
   }
+  /* 10/10/2026: e o transicao.js -- sem ele a troca de pagina e um corte seco. Ele: "de Minhas tags ate
+     Questoes as paginas dao esse pulo; de Cronograma ate o Dashboard e liso". 6 telas nao carregavam. */
+  if (!/assets\/js\/transicao\.js/.test(html)) {
+    anota('recolher', p, 'tem barra lateral mas nao carrega assets/js/transicao.js -- a troca de pagina da um pulo seco');
+  }
 }
 
 /* ── 21. QUEM RESERVA O LUGAR DA DIVISA CARREGA O divisa.js ─────────────────
@@ -690,7 +695,7 @@ const GRUPOS = {
   caminho:  'Caminho desta maquina escrito dentro de uma ferramenta',
   controle: 'Caractere de controle gravado dentro do codigo',
   ordem:    'Menu lateral em ordem diferente entre paginas',
-  recolher: 'Pagina com barra lateral sem o botao de recolher (menu.js)',
+  recolher: 'Pagina com barra lateral sem menu.js (botao de recolher) ou sem transicao.js (pulo seco)',
   divisa:   'Lugar da divisa sem o divisa.js (a patente nunca aparece)',
   hojesp:   '"Hoje" calculado no dia de Londres em vez do de Sao Paulo',
 };

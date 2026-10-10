@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=a23178c5"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=3dc70e08"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Conquistas</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -537,7 +537,9 @@
        As 74 medalhas, conferidas contra os fatos que vieram do servidor.
        Fica ACIMA das habilidades porque é a coleção principal; as habilidades
        continuam abaixo, intactas, como o sistema separado que sempre foram. -->
-  <div id="sala" style="margin-top:2rem;" hidden>
+  <!-- 10/10/2026: a sala nasce VISIVEL, com esqueleto. Antes nascia escondida e aparecia pronta ACIMA das
+       Habilidades, empurrando-as para fora da tela -- o "pulo" que o Lucas viu (deslocamento 0,31; limite 0,1). -->
+  <div id="sala" style="margin-top:2rem;" aria-busy="true">
     <div class="section-header" style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
       <div>
         <div style="font-family:var(--display);font-weight:800;font-size:1.1rem;color:var(--white);">Condecorações</div>
@@ -553,7 +555,7 @@
       <div class="quase-lista" id="quase-lista"></div>
     </div>
 
-    <div class="medalhas-grade" id="medalhas-grade"></div>
+    <div class="medalhas-grade" id="medalhas-grade"><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div><div class="esqueleto-bloco"></div></div>
   </div>
 
   <!-- SEÇÃO HABILIDADES -->
@@ -609,6 +611,7 @@
       // Falhou: a seção não aparece, em vez de ficar vazia mentindo que a
       // pessoa não conquistou nada. Zero falso é pior que ausência.
       if (error) relatar(error, 'conquistas/sala');
+      sala.hidden = true;   // some o esqueleto junto
       return;
     }
 
@@ -672,6 +675,7 @@
     }
 
     sala.hidden = false;
+    sala.removeAttribute('aria-busy');
 
     /* Anuncia aqui também: quem abre esta página direto, sem passar pelo
        dashboard, merece o mesmo momento. O módulo sabe o que já foi mostrado,

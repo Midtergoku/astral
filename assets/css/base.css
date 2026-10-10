@@ -1623,6 +1623,13 @@ body[data-menu="recolhido"] .btn-recolher svg { transform: rotate(180deg); }
    Recolher para icones ali nao resolve nada e ainda brigaria com a gaveta.
    Por isso o botao so existe a partir de 768px. */
 @media (min-width: 769px) { .btn-recolher { display: flex; } }
+/* 10/10/2026: o botao e criado pelo menu.js DEPOIS da primeira pintura -- "Minha conta" e "Encerrar sessao"
+   desciam 42px logo ao abrir cada pagina (medido: banco, conquistas, progresso, tags...). O lugar dele fica
+   reservado desde o inicio, com a MESMA altura; quando ele chega, a reserva sai e nada se mexe. */
+.btn-recolher { height: 34px; box-sizing: border-box; }
+@media (min-width: 769px) {
+  .sidebar-bottom:not(:has(> .btn-recolher))::before { content: ''; display: block; height: 34px; margin-bottom: var(--e2); }
+}
 @media (max-width: 768px) { body[data-menu="recolhido"] { --sidebar-w: 240px; } }
 
 @media (prefers-reduced-motion: reduce) {
