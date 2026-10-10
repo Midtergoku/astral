@@ -121,6 +121,9 @@
     font-variant-numeric: tabular-nums; letter-spacing: 0; font-weight: 400;
   }
   .dia-total { margin-top: .15rem; }
+  /* 10/10/2026 (V6): "SAB · HOJE" nao cabia na coluna e quebrava em 2 linhas -- a coluna de hoje ficava mais
+     alta que as outras. O "hoje" desceu para a linha do total. */
+  .dia-hoje { color: var(--latao-c); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 
   .bloco {
     position: relative;
@@ -430,7 +433,7 @@
           <div><dt>Sessões</dt><dd>${blocos.length}</dd></div>
           <div><dt>Tempo</dt><dd>${hm(totalMin)}</dd></div>
           <div><dt>Dias de estudo</dt><dd>${dias}</dd></div>
-          <div><dt>XP possível</dt><dd class="ouro">${totalXp}<small style="font-size:.55em;opacity:.7"> + bônus</small></dd></div>
+          <div><dt>XP possível</dt><dd class="ouro">${totalXp} <small style="font-size:.55em;opacity:.7;white-space:nowrap">+ bônus</small></dd></div>
         </dl>
       </div>
 
@@ -441,11 +444,11 @@
           const ehHoje = d === hojeIdx;
           const lista = ehHoje ? feitosHoje : dia.blocos;
           return `
-          <section class="dia ${ehHoje ? 'hoje' : ''} ${pos < posHoje ? 'passou' : ''}" aria-label="${DIAS[d]}">
+          <section class="dia ${ehHoje ? 'hoje' : ''} ${pos < posHoje ? 'passou' : ''}" aria-label="${DIAS[d]}${ehHoje ? ' (hoje)' : ''}">
             <div class="dia-cabeca">
-              <div class="dia-nome"><span>${DIAS_CURTOS[d]}${ehHoje ? ' · hoje' : ''}</span>
+              <div class="dia-nome"><span>${DIAS_CURTOS[d]}</span>
                 <span class="dia-data">${String(datas[pos].getDate()).padStart(2, '0')}/${String(datas[pos].getMonth() + 1).padStart(2, '0')}</span></div>
-              <div class="dia-total">${min ? hm(min) : '—'}</div>
+              <div class="dia-total">${ehHoje ? '<b class="dia-hoje">hoje</b> · ' : ''}${min ? hm(min) : '—'}</div>
             </div>
             ${lista.length ? lista.map((b, i) => rascunho ? `
               <div class="bloco" style="--min:${b.minutos}">
