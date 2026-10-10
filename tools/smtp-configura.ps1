@@ -150,7 +150,8 @@ if ($Aplicar) {
 
   $mapa = @{
     smtp_host        = $Servidor
-    smtp_port        = $Porta
+    # 10/10/2026: a API passou a exigir TEXTO ("465"); numero da HTTP 400 "expected string, received number"
+    smtp_port        = [string]$Porta
     smtp_user        = $Usuario
     smtp_pass        = ($env:SMTP_PASS -replace '\s', '')   # o Google mostra em 4 blocos
     smtp_admin_email = $Usuario   # o Gmail so envia com o remetente autenticado
