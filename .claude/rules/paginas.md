@@ -698,3 +698,13 @@ Três telas na mesma página: montar (10/20/30/50) → a prova (relógio, "X de 
 **a prova aberta sobrevive a um recarregar** — `sessionStorage`, só até entregar) → o relatório (placar, por matéria,
 cada questão com a certa e a explicação). Tudo que vem da questão passa por `esc()`/`att()`.
 Casca copiada do TAF **inteira** (o rodapé de scripts junto — paginas.md 19). Regressão: `node tools/testa-simulado.js`.
+
+## 22. Verificação em duas etapas (10/10/2026, roadmap 4.4)
+
+- **O portão mora no `exigirSessao()`** (`astral.js`): se a sessão diz `nextLevel = aal2` e `currentLevel = aal1`, baixa
+  `assets/js/duas-etapas.js` e pede o código antes de devolver a sessão (a devolvida já é a de nível 2). A conferência é
+  **local** — quem não ativou não baixa nada nem espera. **Tela logada nova: usar `exigirSessao()`** e o portão vem junto.
+- Cartão em Minha conta **só para o dono** (`sou_administrador`). Abrir para alunos pede antes um caminho de recuperação
+  (o Supabase não dá códigos de recuperação) — decisão de produto, guardada.
+- O QR do supabase-js já vem como `data:image/svg+xml` (a CSP aceita `data:` em `img-src`); fundo branco, senão o aplicativo não lê.
+- Regressão: `node tools/testa-duas-etapas.js` (dev).

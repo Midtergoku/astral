@@ -136,6 +136,9 @@ node tools/valida-css.js        CSS resolvido igual ao ref (muda de papel no V1 
 node tools/compara-estilo.js [ref] [--resumo] [--controle]  a TELA ficou igual? estilo calculado de cada
                                 elemento, disco x ref, 1280 e 375 px. E a prova de refatoracao de CSS que
                                 MOVE regra de lugar (o valida-css acusa falso). --controle tem de dar 0 (10/10, V2)
+node tools/testa-duas-etapas.js  o codigo do aplicativo protege o dono? so a senha NAO abre o painel; portao na tela;
+                                ativar/desligar pela Minha conta (dev, 26) (10/10, 4.4)
+node tools/liga-duas-etapas.js [--dev] [--aplicar]  o TOTP na config de autenticacao. Banco restaurado: --aplicar
 node tools/testa-assuntos-edital.js  os assuntos de cada materia aparecem SEM questao no Banco? o aluno marca e NAO ganha XP? (dev) (10/10)
 node tools/testa-guia-xp.js      quem nao tem XP ve COMO ganhar (guia aberto, botao Iniciar estudo, dica no cronometro)? (dev) (10/10)
 node tools/testa-simulado.js     o simulado monta do edital (no peso), esconde o gabarito, corrige no servidor, relata? (dev) (10/10)
@@ -322,6 +325,9 @@ medido não é feiura, é genérico, e genérico vem da fundação.
 > | Senha vazada (HIBP) | **HTTP 402 — só no Pro, US$ 25/mês** |
 > | Expirar sessão por inatividade | **HTTP 402 — só no Pro** (medido no dev em 09/10, roadmap 3.16) |
 > | Verificação em duas etapas | vale quando houver conta paga a proteger |
+>
+> ✏️ **10/10/2026 — a do DONO foi feita** (roadmap 4.4, pedido dele na lista dos vídeos): TOTP, grátis. Para aluno, ainda
+> não — sem código de recuperação no Supabase, quem perde o celular fica trancado. Ver `banco.md` 8.46.
 >
 > **Fechadas em 05/08:** testes automáticos a cada push (`.github/workflows/verifica.yml`),
 > alerta de hora em hora (`vigia.yml`), **backup — que NÃO EXISTIA** (o plano free do Supabase

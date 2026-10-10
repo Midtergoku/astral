@@ -1,3 +1,12 @@
+# ✅ 10/10/2026 (fim da tarde) — DUAS ETAPAS NA CONTA DO DONO (4.4 feito; falta ele escanear)
+
+TOTP ligado na produção (`tools/liga-duas-etapas.js`) · cartão "Verificação em duas etapas" em Minha conta (só o dono) ·
+portão do código em toda tela logada (`assets/js/duas-etapas.js`, chamado pelo `exigirSessao`) · o servidor
+(`sou_administrador`, migration `20261010200000`) só reconhece o dono com o código **depois que ele ativar** — antes disso
+nada muda (medido na produção: dono com 0 fatores, função nova no ar). Prova: `tools/testa-duas-etapas.js` 26/26 no dev,
+6 falhas contra o código antigo. **🔔 Falta ele: Minha conta → Ativar → ler o QR no Google Authenticator** (o `checa-saude`
+lembra toda sessão). **Próximo da lista dele: 4.5 (dia das provas — roteiro meu primeiro).**
+
 # ✅ 10/10/2026 (tarde) — O E-MAIL FUNCIONA (4.1 feito)
 
 Ele criou a senha de app no Gmail DELE (lherdy2003@gmail.com — "a senha normal não muda", expliquei; trocar para um

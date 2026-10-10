@@ -215,7 +215,7 @@ grátis, o dinheiro por último (Lote 5), e a limpeza de código no fim de tudo 
 | # | O quê | Quem | Custo |
 |---|---|---|---|
 | **4.1** ✅ **10/10** | E-mail que chega — **feito**: Gmail dele como SMTP (senha de app, só no Supabase), entrega provada num endereço de fora (`tools/testa-email-chega.js`, 6 s), os 7 e-mails em português (`tools/emails-em-portugues.js`), limite 2 → 20 por hora, **confirmação de cadastro ligada** (fecha a enumeração) | ele + eu | R$ 0 |
-| **4.4** | **Verificação em duas etapas (MFA/TOTP) na conta do dono** — a que abre o painel e o importador | ele escaneia; eu ligo | R$ 0 |
+| **4.4** ✅ **10/10** (falta ele escanear) | **Verificação em duas etapas (MFA/TOTP) na conta do dono** — a que abre o painel e o importador. **Feito:** TOTP ligado no Supabase (`tools/liga-duas-etapas.js`), cartão em Minha conta (só o dono), portão do código em toda tela logada, e o servidor (`sou_administrador`) só reconhece o dono com o código **quando ele tiver ativado**. Prova: `tools/testa-duas-etapas.js` (26, falha no código antigo). **Falta: ele ativar** (Minha conta → Ativar → ler o QR); o `checa-saude` lembra até lá | ele escaneia; eu ligo | R$ 0 |
 | **4.5** | **Dia das provas** — baixar provas antigas para o Banco, com um **roteiro meu antes** (o que baixar, onde, como conferir que veio com gabarito oficial e do cargo certo) | ele baixa; eu confiro e publico | R$ 0 |
 | **4.6** | Trava de **SSRF** no conferidor de links (só `https`, sem IP, sem endereço interno) | eu | R$ 0 |
 | **4.7** | **Plano de recuperação** escrito (site caiu / banco sumiu / chave vazou — passo a passo, com o rollback) | eu | R$ 0 |

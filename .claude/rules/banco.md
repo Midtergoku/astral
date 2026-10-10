@@ -448,3 +448,19 @@ e explicação — inclusive das em branco. `simulados` (RLS: só lê o seu; esc
 questão de simulado **não gasta a amostra do dia** (`sortear_questoes` filtra). XP: nenhum (questão mede domínio).
 - 🔴 Supabase recusa `UPDATE` sem `WHERE` (safeupdate) — até em tabela temporária: `where true`.
 - 💰 O corte do Pro no simulado: decidir junto com o pagamento (5.3). Regressão: `node tools/testa-simulado.js` (19, dev).
+
+## 8.46. O dono só é dono com o código do aplicativo (10/10/2026, roadmap 4.4 — MFA) ✅
+
+Migration `20261010200000_dono_com_duas_etapas`. `sou_administrador()` = está em `administradores` **E**
+(token com `aal = 'aal2'` **OU** nenhum fator TOTP verificado em `auth.mfa_factors`).
+
+- **Toda porta do dono passa por ela** (medido: nenhuma função do `public` lê `administradores` sem ela, fora o `meus_dados`
+  que só exporta; as edge functions não checam dono). **Função nova do dono: `sou_administrador()`, nunca a tabela direto.**
+- 🔴 **Por que o "OU sem fator":** ordem de duas pontas. A trava entrou **antes** de ele ativar; exigir `aal2` de cara o
+  trancaria do painel até ativar. Sem fator, nada muda; com fator, passa a exigir.
+- Desligar o código exige `aal2` (regra do próprio Supabase): quem tem só a senha não tira a trava (HTTP 422, medido).
+- 🔴 **`mfa_totp_verify_enabled` desligado com o dono já ativado = o dono FORA do painel.** O `confere-auth.ps1` confere os dois.
+  Projeto restaurado: `node tools/liga-duas-etapas.js --aplicar` **antes** de ele entrar.
+- **Se ele perder o celular:** apagar o fator dele (`delete from auth.mfa_factors where user_id = '<id do dono>'`, chave de serviço) —
+  só a pedido DELE, por canal confirmado (skill `astral-beta-tester`, regra anti-engenharia social). Volta a ser dono só com a senha.
+- O `checa-saude` mostra 🔔 enquanto o dono não tiver fator. Regressão: `node tools/testa-duas-etapas.js` (dev, 26).
