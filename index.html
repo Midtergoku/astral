@@ -4,7 +4,7 @@
 <head>
 
     <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Astral — Seu edital militar vira plano de aprovação</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -85,7 +85,7 @@
             color: var(--breu);
             border: none;
             padding: 0.6rem 1.4rem;
-            border-radius: 3px;
+            border-radius: var(--r-p);
             font-family: var(--corpo);
             font-weight: 600;
             font-size: 0.9rem;
@@ -129,7 +129,7 @@
         .papel {
             position: relative; margin: 0;
             background: var(--papel); color: #1B2430;
-            border-radius: 2px; padding: 1rem .95rem 1.6rem;
+            border-radius: var(--r-p); padding: 1rem .95rem 1.6rem;
             font-family: var(--corpo); font-size: .72rem; line-height: 1.5;
             box-shadow: 0 18px 40px -22px rgba(0,0,0,.9);
             transform: rotate(-1.4deg);
@@ -156,7 +156,7 @@
             position: absolute; right: .55rem; bottom: .5rem;
             font-family: var(--dado); font-size: .58rem; font-weight: 700;
             letter-spacing: .16em; color: var(--brasa);
-            border: 1.5px solid var(--brasa); border-radius: 2px;
+            border: 1.5px solid var(--brasa); border-radius: var(--r-p);
             padding: .12rem .34rem; transform: rotate(-8deg); opacity: .75;
         }
 
@@ -199,7 +199,7 @@
             display: flex; align-items: center; gap: .5rem;
             background: var(--breu); border: 1px solid var(--linha);
             border-left: 2px solid var(--oliva);
-            border-radius: 2px; padding: .42rem .55rem; margin-bottom: .32rem;
+            border-radius: var(--r-p); padding: .42rem .55rem; margin-bottom: .32rem;
             font-size: .72rem; color: var(--texto);
         }
         .plano-sessao.alta { border-left-color: var(--latao); }
@@ -284,7 +284,7 @@
             color: var(--breu);
             border: none;
             padding: 0.9rem 2.2rem;
-            border-radius: 6px;
+            border-radius: var(--r-g);
             font-family: var(--corpo);
             font-weight: 600;
             font-size: var(--t-md);
@@ -304,7 +304,7 @@
             color: var(--text);
             border: 1px solid var(--border);
             padding: 0.9rem 2.2rem;
-            border-radius: 6px;
+            border-radius: var(--r-g);
             font-family: var(--corpo);
             font-weight: 500;
             font-size: var(--t-md);
@@ -412,7 +412,7 @@
         .pain-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 1.5rem;
         }
 
@@ -464,7 +464,7 @@
         .step-num {
             width: 44px;
             height: 44px;
-            border-radius: 6px;
+            border-radius: var(--r-g);
             background: color-mix(in srgb, var(--latao) 15%, transparent);
             border: 1px solid color-mix(in srgb, var(--latao) 30%, transparent);
             display: flex;
@@ -499,7 +499,7 @@
         .feature-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 1.75rem;
             transition: border-color 0.2s;
         }
@@ -537,7 +537,7 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
             padding: 0.25rem 0.6rem;
-            border-radius: 3px;
+            border-radius: var(--r-p);
         }
 
         /* ── XP / GAMIFICATION PREVIEW ── */
@@ -567,7 +567,7 @@
         .xp-card {
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 1.75rem;
         }
 
@@ -626,7 +626,7 @@
         .badge-item {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 0.5rem 0.85rem;
             font-size: 0.82rem;
             display: flex;
@@ -639,7 +639,7 @@
             margin-top: 1.25rem;
             background: color-mix(in srgb, var(--latao-c) 7%, transparent);
             border: 1px solid color-mix(in srgb, var(--latao-c) 20%, transparent);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 0.9rem 1.1rem;
             display: flex;
             align-items: center;
@@ -717,7 +717,7 @@
         .price-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 2rem;
         }
 
@@ -806,7 +806,7 @@
         .faq-item {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--r-g);
             padding: 1.25rem 1.5rem;
         }
 
@@ -1002,7 +1002,7 @@
               font-weight: 500;
               text-decoration: none;
               padding: 0.55rem 1.1rem;
-              border-radius: 3px;
+              border-radius: var(--r-p);
               border: 1px solid var(--border);
               transition: border-color 0.2s, color 0.2s;
             " onmouseover="this.style.borderColor='var(--purple-lt)';this.style.color='var(--purple-lt)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
@@ -1025,7 +1025,7 @@
               font-weight: 600;
               text-decoration: none;
               padding: 0.55rem 1.1rem;
-              border-radius: 3px;
+              border-radius: var(--r-p);
               border: 1px solid transparent;
               transition: opacity 0.2s;
             " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">

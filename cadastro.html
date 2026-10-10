@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Entre na lista de espera</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -101,7 +101,7 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 2.5rem;
       width: 100%;
       max-width: 480px;
@@ -160,7 +160,7 @@
     input, select {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 0.85rem 1rem;
       color: var(--text);
       font-family: var(--corpo);
@@ -197,7 +197,7 @@
       color: var(--breu);
       border: none;
       padding: 1rem;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       font-family: var(--corpo);
       font-weight: 600;
       font-size: var(--t-md);
@@ -293,7 +293,7 @@
     .share-box {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 1rem 1.25rem;
       width: 100%;
       margin-bottom: 1rem;
@@ -324,7 +324,7 @@
       color: var(--breu);
       border: none;
       padding: 0.6rem 1rem;
-      border-radius: 3px;
+      border-radius: var(--r-p);
       font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
@@ -382,7 +382,7 @@
     }
 
     @media (max-width: 520px) {
-      .card { padding: 1.75rem 1.25rem; border-radius: 6px; }
+      .card { padding: 1.75rem 1.25rem; border-radius: var(--r-g); }
       nav { padding: 1rem; }
     }
 
@@ -393,7 +393,7 @@
       height: 18px;
       min-width: 18px;
       border: 1.5px solid var(--border);
-      border-radius: 3px;
+      border-radius: var(--r-p);
       background: var(--bg);
       cursor: pointer;
       position: relative;
@@ -529,7 +529,7 @@
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast,
            SUPABASE_URL, captchaSobDemanda, captchaPendente, tokenCaptcha, resetarCaptcha }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
 
   let widgetCaptcha = null;
   // 09/10/2026 (3.19, UX-04): o captcha (~764 KB) so baixa quando a pessoa toca num campo

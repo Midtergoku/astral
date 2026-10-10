@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Dashboard</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -81,7 +81,7 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 1.5rem;
     }
 
@@ -126,7 +126,7 @@
 /* ── UPLOAD SECTION ── */
     .upload-card {
       border: 2px dashed var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 2.5rem;
       text-align: center;
       transition: border-color 0.2s;
@@ -141,7 +141,7 @@
 .upload-icon {
       width: 56px;
       height: 56px;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       background: color-mix(in srgb, var(--latao) 12%, transparent);
       display: flex;
       align-items: center;
@@ -188,7 +188,7 @@
       padding: 0.85rem 1rem;
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       transition: border-color 0.15s;
     }
 
@@ -203,7 +203,7 @@
       width: 24px;
       height: 24px;
       min-width: 24px;
-      border-radius: 3px;
+      border-radius: var(--r-p);
       border: 1.5px solid var(--border);
       background: var(--bg);
       cursor: pointer;
@@ -581,7 +581,7 @@
       padding: 0.85rem 0.5rem;
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       text-align: center;
     }
 
@@ -692,7 +692,7 @@
       right: 1.5rem;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 0.85rem 1.25rem;
       display: flex;
       align-items: center;
@@ -778,7 +778,7 @@
   position: fixed;
   width: 8px;
   height: 8px;
-  border-radius: 3px;
+  border-radius: var(--r-p);
   pointer-events: none;
   z-index: 9999;
   animation: confeteFall var(--duration) ease-in forwards;
@@ -797,7 +797,7 @@
   transform: translate(-50%, -50%) scale(0.8);
   background: linear-gradient(135deg, color-mix(in srgb, var(--latao) 95%, transparent), color-mix(in srgb, var(--latao-c) 95%, transparent));
   border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 6px;
+  border-radius: var(--r-g);
   padding: 1.5rem 2.5rem;
   text-align: center;
   z-index: 9999;
@@ -833,7 +833,7 @@
   display: none;
   background: linear-gradient(135deg, color-mix(in srgb, var(--latao-c) 8%, transparent), var(--surface));
   border: 1px solid color-mix(in srgb, var(--latao-c) 30%, transparent);
-  border-radius: 6px;
+  border-radius: var(--r-g);
   padding: 1rem 1.25rem;
   margin-bottom: 1.25rem;
   align-items: center;
@@ -851,7 +851,7 @@
 
 .balanco-banner-sub { font-size: 0.78rem; color: var(--muted); }
 
-.balanco-banner-btn { background: color-mix(in srgb, var(--latao-c) 15%, transparent); border: 1px solid color-mix(in srgb, var(--latao-c) 30%, transparent); color: var(--gold); padding: 0.5rem 1rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--corpo); transition: background-color var(--d-dica) var(--saida); }
+.balanco-banner-btn { background: color-mix(in srgb, var(--latao-c) 15%, transparent); border: 1px solid color-mix(in srgb, var(--latao-c) 30%, transparent); color: var(--gold); padding: 0.5rem 1rem; border-radius: var(--r-p); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--corpo); transition: background-color var(--d-dica) var(--saida); }
 
 .balanco-banner-btn:hover { background: color-mix(in srgb, var(--latao-c) 25%, transparent); }
 /* 30/09/2026: virou link (leva ao Banco filtrado). No celular o botao desce
@@ -1023,7 +1023,7 @@ body.primeiro-acesso .grid-3 { display: none; }
   color: var(--texto-3);
   margin-left: .35rem;
 }
-.edital-barra { height: 4px; background: var(--casco-2); border-radius: 2px; overflow: hidden; }
+.edital-barra { height: 4px; background: var(--casco-2); border-radius: var(--r-p); overflow: hidden; }
 .edital-barra span { display: block; height: 100%; background: var(--latao); }
 .edital-peso {
   font-family: var(--dado);
@@ -1617,7 +1617,7 @@ body.primeiro-acesso .grid-3 { display: none; }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=74a57c33';
   import { arrumarNome } from './assets/js/prova.js?v=25b893ea';

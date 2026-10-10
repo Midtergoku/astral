@@ -122,7 +122,7 @@ export async function garantirConsentimento(supabase, session, { sair } = {}) {
         .aceite-fundo { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 1rem;
           background: color-mix(in srgb, var(--breu, #0E1620) 88%, transparent); }
         .aceite-caixa { width: min(480px, 100%); background: var(--casco, #17222E); border: 1px solid var(--linha, #2A3947);
-          border-top: 3px solid var(--latao, #C08A2E); border-radius: 6px; padding: 1.5rem; color: var(--texto, #DDE4EA);
+          border-top: 3px solid var(--latao, #C08A2E); border-radius: var(--r-g, 6px); padding: 1.5rem; color: var(--texto, #DDE4EA);
           font-family: var(--corpo, Georgia, serif); }
         .aceite-caixa h2 { font-family: var(--display, Arial, sans-serif); font-size: 1.25rem; margin: 0 0 .75rem; }
         .aceite-caixa p { font-size: 1rem; line-height: 1.5; margin: 0 0 1rem; color: var(--texto-2, #8FA0AE); }
@@ -130,14 +130,14 @@ export async function garantirConsentimento(supabase, session, { sair } = {}) {
         .aceite-marca { display: flex; gap: .6rem; align-items: flex-start; font-size: 1rem; margin: 0 0 1.25rem; cursor: pointer; }
         .aceite-marca input { width: 1.25rem; height: 1.25rem; margin-top: .15rem; flex: none; }
         .aceite-acoes { display: flex; gap: .75rem; justify-content: flex-end; flex-wrap: wrap; }
-        .aceite-acoes button { min-height: 44px; padding: 0 1.1rem; border-radius: 3px; font-size: 1rem; cursor: pointer;
+        .aceite-acoes button { min-height: 44px; padding: 0 1.1rem; border-radius: var(--r-p, 3px); font-size: 1rem; cursor: pointer;
           font-family: var(--display, Arial, sans-serif); }
         .aceite-sair { background: transparent; color: var(--texto-2, #8FA0AE); border: 1px solid var(--linha, #2A3947); }
         .aceite-ok { background: var(--latao-c, #E0AE55); color: var(--breu, #0E1620); border: none; font-weight: 700; }
         .aceite-ok:disabled { opacity: .5; cursor: not-allowed; }
         .aceite-erro { color: var(--brasa-c, #E0705A); font-size: .9rem; margin: -.5rem 0 1rem; min-height: 1em; }
         .aceite-data { display: grid; gap: .35rem; margin: 0 0 1.25rem; font-size: 1rem; }
-        .aceite-data input { min-height: 44px; font: inherit; padding: 0 .6rem; border-radius: 3px;
+        .aceite-data input { min-height: 44px; font: inherit; padding: 0 .6rem; border-radius: var(--r-p, 3px);
           border: 1px solid var(--linha, #2A3947); background: var(--casco-2, #1E2B39); color: var(--texto, #DDE4EA); }
         .aceite-data small { color: var(--texto-3, #5F7183); font-size: .85rem; }
         .aceite-bloqueio[hidden], .aceite-form[hidden] { display: none; }

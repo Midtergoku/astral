@@ -367,7 +367,7 @@ export function olhinhoDeSenha(...idsDosCampos) {
            para o texto digitado nao passar por baixo do botao. */
         width: 2.75rem; height: 2.75rem;
         background: none; border: none; padding: 0; cursor: pointer;
-        color: #6B6B80; border-radius: 6px; transition: color .15s;
+        color: #6B6B80; border-radius: var(--r-g, 6px); transition: color .15s;
       }
       .olhinho-senha:hover { color: #A78BFA; }
       .olhinho-senha:focus-visible { outline: 2px solid #7C5CFC; outline-offset: 1px; }
@@ -627,7 +627,7 @@ function iniciarMenuMobile() {
       display: none;
       align-items: center; justify-content: center;
       width: 42px; height: 42px;
-      border-radius: 11px;
+      border-radius: var(--r-g, 6px);
       background: var(--surface2, #1A1A24);
       border: 1px solid var(--border, #1E1E2E);
       color: var(--text, #E8E8F0);
@@ -726,7 +726,7 @@ function garantirCssDoToast() {
       transform: translateX(-50%) translateY(160%);
       background: var(--surface2, #1A1A24);
       border: 1px solid var(--border, #1E1E2E);
-      border-radius: 12px;
+      border-radius: var(--r-g, 6px);
       padding: 0.85rem 1.35rem;
       font-family: 'Inter', sans-serif;
       font-size: 0.88rem;

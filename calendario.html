@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Calendário</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -50,7 +50,7 @@
       color: var(--breu);
       border: none;
       padding: 0.7rem 1.25rem;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       font-family: var(--corpo);
       font-weight: 600;
       font-size: 0.88rem;
@@ -68,7 +68,7 @@
       color: var(--text);
       border: 1px solid var(--border);
       padding: 0.7rem 1.25rem;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       font-family: var(--corpo);
       font-weight: 500;
       font-size: 0.88rem;
@@ -82,7 +82,7 @@
     .aviso-card {
       background: color-mix(in srgb, var(--latao-c) 6%, transparent);
       border: 1px solid color-mix(in srgb, var(--latao-c) 20%, transparent);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 0.85rem 1.25rem;
       display: flex;
       align-items: flex-start;
@@ -105,7 +105,7 @@
 .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 1.5rem;
     }
 
@@ -145,7 +145,7 @@
       padding: 1rem 1.25rem;
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       margin-bottom: 0.65rem;
       transition: border-color 0.15s;
     }
@@ -155,7 +155,7 @@
 .evento-icone {
       width: 42px;
       height: 42px;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -186,7 +186,7 @@
       background: none;
       border: 1px solid var(--border);
       color: var(--muted);
-      border-radius: 3px;
+      border-radius: var(--r-p);
       /* Quadrado fixo: editar (icone) e remover (✕) tinham larguras
          diferentes, e o de editar chegou a aparecer vazio e estreito. */
       width: 32px;
@@ -222,7 +222,7 @@
 .modal-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 2rem;
       width: 100%;
       max-width: 460px;
@@ -272,7 +272,7 @@ label {
 input, select {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 0.8rem 1rem;
       color: var(--text);
       font-family: var(--corpo);
@@ -553,7 +553,7 @@ select option { background: var(--surface); color: var(--text); }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
   // A pagina ja tem uma funcao chamada carregarEventos, entao a do modulo
   // entra com outro nome para nao haver colisao.
   import { carregarProgresso,

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Painel do negócio</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -51,7 +51,7 @@
   table.origens td { font-family: var(--dado); }
   table.origens td:first-child { font-family: var(--corpo); word-break: break-word; }
   .dias { display: flex; align-items: flex-end; gap: 2px; height: 90px; }
-  .dias span { flex: 1; background: var(--oliva); border-radius: 2px 2px 0 0; min-height: 2px; }
+  .dias span { flex: 1; background: var(--oliva); border-radius: var(--r-p) var(--r-p) 0 0; min-height: 2px; }
   .dias-eixo { display: flex; justify-content: space-between; font-size: .75rem; color: var(--texto-2); margin-top: .3rem; font-family: var(--dado); }
   .alerta { border-left: 3px solid var(--brasa); padding: .5rem .75rem; margin: .4rem 0; font-size: var(--t-sm); background: color-mix(in srgb, var(--brasa) 8%, transparent); }
   .tudo-bem { color: var(--oliva-c); font-size: var(--t-sm); }
@@ -197,7 +197,7 @@
 
 <script type="module">
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, relatar }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
 
   const $ = (id) => document.getElementById(id);
   const ETAPAS = [['cadastro', 'Cadastrou'], ['edital', 'Subiu o edital'], ['rotina', 'Respondeu a rotina'], ['primeira_sessao', '1ª sessão de estudo']];

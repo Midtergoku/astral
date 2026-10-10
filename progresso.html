@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Progresso</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -56,7 +56,7 @@
 .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 1.5rem;
     }
 
@@ -99,7 +99,7 @@
       gap: 0.5rem;
       background: var(--surface2);
       padding: 1.25rem;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       border: 1px solid var(--border);
     }
 
@@ -319,7 +319,7 @@
 .edital-materia .nome { font-family: var(--display); font-weight: 700; font-size: .92rem; color: var(--texto); min-width: 0; overflow-wrap: anywhere; }
 .edital-materia .pct { font-family: var(--dado); font-size: var(--t-sm); color: var(--latao-c); font-variant-numeric: tabular-nums; }
 .edital-materia .info { grid-column: 2 / 4; font-size: var(--t-xs); color: var(--texto-3); }
-.marca-estudo { width: 12px; height: 12px; border-radius: 2px; border: 2px solid var(--linha); flex-shrink: 0; }
+.marca-estudo { width: 12px; height: 12px; border-radius: var(--r-p); border: 2px solid var(--linha); flex-shrink: 0; }
 .marca-estudo.ok { background: var(--latao); border-color: var(--latao); }
 .edital-assuntos { list-style: none; margin: 0; padding: 0 .8rem .7rem 2.2rem; display: grid; gap: .35rem; }
 .edital-assuntos li { display: flex; align-items: baseline; gap: .55rem; font-size: var(--t-sm); color: var(--texto-2); }
@@ -367,7 +367,7 @@
 }
 .gb-barra {
   width: min(2.6rem, 62%); height: var(--h); min-height: 2px;
-  background: var(--latao); border-radius: 4px 4px 0 0;
+  background: var(--latao); border-radius: var(--r-p) var(--r-p) 0 0;
   transform-origin: bottom;
   animation: gb-sobe 460ms var(--saida) backwards;
   animation-delay: calc(var(--i) * 40ms);
@@ -557,7 +557,7 @@
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
   import { carregarProgresso, carregarEstatisticas, ultimasSemanas, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
   import { duracao, duracaoSeg, duracaoHoras } from './assets/js/formato.js?v=98782d1d';
 

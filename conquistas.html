@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Conquistas</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -50,7 +50,7 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 1.5rem;
       margin-bottom: 2rem;
     }
@@ -107,7 +107,7 @@
       align-items: center;
       text-align: center;
       padding: 1.5rem 1rem;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       border: 1px solid var(--border);
       background: var(--surface2);
       transition: transform 0.2s, border-color 0.2s;
@@ -149,7 +149,7 @@
 .empty-state {
       background: var(--surface2);
       border: 1px dashed var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 3rem 1.5rem;
       text-align: center;
       color: var(--muted);
@@ -311,7 +311,7 @@
 .habilidade-card {
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 1.25rem 1rem;
       display: flex;
       flex-direction: column;
@@ -619,7 +619,7 @@
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
   import { icone } from './assets/js/icones.js?v=7c816270';
   import { carregarProgresso, carregarEstatisticas } from './assets/js/estado.js?v=ab647345';
   import { conferir, quaseLa } from './assets/js/condecoracoes.js?v=11e9ec1c';

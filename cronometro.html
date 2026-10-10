@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Cronômetro</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -31,23 +31,23 @@
 
 .page-sub { font-size:0.85rem; color:var(--muted); margin-top:0.2rem; }
 
-.modo-selector { display:flex; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius: 6px; padding:0.35rem; margin-bottom:2rem; }
+.modo-selector { display:flex; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:0.35rem; margin-bottom:2rem; }
 
-.modo-btn { padding:0.55rem 1.5rem; border-radius: 6px; border:none; background:none; color:var(--muted); font-family:var(--corpo); font-weight:600; font-size:0.88rem; cursor:pointer; transition:background-color var(--d-menu) var(--saida), color var(--d-menu) var(--saida); }
+.modo-btn { padding:0.55rem 1.5rem; border-radius: var(--r-g); border:none; background:none; color:var(--muted); font-family:var(--corpo); font-weight:600; font-size:0.88rem; cursor:pointer; transition:background-color var(--d-menu) var(--saida), color var(--d-menu) var(--saida); }
 
 .modo-btn.active { background:var(--purple); color:var(--breu); }
 
 .crono-container { display:flex; flex-direction:column; align-items:center; gap:1.75rem; width:100%; max-width:500px; }
 
-.materia-selector { width:100%; background:var(--surface); border:1px solid var(--border); border-radius: 6px; padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem; }
+.materia-selector { width:100%; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem; }
 
 .materia-label { font-size:0.8rem; font-weight:600; color:var(--muted); white-space:nowrap; }
 
-select.materia-select { flex:1; background:var(--bg); border:1px solid var(--border); border-radius: 3px; padding:0.55rem 0.85rem; color:var(--text); font-family:var(--corpo); font-size:0.88rem; outline:none; appearance:none; }
+select.materia-select { flex:1; background:var(--bg); border:1px solid var(--border); border-radius: var(--r-p); padding:0.55rem 0.85rem; color:var(--text); font-family:var(--corpo); font-size:0.88rem; outline:none; appearance:none; }
 
 select.materia-select:focus { border-color:var(--purple); }
 
-.pomodoro-config { width:100%; background:var(--surface); border:1px solid var(--border); border-radius: 6px; padding:1rem 1.25rem; display:none; }
+.pomodoro-config { width:100%; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:1rem 1.25rem; display:none; }
 
 .pomodoro-config.show { display:block; }
 /* 03/10/2026 (CRN-01/GAM-11): a pergunta de presenca */
@@ -67,7 +67,7 @@ select.materia-select:focus { border-color:var(--purple); }
 
 .pconfig-label { font-size:var(--t-xs); color:var(--muted); font-weight:500; }
 
-.pconfig-input { background:var(--bg); border:1px solid var(--border); border-radius: 3px; padding:0.5rem 0.75rem; color:var(--text); font-family:var(--corpo); font-size:0.88rem; width:100%; outline:none; appearance:none; }
+.pconfig-input { background:var(--bg); border:1px solid var(--border); border-radius: var(--r-p); padding:0.5rem 0.75rem; color:var(--text); font-family:var(--corpo); font-size:0.88rem; width:100%; outline:none; appearance:none; }
 
 .crono-ring { position:relative; width:260px; height:260px; }
 
@@ -101,7 +101,7 @@ select.materia-select:focus { border-color:var(--purple); }
 
 .btn-play.rodando { background:var(--surface2); border:1px solid var(--border); }
 
-.btn-finalizar { width:100%; padding:0.75rem; border-radius: 6px; border:1px solid var(--border); background:none; color:var(--muted); font-family:var(--corpo); font-weight:600; font-size:0.88rem; cursor:pointer; transition:border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida); display:none; }
+.btn-finalizar { width:100%; padding:0.75rem; border-radius: var(--r-g); border:1px solid var(--border); background:none; color:var(--muted); font-family:var(--corpo); font-weight:600; font-size:0.88rem; cursor:pointer; transition:border-color var(--d-dica) var(--saida), color var(--d-dica) var(--saida); display:none; }
 
 .btn-finalizar.show { display:block; }
 
@@ -109,7 +109,7 @@ select.materia-select:focus { border-color:var(--purple); }
 
 .sessao-stats { width:100%; display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; }
 
-.stat-card { background:var(--surface); border:1px solid var(--border); border-radius: 6px; padding:1rem; text-align:center; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:1rem; text-align:center; }
 
 .stat-valor { font-family:var(--display); font-weight:800; font-size:1.4rem; color:var(--white); line-height:1; }
 
@@ -121,9 +121,9 @@ select.materia-select:focus { border-color:var(--purple); }
 
 .historico-lista { display:flex; flex-direction:column; gap:0.5rem; }
 
-.historico-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:var(--surface); border:1px solid var(--border); border-radius: 6px; font-size:0.82rem; }
+.historico-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); font-size:0.82rem; }
 
-.historico-icone { width:32px; height:32px; border-radius: 3px; background:color-mix(in srgb, var(--latao) 10%, transparent); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
+.historico-icone { width:32px; height:32px; border-radius: var(--r-p); background:color-mix(in srgb, var(--latao) 10%, transparent); display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; }
 
 .historico-info { flex:1; }
 
@@ -131,15 +131,15 @@ select.materia-select:focus { border-color:var(--purple); }
 
 .historico-detalhe { font-size:var(--t-xs); color:var(--muted); }
 
-.historico-xp { font-size:var(--t-xs); font-weight:700; color:var(--purple-lt); background:color-mix(in srgb, var(--latao) 10%, transparent); padding:0.2rem 0.5rem; border-radius: 3px; }
+.historico-xp { font-size:var(--t-xs); font-weight:700; color:var(--purple-lt); background:color-mix(in srgb, var(--latao) 10%, transparent); padding:0.2rem 0.5rem; border-radius: var(--r-p); }
 
-.historico-vazio { text-align:center; padding:1.5rem; color:var(--muted); font-size:0.85rem; background:var(--surface); border:1px solid var(--border); border-radius: 6px; }
+.historico-vazio { text-align:center; padding:1.5rem; color:var(--muted); font-size:0.85rem; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); }
 
 .xp-float { position:fixed; font-family:var(--display); font-weight:800; font-size:1.2rem; color:var(--purple-lt); text-shadow:0 0 20px color-mix(in srgb, var(--latao) 80%, transparent); pointer-events:none; z-index:9999; animation:floatUp 1.4s ease-out forwards; }
 
 @keyframes floatUp { 0%{opacity:1;transform:translateY(0) scale(1)} 30%{opacity:1;transform:translateY(-20px) scale(1.15)} 100%{opacity:0;transform:translateY(-70px) scale(0.8)} }
 
-.notif { position:fixed; top:1.5rem; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--surface); border:1px solid var(--border); border-radius: 6px; padding:0.85rem 1.5rem; font-weight:600; font-size:0.9rem; color:var(--white); z-index:999; transition:transform 0.3s ease; white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+.notif { position:fixed; top:1.5rem; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:0.85rem 1.5rem; font-weight:600; font-size:0.9rem; color:var(--white); z-index:999; transition:transform 0.3s ease; white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
 
 .notif.show { transform:translateX(-50%) translateY(0); }
 
@@ -437,7 +437,7 @@ select.materia-select:focus { border-color:var(--purple); }
 
 <script type="module">
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
   import { carregarProgresso, salvarProgresso,
            gravarSessao,
            sessoesDeHoje } from './assets/js/estado.js?v=ab647345';

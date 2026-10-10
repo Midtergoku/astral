@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Redefinir senha</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -73,7 +73,7 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 2.25rem;
       width: 100%;
       max-width: 440px;
@@ -98,7 +98,7 @@
     input {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--r-g);
       padding: 0.8rem 1rem;
       color: var(--text);
       font-family: var(--corpo);
@@ -122,7 +122,7 @@
       color: var(--breu);
       border: none;
       padding: 0.9rem;
-      border-radius: 6px;
+      border-radius: var(--r-g);
       font-family: var(--corpo);
       font-weight: 600;
       font-size: var(--t-md);
@@ -144,7 +144,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .msg {
-      border-radius: 3px;
+      border-radius: var(--r-p);
       padding: 0.7rem 1rem;
       font-size: 0.85rem;
       margin-bottom: 1rem;
@@ -170,7 +170,7 @@
     @media (max-width: 560px) {
       nav { padding: 1rem 1.25rem; }
       main { padding: 2rem 1rem; }
-      .card { padding: 1.5rem; border-radius: 6px; }
+      .card { padding: 1.5rem; border-radius: var(--r-g); }
       .card h1 { font-size: 1.35rem; }
     }
   </style>
@@ -239,7 +239,7 @@
 <footer>© 2026 Astral · Feito para concurseiros militares</footer>
 
 <script type="module">
-  import { supabase, olhinhoDeSenha } from './assets/js/astral.js?v=e25c429c';
+  import { supabase, olhinhoDeSenha } from './assets/js/astral.js?v=08ecd54f';
 
   // Os dois campos: sem conferir o que digitou, "as senhas não conferem" vira
   // adivinhação — e esta é justamente a tela de quem já esqueceu a senha.

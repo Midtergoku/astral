@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-<link rel="stylesheet" href="/assets/css/base.css?v=80c0cb07"/>
+<link rel="stylesheet" href="/assets/css/base.css?v=c5f5b520"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Astral — Minha conta</title>
   <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
@@ -44,7 +44,7 @@
 .section-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.6; }
 
 .dados-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-.dado { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1rem; }
+.dado { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-g); padding: 0.9rem 1rem; }
 .dado-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.3rem; }
 .dado-valor { font-size: 0.95rem; color: var(--white); font-weight: 500; word-break: break-word; }
 
@@ -52,7 +52,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--r-g);
   padding: 0.75rem 1.15rem;
   font-family: var(--corpo);
   font-size: 0.9rem;
@@ -75,7 +75,7 @@
 .aviso {
   background: color-mix(in srgb, var(--brasa-c) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--brasa-c) 22%, transparent);
-  border-radius: 6px;
+  border-radius: var(--r-g);
   padding: 0.9rem 1rem;
   font-size: 0.85rem;
   line-height: 1.65;
@@ -88,7 +88,7 @@
 .confirmacao input {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--r-g);
   padding: 0.75rem 1rem;
   color: var(--text);
   font-family: var(--corpo);
@@ -115,7 +115,7 @@
   transform: translateX(-50%) translateY(140%);
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--r-g);
   padding: 0.85rem 1.35rem;
   font-size: 0.88rem;
   color: var(--white);
@@ -339,7 +339,7 @@
 
 <script type="module">
   import { supabase, esc, exigirSessao, fazerLogout, nomeDoUsuario, toast, SUPABASE_URL, buscarQuota, relatar, pintarSeloDoPlano }
-    from './assets/js/astral.js?v=e25c429c';
+    from './assets/js/astral.js?v=08ecd54f';
 
   window.fazerLogout = fazerLogout;
 
