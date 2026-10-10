@@ -67,6 +67,7 @@ const TABELAS = [
   'falhas_servidor', 'vigia_alertas',
   'aprovacoes',                                       // 10/10/2026, o "Passei!" (3.22)
   'assuntos_estudados',                               // 10/10/2026, os assuntos marcados como estudados
+  'simulados',                                        // 10/10/2026, os simulados e o resultado (R4)
 ];
 // Tabela que existe e NAO vai para o backup, com o porque. Hoje: nenhuma.
 const IGNORADAS = {

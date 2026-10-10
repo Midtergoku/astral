@@ -690,3 +690,11 @@ Cronômetro: a linha `#crono-dica` (▶ e Finalizar; 2 XP por minuto; Pomodoro s
 🔴 **O guia repete a regra do servidor — mudou a regra, mude o texto:** XP = soma das sessões (`xp_com_bonus`); bloco
 marcado vale o mesmo XP (3.13); só tempo medido conta para sessão longa/horas no dia (3.12); questão mede domínio, não dá XP.
 Regressão: `node tools/testa-guia-xp.js` (dev).
+
+## 21. Simulado — aba do Banco (10/10/2026, R4)
+
+`simulado.html` (`<meta name="aba-de" content="banco.html">`; o Banco ganhou as abas "Banco de questões | Simulado").
+Três telas na mesma página: montar (10/20/30/50) → a prova (relógio, "X de N respondidas", pode trocar até entregar;
+**a prova aberta sobrevive a um recarregar** — `sessionStorage`, só até entregar) → o relatório (placar, por matéria,
+cada questão com a certa e a explicação). Tudo que vem da questão passa por `esc()`/`att()`.
+Casca copiada do TAF **inteira** (o rodapé de scripts junto — paginas.md 19). Regressão: `node tools/testa-simulado.js`.

@@ -70,6 +70,8 @@ const SEMENTES = (u) => ({
   aprovacoes: `insert into public.aprovacoes (usuario_id, concurso, depoimento) values ('${u}', 'Teste dados-do-aluno', 'depoimento de teste')`,
   // 10/10/2026: os assuntos marcados como estudados (Progresso > Materias do edital)
   assuntos_estudados: `insert into public.assuntos_estudados (usuario_id, materia, assunto) values ('${u}', 'Química', 'Estequiometria')`,
+  // 10/10/2026: o simulado (R4) e o resultado
+  simulados: `insert into public.simulados (usuario_id, questoes, acertos) values ('${u}', '{}', 0)`,
 });
 
 const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".woff2": "font/woff2", ".svg": "image/svg+xml" };

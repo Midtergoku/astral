@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+<link rel="stylesheet" href="/assets/css/base.css?v=3dc70e08"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Astral — Simulado</title>
+  <meta name="aba-de" content="banco.html"/>
+  <!-- 04/10/2026 (roadmap 3.11): icone, atalho na tela inicial e cor da barra. Gerados por tools/gera-vitrine.js -->
+  <link rel="icon" href="/favicon.ico" sizes="32x32"/>
+  <link rel="icon" href="/img/icone.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="/img/icone-180.png"/>
+  <link rel="manifest" href="/manifest.webmanifest"/>
+  <meta name="theme-color" content="#0E1620"/>
+  <!-- 08/10/2026 (3.11b, DevTools): a fonte so era descoberta DEPOIS do CSS; no celular lento ela chegava
+       com a pagina ja desenhada na fonte substituta e empurrava tudo (deslocamento 0,13 no login).
+       Pedir ja no comeco tira o empurrao. Mesmo endereco do @font-face do base.css (senao baixa 2x). -->
+  <link rel="preload" href="/assets/fontes/archivo-latin.woff2" as="font" type="font/woff2" crossorigin/>
+  <link rel="preload" href="/assets/fontes/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin/>
+  <meta name="robots" content="noindex"/>   <!-- area logada / ferramenta: fora da busca -->
+  <link rel="stylesheet" href="assets/css/app.css?v=66b8d489" />
+<style>
+  body { display: flex; min-height: 100vh; margin: 0; }
+
+  /* ── O SIMULADO (10/10/2026, R4 do roadmap do RPG) ─────────────────────
+     Uma prova do edital: as questoes vem do servidor (montar_simulado) sem gabarito; a pessoa marca, pode trocar,
+     e so ao ENTREGAR o servidor corrige (entregar_simulado) e devolve gabarito e explicacao. A tela so desenha. */
+  .sim-cartao { background: var(--casco); border: 1px solid var(--linha); border-radius: var(--r-g); padding: var(--e4); margin-bottom: var(--e4); }
+  .sim-cartao h2 { font-family: var(--display); font-size: var(--t-lg); margin: 0 0 var(--e2); color: var(--texto); }
+  .sim-texto { color: var(--texto-2); font-size: var(--t-sm); line-height: 1.6; max-width: 68ch; margin: 0 0 var(--e3); }
+  .sim-quantas { display: flex; flex-wrap: wrap; gap: var(--e2); margin: 0 0 var(--e4); padding: 0; border: 0; }
+  .sim-quantas legend { font-family: var(--display); font-weight: 700; font-size: var(--t-sm); color: var(--texto); margin-bottom: var(--e2); }
+  .sim-quantas label { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--linha); border-radius: var(--r-p);
+    padding: .5rem .85rem; min-height: 40px; cursor: pointer; color: var(--texto-2); font-size: var(--t-sm); }
+  .sim-quantas label:has(input:checked) { border-color: var(--latao); color: var(--texto); background: color-mix(in srgb, var(--latao) 10%, transparent); }
+  .sim-historico { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+  .sim-historico li { display: flex; justify-content: space-between; gap: var(--e3); font-size: var(--t-sm); color: var(--texto-2);
+    border-bottom: 1px solid var(--linha); padding: .45rem 0; }
+  .sim-historico b { font-family: var(--dado); color: var(--texto); font-weight: 600; }
+
+  .sim-barra { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: var(--e3); flex-wrap: wrap;
+    background: color-mix(in srgb, var(--breu) 92%, transparent); border-bottom: 1px solid var(--linha);
+    padding: .75rem 0; margin-bottom: var(--e4); backdrop-filter: blur(6px); }
+  .sim-relogio { font-family: var(--dado); font-size: 1.25rem; color: var(--latao-c); font-variant-numeric: tabular-nums; }
+  .sim-conta { font-size: var(--t-sm); color: var(--texto-2); }
+  .sim-barra .btn { margin-left: auto; }
+
+  .sim-q { background: var(--casco); border: 1px solid var(--linha); border-radius: var(--r-g); padding: var(--e4); margin-bottom: var(--e3); }
+  .sim-q-topo { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: var(--e3); font-size: var(--t-xs); color: var(--texto-3); }
+  .sim-selo { border: 1px solid var(--linha); border-radius: var(--r-p); padding: .15rem .5rem; color: var(--texto-2); }
+  .sim-enunciado { color: var(--texto); line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: var(--e3); }
+  .sim-apoio { margin-bottom: var(--e3); }
+  .sim-apoio summary { cursor: pointer; color: var(--texto-2); font-size: var(--t-sm); min-height: 28px; }
+  .sim-apoio div { white-space: pre-wrap; color: var(--texto-2); font-size: var(--t-sm); line-height: 1.6; margin-top: .5rem; }
+  .sim-img img { max-width: 100%; height: auto; border-radius: var(--r-p); background: #fff; }
+  .sim-alts { display: grid; gap: .45rem; }
+  .sim-alt { display: flex; gap: .6rem; align-items: flex-start; text-align: left; width: 100%; min-height: 44px; cursor: pointer;
+    background: var(--casco-2); border: 1px solid var(--linha); border-radius: var(--r-p); padding: .6rem .8rem;
+    color: var(--texto); font: inherit; line-height: 1.5; }
+  .sim-alt b { font-family: var(--dado); color: var(--texto-2); }
+  .sim-alt[aria-pressed="true"] { border-color: var(--latao); background: color-mix(in srgb, var(--latao) 12%, var(--casco-2)); }
+  .sim-alt[aria-pressed="true"] b { color: var(--latao-c); }
+  .sim-alt.certa { border-color: var(--oliva-c); background: color-mix(in srgb, var(--oliva) 22%, var(--casco-2)); }
+  .sim-alt.errada { border-color: var(--brasa-c); background: color-mix(in srgb, var(--brasa) 16%, var(--casco-2)); }
+  .sim-alt:disabled { cursor: default; }
+  .sim-explicacao { margin-top: var(--e3); font-size: var(--t-sm); color: var(--texto-2); line-height: 1.6; border-left: 3px solid var(--linha); padding-left: var(--e3); }
+  .sim-veredito { margin-left: auto; font-family: var(--display); font-weight: 700; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; }
+  .sim-veredito.boa { color: var(--oliva-c); }
+  .sim-veredito.ma { color: var(--brasa-c); }
+  .sim-veredito.branco { color: var(--texto-3); }
+
+  .sim-placar { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--e3); margin-bottom: var(--e3); }
+  .sim-placar .grande { font-family: var(--display); font-weight: 800; font-size: 2.5rem; color: var(--texto); line-height: 1; }
+  .sim-placar .pct { font-family: var(--dado); font-size: var(--t-lg); color: var(--latao-c); }
+  .sim-placar .tempo { font-size: var(--t-sm); color: var(--texto-2); }
+  .sim-materias { list-style: none; margin: 0 0 var(--e3); padding: 0; display: grid; gap: .55rem; }
+  .sim-materias li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .3rem var(--e3); font-size: var(--t-sm); color: var(--texto); }
+  .sim-materias .regua { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--casco-2); overflow: hidden; }
+  .sim-materias .regua span { display: block; height: 100%; background: var(--latao); }
+  .sim-materias .n { font-family: var(--dado); color: var(--texto-2); }
+  .sim-acoes { display: flex; flex-wrap: wrap; gap: var(--e2); margin-top: var(--e3); }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Ast<span style="color:var(--purple)">r</span>al</div>
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar" data-esperando></div>
+    <div class="user-details">
+      <div class="user-name" id="user-name"></div>
+    </div>
+  </div>
+  <!-- Preenche nome e inicial ANTES da primeira pintura, direto da sessao
+       guardada no navegador. Precisa vir DEPOIS dos elementos acima e NAO
+       pode ser type="module" -- modulo e adiado e a pagina pintaria antes.
+       Ver o cabecalho de assets/js/identidade.js. -->
+  <script src="/assets/js/identidade.js?v=e5db8ddb"></script>
+  <div class="nav-label">MENU</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="dashboard.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-link" href="calendario.html">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <circle cx="8" cy="14" r="1" fill="currentColor"/>
+    <circle cx="12" cy="14" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+  </svg>
+  Calendário
+</a>
+    <a class="nav-link" href="cronometro.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cronômetro
+    </a>
+    <a class="nav-link" href="cronograma.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cronograma
+    </a>
+    <a class="nav-link" href="progresso.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progresso
+    </a>
+    <!-- QUESTOES DESLIGADO em 31/07/2026 (custo). Para religar,
+         apague esta linha e a ultima deste bloco. Ver CLAUDE.md 8.15.
+    <a class="nav-link" href="questoes.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      Questões
+    </a>
+    -->
+    <a class="nav-link active" href="banco.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      Questões
+    </a>
+    <a class="nav-link" href="taf.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <circle cx="13" cy="4" r="2"/><path d="M7 21l3-7 3 2v5M10 14l-2-4 4-3 3 3 3 1"/>
+      </svg>
+      TAF
+    </a>
+    <a class="nav-link" href="conquistas.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Conquistas
+    </a>
+    <a class="nav-link" href="habilidades.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M12 2v20M12 7l5-3M12 12l6-3.5M12 17l4-2.5M12 7 7 4M12 12l-6-3.5M12 17l-4-2.5"/>
+      </svg>
+      Instrução
+    </a>
+    <a class="nav-link" href="tags.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.6 8.4 12 17l-8.6-8.6a4.5 4.5 0 0 1 6.4-6.4L12 3.2l2.2-1.2a4.5 4.5 0 0 1 6.4 6.4z" transform="translate(0 2) scale(1 .9)"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
+      Minhas tags
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="conta.html">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Minha conta</span>
+    </a>
+    <button class="btn-logout" id="btn-sair">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Encerrar sessão
+    </button>
+  </div>
+</aside>
+
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1 class="page-title">Simulado</h1>
+      <p class="page-sub">Uma prova do seu edital: questões das suas matérias, no peso de cada uma, com relógio e correção no fim.</p>
+      <nav class="abas" aria-label="Vistas do banco de questões">
+        <a href="banco.html">Banco de questões</a>
+        <a href="simulado.html" aria-current="page">Simulado</a>
+      </nav>
+    </div>
+    <div class="topbar-right"><span class="divisa-topo" data-divisa></span></div>
+  </div>
+
+  <div id="conteudo" aria-live="polite">
+    <div class="esqueleto-linha media"></div>
+    <div class="esqueleto-bloco" style="height:14rem"></div>
+  </div>
+</main>
+
+
+<script type="module">
+  import { supabase, esc, att, exigirSessao, fazerLogout, nomeDoUsuario, toast, relatar }
+    from './assets/js/astral.js?v=224dc907';
+
+  const $ = (id) => document.getElementById(id);
+  const conteudo = () => $('conteudo');
+  // a prova em andamento sobrevive a um recarregar (so neste navegador, so ate entregar)
+  const CHAVE = 'astral_simulado_aberto';
+  let prova = null;        // { id, questoes, respostas: {id: letra}, inicio }
+  let relogio = null;
+
+  const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const duracaoTexto = (s) => (s >= 3600 ? `${Math.floor(s / 3600)} h ${Math.floor((s % 3600) / 60)} min` : `${Math.max(1, Math.round(s / 60))} min`);
+  const guardar = () => { try { sessionStorage.setItem(CHAVE, JSON.stringify(prova)); } catch { /* sem armazenamento: segue */ } };
+  const esquecer = () => { try { sessionStorage.removeItem(CHAVE); } catch { /* idem */ } };
+
+  // ── 1. Montar ──────────────────────────────────────────────────────────────
+  async function telaInicial() {
+    const { data: hist } = await supabase.from('simulados').select('criado_em, entregue_em, acertos, respondidas, questoes, segundos')
+      .not('entregue_em', 'is', null).order('entregue_em', { ascending: false }).limit(5);
+    conteudo().innerHTML = `
+      <section class="sim-cartao" aria-labelledby="sim-titulo">
+        <h2 id="sim-titulo">Monte um simulado do seu edital</h2>
+        <p class="sim-texto">As questões vêm do Banco, só das <b>matérias do seu edital</b> e na <b>proporção do peso</b> de cada uma —
+          as que você nunca respondeu vêm primeiro. Você marca e pode trocar até entregar; <b>o gabarito só aparece no fim</b>,
+          com a explicação de cada questão. As respostas contam no seu domínio e as erradas vão para o caderno de erros, como no Banco.</p>
+        <fieldset class="sim-quantas">
+          <legend>Quantas questões?</legend>
+          ${[10, 20, 30, 50].map((n) => `<label><input type="radio" name="quantas" value="${n}" ${n === 20 ? 'checked' : ''}> ${n} questões</label>`).join('')}
+        </fieldset>
+        <button class="btn btn-roxo" id="btn-montar">Começar simulado</button>
+      </section>
+      ${Array.isArray(hist) && hist.length ? `
+      <section class="sim-cartao" aria-labelledby="sim-hist">
+        <h2 id="sim-hist">Seus últimos simulados</h2>
+        <ul class="sim-historico">${hist.map((s) => {
+          const total = (s.questoes || []).length;
+          const dia = new Date(s.entregue_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+          return `<li><span>${esc(dia)} · ${esc(duracaoTexto(s.segundos || 0))}</span><span><b>${esc(String(s.acertos ?? 0))} de ${esc(String(total))}</b> acertos</span></li>`;
+        }).join('')}</ul>
+      </section>` : ''}`;
+    $('btn-montar').addEventListener('click', montar);
+  }
+
+  async function montar() {
+    const b = $('btn-montar');
+    const quantas = Number(document.querySelector('input[name="quantas"]:checked')?.value) || 20;
+    b.disabled = true; b.textContent = 'Montando a prova…';
+    const { data, error } = await supabase.rpc('montar_simulado', { p_quantas: quantas });
+    if (error || !data?.questoes?.length) {
+      b.disabled = false; b.textContent = 'Começar simulado';
+      // as mensagens do servidor ja sao para o aluno (sem questoes no Banco; 5 por dia)
+      const msg = error?.message && /edital|simulados hoje/.test(error.message) ? error.message : 'Não consegui montar o simulado agora. Tente de novo.';
+      if (error && !/edital|simulados hoje/.test(error.message || '')) relatar(error, 'simulado/montar');
+      toast(msg, 'error');
+      return;
+    }
+    prova = { id: data.id, questoes: data.questoes, respostas: {}, inicio: Date.now() };
+    guardar();
+    telaProva();
+  }
+
+  // ── 2. A prova ─────────────────────────────────────────────────────────────
+  function fonte(q) {
+    const p = [q.banca, q.prova, q.ano].filter((x) => x != null && String(x).trim() !== '').map((x) => esc(String(x))).join(' · ');
+    return p ? `<span>${p}${q.numero ? ` · nº ${esc(String(q.numero))}` : ''}</span>` : '';
+  }
+  function alternativas(q, extra = () => '') {
+    const lista = q.tipo === 'certo_errado' ? [['c', 'Certo'], ['e', 'Errado']] : Object.entries(q.alternativas || {}).sort();
+    return `<div class="sim-alts" role="group" aria-label="Alternativas da questão">${lista.map(([l, t]) => `
+      <button type="button" class="sim-alt${extra(l)}" data-q="${att(String(q.id))}" data-letra="${att(l)}"
+        aria-pressed="${prova?.respostas?.[q.id] === l ? 'true' : 'false'}">
+        <b>${esc(q.tipo === 'certo_errado' ? '' : l + ')')}</b>${q.imagem && q.tipo !== 'certo_errado' ? '' : `<span>${esc(t)}</span>`}
+      </button>`).join('')}</div>`;
+  }
+  function questaoHTML(q, i, total, resultado) {
+    const r = resultado?.get(q.id);
+    const extra = (l) => !r ? '' : (l === r.gabarito ? ' certa' : (l === r.letra ? ' errada' : ''));
+    return `<article class="sim-q" id="q-${att(String(q.id))}">
+      <div class="sim-q-topo"><span class="sim-selo">${esc(q.materia)}</span>${q.assunto ? `<span class="sim-selo">${esc(q.assunto)}</span>` : ''}
+        <span>questão ${i + 1} de ${total}</span>${fonte(q)}
+        ${r ? `<span class="sim-veredito ${r.letra == null ? 'branco' : (r.acertou ? 'boa' : 'ma')}">${r.letra == null ? 'em branco' : (r.acertou ? 'acertou' : 'errou')}</span>` : ''}</div>
+      ${q.texto_apoio ? `<details class="sim-apoio"${q.texto_apoio.length < 400 ? ' open' : ''}><summary>Texto de apoio</summary><div>${esc(q.texto_apoio)}</div></details>` : ''}
+      ${q.imagem ? `<a class="sim-img" href="${att(q.imagem)}" target="_blank" rel="noopener"><img src="${att(q.imagem)}" alt="Questão ${att(String(q.numero ?? ''))} da prova ${att(q.prova || '')}, como foi impressa" loading="lazy" decoding="async"></a>`
+        : `<div class="sim-enunciado">${esc(q.enunciado)}</div>`}
+      ${alternativas(q, extra)}
+      ${r && r.explicacao ? `<div class="sim-explicacao"><b>Gabarito: ${esc(q.tipo === 'certo_errado' ? (r.gabarito === 'c' ? 'Certo' : 'Errado') : r.gabarito)}.</b> ${esc(r.explicacao)}</div>`
+        : (r ? `<div class="sim-explicacao"><b>Gabarito: ${esc(q.tipo === 'certo_errado' ? (r.gabarito === 'c' ? 'Certo' : 'Errado') : r.gabarito)}.</b></div>` : '')}
+    </article>`;
+  }
+
+  function telaProva() {
+    const n = prova.questoes.length;
+    conteudo().innerHTML = `
+      <div class="sim-barra">
+        <span class="sim-relogio" id="sim-relogio" aria-label="Tempo de prova">00:00</span>
+        <span class="sim-conta" id="sim-conta"></span>
+        <button class="btn btn-roxo" id="btn-entregar">Entregar</button>
+      </div>
+      ${prova.questoes.map((q, i) => questaoHTML(q, i, n)).join('')}
+      <div class="sim-acoes"><button class="btn btn-roxo" id="btn-entregar-fim">Entregar o simulado</button>
+        <button class="btn btn-fantasma" id="btn-desistir">Desistir deste simulado</button></div>`;
+    const contar = () => { const r = Object.keys(prova.respostas).length; $('sim-conta').textContent = `${r} de ${n} respondidas`; };
+    contar();
+    clearInterval(relogio);
+    const tic = () => { const el = $('sim-relogio'); if (el) el.textContent = mmss(Math.floor((Date.now() - prova.inicio) / 1000)); };
+    tic(); relogio = setInterval(tic, 1000);
+    conteudo().addEventListener('click', (e) => {
+      const b = e.target.closest('.sim-alt');
+      if (!b || b.disabled || !prova) return;
+      const id = b.dataset.q;
+      prova.respostas[id] = b.dataset.letra;   // pode trocar ate entregar
+      b.closest('.sim-alts').querySelectorAll('.sim-alt').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      guardar(); contar();
+    });
+    $('btn-entregar').addEventListener('click', entregar);
+    $('btn-entregar-fim').addEventListener('click', entregar);
+    $('btn-desistir').addEventListener('click', () => {
+      if (!confirm('Desistir deste simulado? Nada do que você marcou será corrigido.')) return;
+      clearInterval(relogio); prova = null; esquecer(); telaInicial();
+    });
+  }
+
+  async function entregar() {
+    const n = prova.questoes.length, r = Object.keys(prova.respostas).length;
+    if (r < n && !confirm(`Você deixou ${n - r} ${n - r === 1 ? 'questão' : 'questões'} em branco. Entregar assim mesmo?`)) return;
+    ['btn-entregar', 'btn-entregar-fim'].forEach((id) => { const b = $(id); if (b) { b.disabled = true; b.textContent = 'Corrigindo…'; } });
+    const segundos = Math.floor((Date.now() - prova.inicio) / 1000);
+    const { data, error } = await supabase.rpc('entregar_simulado', { p_id: prova.id, p_respostas: prova.respostas, p_segundos: segundos });
+    if (error || !data) {
+      relatar(error || new Error('entregar sem resposta'), 'simulado/entregar');
+      ['btn-entregar', 'btn-entregar-fim'].forEach((id) => { const b = $(id); if (b) { b.disabled = false; b.textContent = 'Entregar'; } });
+      toast('Não consegui corrigir agora. Suas marcações estão guardadas — tente entregar de novo.', 'error');
+      return;
+    }
+    clearInterval(relogio);
+    const feito = prova; prova = null; esquecer();
+    telaResultado(feito, data);
+  }
+
+  // ── 3. O relatorio ─────────────────────────────────────────────────────────
+  function telaResultado(feito, res) {
+    const total = res.total || feito.questoes.length;
+    const pct = total ? Math.round(100 * res.acertos / total) : 0;
+    const porItem = new Map((res.itens || []).map((i) => [Number(i.id), i]));
+    const mats = Object.entries(res.por_materia || {}).sort((a, b) => b[1].total - a[1].total);
+    conteudo().innerHTML = `
+      <section class="sim-cartao" aria-labelledby="sim-res">
+        <h2 id="sim-res">Resultado do simulado</h2>
+        <div class="sim-placar"><span class="grande">${esc(String(res.acertos))} de ${esc(String(total))}</span>
+          <span class="pct">${pct}%</span><span class="tempo">em ${esc(duracaoTexto(res.segundos || 0))}${res.respondidas < total ? ` · ${total - res.respondidas} em branco` : ''}</span></div>
+        <ul class="sim-materias">${mats.map(([m, v]) => `<li><span>${esc(m)}</span><span class="n">${esc(String(v.acertos))} de ${esc(String(v.total))}</span>
+          <span class="regua" aria-hidden="true"><span style="width:${v.total ? Math.round(100 * v.acertos / v.total) : 0}%"></span></span></li>`).join('')}</ul>
+        <p class="sim-texto">As respostas já contam no seu domínio de cada matéria, e as erradas estão no caderno de erros do Banco.</p>
+        <div class="sim-acoes"><button class="btn btn-roxo" id="btn-novo">Novo simulado</button>
+          <a class="btn btn-fantasma" href="banco.html">Ir para o Banco</a></div>
+      </section>
+      ${feito.questoes.map((q, i) => questaoHTML(q, i, total, porItem)).join('')}`;
+    conteudo().querySelectorAll('.sim-alt').forEach((b) => { b.disabled = true; });
+    $('btn-novo').addEventListener('click', telaInicial);
+    $('sim-res').scrollIntoView({ block: 'start' });
+  }
+
+  (async () => {
+    const sessao = await exigirSessao();
+    if (!sessao) return;
+    await nomeDoUsuario(sessao);
+    try { prova = JSON.parse(sessionStorage.getItem(CHAVE) || 'null'); } catch { prova = null; }
+    if (prova?.id && Array.isArray(prova.questoes) && prova.questoes.length) telaProva();
+    else { prova = null; await telaInicial(); }
+  })();
+
+  window.fazerLogout = fazerLogout;
+  document.getElementById('btn-sair')?.addEventListener('click', fazerLogout);
+</script>
+
+<script type="module" src="/assets/js/divisa.js?v=90702777"></script>
+<script src="assets/js/transicao.js?v=7290037a"></script>
+<script type="module" src="/assets/js/menu.js?v=16951915"></script>
+</body>
+</html>

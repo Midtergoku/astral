@@ -437,3 +437,14 @@ nem aparece. Fora: conta de teste, não autorizado, depoimento com menos de 10 l
 Página: `assets/js/depoimentos.js` (sem supabase-js; texto por `textContent`). Regressão: `node tools/testa-depoimentos.js` (dev).
 - 💡 Na próxima revisão dos textos legais, citar o depoimento autorizado na Política (hoje o consentimento é a própria caixa,
   específico; mudar a Política agora pediria o aceite de novo de todo mundo).
+
+## 8.45. O Simulado (10/10/2026, R4 do RPG — guardado 5, "grátis por enquanto")
+
+Migration `20261010190000`. `montar_simulado(quantas)` (10–50; até 5 por dia): questões **das matérias do edital, no peso de
+cada uma** (maiores restos), nunca respondidas primeiro, mesmas travas do Banco (prova antiga no grátis — regra do plano
+inalterada; matéria regional de outro estado nunca). **Sem gabarito.** `entregar_simulado(id, respostas, segundos)`: o
+servidor corrige chamando **`registrar_resposta`** (o mesmo caminho do Banco: domínio e caderno) e só então devolve gabarito
+e explicação — inclusive das em branco. `simulados` (RLS: só lê o seu; escrita só pelas funções). `questoes_servidas.no_simulado`:
+questão de simulado **não gasta a amostra do dia** (`sortear_questoes` filtra). XP: nenhum (questão mede domínio).
+- 🔴 Supabase recusa `UPDATE` sem `WHERE` (safeupdate) — até em tabela temporária: `where true`.
+- 💰 O corte do Pro no simulado: decidir junto com o pagamento (5.3). Regressão: `node tools/testa-simulado.js` (19, dev).

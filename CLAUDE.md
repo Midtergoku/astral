@@ -138,6 +138,8 @@ node tools/compara-estilo.js [ref] [--resumo] [--controle]  a TELA ficou igual? 
                                 MOVE regra de lugar (o valida-css acusa falso). --controle tem de dar 0 (10/10, V2)
 node tools/testa-assuntos-edital.js  os assuntos de cada materia aparecem SEM questao no Banco? o aluno marca e NAO ganha XP? (dev) (10/10)
 node tools/testa-guia-xp.js      quem nao tem XP ve COMO ganhar (guia aberto, botao Iniciar estudo, dica no cronometro)? (dev) (10/10)
+node tools/testa-simulado.js     o simulado monta do edital (no peso), esconde o gabarito, corrige no servidor, relata? (dev) (10/10)
+node tools/testa-depoimentos.js  a pagina inicial mostra SO o depoimento autorizado (texto + 1o nome), e so com 3+? (dev) (10/10)
 node tools/testa-pulo.js [paginas]  a tela PULA ao abrir? (deslocamento > 0,05 reprova; conta real no dev) (10/10)
 node tools/foto-tela.js [paginas] [--so 375|1280] [--pasta X]  FOTO das telas com dado de VERDADE: conta nova no
                                 astral-dev estuda 30 dias, a tela abre logada, foto em %TEMP%\astral-fotos, conta
