@@ -1596,7 +1596,7 @@ body.primeiro-acesso .grid-3 { display: none; }
   import { supabase, esc, att, escJs, urlSegura, exigirSessao, fazerLogout, nomeDoUsuario, chamarIA, toast, relatar, pintarSeloDoPlano }
     from './assets/js/astral.js?v=e25c429c';
   import { icone } from './assets/js/icones.js?v=7c816270';
-  import { montarCronograma, gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=b8fa3798';
+  import { gerarGuiaCompleto, ressalvaHTML } from './assets/js/plano.js?v=74a57c33';
   import { arrumarNome } from './assets/js/prova.js?v=25b893ea';
   import { carregarProgresso, salvarProgresso, progressoIndisponivel } from './assets/js/estado.js?v=ab647345';
   import { sessoesDaSemana, registrarSessao } from './assets/js/estado.js?v=ab647345';
@@ -1606,7 +1606,7 @@ body.primeiro-acesso .grid-3 { display: none; }
   import { montarSemana, blocosDeHoje, ROTINA_PADRAO, xpDoBloco } from './assets/js/cronograma.js?v=eafbde2d';
   import { perguntarRotina } from './assets/js/rotina.js?v=42fdf445';
   import { aplicarGrafico } from './assets/js/grafico.js?v=d19f5ed6';
-  import { nivelDe, aplicarDivisa } from './assets/js/divisa.js?v=b3ffe355';
+  import { nivelDe, aplicarDivisa } from './assets/js/divisa.js?v=90702777';
   // Mesmo carimbo do import dinamico do chefe: um modulo so (ver condecoracoes.js).
   import { pontoFraco, diasAte, provaPassadaDe } from './assets/js/chefe.js?v=70026c8f';
 
@@ -1618,87 +1618,8 @@ body.primeiro-acesso .grid-3 { display: none; }
     return nivelDe(estado.xp, e.nome || '', e.forca || null, e.patenteInicial || null);
   }
 
-  // ── NÍVEIS ──
-  const TABELAS_NIVEIS = {
-    bombeiros: [
-      { nome: 'Bombeiro 3ª Classe', xp: 0     },
-      { nome: 'Bombeiro 2ª Classe', xp: 500   },
-      { nome: 'Bombeiro 1ª Classe', xp: 1200  },
-      { nome: 'Cabo BM',            xp: 2500  },
-      { nome: '3º Sargento BM',     xp: 4500  },
-      { nome: '2º Sargento BM',     xp: 7000  },
-      { nome: '1º Sargento BM',     xp: 10000 },
-      { nome: 'Subtenente BM',      xp: 14000 },
-      { nome: 'Aspirante BM',       xp: 19000 },
-      { nome: 'Tenente BM',         xp: 25000 },
-      { nome: 'Capitão BM',         xp: 35000 },
-    ],
-    marinha: [
-      { nome: 'Grumete',            xp: 0     },
-      { nome: 'Marinheiro',         xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: '3º Sargento',        xp: 2500  },
-      { nome: '2º Sargento',        xp: 4500  },
-      { nome: '1º Sargento',        xp: 7000  },
-      { nome: 'Suboficial',         xp: 10000 },
-      { nome: 'Guarda-Marinha',     xp: 14000 },
-      { nome: 'Aspirante',          xp: 19000 },
-      { nome: 'Tenente',            xp: 25000 },
-      { nome: 'Capitão-Tenente',    xp: 35000 },
-    ],
-    aeronautica: [
-      { nome: 'Recruta',            xp: 0     },
-      { nome: 'Soldado',            xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: '3º Sargento',        xp: 2500  },
-      { nome: '2º Sargento',        xp: 4500  },
-      { nome: '1º Sargento',        xp: 7000  },
-      { nome: 'Suboficial',         xp: 10000 },
-      { nome: 'Aspirante-a-Oficial',xp: 14000 },
-      { nome: '2º Tenente',         xp: 19000 },
-      { nome: '1º Tenente',         xp: 25000 },
-      { nome: 'Capitão',            xp: 35000 },
-    ],
-    exercito: [
-      { nome: 'Recruta',            xp: 0     },
-      { nome: 'Soldado',            xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: '3º Sargento',        xp: 2500  },
-      { nome: '2º Sargento',        xp: 4500  },
-      { nome: '1º Sargento',        xp: 7000  },
-      { nome: 'Subtenente',         xp: 10000 },
-      { nome: 'Aspirante-a-Oficial',xp: 14000 },
-      { nome: '2º Tenente',         xp: 19000 },
-      { nome: '1º Tenente',         xp: 25000 },
-      { nome: 'Capitão',            xp: 35000 },
-    ],
-    pm: [
-      { nome: 'Soldado PM',         xp: 0     },
-      { nome: 'Cabo PM',            xp: 500   },
-      { nome: '3º Sargento PM',     xp: 1200  },
-      { nome: '2º Sargento PM',     xp: 2500  },
-      { nome: '1º Sargento PM',     xp: 4500  },
-      { nome: 'Subtenente PM',      xp: 7000  },
-      { nome: 'Aspirante PM',       xp: 10000 },
-      { nome: '2º Tenente PM',      xp: 14000 },
-      { nome: '1º Tenente PM',      xp: 19000 },
-      { nome: 'Capitão PM',         xp: 25000 },
-      { nome: 'Major PM',           xp: 35000 },
-    ],
-    default: [
-      { nome: 'Recruta',            xp: 0     },
-      { nome: 'Soldado',            xp: 500   },
-      { nome: 'Cabo',               xp: 1200  },
-      { nome: 'Sargento',           xp: 2500  },
-      { nome: 'Subtenente',         xp: 4500  },
-      { nome: 'Tenente',            xp: 7000  },
-      { nome: 'Capitão',            xp: 10000 },
-      { nome: 'Major',              xp: 14000 },
-      { nome: 'Tenente-Coronel',    xp: 19000 },
-      { nome: 'Coronel',            xp: 25000 },
-      { nome: 'General',            xp: 35000 },
-    ],
-  };
+  /* 09/10/2026 (auditoria COD-03, roadmap 3.21): a tabela TABELAS_NIVEIS daqui saiu -- 0 usos.
+     As patentes moram em assets/js/divisa.js (nivelDe), uma fonte so. */
 
   function detectarTipoConcurso(nomeEdital) {
     if (!nomeEdital) return 'default';
@@ -2207,7 +2128,7 @@ function mostrarLevelUp(nomeNivel) {
     try {
       const [{ abrirCartao }, { tagVestida }] = await Promise.all([
         import('./assets/js/cartao.js?v=a6dae106'),
-        import('./assets/js/divisa.js?v=b3ffe355'),
+        import('./assets/js/divisa.js?v=90702777'),
       ]);
       const n = nivelDaConta();
       const t = tagVestida(estado.materias, estado.tagEscolhida);
@@ -2887,15 +2808,14 @@ function verificarBalanco() {
       // Peso E progresso, numa conta so -- ver assets/js/plano.js.
       // Antes era slice(0,3): as tres mais pesadas para sempre, e uma materia
       // de peso baixo NUNCA aparecia, nem com a pessoa zerada nela.
-      estado.cronogramaHoje = montarCronograma(estado.materias);
+      // 09/10/2026 (COD-03, 3.21): era montarCronograma() -- calculado aqui e jogado fora no renderUI
+      // logo abaixo (renderCronograma usa o cronograma.js). Fica vazio; o desenho preenche.
+      estado.cronogramaHoje = [];
 
-      // Badge de edital lido
-      if (!estado.badges.includes('primeiro_edital')) {
-        estado.badges.push('primeiro_edital');
-        // 28/09/2026: o +100 XP que vinha aqui saiu. O XP passou a ser do
-        // servidor, calculado das sessoes de estudo -- somar aqui mostraria
-        // 100 XP que sumiriam ao recarregar. A conquista Alistamento continua.
-      }
+      /* 09/10/2026 (auditoria COD-03, roadmap 3.21): aqui se acrescentava 'primeiro_edital' em
+         estado.badges (progresso.badges). Medido: NENHUMA funcao do servidor e nenhuma tela le essa
+         lista -- a conquista Alistamento vem dos fatos do servidor (temEdital). Saiu. A coluna fica
+         no banco ate o dono decidir apagar (apagar coluna e acao destrutiva -- pergunta 3.21). */
 
       // Imediato: processar o edital muda tudo de uma vez, e o usuario
       // costuma sair da tela logo em seguida.
@@ -3455,8 +3375,8 @@ function verificarBalanco() {
 
 <script src="assets/js/transicao.js?v=7290037a"></script>
 <script type="module" src="/assets/js/icones.js?v=7c816270"></script>
-<script type="module" src="/assets/js/divisa.js?v=b3ffe355"></script>
-<script type="module" src="/assets/js/botoes.js?v=40fa9eb6"></script>
+<script type="module" src="/assets/js/divisa.js?v=90702777"></script>
+<script type="module" src="/assets/js/botoes.js?v=49f97805"></script>
 <script type="module" src="/assets/js/menu.js?v=16951915"></script>
 </body>
 </html>

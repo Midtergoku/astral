@@ -199,11 +199,5 @@ export function montarQuadro(condecoracoes = []) {
   };
 }
 
-/**
- * A ligação entre um degrau e o anterior: acesa quando os DOIS estão
- * conquistados. É o que faz o caminho percorrido aparecer como caminho, e não
- * como pontos soltos.
- */
-export function ligacaoAcesa(nós, i) {
-  return i > 0 && nós[i].conquistada && nós[i - 1].conquistada;
-}
+/* 09/10/2026 (auditoria COD-03, roadmap 3.21): `ligacaoAcesa` saiu -- exportado e sem nenhum uso no site
+   nem nos testes (contado antes). Esta no historico do git se um dia precisar. */

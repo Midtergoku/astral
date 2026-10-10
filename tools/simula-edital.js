@@ -280,7 +280,6 @@ function montarSessoes(uid) {
   }
 
   // ── O PLANO ─────────────────────────────────────────────────────────────
-  const { montarCronograma } = await import(url.pathToFileURL(path.join(RAIZ, "assets/js/plano.js")).href);
   const sessoes = montarSessoes(uid);
   const xp = sessoes.reduce((s, x) => s + x.xp, 0);
   const segundos = sessoes.reduce((s, x) => s + x.segundos, 0);
@@ -314,7 +313,7 @@ function montarSessoes(uid) {
   const progresso = {
     usuario_id: uid, xp, streak: 14, horas: +(segundos / 3600).toFixed(1),
     edital: EDITAL, materias: MATERIAS.map(({ nome, questoes, peso, progresso }) => ({ nome, questoes, peso, progresso })),
-    cronograma_hoje: montarCronograma(MATERIAS), badges,
+    cronograma_hoje: [], badges,   // 09/10/2026 (3.21): o painel monta o do dia sozinho
   };
   await req("/rest/v1/progresso?on_conflict=usuario_id", { method: "POST",
     headers: { ...admin, Prefer: "return=minimal,resolution=merge-duplicates" }, body: JSON.stringify(progresso) });

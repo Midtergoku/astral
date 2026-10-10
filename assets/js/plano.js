@@ -4,7 +4,7 @@
    Duas coisas moram aqui porque as duas nascem do mesmo momento: a pessoa
    subiu o edital e o Astral precisa devolver um plano de estudo pronto.
 
-     1. montarCronograma()  quanto tempo dar a cada matéria
+     1. necessidadeDe()     quanto cada matéria precisa (o cronograma.js usa)
      2. gerarGuiaCompleto() os professores de TODAS as matérias, de uma vez
 
    Ficam num arquivo só, compartilhado, porque `edital.html` e `dashboard.html`
@@ -66,39 +66,11 @@ export function necessidadeDe(materia) {
  * @param quantas   quantas sessões cabem no dia (3 é o padrão da tela)
  * @param minutos   quanto tempo total distribuir (120 = 2h)
  */
-export function montarCronograma(materias = [], { quantas = 3, minutos = 120 } = {}) {
-  const vivas = (materias || []).filter((m) => m && m.nome);
-  if (!vivas.length) return [];
-
-  /* Matéria já 100% dominada sai da fila -- necessidade zero. Se TODAS
-     estiverem zeradas de necessidade (a pessoa terminou tudo), volta a lista
-     por peso, senão a tela ficaria vazia e pareceria defeito. */
-  const comNecessidade = vivas
-    .map((m) => ({ m, n: necessidadeDe(m) }))
-    .sort((a, b) => b.n - a.n);
-
-  const usaveis = comNecessidade.some((x) => x.n > 0)
-    ? comNecessidade.filter((x) => x.n > 0)
-    : vivas.map((m) => ({ m, n: Number(m.peso) || 1 })).sort((a, b) => b.n - a.n);
-
-  const escolhidas = usaveis.slice(0, Math.max(1, quantas));
-  const somaN = escolhidas.reduce((s, x) => s + x.n, 0) || 1;
-
-  return escolhidas.map((x) => {
-    /* O tempo é a fatia da necessidade dela no total do dia.
-       Piso de 20 minutos: sessão menor que isso não é sessão de estudo. */
-    const fatia = x.n / somaN;
-    const tempo = Math.max(20, Math.round((minutos * fatia) / 5) * 5);   // múltiplo de 5
-    return {
-      materia: x.m.nome,
-      tempo,
-      // XP acompanha o esforço, não o peso: quem estuda a matéria difícil e
-      // esquecida merece o mesmo reconhecimento de quem estuda a pesada.
-      xp: Math.max(10, Math.round(tempo / 2)),
-      feito: false,
-    };
-  });
-}
+/* 09/10/2026 (auditoria COD-03, roadmap 3.21): montarCronograma() saiu. O painel a calculava ao
+   ler o edital e jogava fora no desenho seguinte -- o cronograma que o aluno ve e o de
+   assets/js/cronograma.js (montarSemana), que usa necessidadeDe() daqui. As regras de produto
+   dela (peso primeiro; leve+fraca antes de pesada+dominada) sao conferidas no testa-plano,
+   agora sobre o cronograma de verdade. */
 
 /* ═══ 2. OS PROFESSORES ═════════════════════════════════════════════════════
 

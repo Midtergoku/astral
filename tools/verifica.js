@@ -133,11 +133,36 @@ for (const p of paginas) {
 }
 
 /* ── 5. SINTAXE DE JAVASCRIPT ─────────────────────────────────────────────── */
+/* 🔴 10/10/2026 (roadmap 3.21): ESTA CHECAGEM NUNCA FUNCIONOU PARA OS MODULOS. `node --check x.js`
+   DEIXA PASSAR erro de sintaxe de modulo (medido: o plano.js com "Unexpected token '='" passou, e o
+   painel inteiro quebrou no navegador). O mesmo arquivo copiado como .mjs e pego na hora. Agora:
+   todo arquivo com import/export e checado como .mjs, e os <script type="module"> das paginas
+   tambem (antes nem eram olhados). */
 const { execFileSync } = require('child_process');
-for (const f of jsFiles) {
-  try { execFileSync(process.execPath, ['--check', path.join(RAIZ, f)], { stdio: 'pipe' }); }
-  catch (e) { anota('js', f, 'erro de sintaxe: ' + String(e.stderr || e).split('\n')[1]); }
+const os = require('os');
+const tmpSint = fs.mkdtempSync(path.join(os.tmpdir(), 'astral-sintaxe-'));
+function checarSintaxe(rotulo, codigo, ehModulo) {
+  const arq = path.join(tmpSint, 'x' + Math.random().toString(36).slice(2) + (ehModulo ? '.mjs' : '.js'));
+  fs.writeFileSync(arq, codigo);
+  try { execFileSync(process.execPath, ['--check', arq], { stdio: 'pipe' }); }
+  catch (e) {
+    const linha = (String(e.stderr || '').match(/:(\d+)\r?\n/) || [])[1];
+    anota('js', rotulo, 'erro de sintaxe' + (linha ? ` (linha ${linha})` : '') + ': ' + (String(e.stderr || e).match(/SyntaxError[^\n]*/) || [''])[0]);
+  }
 }
+for (const f of jsFiles) {
+  const codigo = ler(f);
+  checarSintaxe(f, codigo, /\.mjs$/.test(f) || /^\s*(import|export)\s/m.test(codigo));
+}
+for (const p of paginas) {
+  let i = 0;
+  // sem os comentarios de HTML: o login cita "<script type="module">" num comentario (falso alarme no 1o dia)
+  for (const m of ler(p).replace(/<!--[\s\S]*?-->/g, '').matchAll(/<script type="module">([\s\S]*?)<\/script>/g)) {
+    i++;
+    checarSintaxe(`${p} (script de modulo #${i})`, m[1], true);
+  }
+}
+try { fs.rmSync(tmpSint, { recursive: true, force: true }); } catch { /* temporario */ }
 
 /* ── 6. CARIMBO DE VERSAO DEFASADO ──────────────────────────────────────────
    Se o carimbo nao bate com o conteudo, o navegador serve versao velha -- e eu

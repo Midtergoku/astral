@@ -71,17 +71,8 @@ export function carregando(botao, ligado = true) {
   }
 }
 
-/* Envolve uma acao demorada: liga o estado, roda, e desliga MESMO SE DER
-   ERRO. Um botao que fica girando para sempre depois de uma falha e pior que
-   nao ter estado nenhum -- a pessoa fica esperando algo que nao vem. */
-export async function comEspera(botao, acao) {
-  carregando(botao, true);
-  try {
-    return await acao();
-  } finally {
-    carregando(botao, false);
-  }
-}
+/* 09/10/2026 (auditoria COD-03, roadmap 3.21): `comEspera` saiu -- exportado e sem nenhum uso no site
+   nem nos testes (contado antes). Esta no historico do git se um dia precisar. */
 
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {

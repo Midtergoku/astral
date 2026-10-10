@@ -38,10 +38,20 @@ function conferir(titulo, condicao, detalhe) {
 (async () => {
   const plano = await import(url.pathToFileURL(path.join(RAIZ, 'assets/js/plano.js')).href);
   const divisa = await import(url.pathToFileURL(path.join(RAIZ, 'assets/js/divisa.js')).href);
-  const { necessidadeDe, montarCronograma, RESSALVA_PROFESSORES } = plano;
+  const { necessidadeDe, RESSALVA_PROFESSORES } = plano;
   const { nivelDe } = divisa;
 
   console.log('TESTA-PLANO — as regras de produto do Lucas\n');
+
+  /* 09/10/2026 (auditoria COD-03, roadmap 3.21): estas secoes conferiam montarCronograma(), que
+     saiu -- o painel a calculava e jogava fora logo depois. As MESMAS regras dele agora sao
+     conferidas no cronograma DE VERDADE, o que o aluno ve (montarSemana, assets/js/cronograma.js,
+     rotina padrao: seg-sab, 2 h, sessoes de 40 min). A regra 3 mudou por decisao dele: a materia
+     ja dominada nao some -- fica com pelo menos uma sessao na semana. */
+  const { montarSemana } = await import(url.pathToFileURL(path.join(RAIZ, 'assets/js/cronograma.js')).href);
+  const semanaDe = (materias) => montarSemana(materias, null, { semana: 0 });
+  const totais = (s) => s.flatMap((d) => d.blocos).reduce((o, b) => ({ ...o, [b.materia]: (o[b.materia] || 0) + b.minutos }), {});
+  const segunda = (s) => s[1].blocos.map((b) => b.materia);
 
   /* ── 1. "as que valem mais ponto são as que ela vai mais estudar" ──────── */
   console.log('1. Edital novo, ninguém estudou nada ainda');
@@ -53,13 +63,10 @@ function conferir(titulo, condicao, detalhe) {
       { nome: 'Geografia',   peso: 15, progresso: 0 },
       { nome: 'Inglês',      peso: 10, progresso: 0 },
     ];
-    const c = montarCronograma(materias);
-    conferir('a mais pesada vem primeiro', c[0].materia === 'Português', c[0].materia);
-    conferir('a ordem segue o peso',
-      c.map((x) => x.materia).join(' > ') === 'Português > Matemática > História',
-      c.map((x) => x.materia).join(' > '));
-    conferir('quem pesa mais ganha mais tempo', c[0].tempo > c[2].tempo,
-      c[0].tempo + 'min vs ' + c[2].tempo + 'min');
+    const s = semanaDe(materias), tot = totais(s);
+    conferir('a mais pesada vem primeiro (1ª sessão da segunda)', segunda(s)[0] === 'Português', segunda(s)[0]);
+    conferir('a segunda-feira segue o peso', segunda(s).join(' > ') === 'Português > Matemática > História', segunda(s).join(' > '));
+    conferir('quem pesa mais ganha mais tempo na semana', tot['Português'] > tot['História'], tot['Português'] + 'min vs ' + tot['História'] + 'min');
   }
 
   /* ── 2. A FRASE DELE, ao pé da letra ──────────────────────────────────── */
@@ -69,23 +76,23 @@ function conferir(titulo, condicao, detalhe) {
       { nome: 'Português (pesada, já domina)', peso: 30, progresso: 90 },
       { nome: 'Inglês (leve, está zerada)',    peso: 10, progresso: 5  },
       { nome: 'História (meio termo)',         peso: 20, progresso: 50 },
+      // 5 materias, como um edital de verdade: com so 3 e 3 sessoes por dia, a regra "nao repete no
+      // dia" da uma sessao a cada uma todo dia, e o tempo empata (medido em 09/10: 240 x 240)
+      { nome: 'Geografia',                     peso: 15, progresso: 60 },
+      { nome: 'Matemática',                    peso: 25, progresso: 80 },
     ];
-    const c = montarCronograma(materias);
-    const primeira = c[0].materia;
+    const s = semanaDe(materias), tot = totais(s);
+    const primeira = segunda(s)[0];
     conferir('a matéria em que ela é ruim passa na frente da pesada dominada',
       primeira.startsWith('História') || primeira.startsWith('Inglês'), primeira);
-
     const nPort = necessidadeDe(materias[0]);   // 30 x 10  = 300
     const nIng  = necessidadeDe(materias[1]);   // 10 x 95  = 950
-    conferir('a conta reflete isso: leve+fraca pede mais que pesada+dominada',
-      nIng > nPort, 'inglês ' + nIng + ' > português ' + nPort);
-
-    const tPort = (c.find((x) => x.materia.startsWith('Português')) || {}).tempo || 0;
-    const tIng  = (c.find((x) => x.materia.startsWith('Inglês')) || {}).tempo || 0;
-    conferir('e no tempo do dia também', tIng > tPort, tIng + 'min vs ' + tPort + 'min');
+    conferir('a conta reflete isso: leve+fraca pede mais que pesada+dominada', nIng > nPort, 'inglês ' + nIng + ' > português ' + nPort);
+    const tPort = tot[materias[0].nome] || 0, tIng = tot[materias[1].nome] || 0;
+    conferir('e no tempo da semana também', tIng > tPort, tIng + 'min vs ' + tPort + 'min');
   }
 
-  /* ── 3. matéria de peso baixo não pode ser esquecida para sempre ───────── */
+  /* ── 3. matéria de peso baixo não pode ser esquecida -- nem a dominada ─── */
   console.log('\n3. O defeito antigo: slice(0,3) escondia as leves');
   {
     const materias = [
@@ -95,43 +102,26 @@ function conferir(titulo, condicao, detalhe) {
       { nome: 'D', peso: 15, progresso: 0   },   // nunca aparecia antes
       { nome: 'E', peso: 10, progresso: 0   },
     ];
-    const c = montarCronograma(materias);
-    const nomes = c.map((x) => x.materia);
-    conferir('as zeradas entram mesmo sendo as mais leves',
-      nomes.includes('D') && nomes.includes('E'), nomes.join(', '));
-    conferir('as já dominadas saem da fila',
-      !nomes.includes('A') && !nomes.includes('B'), nomes.join(', '));
+    const tot = totais(semanaDe(materias));
+    conferir('as zeradas entram mesmo sendo as mais leves', tot.D > 0 && tot.E > 0, JSON.stringify(tot));
+    conferir('a dominada fica com o mínimo (não some: sem revisão, o domínio vai embora)',
+      tot.A >= 40 && tot.D > tot.A, 'A ' + tot.A + 'min · D ' + tot.D + 'min');
   }
 
   /* ── 4. bordas: não pode devolver tela vazia ──────────────────────────── */
   console.log('\n4. Bordas');
   {
-    conferir('sem matérias, devolve lista vazia sem estourar',
-      Array.isArray(montarCronograma([])) && montarCronograma([]).length === 0, 'ok');
-
-    const tudoPronto = [
-      { nome: 'A', peso: 50, progresso: 100 },
-      { nome: 'B', peso: 50, progresso: 100 },
-    ];
-    const c = montarCronograma(tudoPronto);
-    conferir('com tudo 100%, ainda devolve algo (senão parece defeito)',
-      c.length > 0, c.length + ' sessão(ões)');
-
-    const semPeso = [{ nome: 'X' }, { nome: 'Y' }];
-    conferir('matéria sem peso nem progresso não quebra',
-      montarCronograma(semPeso).length > 0, 'ok');
-
-    const c1 = montarCronograma([{ nome: 'Só', peso: 100, progresso: 0 }]);
-    conferir('uma matéria só recebe o dia inteiro', c1.length === 1 && c1[0].tempo >= 100,
-      c1[0].tempo + 'min');
-
-    conferir('nenhuma sessão fica curta demais para ser estudo',
-      montarCronograma([
-        { nome: 'A', peso: 98, progresso: 0 },
-        { nome: 'B', peso: 1,  progresso: 0 },
-        { nome: 'C', peso: 1,  progresso: 0 },
-      ]).every((x) => x.tempo >= 20),
-      'mínimo 20min');
+    const vazia = semanaDe([]);
+    conferir('sem matérias, devolve a semana sem sessões, sem estourar',
+      vazia.length === 7 && vazia.every((d) => d.blocos.length === 0), 'ok');
+    const pronto = totais(semanaDe([{ nome: 'A', peso: 50, progresso: 100 }, { nome: 'B', peso: 50, progresso: 100 }]));
+    conferir('com tudo 100%, ainda há sessões (senão parece defeito)', (pronto.A || 0) + (pronto.B || 0) > 0, JSON.stringify(pronto));
+    const semPeso = totais(semanaDe([{ nome: 'X' }, { nome: 'Y' }]));
+    conferir('matéria sem peso nem progresso não quebra', (semPeso.X || 0) + (semPeso.Y || 0) > 0, 'ok');
+    const uma = totais(semanaDe([{ nome: 'Só', peso: 100, progresso: 0 }]));
+    conferir('uma matéria só recebe a semana inteira', uma['Só'] === 720, uma['Só'] + 'min (6 dias x 2 h)');
+    const blocos = semanaDe([{ nome: 'A', peso: 98, progresso: 0 }, { nome: 'B', peso: 1, progresso: 0 }, { nome: 'C', peso: 1, progresso: 0 }]).flatMap((d) => d.blocos);
+    conferir('nenhuma sessão fica curta demais para ser estudo', blocos.length > 0 && blocos.every((b) => b.minutos >= 20), 'mínimo 20min');
   }
 
   /* ── 5. "nem todas as áreas militares vão ser recruta" ─────────────────── */

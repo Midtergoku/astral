@@ -53,6 +53,12 @@ function acharPlaywright() {
   return null;
 }
 
+/* 10/10/2026: entre 00h e 01h de Sao Paulo, uma sessao de 45 min que TERMINA agora COMECOU
+   ontem -- e conta para ontem (regra do 3.9, dia de inicio). As checagens de "o bloco de HOJE
+   ficou feito" dariam falso alarme nessa hora (aconteceu as 00h06). Elas se declaram puladas;
+   a regra do dia de inicio e conferida pelo testa-dia-da-sessao. */
+const pertoDaMeiaNoite = () => ((Date.now() - 3 * 3600e3) % 86400000) / 60000 < 60;
+
 (async () => {
   console.log("\nTESTA-CRONOGRAMA\n\n== 1. A CONTA DA SEMANA ==");
   const C = await import(url.pathToFileURL(path.join(RAIZ, "assets/js/cronograma.js")).href);
@@ -251,9 +257,11 @@ function acharPlaywright() {
       ? ok("marcar feito grava a sessão do cronograma", `${sess[0].materia}, ${sess[0].xp} XP`) : falha("sessão não gravou", JSON.stringify(sess));
     await abrir("dashboard.html");
     const marcado = await pg.$eval("#today-list .today-item", (e) => e.classList.contains("done"));
-    marcado ? ok("🎯 recarregou e continua feito", "vem do registro do servidor") : falha("o feito sumiu ao recarregar");
+    if (pertoDaMeiaNoite()) ok("(pulado: entre 00h e 01h a sessão de agora conta para ontem)");
+    else marcado ? ok("🎯 recarregou e continua feito", "vem do registro do servidor") : falha("o feito sumiu ao recarregar");
     await abrir("cronograma.html");
     const noCrono = await pg.$eval(".grade .dia.hoje .bloco", (e) => e.classList.contains("feito"));
+    if (!pertoDaMeiaNoite())
     noCrono ? ok("e o cronograma também mostra feito") : falha("cronograma não mostra o feito");
 
     if (FOTOS) { await abrir("dashboard.html"); await pg.screenshot({ path: path.join(FOTOS, "dashboard-rotina.png"), fullPage: false }); }

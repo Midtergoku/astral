@@ -111,6 +111,12 @@ function scriptSessao(s) {
 const MATERIA = "Matematica de Teste";
 const MINUTOS = 45;
 
+/* 10/10/2026: entre 00h e 01h de Sao Paulo, uma sessao de 45 min que TERMINA agora COMECOU
+   ontem -- e conta para ontem (regra do 3.9, dia de inicio). As checagens de "o bloco de HOJE
+   ficou feito" dariam falso alarme nessa hora (aconteceu as 00h06). Elas se declaram puladas;
+   a regra do dia de inicio e conferida pelo testa-dia-da-sessao. */
+const pertoDaMeiaNoite = () => ((Date.now() - 3 * 3600e3) % 86400000) / 60000 < 60;
+
 (async () => {
   let usuario = null, usuario2 = null;
   await new Promise((r) => servidor.listen(PORTA, r));
@@ -229,6 +235,7 @@ const MINUTOS = 45;
        aberto; marcar gravava os 45 min INTEIROS por cima -- o mesmo estudo
        contava duas vezes. Agora o painel mostra o que falta e grava so isso. */
     console.log("\n== 2. ESTUDOU PELO CRONÔMETRO ==");
+    if (pertoDaMeiaNoite()) { ok("(pulado: entre 00h e 01h a sessão de agora conta para ontem)"); return; }
     usuario2 = await criarUsuario();
     const s2 = await sessaoNova(usuario2.email);
     const cab2 = { apikey: PUB, Authorization: `Bearer ${s2.access_token}`, "Content-Type": "application/json" };

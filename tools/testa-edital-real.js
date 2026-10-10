@@ -157,10 +157,12 @@ const email = `edital-${Date.now()}@astral-teste.local`;
   console.log('     ' + carreira.join('  >  '));
 
   /* ── 5. o cronograma ───────────────────────────────────────────────────── */
-  console.log('\n  ── o cronograma de hoje ' + '─'.repeat(44));
+  // 09/10/2026 (3.21): era plano.montarCronograma(), que saiu -- a segunda-feira do cronograma de verdade
+  console.log('\n  ── a segunda-feira do cronograma ' + '─'.repeat(36));
   const materias = ed.materias.map((m) => ({ ...m, progresso: 0 }));
-  for (const s of plano.montarCronograma(materias)) {
-    console.log('     ' + String(s.tempo).padStart(3) + ' min  ' + String(s.xp).padStart(3) + ' XP   ' + s.materia);
+  const { montarSemana } = await import(url.pathToFileURL(path.join(RAIZ, 'assets/js/cronograma.js')).href);
+  for (const s of montarSemana(materias, null)[1].blocos) {
+    console.log('     ' + String(s.minutos).padStart(3) + ' min  ' + String(s.xp).padStart(3) + ' XP   ' + s.materia);
   }
 
   /* ── 6. os professores ─────────────────────────────────────────────────── */

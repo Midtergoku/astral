@@ -301,22 +301,8 @@ export function nivelDe(xp = 0, nomeEdital = '', forca = null, patenteInicial = 
   return { nome: atual.nome, indice, proximo, faltam, fracao, tipo, total: tabela.length, piso: atual.xp };
 }
 
-/* A tag: a materia mais dominada que ja passou de 70%.
-   Abaixo disso nao ha tag -- e proposital, ver o cabecalho. */
-export function tagDe(materias = []) {
-  const aptas = (materias || [])
-    .filter((m) => (m.progresso || 0) >= 70)
-    .sort((a, b) => (b.progresso || 0) - (a.progresso || 0));
-
-  if (!aptas.length) return null;
-
-  for (const m of aptas) {
-    const nome = TAGS_POR_MATERIA[normalizar(m.nome)];
-    if (nome) return { nome, materia: m.nome, dominio: Math.round(m.progresso) };
-  }
-  // 08/10/2026 (GAM-09): era "Especialista" -- nome de condecoracao e divisa SECRETAS.
-  return { nome: 'Perito', materia: aptas[0].nome, dominio: Math.round(aptas[0].progresso) };
-}
+/* 09/10/2026 (auditoria COD-03, roadmap 3.21): `tagDe` saiu -- exportado e sem nenhum uso no site
+   nem nos testes (contado antes). Esta no historico do git se um dia precisar. */
 
 /* Quanto falta para a proxima tag -- serve ao estado "em formacao".
    Sem isto o usuario novo ve so um espaco vazio, que e pior que o badge que
