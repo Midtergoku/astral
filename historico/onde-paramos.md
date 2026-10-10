@@ -15,7 +15,7 @@
 | Roadmap da auditoria | Lotes 1, 2 e 3 feitos (3.23 parado pela P6 — dispara sozinho com 20 editais); **Lote D (design) feito** menos o V4 (página inicial — dele) e o D.marca (criação nova — ele precisa ver) |
 | Checklist de lançamento | `docs/auditoria/CHECKLIST-LANCAMENTO.md` — **23 de 28 com prova** (o canal de suporte entrou em 10/10); o resto é o Lote 5 (dinheiro) e o 4.1 (e-mail) |
 | Guardados da noite 09→10 | **os 5 feitos em 10/10** com o "pode mandar bala" dele (tabela abaixo) |
-| Bateria | 10/10 de manhã: 91/92 (a falha consertada); a da tarde roda no fim do dia — resultado registrado abaixo |
+| Bateria | 10/10 de manhã: 91/92 (a falha consertada). **10/10, fim do dia (09h31): 93/97** — as 4 falhas eram ferramentas de teste usando as colunas apagadas no mesmo dia (erro meu: varredura cortada por `head`); consertadas e as 4 rodadas de novo: **passaram** |
 
 ## O que foi feito em 10/10 (dia inteiro)
 

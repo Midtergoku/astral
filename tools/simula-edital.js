@@ -308,12 +308,10 @@ function montarSessoes(uid) {
     await req("/rest/v1/sessoes_estudo", { method: "POST",
       headers: { ...admin, Prefer: "return=minimal" }, body: JSON.stringify(sessoes.slice(i, i + 100)) });
   }
-  const velho = linhas.progresso[0] || {};
-  const badges = [...new Set([...(velho.badges || []), "primeiro_edital"])];
+  // 10/10/2026: progresso.badges e progresso.cronograma_hoje sairam do banco (banco.md 8.42)
   const progresso = {
     usuario_id: uid, xp, streak: 14, horas: +(segundos / 3600).toFixed(1),
     edital: EDITAL, materias: MATERIAS.map(({ nome, questoes, peso, progresso }) => ({ nome, questoes, peso, progresso })),
-    cronograma_hoje: [], badges,   // 09/10/2026 (3.21): o painel monta o do dia sozinho
   };
   await req("/rest/v1/progresso?on_conflict=usuario_id", { method: "POST",
     headers: { ...admin, Prefer: "return=minimal,resolution=merge-duplicates" }, body: JSON.stringify(progresso) });

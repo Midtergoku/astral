@@ -155,7 +155,6 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
       const atual = await carregarProgresso(uid);
       atual.xp = p.xp; atual.streak = p.streak; atual.horas = p.horas;
       atual.materias = [{ nome: "Matemática", progresso: 77 }];
-      atual.badges = ["primeiro_edital", "madrugador"];
       salvarProgresso(uid, atual, { imediato: true });
       return { uid, xp: atual.xp };
     }, PROGRESSO);
@@ -187,7 +186,7 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
       const { supabase } = await import("/assets/js/astral.js");
       const { data: { session } } = await supabase.auth.getSession();
       const p = await carregarProgresso(session.user.id);
-      return { xp: p.xp, streak: p.streak, horas: p.horas, materias: p.materias?.length, badges: p.badges?.length };
+      return { xp: p.xp, streak: p.streak, horas: p.horas, materias: p.materias?.length };
     });
     if (depoisDeVoltar.xp === PROGRESSO.xp) ok("MESMO navegador: saiu, entrou, progresso intacto", `xp=${depoisDeVoltar.xp}`);
     else falha("MESMO navegador: saiu, entrou, progresso intacto", `xp=${depoisDeVoltar.xp}`);
@@ -207,7 +206,7 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
       const { data: { session } } = await supabase.auth.getSession();
       const p = await carregarProgresso(session.user.id);
       const chavesLocais = Object.keys(localStorage).filter((k) => k.startsWith("astral_")).length;
-      return { xp: p.xp, streak: p.streak, horas: p.horas, materias: p.materias?.length, badges: p.badges?.length, chavesLocais };
+      return { xp: p.xp, streak: p.streak, horas: p.horas, materias: p.materias?.length, chavesLocais };
     });
 
     if (noOutro.xp === PROGRESSO.xp) ok("OUTRO APARELHO (celular, sem cache): XP veio", `xp=${noOutro.xp}`);
@@ -222,8 +221,8 @@ const PROGRESSO = { xp: 4242, streak: 9, horas: 33 };
     if (noOutro.materias >= 1) ok("OUTRO APARELHO: materias vieram", `${noOutro.materias}`);
     else falha("OUTRO APARELHO: materias vieram", `${noOutro.materias}`);
 
-    if (noOutro.badges >= 2) ok("OUTRO APARELHO: conquistas vieram", `${noOutro.badges}`);
-    else falha("OUTRO APARELHO: conquistas vieram", `${noOutro.badges}`);
+    // 10/10/2026: progresso.badges e progresso.cronograma_hoje sairam do banco (banco.md 8.42). As condecoracoes moram na tabela conquistas,
+    // no servidor -- chegam a qualquer aparelho por natureza (testa-motor, testa-paridade-medalhas).
 
     // ── 5. o que a TELA mostra, nao so o que a funcao devolve ─────────────
     const naTela = await pgB.evaluate(() => {

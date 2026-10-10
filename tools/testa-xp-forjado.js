@@ -82,7 +82,7 @@ async function salvar(token, campos) {
 }
 
 async function lerProgresso(token) {
-  const r = await req("/rest/v1/progresso?select=xp,streak,horas,badges", {
+  const r = await req("/rest/v1/progresso?select=xp,streak,horas", {
     headers: { apikey: PUB, Authorization: `Bearer ${token}` },
   });
   return Array.isArray(r.corpo) ? r.corpo[0] : null;
@@ -166,10 +166,8 @@ async function lerProgresso(token) {
     if (Number(p?.horas) >= 99999) vuln("horas forjadas aceitas", `${p.horas}h`);
     else ok("horas forjadas ignoradas", `pediu 99999, ficou ${p?.horas} (sessoes: ${horasReal})`);
 
-    // ── O que continua declarado, por natureza ───────────────────────────────
-    await salvar(token, { p_badges: ["maratonista", "nivel_5", "conquista_que_nao_existe"] });
-    const b = (await lerProgresso(token))?.badges || [];
-    if (b.includes("maratonista")) console.log("  AVISO   missoes antigas do dashboard (badges) seguem declaradas -- cosmetico, nao libera nada");
+    // 10/10/2026: progresso.badges e progresso.cronograma_hoje sairam do banco (banco.md 8.42) -- o "badges declarado" deixou de existir:
+    // o salvar_progresso ignora p_badges e as condecoracoes sao do servidor (sincronizar_conquistas).
 
     // ── E o plano, que mexe em dinheiro ──────────────────────────────────────
     const promo = await req(`/rest/v1/perfis?id=eq.${usuario.id}`, {
