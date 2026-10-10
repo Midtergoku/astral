@@ -126,6 +126,17 @@
 .btn-upload:hover { opacity: 0.87; transform: translateY(-1px); }
 
 /* ── SECTION HEADERS ── */
+    /* 10/10/2026: o guia do XP e o botao de comecar */
+    .btn-iniciar { padding: .45rem .9rem; font-size: var(--t-xs); }
+    .guia-xp { margin-bottom: 1rem; }
+    .guia-xp > summary { cursor: pointer; font-family: var(--display); font-weight: 700; color: var(--texto); list-style: none;
+      display: flex; align-items: center; gap: .5rem; min-height: 32px; }
+    .guia-xp > summary::-webkit-details-marker { display: none; }
+    .guia-xp > summary::before { content: '?'; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--latao); color: var(--breu); font-size: .75rem; font-weight: 800; flex-shrink: 0; }
+    .guia-xp-passos { margin: .9rem 0 1rem 1.2rem; padding: 0; display: grid; gap: .55rem; color: var(--texto-2);
+      font-size: var(--t-sm); line-height: 1.55; max-width: 72ch; }
+    .guia-xp-passos b { color: var(--texto); }
     .section-header {
       display: flex;
       align-items: center;
@@ -1394,7 +1405,33 @@ body.primeiro-acesso .grid-3 { display: none; }
     <div id="cronograma" style="margin-bottom:1.5rem">
       <div class="section-header">
         <div class="section-title">Sessão de hoje</div>
+        <!-- 10/10/2026 (pedido dele): o caminho do XP e o cronometro -- o botao leva direto. O cronometro ja abre
+             na materia do proximo bloco de hoje (auditoria, item 24). -->
+        <a class="btn btn-roxo btn-iniciar" id="btn-iniciar-estudo" href="cronometro.html">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          Iniciar estudo
+        </a>
       </div>
+      <!-- 10/10/2026 (pedido dele): "as vezes a pessoa nao vai nem se ligar do cronometro (...) e depois ela vai
+           perceber que nao esta upando". O guia ABRE para quem ainda nao tem XP e fica recolhido depois. Tudo aqui
+           e a regra de verdade do servidor (xp_com_bonus = soma das sessoes; 3.13: o bloco marcado vale o mesmo XP;
+           3.12: so o tempo MEDIDO conta para sessao longa e horas no dia; questao mede dominio, nao da XP). -->
+      <details class="card guia-xp" id="guia-xp">
+        <summary>Como ganhar XP e subir de patente</summary>
+        <ol class="guia-xp-passos">
+          <li><b>Antes de estudar, abra o Cronômetro</b> e aperte ▶. No <b>Livre</b> você para quando quiser; no
+            <b>Pomodoro</b> o estudo vem em blocos de foco com pausa. O <b>Relógio</b> só mostra a hora — o tempo
+            continua contando enquanto você olha.</li>
+          <li><b>Terminou? Aperte "Finalizar sessão e salvar XP".</b> No Pomodoro, cada foco que termina já é salvo
+            sozinho. A sessão precisa de pelo menos 1 minuto.</li>
+          <li><b>Cada minuto estudado vale 2 XP</b> — uma sessão de 40 minutos dá 80 XP. O XP sobe a sua patente.</li>
+          <li><b>Esqueceu o cronômetro?</b> Marque o bloco aqui em "Sessão de hoje" como feito: vale o mesmo XP. Só o
+            tempo medido no cronômetro conta para as medalhas de resistência (sessão longa, horas no dia).</li>
+          <li><b>As questões do Banco não dão XP</b>: elas medem o seu <b>domínio</b> de cada matéria — é ele que dá as
+            especialidades e boa parte das medalhas.</li>
+        </ol>
+        <a class="btn btn-roxo" href="cronometro.html">Abrir o cronômetro</a>
+      </details>
       <div class="card">
         <div class="today-list" id="today-list">
           <div class="empty-state">Carregando seu cronograma...</div>
@@ -2268,6 +2305,11 @@ function mostrarLevelUp(nomeNivel) {
     /* saudacao: fonte unica em assets/js/divisa.js */
     /* nome: fonte unica em assets/js/divisa.js */
     /* inicial: fonte unica em assets/js/divisa.js */
+
+    // 10/10/2026: o guia do XP abre para quem ainda nao ganhou nenhum; depois fica recolhido (um toque abre)
+    const guiaXp = document.getElementById('guia-xp');
+    if (guiaXp && !guiaXp.dataset.mexido) guiaXp.open = !(Number(estado.xp) > 0);
+    guiaXp?.addEventListener('toggle', () => { guiaXp.dataset.mexido = '1'; }, { once: true });
 
     // Plano: num lugar so (assets/js/astral.js, 01/10/2026).
     /* 🔴 29/09/2026: conta PRO ou BETA quebrava o dashboard inteiro aqui -- o

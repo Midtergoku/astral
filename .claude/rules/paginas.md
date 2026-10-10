@@ -681,3 +681,12 @@ Ele: *"de Minhas tags até Questões as páginas dão esse pulo; de Cronograma a
 
 **Regra:** bloco que carrega depois **nasce no lugar, com esqueleto** — nunca escondido para aparecer pronto em cima de
 outra coisa. Regressão: `node tools/testa-pulo.js` (conta real no dev, reprova acima de 0,05).
+
+## 20. Como ganhar XP — dito na tela (10/10/2026, pedido dele)
+
+Painel: botão **"Iniciar estudo"** na "Sessão de hoje" (→ cronômetro, que já abre na matéria do próximo bloco) e o guia
+**"Como ganhar XP e subir de patente"** (`<details id="guia-xp">`), **aberto para quem tem 0 XP**, recolhido depois.
+Cronômetro: a linha `#crono-dica` (▶ e Finalizar; 2 XP por minuto; Pomodoro salva cada foco sozinho).
+🔴 **O guia repete a regra do servidor — mudou a regra, mude o texto:** XP = soma das sessões (`xp_com_bonus`); bloco
+marcado vale o mesmo XP (3.13); só tempo medido conta para sessão longa/horas no dia (3.12); questão mede domínio, não dá XP.
+Regressão: `node tools/testa-guia-xp.js` (dev).

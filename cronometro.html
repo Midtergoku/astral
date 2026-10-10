@@ -25,6 +25,8 @@
 /* 10/10/2026 (Lote D, V2): a casca (.main, .topbar, .card) vem do base.css/app.css. Aqui fica so o que
    o cronometro tem de proprio: o relogio no meio da tela. */
 .main { display:flex; flex-direction:column; align-items:center; }
+.crono-dica { max-width: 30rem; margin: .25rem auto .75rem; text-align: center; font-size: var(--t-sm); line-height: 1.55; color: var(--texto-2); }
+.crono-dica b { color: var(--texto); }
 .topbar { width:100%; }
 
 .modo-selector { display:flex; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius: var(--r-g); padding:0.35rem; margin-bottom:2rem; }
@@ -393,6 +395,10 @@ select.materia-select:focus { border-color:var(--purple); }
         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
       </button>
     </div>
+
+    <!-- 10/10/2026 (pedido dele): o caminho do XP dito na hora em que a pessoa esta aqui -->
+    <p class="crono-dica" id="crono-dica">Aperte <b>▶</b> quando começar a estudar e <b>Finalizar sessão</b> quando terminar —
+      cada minuto vale <b>2 XP</b>. No Pomodoro, cada foco que termina já é salvo sozinho.</p>
 
     <button class="btn-finalizar" id="btn-finalizar" onclick="finalizarLivre()">
       ✓ Finalizar sessão e salvar XP
