@@ -2427,7 +2427,10 @@ function mostrarLevelUp(nomeNivel) {
        de 844); depois, mais 2.056 px de painel vazio (missao impossivel, ficha
        zerada, 0/74 condecoracoes). Primeiro acesso = sem edital E sem nenhum
        estudo: quem estudou e removeu o edital continua vendo o proprio historico. */
-    const primeiroAcesso = !(estado.edital && estado.materias.length > 0) && !(Number(estado.xp) > 0) && !(Number(estado.horas) > 0);
+    // Bateria de 09/10: quem tem MATERIAS (mesmo sem edital) ja tem plano -- nao e primeiro acesso.
+    // E estudo de hoje conta antes de o XP ser recalculado.
+    const primeiroAcesso = !estado.edital && !(estado.materias || []).length && !(Number(estado.xp) > 0)
+      && !(Number(estado.horas) > 0) && !(estado.hoje || []).length;
     document.body.classList.toggle('primeiro-acesso', primeiroAcesso);
     renderEdital();
     document.getElementById('main-content').style.display = primeiroAcesso ? 'none' : 'block';
