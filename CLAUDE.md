@@ -245,6 +245,10 @@ supabase functions deploy       edge functions NAO passam pelo git, entram no ar
 
 ## Onde estamos
 
+> 🔖 **10/10/2026 (fim do dia) — ele fechou o projeto para abrir outro. RETOMAR PELO TOPO DE `historico/onde-paramos.md`.**
+> Tudo no ar, nada pela metade. Lotes 1–3 e o design feitos; checklist de lançamento 23/28 (o resto é dinheiro e o e-mail).
+> **Próximo, escolhido por ele: segurança e práticas de engenharia de software — ele traz a lista.**
+
 > 🔖 **04/10/2026 (noite) — RETOMAR PELO TOPO DE `historico/onde-paramos.md`:** roadmap da auditoria até o
 > **3.11 ✅**, tudo publicado, árvore limpa. **Próximo: 3.12** (trapaça e segredo). O ritmo de trabalho
 > de cada item está descrito lá.

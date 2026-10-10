@@ -29,6 +29,8 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | | O quê |
 |---|---|
 | **Patentes que mudam conforme o seu concurso** | 11 níveis, de 0 a 35.000 XP. Quem sobe um edital dos bombeiros ganha as patentes **dos bombeiros**; de PM, as da PM. São **6 tabelas** — bombeiros, marinha, aeronáutica, exército, PM e padrão — escolhidas pelo nome do edital |
+| **Como ganhar XP, dito na tela** (10/10) | Botão **"Iniciar estudo"** no painel (leva ao cronômetro na matéria do próximo bloco) e o guia **"Como ganhar XP"**, aberto para quem ainda não ganhou nenhum: 2 XP por minuto no cronômetro, o bloco marcado vale o mesmo, questão mede domínio. O cronômetro repete a dica |
+| **Divisa secreta "Aprovado"** (10/10) | Para quem marca "Passei!" **e** tem 20 h de estudo registradas — lendária, só aparece quando cai. O clique sozinho não vale |
 | **XP que vem do trabalho** | sessão de estudo marcada = peso da matéria × 5 · cronômetro = 2 XP por minuto |
 | ~~**8 conquistas**~~ | ✏️ **saíram em 30/09/2026, decisão dele:** repetiam condecorações que já existem ("1h Estudada" = "Primeira Hora"). A coleção agora é uma só — as 74 condecorações, logo abaixo |
 | **15 habilidades secretas** | Orador de Guerra, Calculista, Alquimista, Médico de Combate, Navegador, Operador Cyber, Estrategista, Guardião da Lei… Destrancam com **70% de domínio na matéria** — e são secretas **de propósito**: o valor está em descobrir sem esperar |
@@ -69,6 +71,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | | O quê |
 |---|---|
 | **Leitura do edital** | você sobe o PDF e a IA extrai as matérias e o peso de cada uma |
+| **Os assuntos de cada matéria** (10/10) | Progresso → Matérias do edital: os **assuntos do conteúdo programático** (a IA lê do edital) — ou, se o edital não detalhou, os mais cobrados da matéria, e a tela diz qual dos dois. **Cada assunto tem uma caixa "já estudei"**, guardada na conta. Aparece mesmo sem questão no Banco. A marca organiza, não dá XP |
 | **Cronograma** | as matérias viram sessões distribuídas, com o peso definindo quanto tempo cada uma recebe |
 | **Professores por matéria** | a IA busca onde estudar cada matéria, e o resultado **fica salvo para sempre** na sua conta — não se refaz sozinho, não gasta de novo |
 
@@ -87,6 +90,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **O acervo de provas antigas** | Questões de provas militares que já caíram, com o **gabarito oficial** — documento público. Não são questões inventadas por IA: são as de verdade |
 | **Filtro por banca, matéria e assunto** | E o assunto é **dentro da matéria**: escolher Matemática abre Logaritmo, Porcentagem, Funções; trocar para Português troca a lista inteira. É o filtro que faz um acervo grande servir para alguma coisa |
 | **Rodada de 10, com correção na hora** | Respondeu, a tela mostra a sua e mostra a certa — e diz em palavra, não só em cor. No fim, o placar e o que ele significa |
+| **Simulado** (10/10) | Aba do Banco: uma prova de 10 a 50 questões **das matérias do seu edital, no peso de cada uma** — as que você nunca respondeu primeiro. Relógio, pode trocar até entregar, **o gabarito só aparece no fim**, com relatório por matéria. A correção é do servidor e conta no domínio e no caderno de erros. **Grátis por enquanto** e não gasta a amostra do dia |
 | **A amostra grátis** | **10 questões novas por dia**, de provas com 4 anos ou mais. Dá para sentir o produto inteiro sem pagar nada, e rever o que já viu não gasta a cota de amanhã |
 | **E a conferência antes de publicar** | Cada prova entra por uma tela de conferência: o PDF é lido, as questões saem separadas, e **só entra no acervo o que foi marcado uma a uma**. Questão truncada é pior que questão ausente para quem estuda |
 
@@ -102,7 +106,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | | O quê | Por que ainda não |
 |---|---|---|
 | **Provas dentro do acervo** | é o combustível | depende de juntar os PDFs, prova por prova |
-| **Simulado** | uma incursão com relatório no fim: desempenho por matéria, cruzado com o peso do **seu** edital | precisa de acervo primeiro |
+| ~~**Simulado**~~ | ✅ **no ar desde 10/10/2026** — ver "Já está no ar" acima | — |
 | **Caderno de erros** | o que você errou volta até você acertar | idem |
 | **PRECISÃO na ficha** | o quinto atributo do personagem | idem — ele mede acerto, e acerto precisa de questão |
 
@@ -133,7 +137,7 @@ avançando. O Astral transforma o estudo real em progressão visível — **e s�
 | **Cronograma da semana** | o que estudar em cada dia |
 | **Progresso por matéria** | quanto você domina de cada uma — e, desde 30/09, **como foi medido** (questões de primeira no Banco + horas) |
 | **O cronograma se rebalanceia sozinho** (30/09) | toda segunda, pelo domínio medido: a matéria fraca ganha mais sessões. O plano de hoje não muda no meio do dia |
-| **Minha conta** | seu plano e seus limites, num lugar só |
+| **Minha conta** | seu plano e seus limites, num lugar só — e, desde 10/10, **"Precisa de ajuda?"** com o contato (também no rodapé da página inicial) |
 
 ---
 

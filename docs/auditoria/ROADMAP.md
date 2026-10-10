@@ -235,7 +235,7 @@ A **função única de plano** e a **fonte única de estatísticas** (pedido del
 Lote 1 inteiro (1.1 a 1.6) · **4.3** (era o 1.2b) · 2.2 · 2.3 · 2.4 · 2.5 · 2.6 · 2.7 · 2.8 · 2.10 (CAL-01) ·
 2.11 · 2.12 · 3.1 · 3.2 · 3.3 · 3.5 · **3.6 (antes do 1.6)** · 3.10 · 3.11 · 3.15 (alerta de gasto) ·
 3.18 · **3.24** · **4.1** — e o checklist da seção 8 do relatório final, item por item, com prova.
-> ✅ **Conferido em 10/10/2026:** `docs/auditoria/CHECKLIST-LANCAMENTO.md` — 22 de 28 provados; o que falta é o Lote 5 (dinheiro), o 4.1 (e-mail) e o canal de suporte (decisão dele).
+> ✅ **Conferido em 10/10/2026:** `docs/auditoria/CHECKLIST-LANCAMENTO.md` — 22 de 28 provados (23 no fim do dia, com o canal de suporte); o que falta é o Lote 5 (dinheiro), o 4.1 (e-mail) e o canal de suporte (decisão dele).
 
 ## O que ainda espera ele (❓) — fora isso, está tudo decidido
 

@@ -1,4 +1,58 @@
-# 🔔 GUARDADO PARA ELE — noite de 09 → 10/10/2026
+# 🔖 ONDE PARAMOS — 10/10/2026 (fim do dia) — LER ISTO PRIMEIRO
+
+> Pedido dele ao fechar o projeto para abrir outro: *"depois que terminar, eu quero que você grave tudo. É importante.
+> (...) quando voltarmos, a gente vai fazer algumas outras coisas em relação à **segurança**, algumas outras coisas que eu
+> vejo **profissionais da engenharia de software** fazendo (...) não é nada muito grande."*
+> **Ao voltar:** `node tools/checa-saude.js` → ler este bloco → perguntar a ele qual é a lista de segurança/engenharia
+> que ele viu (ele vai trazer) → seguir no mesmo ritmo (medir → consertar → teste que falha no antigo → dev → produção →
+> docs → bateria → relatório de leigo).
+
+## O estado, em uma tabela
+
+| | |
+|---|---|
+| Site | no ar, saudável, árvore limpa, tudo publicado |
+| Roadmap da auditoria | Lotes 1, 2 e 3 feitos (3.23 parado pela P6 — dispara sozinho com 20 editais); **Lote D (design) feito** menos o V4 (página inicial — dele) e o D.marca (criação nova — ele precisa ver) |
+| Checklist de lançamento | `docs/auditoria/CHECKLIST-LANCAMENTO.md` — **23 de 28 com prova** (o canal de suporte entrou em 10/10); o resto é o Lote 5 (dinheiro) e o 4.1 (e-mail) |
+| Guardados da noite 09→10 | **os 5 feitos em 10/10** com o "pode mandar bala" dele (tabela abaixo) |
+| Bateria | 10/10 de manhã: 91/92 (a falha consertada); a da tarde roda no fim do dia — resultado registrado abaixo |
+
+## O que foi feito em 10/10 (dia inteiro)
+
+| Bloco | O quê |
+|---|---|
+| Design V1, V2, V5, V6 | raios em tokens; casca num lugar só; toast único; botões do app e das telas de entrada na letra do sistema; as 15 telas revistas com foto em 1280 e 375 px (`tools/foto-tela.js`, conta real no dev) |
+| **O pulo entre páginas (pedido dele)** | 6 telas sem `transicao.js`; Conquistas pulava 0,31 (sala nascia escondida); pé do menu descia 42 px — **tudo ~0 agora** (`tools/testa-pulo.js`) |
+| **Assuntos do edital no Progresso (pedido dele)** | a IA lê os assuntos do conteúdo programático (+~R$ 0,20 por edital, estimado); sem eles, os assuntos comuns da matéria (a tela diz); caixa "já estudei" por assunto, **sem XP** (`tools/testa-assuntos-edital.js`) |
+| **Como ganhar XP (pedido dele)** | botão "Iniciar estudo" no painel; guia aberto para quem tem 0 XP; dica no cronômetro (`tools/testa-guia-xp.js`) |
+| Guardado 1 | saíram `progresso.badges`, `progresso.cronograma_hoje`, `meu_dominio()` (em 2 passos, backup restaurado e conferido) |
+| Guardado 2 | depoimentos na página inicial — **só texto + 1º nome autorizados, só com 3+** (hoje 0: a seção fica escondida) |
+| Guardado 3 | divisa secreta "Aprovado" = "Passei!" **+ 20 h de estudo** (o clique sozinho não vale — regra dele) |
+| Guardado 4 | "Precisa de ajuda?" em Minha conta e no rodapé da página inicial |
+| Guardado 5 | **Simulado** (aba do Banco): prova do edital no peso, sem gabarito até entregar, relatório — grátis por enquanto |
+| Defeitos achados no caminho | "Encerrar sessão" morto em 4 telas; divisa ausente em 4 telas; aviso de falha sem borda vermelha; "hoje" de Londres no nascimento; contraste das divisas oliva; conta de teste esquecida na produção — **todos consertados, e cada um virou regra no `verifica.js` ou teste** |
+
+## 🙋 O que SÓ ELE pode fazer — de graça
+
+| # | O quê | Por quê | Onde está o passo a passo |
+|---|---|---|---|
+| 1 | **Criar a senha de app do Gmail** (precisa da verificação em 2 etapas ligada na conta Google) | sem ela, ninguém de fora recebe confirmação de cadastro nem "esqueci a senha" (SEG-02/03) — é o único item grátis do checklist de lançamento que falta | ROADMAP 4.1; eu rodo `tools/smtp-configura.ps1 -Aplicar` |
+| 2 | **Guardar a senha da cópia do backup em 4 lugares** (PC, celular dele, celular de alguém de confiança, papel) | sem a senha guardada fora do PC, a cópia na nuvem não abre (OPS-02, 4.3) | ROADMAP 4.3 |
+| 3 | (opcional) **Advogado** olhar Termos e Política | ele disse "depois a gente vê"; os textos estão em dia (3.18) | — |
+| 4 | **Olhar o site e dizer se gostou** do design novo | a direção visual foi delegada a mim ("se eu não gostar, a gente muda") | — |
+
+## 💰 O que custa — o Lote 5, por último (ordem dele)
+
+| O quê | Preço |
+|---|---|
+| Crédito na Anthropic para o **1º edital real (que é DELE)** | US$ 5 (único) |
+| Plano da Vercel que permite cobrar | US$ 20/mês, na 1ª cobrança |
+| Mercado Pago (pagamento) | sem mensalidade; taxa por venda |
+| Domínio próprio (e-mail definitivo pelo Resend) | ~R$ 40/ano — ⚠️ **estimativa** de `valores.md` ("de memória, conferir"): conferir no Registro.br antes de dizer a ele |
+
+---
+
+# 🔔 GUARDADO PARA ELE — noite de 09 → 10/10/2026 (✅ os 5 feitos em 10/10, com o "pode mandar bala" dele)
 
 > Ele foi dormir e mandou seguir sozinho: *"se tiver alguma coisa (...) que necessita da minha autorização, você
 > guarda ela, e pula para frente"*. Cada item abaixo **não foi feito** — espera o "pode" dele. A minha recomendação
